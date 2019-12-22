@@ -41,13 +41,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- jpa -->
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- swagger2 -->
         <dependency>
             <groupId>io.springfox</groupId>

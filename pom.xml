@@ -21,6 +21,7 @@
         <!-- 1.通用模块 -->
         <module>zenyoung-common</module>
         <module>zenyoung-webflux</module>
+        <module>zenyoung-jpa</module>
     </modules>
 
     <properties>

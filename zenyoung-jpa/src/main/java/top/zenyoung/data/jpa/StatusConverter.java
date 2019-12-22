@@ -1,4 +1,6 @@
-package top.zenyoung.common;
+package top.zenyoung.data.jpa;
+
+import top.zenyoung.common.Status;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
