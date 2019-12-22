@@ -22,6 +22,8 @@
         <module>zenyoung-common</module>
         <module>zenyoung-webflux</module>
         <module>zenyoung-jpa</module>
+        <module>zenyoung-security-spi</module>
+        <module>zenyoung-security-webflux</module>
     </modules>
 
     <properties>
