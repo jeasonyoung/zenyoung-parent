@@ -1,7 +1,5 @@
 package top.zenyoung.security.spi.auth;
 
-import top.zenyoung.security.spi.UserInfo;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
