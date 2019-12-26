@@ -1,8 +1,10 @@
 package top.zenyoung.security.webflux;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
@@ -14,6 +16,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.response.RespResult;
@@ -26,6 +29,10 @@ import top.zenyoung.webflux.util.RespUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 登录-过滤器
@@ -48,7 +55,7 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
         //登录地址
         setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, getAuthLoginUrls()));
         //登录请求参数解析
-        setServerAuthenticationConverter(new ServerBodyAuthenticationConverter(serverCodecConfigurer));
+        setServerAuthenticationConverter(new ServerBodyAuthenticationConverter(authenticationManager, serverCodecConfigurer));
         //登录成功处理
         setAuthenticationSuccessHandler(new AuthenticationSuccessHandler(authenticationManager, objectMapper));
         //登录失败处理
@@ -58,15 +65,36 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
     private static class ServerBodyAuthenticationConverter implements ServerAuthenticationConverter {
         private final ResolvableType reqBodyType = ResolvableType.forClass(ReqLoginBody.class);
         private final ServerCodecConfigurer serverCodecConfigurer;
+        private final AuthenticationManager authenticationManager;
 
-        private ServerBodyAuthenticationConverter(final ServerCodecConfigurer serverCodecConfigurer) {
+        private ServerBodyAuthenticationConverter(@Nonnull final AuthenticationManager authenticationManager,@Nonnull final ServerCodecConfigurer serverCodecConfigurer) {
+            this.authenticationManager = authenticationManager;
             this.serverCodecConfigurer = serverCodecConfigurer;
         }
 
         @Override
-        public Mono<Authentication> convert(ServerWebExchange exchange) {
+        public Mono<Authentication> convert(final ServerWebExchange exchange) {
             final ServerHttpRequest request = exchange.getRequest();
-            final MediaType contentType = request.getHeaders().getContentType();
+            final HttpHeaders headers = request.getHeaders();
+            //请求头处理
+            final AuthenticationManager.RequestHeaderHandler hander = authenticationManager.checkRequestHeaders();
+            if(hander != null) {
+                final String[] reqHeaders = hander.getHeaderNames();
+                if(reqHeaders != null && reqHeaders.length > 0) {
+                    try {
+                        final Map<String, List<String>> headerValues = Stream.of(reqHeaders)
+                                .filter(reqHeader->!Strings.isNullOrEmpty(reqHeader))
+                                .collect(Collectors.toMap(k->k, headers::getOrEmpty, (o,n)->n));
+                        if(!CollectionUtils.isEmpty(headerValues)){
+                            hander.headerValuesHandler(headerValues);
+                        }
+                    }catch (Throwable ex){
+                        log.warn("检查请求报文头[{}]-exp: {}", reqHeaders, ex.getMessage());
+                        return Mono.error(ex);
+                    }
+                }
+            }
+            final MediaType contentType = headers.getContentType();
             log.info("ServerBodyAuthenticationConverter-convert(contentType: {})", contentType);
             if (MediaType.APPLICATION_JSON.isCompatibleWith(contentType)) {
                 return serverCodecConfigurer.getReaders().stream()
