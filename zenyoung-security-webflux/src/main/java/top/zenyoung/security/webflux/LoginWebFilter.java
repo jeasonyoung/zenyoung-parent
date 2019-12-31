@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
@@ -58,7 +59,13 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
         //登录成功处理
         setAuthenticationSuccessHandler(new AuthenticationSuccessHandler(authenticationManager, objectMapper));
         //登录失败处理
-        setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler((exchange, e) -> RespUtils.buildResponse(exchange.getResponse(), objectMapper, ResultCode.Fail, new Exception("账号或密码错误", e))));
+        setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler((exchange, e) -> {
+            String err = e.getMessage();
+            if (Strings.isNullOrEmpty(err)) {
+                err = "账号或密码错误";
+            }
+            return RespUtils.buildResponse(exchange.getResponse(), objectMapper, 401, err);
+        }));
     }
 
     /**

@@ -33,7 +33,11 @@ public class RespUtils {
 
     public static Mono<Void> buildResponse(@Nonnull final ServerHttpResponse response, @Nonnull final ObjectMapper objectMapper, @Nonnull final Integer statusCode, @Nullable final Throwable e) {
         final String msg = e == null ? "未知错误" : (e.getCause() == null ? e.getMessage() : e.getMessage() + ":" + e.getCause().getClass());
-        return buildResponse(response, objectMapper, RespResult.builder().build().buildResult(statusCode, msg));
+        return buildResponse(response, objectMapper, statusCode, msg);
+    }
+
+    public static Mono<Void> buildResponse(@Nonnull final ServerHttpResponse response, @Nonnull final ObjectMapper objectMapper, @Nonnull final Integer statusCode, @Nullable final String err) {
+        return buildResponse(response, objectMapper, RespResult.builder().build().buildResult(statusCode, err));
     }
 
     public static Mono<Void> buildResponse(@Nonnull final ServerHttpResponse response, @Nonnull final ObjectMapper objectMapper, @Nonnull final RespResult<? extends Serializable> respResult) {
