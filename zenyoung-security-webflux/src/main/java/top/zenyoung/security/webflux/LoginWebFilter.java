@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
@@ -81,9 +81,12 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
         if (hander != null) {
             final String[] reqHeaders = hander.getHeaderNames();
             if (reqHeaders != null && reqHeaders.length > 0) {
-                return Stream.of(reqHeaders)
-                        .filter(reqHeader -> !Strings.isNullOrEmpty(reqHeader))
-                        .collect(Collectors.toMap(name -> name, name -> request.getHeaders().getOrEmpty(name), (o, n) -> n));
+                final HttpHeaders headers = request.getHeaders();
+                if (!CollectionUtils.isEmpty(headers)) {
+                    return Stream.of(reqHeaders)
+                            .filter(reqHeader -> !Strings.isNullOrEmpty(reqHeader))
+                            .collect(Collectors.toMap(name -> name, headers::getOrEmpty, (o, n) -> n));
+                }
             }
         }
         return null;
