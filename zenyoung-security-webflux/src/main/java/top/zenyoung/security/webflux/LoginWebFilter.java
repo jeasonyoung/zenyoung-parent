@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ResolvableType;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
@@ -62,12 +61,36 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
         setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler((exchange, e) -> RespUtils.buildResponse(exchange.getResponse(), objectMapper, ResultCode.Fail, new Exception("账号或密码错误", e))));
     }
 
+    /**
+     * 获取请求头字段值集合
+     *
+     * @param request 请求
+     * @param manager 认证管理器
+     * @return 请求头字段值集合
+     */
+    private static Map<String, List<String>> getHeaderValues(@Nonnull final ServerHttpRequest request, @Nonnull final AuthenticationManager manager) {
+        //请求头处理
+        final AuthenticationManager.RequestHeaderHandler hander = manager.checkRequestHeaders();
+        if (hander != null) {
+            final String[] reqHeaders = hander.getHeaderNames();
+            if (reqHeaders != null && reqHeaders.length > 0) {
+                return Stream.of(reqHeaders)
+                        .filter(reqHeader -> !Strings.isNullOrEmpty(reqHeader))
+                        .collect(Collectors.toMap(name -> name, name -> request.getHeaders().getOrEmpty(name), (o, n) -> n));
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 认证请求报文体转换器
+     */
     private static class ServerBodyAuthenticationConverter implements ServerAuthenticationConverter {
         private final ResolvableType reqBodyType = ResolvableType.forClass(ReqLoginBody.class);
-        private final ServerCodecConfigurer serverCodecConfigurer;
         private final AuthenticationManager authenticationManager;
+        private final ServerCodecConfigurer serverCodecConfigurer;
 
-        private ServerBodyAuthenticationConverter(@Nonnull final AuthenticationManager authenticationManager,@Nonnull final ServerCodecConfigurer serverCodecConfigurer) {
+        private ServerBodyAuthenticationConverter(@Nonnull final AuthenticationManager authenticationManager, @Nonnull final ServerCodecConfigurer serverCodecConfigurer) {
             this.authenticationManager = authenticationManager;
             this.serverCodecConfigurer = serverCodecConfigurer;
         }
@@ -75,26 +98,7 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
         @Override
         public Mono<Authentication> convert(final ServerWebExchange exchange) {
             final ServerHttpRequest request = exchange.getRequest();
-            final HttpHeaders headers = request.getHeaders();
-            //请求头处理
-            final AuthenticationManager.RequestHeaderHandler hander = authenticationManager.checkRequestHeaders();
-            if(hander != null) {
-                final String[] reqHeaders = hander.getHeaderNames();
-                if(reqHeaders != null && reqHeaders.length > 0) {
-                    try {
-                        final Map<String, List<String>> headerValues = Stream.of(reqHeaders)
-                                .filter(reqHeader->!Strings.isNullOrEmpty(reqHeader))
-                                .collect(Collectors.toMap(k->k, headers::getOrEmpty, (o,n)->n));
-                        if(!CollectionUtils.isEmpty(headerValues)){
-                            hander.headerValuesHandler(headerValues);
-                        }
-                    }catch (Throwable ex){
-                        log.warn("检查请求报文头[{}]-exp: {}", reqHeaders, ex.getMessage());
-                        return Mono.error(ex);
-                    }
-                }
-            }
-            final MediaType contentType = headers.getContentType();
+            final MediaType contentType = request.getHeaders().getContentType();
             log.info("ServerBodyAuthenticationConverter-convert(contentType: {})", contentType);
             if (MediaType.APPLICATION_JSON.isCompatibleWith(contentType)) {
                 return serverCodecConfigurer.getReaders().stream()
@@ -103,12 +107,32 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
                         .orElseThrow(() -> new IllegalStateException("No JSON reader for ReqAuthLogin"))
                         .readMono(reqBodyType, request, Collections.emptyMap())
                         .cast(ReqLoginBody.class)
-                        .map(o -> new TokenAuthentication(o.getAccount(), o.getPasswd(), o.getType(), o.getBindType(), o.getBindId()));
+                        .map(o -> {
+                            //生成认证令牌数据
+                            final TokenAuthentication token = new TokenAuthentication(o.getAccount(), o.getPasswd(), o.getType());
+                            //请求头字段集合
+                            final Map<String, List<String>> headerValues = getHeaderValues(request, authenticationManager);
+                            if (!CollectionUtils.isEmpty(headerValues)) {
+                                final AuthenticationManager.RequestHeaderHandler hander = authenticationManager.checkRequestHeaders();
+                                if (hander != null) {
+                                    try {
+                                        hander.beforeAuthenHandler(headerValues, token);
+                                    } catch (Throwable ex) {
+                                        log.error("convert-beforeAuthenHandler(headerValues: {},token: {})-exp: {}", headerValues, token, ex.getMessage());
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                            }
+                            return token;
+                        });
             }
             return Mono.empty();
         }
     }
 
+    /**
+     * 认证成功处理
+     */
     private static class AuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
         private final AuthenticationManager authenticationManager;
         private final ObjectMapper objectMapper;
@@ -123,8 +147,22 @@ public class LoginWebFilter extends AuthenticationWebFilter implements AuthFilte
             log.info("onAuthenticationSuccess(authen: {})...", authen);
             if (authen.getPrincipal() instanceof TokenUserDetail) {
                 final ServerWebExchange exchange = webFilterExchange.getExchange();
-                final RespResult<RespLoginBody> respResult = buildRespResult((TokenUserDetail) authen.getPrincipal());
-                return RespUtils.buildResponse(exchange.getResponse(), objectMapper, respResult);
+                final TokenUserDetail tokenUserDetail = (TokenUserDetail) authen.getPrincipal();
+                //请求头字段集合
+                final Map<String, List<String>> headerValues = getHeaderValues(exchange.getRequest(), authenticationManager);
+                if (!CollectionUtils.isEmpty(headerValues)) {
+                    final AuthenticationManager.RequestHeaderHandler hander = authenticationManager.checkRequestHeaders();
+                    if (hander != null) {
+                        try {
+                            hander.afterAuthenHandler(headerValues, tokenUserDetail);
+                        } catch (Throwable ex) {
+                            log.error("onAuthenticationSuccess-afterAuthenHandler(headerValues: {},tokenUserDetail: {})-exp: {}", headerValues, tokenUserDetail, ex.getMessage());
+                            return Mono.error(ex);
+                        }
+                    }
+                }
+                //登录成功结果数据处理
+                return RespUtils.buildResponse(exchange.getResponse(), objectMapper, buildRespResult(tokenUserDetail));
             }
             return Mono.error(new IllegalArgumentException("authen.getPrincipal()不能转换为TokenUserDetail=>" + authen.getPrincipal()));
         }

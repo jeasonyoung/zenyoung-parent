@@ -1,5 +1,6 @@
 package top.zenyoung.common.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,8 +36,8 @@ public class RespResult<T extends Serializable> implements Serializable {
     /**
      * 状态码(0:成功,非0:失败)
      */
-    @ApiModelProperty(value = "状态码", notes = "0:成功,非0:失败")
-    private Integer code;
+    @JsonIgnore
+    private Integer code = 200;
     /**
      * 提示消息
      */

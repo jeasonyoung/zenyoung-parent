@@ -18,11 +18,11 @@ public enum ResultCode implements Serializable {
     /**
      * 成功
      */
-    Success(0, "成功"),
+    Success(200, "成功"),
     /**
      * 失败
      */
-    Fail(-1, "失败");
+    Fail(500, "失败");
 
     /**
      * 枚举值

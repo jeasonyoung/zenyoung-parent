@@ -61,18 +61,7 @@ public abstract class BaseAuthenticationManager implements AuthenticationManager
         if (this.passwordEncoder != null) {
             manager.setPasswordEncoder(this.passwordEncoder);
         }
-        return manager.authenticate(token)
-                .map(auth -> {
-                    if (token.getBindType() != null && auth != null && (auth.getPrincipal() instanceof TokenUserDetail)) {
-                        try {
-                            //绑定用户处理
-                            bindUserHandler((TokenUserDetail) auth.getPrincipal(), token.getBindType(), token.getBindId());
-                        } catch (Throwable ex) {
-                            log.warn("authenticate(token: {},auth: {})-exp: {}", token, auth, ex.getMessage());
-                        }
-                    }
-                    return auth;
-                });
+        return manager.authenticate(token);
     }
 
     /**

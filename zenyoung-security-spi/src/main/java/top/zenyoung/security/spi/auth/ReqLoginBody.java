@@ -25,13 +25,4 @@ public class ReqLoginBody implements Serializable {
      * 登录密码
      */
     private String passwd;
-
-    /**
-     * 绑定类型
-     */
-    private Integer bindType;
-    /**
-     * 绑定ID
-     */
-    private String bindId;
 }

@@ -23,28 +23,15 @@ public class TokenAuthentication extends UsernamePasswordAuthenticationToken {
     private final Integer type;
 
     /**
-     * 绑定类型(0:微信,1:支付宝)
-     */
-    private final Integer bindType;
-    /**
-     * 绑定ID(微信为OpenId)
-     */
-    private final String bindId;
-
-    /**
      * 构造函数
      *
      * @param principal   认证账号
      * @param credentials 认证密码
      * @param type        用户类型
-     * @param bindType    绑定类型
-     * @param bindId      绑定ID
      */
-    public TokenAuthentication(final Object principal, final Object credentials, final Integer type, final Integer bindType, final String bindId) {
+    public TokenAuthentication(final Object principal, final Object credentials, final Integer type) {
         super(principal, credentials);
         this.type = type;
-        this.bindType = bindType;
-        this.bindId = bindId;
     }
 
     /**
@@ -58,7 +45,5 @@ public class TokenAuthentication extends UsernamePasswordAuthenticationToken {
     public TokenAuthentication(final Object principal, final Object credentials, final Collection<? extends GrantedAuthority> authorities, final Integer type) {
         super(principal, credentials, authorities);
         this.type = type;
-        this.bindType = null;
-        this.bindId = null;
     }
 }
