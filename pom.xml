@@ -20,9 +20,13 @@
     <modules>
         <!-- 1.通用模块 -->
         <module>zenyoung-common</module>
+        <!-- 2.spring webflux -->
         <module>zenyoung-webflux</module>
+        <!-- 3.spring jpa -->
         <module>zenyoung-jpa</module>
+        <!-- 4.spring security spi -->
         <module>zenyoung-security-spi</module>
+        <!-- 5.spring security webflux -->
         <module>zenyoung-security-webflux</module>
     </modules>
 
