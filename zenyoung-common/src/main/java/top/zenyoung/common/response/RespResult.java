@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class RespResult<T extends Serializable> implements Serializable {
     /**
-     * 状态码(0:成功,非0:失败)
+     * 状态码(200:成功,非200:失败)
      */
     @JsonIgnore
     private Integer code = 200;

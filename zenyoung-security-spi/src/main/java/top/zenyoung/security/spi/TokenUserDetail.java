@@ -37,7 +37,7 @@ public class TokenUserDetail extends UserDetail implements UserDetails, TokenDet
      *
      * @param tokenDetail 令牌数据
      */
-    TokenUserDetail(@Nonnull final TokenDetail tokenDetail) {
+    public TokenUserDetail(@Nonnull final TokenDetail tokenDetail) {
         //用户类型
         setType(tokenDetail.getType());
         //用户ID
