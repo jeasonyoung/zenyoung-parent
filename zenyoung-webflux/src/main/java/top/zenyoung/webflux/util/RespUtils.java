@@ -48,7 +48,6 @@ public class RespUtils {
         } catch (Throwable ex) {
             log.warn("buildResponse(respResult: {})-exp: {}", respResult, ex.getMessage());
         }
-        response.setStatusCode(HttpStatus.valueOf(respResult.getCode()));
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         return response.writeWith(Mono.justOrEmpty(respData == null ? null : response.bufferFactory().wrap(respData)));
     }
