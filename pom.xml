@@ -28,6 +28,9 @@
         <module>zenyoung-security-spi</module>
         <!-- 5.spring security webflux -->
         <module>zenyoung-security-webflux</module>
+
+        <!-- 6.代码生成器 -->
+        <module>zenyoung-code-generator</module>
     </modules>
 
     <properties>
@@ -101,6 +104,7 @@
             </dependency>
 
             <!-- druid -->
+            <!--
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid</artifactId>
@@ -111,6 +115,7 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql-connector-java.version}</version>
             </dependency>
+            -->
 
             <!-- jwt -->
             <dependency>
@@ -120,6 +125,7 @@
             </dependency>
 
             <!-- okhttp3 -->
+            <!--
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
@@ -130,13 +136,16 @@
                 <artifactId>logging-interceptor</artifactId>
                 <version>${okhttp3.version}</version>
             </dependency>
+            -->
 
             <!-- protobuf-java -->
+            <!--
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
                 <version>${protobuf-java.version}</version>
             </dependency>
+            -->
 
             <dependency>
                 <groupId>com.github.penggle</groupId>
@@ -151,6 +160,7 @@
             </dependency>
 
             <!-- aliyun -->
+            <!--
             <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-core</artifactId>
@@ -161,6 +171,7 @@
                 <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
                 <version>${aliyun-java-sdk-dysmsapi.version}</version>
             </dependency>
+            -->
 
             <!-- swagger2 -->
             <dependency>
