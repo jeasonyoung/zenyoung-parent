@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: code-generator
+#日志
+logging:
+  level:
+    org.springframework.scheduling: 'INFO'
