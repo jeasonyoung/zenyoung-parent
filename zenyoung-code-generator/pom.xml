@@ -34,6 +34,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- openjfx -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+        </dependency>
+
         <!-- tools -->
         <dependency>
             <groupId>com.google.guava</groupId>
