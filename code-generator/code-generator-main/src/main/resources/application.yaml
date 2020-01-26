@@ -1,0 +1,7 @@
+spring:
+  jmx:
+    enabled: false
+javafx:
+  title: code-generator
+  stage:
+    resizable: true

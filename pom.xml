@@ -30,13 +30,17 @@
         <module>zenyoung-security-webflux</module>
 
         <!-- 6.代码生成器 -->
-        <module>zenyoung-code-generator</module>
+        <module>code-generator</module>
+        <module>zenyoung-jfx</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
+
+        <!-- spring boot2 -->
+        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
 
         <!-- openjfx -->
         <openjfx.version>11.0.2</openjfx.version>
@@ -80,6 +84,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- spring boot2 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
             <!-- openjfx -->
             <dependency>
                 <groupId>org.openjfx</groupId>

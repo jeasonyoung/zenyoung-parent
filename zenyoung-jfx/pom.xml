@@ -7,50 +7,31 @@
         <groupId>top.zenyoung</groupId>
         <version>1.0.0</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zenyoung-common</artifactId>
+    <artifactId>zenyoung-jfx</artifactId>
     <packaging>jar</packaging>
-    <description>通用模块</description>
 
     <dependencies>
-        <!-- spring -->
+        <!-- spring boot2 -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- redis -->
+        <!-- openjfx -->
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- fastxml -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- swagger2 -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- tools -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- lombok -->
@@ -59,5 +40,4 @@
             <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
-
 </project>

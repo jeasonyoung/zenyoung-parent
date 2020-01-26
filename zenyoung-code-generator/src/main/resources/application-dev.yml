@@ -1,8 +1,0 @@
-server:
-  port: 8080
-spring:
-  application:
-    name: code-generator
-logging:
-  level:
-    org.springframework.scheduling: 'INFO'
