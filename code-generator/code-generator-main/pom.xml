@@ -48,11 +48,6 @@
             <artifactId>code-generator-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>top.zenyoung</groupId>
-            <artifactId>zenyoung-jfx</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
