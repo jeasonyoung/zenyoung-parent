@@ -1,6 +1,7 @@
 package top.zenyoung.code.generator.controller;
 
 import javafx.fxml.Initializable;
+import top.zenyoung.jfx.support.FXMLController;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,7 +13,7 @@ import java.util.ResourceBundle;
  * @version 1.0
  * @date 2020/1/22 4:33 下午
  **/
-//@FXMLController
+@FXMLController
 public class MainStageController implements Initializable {
 
     @Override
