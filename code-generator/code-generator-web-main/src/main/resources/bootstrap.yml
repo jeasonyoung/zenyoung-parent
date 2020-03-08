@@ -6,6 +6,9 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  thymeleaf:
+    cache: false
+    mode: HTML5
 logging:
   level:
     org.springframework.scheduling: 'INFO'

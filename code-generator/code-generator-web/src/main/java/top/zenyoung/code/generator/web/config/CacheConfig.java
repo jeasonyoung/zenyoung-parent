@@ -1,4 +1,4 @@
-package top.zenyoung.code.generator.config;
+package top.zenyoung.code.generator.web.config;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
