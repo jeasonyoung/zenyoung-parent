@@ -1,8 +1,6 @@
 package top.zenyoung.common.response;
 
 import com.google.common.base.Strings;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +26,6 @@ import java.util.stream.Collectors;
  **/
 @Data
 @Builder
-@ApiModel("响应结果")
 @NoArgsConstructor
 @AllArgsConstructor
 public class RespResult<T extends Serializable> implements Serializable {
@@ -39,12 +36,10 @@ public class RespResult<T extends Serializable> implements Serializable {
     /**
      * 提示消息
      */
-    @ApiModelProperty("提示消息")
     private String msg;
     /**
      * 响应数据
      */
-    @ApiModelProperty("响应数据")
     private T data;
 
     /**
@@ -81,9 +76,9 @@ public class RespResult<T extends Serializable> implements Serializable {
         final List<FieldError> errors = ret.getFieldErrors();
         if (!CollectionUtils.isEmpty(errors)) {
             setMsg(errors.stream()
-                    .map(e-> {
+                    .map(e -> {
                         String err = e.getDefaultMessage();
-                        if(Strings.isNullOrEmpty(err)){
+                        if (Strings.isNullOrEmpty(err)) {
                             err = e.toString();
                         }
                         return err;
@@ -101,8 +96,8 @@ public class RespResult<T extends Serializable> implements Serializable {
      */
     public RespResult<T> buildResult(@Nonnull final Throwable e) {
         buildResult(ResultCode.Fail);
-        if(e instanceof BindingResult){
-            return buildResult((BindingResult)e);
+        if (e instanceof BindingResult) {
+            return buildResult((BindingResult) e);
         }
         Throwable cause = e.getCause();
         if (cause != null) {
@@ -114,8 +109,8 @@ public class RespResult<T extends Serializable> implements Serializable {
         return this;
     }
 
-    public Map<String, Object> toMap(){
-        return new HashMap<String, Object>(3){
+    public Map<String, Object> toMap() {
+        return new HashMap<>(3) {
             {
                 //状态码(0:成功,非0:失败)
                 put("code", getCode());

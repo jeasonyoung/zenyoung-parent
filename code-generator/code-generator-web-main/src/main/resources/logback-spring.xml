@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false" scan="true" scanPeriod="10 seconds">
+
     <contextName>logback</contextName>
+
     <!-- 定义日志文件存储地址 -->
     <property name="root" value="./logs"/>
     <!-- 定义日志文件前缀 -->
@@ -15,6 +17,7 @@
         </filter>
         <encoder>
             <!-- 格式化输出: %d 表示日期, %thread 表示线程名, %-5level 级别从左显示5个字符串宽度 %msg 日志消息, %n 换行符 -->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS}[%thread] %-5level %logger{50} - %msg%n </pattern>-->
             <pattern>${log_pattern}</pattern>
             <!-- 设置字符集 -->
             <charset>UTF-8</charset>

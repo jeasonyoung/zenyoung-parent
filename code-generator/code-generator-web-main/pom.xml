@@ -9,55 +9,46 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>code-generator-main</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>code-generator-web-main</artifactId>
 
     <dependencies>
-        <!-- spring boot2 -->
+        <!-- jackson-module-kotlin -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+        </dependency>
+
+        <!-- springboot2 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <!-- openjfx -->
+        <!-- 业务模块 -->
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>code-generator-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
-        <!-- tools -->
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-
-        <!-- lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <!-- 模块 -->
-        <dependency>
-            <groupId>top.zenyoung</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>code-generator-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>code-generator-web</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>code-generator</finalName>
         <plugins>
-            <!-- boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
+
 </project>

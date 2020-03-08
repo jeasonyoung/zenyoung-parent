@@ -15,9 +15,27 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!-- 代码生成器核心 -->
+        <!-- 代码生成器-公共模块 -->
+        <module>code-generator-common</module>
+        <!-- 代码生成器-核心模块 -->
         <module>code-generator-core</module>
-        <!-- 代码生成器ui -->
-        <module>code-generator-main</module>
+        <!-- 代码生成器-Web模块 -->
+        <module>code-generator-web</module>
+        <!-- 代码生成器-入口模块 -->
+        <module>code-generator-web-main</module>
     </modules>
+
+    <dependencies>
+        <!-- tools -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 </project>

@@ -36,13 +36,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- swagger2 -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- tools -->
         <dependency>
             <groupId>com.google.guava</groupId>

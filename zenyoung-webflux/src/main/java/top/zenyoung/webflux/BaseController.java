@@ -1,8 +1,6 @@
 package top.zenyoung.webflux;
 
 import com.google.common.collect.Lists;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -45,7 +43,7 @@ public abstract class BaseController {
      */
     @Nonnull
     protected List<ExceptHandler> getExceptHandlers() {
-        return new ArrayList<ExceptHandler>(){
+        return new ArrayList<>() {
             {
                 //数据操作失败
                 add(new ExceptHandler(502, java.sql.SQLIntegrityConstraintViolationException.class));
@@ -120,7 +118,7 @@ public abstract class BaseController {
     ) {
         return Mono.create(sink -> handler(sink, reqQuery.getQuery(), new RespDataResult<Ret>(), listener, resp -> {
                     //查询条件处理
-                    final PagingQuery<Qry> query = new PagingQuery<Qry>() {
+                    final PagingQuery<Qry> query = new PagingQuery<>() {
                         @Override
                         public Integer getIndex() {
                             return reqQuery.getIndex();
@@ -294,9 +292,8 @@ public abstract class BaseController {
          * 前置业务处理
          *
          * @param reqData 请求数据
-         * @throws Exception 异常
          */
-        default void preHandler(@Nullable final T reqData) throws Exception {
+        default void preHandler(@Nullable final T reqData) {
 
         }
     }
@@ -338,24 +335,20 @@ public abstract class BaseController {
      * @param <T> 查询条件类型
      */
     @Data
-    @ApiModel("分页查询条件")
     @NoArgsConstructor
     @AllArgsConstructor
     protected static class DataPagingQuery<T extends Serializable> implements PagingQuery<T>, Serializable {
         /**
          * 页码
          */
-        @ApiModelProperty("页码")
         private Integer index;
         /**
          * 每页数据量
          */
-        @ApiModelProperty("每页数据量")
         private Integer rows;
         /**
          * 查询条件
          */
-        @ApiModelProperty("查询条件")
         private T query;
     }
 }

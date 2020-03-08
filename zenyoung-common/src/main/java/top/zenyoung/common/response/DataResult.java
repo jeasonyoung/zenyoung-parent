@@ -1,7 +1,5 @@
 package top.zenyoung.common.response;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +18,6 @@ import java.util.List;
  **/
 @Data
 @Builder
-@ApiModel("数据集合")
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataResult<T extends Serializable> implements PagingResult<T>, Serializable {
@@ -28,11 +25,9 @@ public class DataResult<T extends Serializable> implements PagingResult<T>, Seri
     /**
      * 数据总数
      */
-    @ApiModelProperty("数据总数")
     private Long totals;
     /**
      * 数据集合
      */
-    @ApiModelProperty("数据集合")
     private List<T> rows;
 }
