@@ -2,6 +2,7 @@ package top.zenyoung.code.generator.web.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
@@ -20,8 +21,11 @@ import top.zenyoung.webflux.BaseController;
 public class IndexController extends BaseController {
 
     @GetMapping
-    public Mono<String> getIndex() {
-        return Mono.create(sink -> sink.success("index"));
+    public Mono<String> getIndex(final Model model) {
+        return Mono.create(sink ->{
+            model.addAttribute("title", "代码生成器");
+            sink.success("index");
+        });
     }
 
 }

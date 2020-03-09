@@ -2,9 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title data-th-text="${title}"></title>
+    <style>
+    .cls {float:left;width:100%;margin-top:5px;text-align:right;}
+    .chk {float:left;width:120px;text-align:right;}
+    </style>
 </head>
 <body>
+    <center>
+        <h1 data-th-text="${title}"></h1>
+        <fieldset style="width:628px;">
+            <div class="cls">
+                <label class="chk">数据库:</label>
+                <input type="text" name="connection" style="width:500px;">
+            </div>
+            <div class="cls">
+                <label class="chk">类型:</label>
+                <div style="float:left;">
+                    <label class="chk">WebFlux<input type="checkbox" name="type" value="1"></label>
+                    <label class="chk">Service<input type="checkbox" name="type" value="2"></label>
+                    <label class="chk">Repository<input type="checkbox" name="type" value="4"></label>
+                    <label class="chk">JPA<input type="checkbox" name="type" value="8"></label>
+                </div>
+            </div>
 
+            <div class="cls">
+                <button type="button" style="float:right;margin-right:10px;">生成代码</button>
+            </div>
+        </fieldset>
+    </center>
 </body>
 </html>
