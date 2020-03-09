@@ -3,33 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title data-th-text="${title}"></title>
-    <style>
-    .cls {float:left;width:100%;margin-top:5px;text-align:right;}
-    .chk {float:left;width:120px;text-align:right;}
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 <body>
-    <center>
-        <h1 data-th-text="${title}"></h1>
-        <fieldset style="width:628px;">
-            <div class="cls">
-                <label class="chk">数据库:</label>
-                <input type="text" name="connection" style="width:500px;">
-            </div>
-            <div class="cls">
-                <label class="chk">类型:</label>
-                <div style="float:left;">
-                    <label class="chk">WebFlux<input type="checkbox" name="type" value="1"></label>
-                    <label class="chk">Service<input type="checkbox" name="type" value="2"></label>
-                    <label class="chk">Repository<input type="checkbox" name="type" value="4"></label>
-                    <label class="chk">JPA<input type="checkbox" name="type" value="8"></label>
-                </div>
-            </div>
-
-            <div class="cls">
-                <button type="button" style="float:right;margin-right:10px;">生成代码</button>
-            </div>
-        </fieldset>
-    </center>
+    <div id="app">
+        <el-container>
+            <el-header>
+                <el-tag type="info">[(${title})]</el-tag>
+            </el-header>
+            <el-main>
+                <el-form ref="form" :model="form" label-width="85px">
+                    <el-form-item label="数据库连接">
+                        <el-input v-model="form.connection"></el-input>
+                    </el-form-item>
+                    <el-form-item label="代码类型">
+                        <el-checkbox-group v-model="form.type">
+                            <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
+                            <el-checkbox label="地推活动" name="type"></el-checkbox>
+                            <el-checkbox label="线下主题活动" name="type"></el-checkbox>
+                            <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
+                        </el-checkbox-group>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">生成代码</el-button>
+                        <el-button>取消</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-main>
+            <el-footer></el-footer>
+        </el-container>
+    </div>
 </body>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+/*[(${title})]*/
+    const typeOpts = [];
+    var ctor = Vue.extend({
+        data(){
+            return {
+                form:{
+                    connection:'',
+                    type:[]
+                },
+                rules:{
+                    connection:[
+                        {required: true, message: '请输入数据库连接字符串', trigger:'blur'}
+                    ]
+                }
+            };
+        },
+        methods: {
+            onSubmit(){
+                console.log('submit!');
+            }
+        }
+    });
+    new ctor().$mount('#app');
+</script>
 </html>
