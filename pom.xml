@@ -18,19 +18,25 @@
     <version>1.0.0</version>
 
     <modules>
+        <!-- 1.公共模块 -->
+        <module>zenyoung-general</module>
+
         <!-- 1.通用模块 -->
-        <module>zenyoung-common</module>
+<!--        <module>zenyoung-common</module>-->
         <!-- 2.spring webflux -->
-        <module>zenyoung-webflux</module>
+<!--        <module>zenyoung-webflux</module>-->
         <!-- 3.spring jpa -->
-        <module>zenyoung-jpa</module>
+<!--        <module>zenyoung-jpa</module>-->
         <!-- 4.spring security spi -->
-        <module>zenyoung-security-spi</module>
+<!--        <module>zenyoung-security-spi</module>-->
         <!-- 5.spring security webflux -->
-        <module>zenyoung-security-webflux</module>
+<!--        <module>zenyoung-security-webflux</module>-->
 
         <!-- 6.代码生成器 -->
         <module>code-generator</module>
+        <module>zenyoung-security</module>
+        <module>zenyoung-data</module>
+
     </modules>
 
     <properties>
@@ -46,8 +52,6 @@
         <!-- query dsl -->
         <query-dsl.version>4.2.1</query-dsl.version>
         <javax.inject.version>1</javax.inject.version>
-        <druid.version>1.1.20</druid.version>
-        <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
 
         <!-- jwt -->
         <jwt.version>0.9.1</jwt.version>
@@ -84,13 +88,6 @@
                 <version>${jackson-module-kotlin.version}</version>
             </dependency>
 
-            <!-- spring boot2 -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-
             <!-- query dsl -->
             <dependency>
                 <groupId>com.querydsl</groupId>
@@ -108,15 +105,6 @@
                 <artifactId>javax.inject</artifactId>
                 <version>${javax.inject.version}</version>
             </dependency>
-
-            <!-- druid -->
-            <!--
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql-connector-java.version}</version>
-            </dependency>
-            -->
 
             <!-- jwt -->
             <dependency>
@@ -148,17 +136,17 @@
             </dependency>
             -->
 
-            <dependency>
-                <groupId>com.github.penggle</groupId>
-                <artifactId>kaptcha</artifactId>
-                <version>${kaptcha.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.github.penggle</groupId>-->
+<!--                <artifactId>kaptcha</artifactId>-->
+<!--                <version>${kaptcha.version}</version>-->
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>javax.servlet</groupId>-->
+<!--                        <artifactId>javax.servlet-api</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+<!--            </dependency>-->
 
             <!-- aliyun -->
             <!--
