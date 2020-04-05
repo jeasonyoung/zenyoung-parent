@@ -13,8 +13,27 @@
     <packaging>pom</packaging>
 
     <modules>
-
+        <!-- 安全-公共模块 -->
+        <module>zenyoung-security-common</module>
+        <!-- 安全-WebFlux -->
+        <module>zenyoung-security-webflux</module>
     </modules>
 
+    <dependencies>
+        <!-- tools -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
 
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 </project>

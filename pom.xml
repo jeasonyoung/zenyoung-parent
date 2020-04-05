@@ -20,29 +20,18 @@
     <modules>
         <!-- 1.公共模块 -->
         <module>zenyoung-general</module>
-
-        <!-- 1.通用模块 -->
-<!--        <module>zenyoung-common</module>-->
-        <!-- 2.spring webflux -->
-<!--        <module>zenyoung-webflux</module>-->
-        <!-- 3.spring jpa -->
-<!--        <module>zenyoung-jpa</module>-->
-        <!-- 4.spring security spi -->
-<!--        <module>zenyoung-security-spi</module>-->
-        <!-- 5.spring security webflux -->
-<!--        <module>zenyoung-security-webflux</module>-->
-
-        <!-- 6.代码生成器 -->
-        <module>code-generator</module>
-        <module>zenyoung-security</module>
+        <!-- 2.数据模块 -->
         <module>zenyoung-data</module>
-
+        <!-- 3.安全模块-->
+        <module>zenyoung-security</module>
+        <!-- 4.代码生成器 -->
+        <module>code-generator</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>1.8</java.version>
 
         <jackson-module-kotlin.version>2.10.1</jackson-module-kotlin.version>
 

@@ -1,70 +1,65 @@
 package top.zenyoung.security.webflux;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import top.zenyoung.security.spi.auth.RespLoginBody;
-import top.zenyoung.security.spi.token.TokenAuthentication;
-import top.zenyoung.security.spi.token.TokenDetail;
+import top.zenyoung.security.model.LoginReqBody;
+import top.zenyoung.security.model.LoginRespBody;
+import top.zenyoung.security.model.UserPrincipal;
+import top.zenyoung.security.token.JwtToken;
+import top.zenyoung.security.token.Token;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
 
 /**
- * 用户认证管理器
+ * 认证管理器接口
  *
  * @author yangyong
  * @version 1.0
- * @date 2019/12/22 8:18 下午
+ * @date 2020/3/20 5:59 下午
  **/
 public interface AuthenticationManager extends ReactiveAuthenticationManager {
 
     /**
-     * 获取用户认证响应数据
+     * 获取令牌
      *
-     * @param tokenDetail 令牌用户数据
-     * @return 用户认证响应数据
+     * @return 令牌
      */
-    RespLoginBody getUserResp(@Nonnull final TokenDetail tokenDetail);
-
-    /**
-     * 检查请求头消息处理
-     *
-     * @return 请求头消息处理
-     */
-    default RequestHeaderHandler checkRequestHeaders() {
-        return null;
+    default Token getToken() {
+        return new JwtToken();
     }
 
     /**
-     * 请求消息头处理
+     * 获取登录请求方法
+     *
+     * @return 登录请求方法
      */
-    interface RequestHeaderHandler {
-
-        /**
-         * 获取请求头字段数组
-         *
-         * @return 请求头字段数组
-         */
-        String[] getHeaderNames();
-
-        /**
-         * 认证前请求头处理
-         *
-         * @param reqHeaderValueMaps 请求头字段值Map
-         * @param token              登录认证数据
-         */
-        default void beforeAuthenHandler(@Nonnull final Map<String, List<String>> reqHeaderValueMaps, @Nonnull final TokenAuthentication token) {
-
-        }
-
-        /**
-         * 认证后请求头处理
-         *
-         * @param reqHeaderValueMaps 请求头字段值Map
-         * @param tokenDetail        登录令牌数据
-         */
-        default void afterAuthenHandler(@Nonnull final Map<String, List<String>> reqHeaderValueMaps, @Nonnull final TokenDetail tokenDetail) {
-
-        }
+    default HttpMethod getLoginMethod() {
+        return HttpMethod.POST;
     }
+
+    /**
+     * 获取登录请求地址集合
+     *
+     * @return 登录请求地址集合
+     */
+    default String[] getLoginUrls() {
+        return new String[0];
+    }
+
+    /**
+     * 获取用户登录请求报文类型
+     *
+     * @return 用户登录请求报文类型
+     */
+    default Class<? extends LoginReqBody> getLoginReqBodyClass() {
+        return LoginReqBody.class;
+    }
+
+    /**
+     * 获取返回登录用户数据
+     *
+     * @param userPrincipal 用户数据
+     * @return 返回登录用户数据
+     */
+    LoginRespBody getUserResp(@Nonnull final UserPrincipal userPrincipal);
 }

@@ -1,0 +1,24 @@
+package top.zenyoung.security.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * 登录用户请求数据
+ *
+ * @author yangyong
+ * @version 1.0
+ * @date 2020/3/20 6:10 下午
+ **/
+@Data
+public class LoginReqBody implements Serializable {
+    /**
+     * 登录账号
+     */
+    private String account;
+    /**
+     * 登录密码
+     */
+    private String passwd;
+}
