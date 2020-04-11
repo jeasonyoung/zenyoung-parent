@@ -12,7 +12,7 @@ import java.time.Duration;
  * @version 1.0
  * @date 2020/3/21 7:33 下午
  **/
-public interface Token {
+public interface TokenGenerator {
 
     /**
      * 获取令牌有效期
@@ -26,7 +26,7 @@ public interface Token {
      *
      * @return 令牌签名盐值
      */
-    String getTokenSignSlat();
+    String getSignSlat();
 
     /**
      * 创建令牌
@@ -34,14 +34,14 @@ public interface Token {
      * @param ticket 令牌票据
      * @return 令牌
      */
-    String createToken(@Nonnull final TokenTicket ticket);
+    String createToken(@Nonnull final Ticket ticket);
 
     /**
      * 解析令牌
      *
-     * @param json 令牌数据
+     * @param token 令牌数据
      * @return 令牌票据
      * @throws TokenException 令牌异常
      */
-    TokenTicket parseToken(@Nonnull final String json) throws TokenException;
+    Ticket parseToken(@Nonnull final String token) throws TokenException;
 }

@@ -18,6 +18,7 @@ import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -72,11 +73,15 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
     }
 
     protected void buildRequestHeaderLog(@Nonnull final StringBuilder logBudiler, @Nullable final HttpMethod method, @Nonnull final URI uri,
-                                         @Nullable final InetSocketAddress address, @Nonnull final HttpHeaders headers) {
+                                         @Nullable final InetSocketAddress address, @Nonnull final HttpHeaders headers,
+                                         @Nullable final MultiValueMap<String, String> queryParams) {
         logBudiler.append(REQUEST_START)
                 .append(method == null ? "" : method.name()).append(": ").append(uri.getPath())
                 .append("\nclient: ").append(address == null ? "" : address.getHostName() + "," + address.getPort())
-                .append("\nheaders: ").append(buildHeaders(headers));
+                .append("\nheaders: ").append(buildMultiValue(headers));
+        if (!CollectionUtils.isEmpty(queryParams)) {
+            logBudiler.append("\nquery: ").append(buildMultiValue(queryParams));
+        }
     }
 
     protected void buildRequestBodyLog(@Nonnull final StringBuilder logBudiler, @Nullable final byte[] content) {
@@ -87,22 +92,22 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
     protected void buildResponseLog(@Nonnull final StringBuilder logBudiler, @Nullable final HttpStatus status, @Nullable final HttpHeaders headers, @Nullable final byte[] content) {
         logBudiler.append(RESPONSE_START)
                 .append(status)
-                .append("\nheaders: ").append(buildHeaders(headers))
+                .append("\nheaders: ").append(buildMultiValue(headers))
                 .append("\nbody: ").append((content != null && content.length > 0) ? new String(content, StandardCharsets.UTF_8) : null)
                 .append(RESPONSE_END);
         log.info("报文日志:[\n{}\n]", logBudiler);
     }
 
-    protected String buildHeaders(@Nullable final HttpHeaders headers) {
-        if (CollectionUtils.isEmpty(headers)) {
-            return null;
+    protected String buildMultiValue(@Nullable final MultiValueMap<String, String> data) {
+        if (!CollectionUtils.isEmpty(data)) {
+            return data.entrySet().stream()
+                    .map(entry -> {
+                        final List<String> vals = entry.getValue();
+                        return entry.getKey() + "=" + (CollectionUtils.isEmpty(vals) ? "" : Joiner.on(",").skipNulls().join(vals));
+                    })
+                    .collect(Collectors.joining("\n\t"));
         }
-        return headers.entrySet().stream()
-                .map(entry -> {
-                    final List<String> values = entry.getValue();
-                    return entry.getKey() + "=" + (CollectionUtils.isEmpty(values) ? "" : Joiner.on(",").skipNulls().join(values));
-                })
-                .collect(Collectors.joining("\n\t\t"));
+        return null;
     }
 
     private static class RecorderServerHttpRequestDecorator extends ServerHttpRequestDecorator {
@@ -114,7 +119,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
             //请求报文处理
             final Flux<DataBuffer> flux = super.getBody();
             if (filter.checkLogContentType(getHeaders().getContentType())) {
-                filter.buildRequestHeaderLog(logBudiler, getMethod(), getURI(), getRemoteAddress(), getHeaders());
+                filter.buildRequestHeaderLog(logBudiler, getMethod(), getURI(), getRemoteAddress(), getHeaders(), request.getQueryParams());
                 body = flux.publishOn(Schedulers.single())
                         .map(buffer -> {
                             try {

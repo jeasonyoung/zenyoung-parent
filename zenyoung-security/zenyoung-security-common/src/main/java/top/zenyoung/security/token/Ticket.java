@@ -24,14 +24,14 @@ import java.util.function.Function;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class TokenTicket extends UserPrincipal {
+public class Ticket extends UserPrincipal {
     private static final String KEY_ID = "id";
     private static final String KEY_ACCOUNT = "account";
     private static final String KEY_ROLES = "roles";
 
     private static final String SEP_ROLE = ",";
 
-    public TokenTicket(@Nonnull final UserPrincipal principal) {
+    public Ticket(@Nonnull final UserPrincipal principal) {
         //用户ID
         setId(principal.getId());
         //用户账号
@@ -54,8 +54,8 @@ public class TokenTicket extends UserPrincipal {
         };
     }
 
-    public static TokenTicket create(@Nonnull final Map<String, Object> claims) {
-        final TokenTicket ticket = new TokenTicket();
+    public static Ticket create(@Nonnull final Map<String, Object> claims) {
+        final Ticket ticket = new Ticket();
         if (claims.size() > 0) {
             //用户ID
             ticket.setId(convert(KEY_ID, claims, Object::toString));

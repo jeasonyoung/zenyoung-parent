@@ -1,6 +1,8 @@
 package top.zenyoung.common.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 枚举值接口
@@ -24,4 +26,20 @@ public interface EnumValue extends Serializable {
      * @return 枚举标题
      */
     String getTitle();
+
+    /**
+     * 转换为Map对象
+     *
+     * @return Map对象
+     */
+    default Map<String, Serializable> toMap() {
+        return new HashMap<String, Serializable>(2) {
+            {
+                //枚举值
+                put("val", getVal());
+                //枚举标题
+                put("title", getTitle());
+            }
+        };
+    }
 }

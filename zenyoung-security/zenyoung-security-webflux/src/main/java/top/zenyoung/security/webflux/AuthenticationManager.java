@@ -5,10 +5,11 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.UserPrincipal;
-import top.zenyoung.security.token.JwtToken;
-import top.zenyoung.security.token.Token;
+import top.zenyoung.security.token.JwtTokenGenerator;
+import top.zenyoung.security.token.TokenGenerator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * 认证管理器接口
@@ -24,8 +25,9 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      *
      * @return 令牌
      */
-    default Token getToken() {
-        return new JwtToken();
+    @Nonnull
+    default TokenGenerator getTokenGenerator() {
+        return new JwtTokenGenerator();
     }
 
     /**
@@ -33,6 +35,7 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      *
      * @return 登录请求方法
      */
+    @Nonnull
     default HttpMethod getLoginMethod() {
         return HttpMethod.POST;
     }
@@ -42,8 +45,19 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      *
      * @return 登录请求地址集合
      */
+    @Nonnull
     default String[] getLoginUrls() {
         return new String[0];
+    }
+
+    /**
+     * 获取白名单Urls.
+     *
+     * @return 白名单Urls.
+     */
+    @Nullable
+    default String[] getWhiteUrls() {
+        return null;
     }
 
     /**
@@ -61,5 +75,6 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      * @param userPrincipal 用户数据
      * @return 返回登录用户数据
      */
+    @Nonnull
     LoginRespBody getUserResp(@Nonnull final UserPrincipal userPrincipal);
 }

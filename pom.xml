@@ -24,8 +24,6 @@
         <module>zenyoung-data</module>
         <!-- 3.安全模块-->
         <module>zenyoung-security</module>
-        <!-- 4.代码生成器 -->
-        <module>code-generator</module>
     </modules>
 
     <distributionManagement>

@@ -266,7 +266,8 @@ public abstract class BaseController {
         };
         return Mono.create(sink ->
                 req.doOnError(Throwable.class, e -> sink.success(RespResult.buildFail(expHandler.apply(e))))
-                        .doOnNext(data -> handler(sink, data, RespResult.buildSuccess(null), listener,
+                        .doOnNext(data -> handler(
+                                sink, data, RespResult.buildSuccess(null), listener,
                                 resp -> {
                                     //业务处理
                                     final R ret = listener.apply(data);
@@ -274,8 +275,7 @@ public abstract class BaseController {
                                         resp.setData(ret);
                                     }
                                 }
-                                )
-                        )
+                        ))
                         .subscribe()
         );
     }

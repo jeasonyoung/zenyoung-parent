@@ -25,15 +25,19 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 public class SignUtils {
-    private static final String KK_JOIN = ".", KV_JOIN = "=", KV_KV_JOIN = "&", COLLECTION_JOIN = "";
+    private static final String KK_JOIN = ".", KV_JOIN = "=", KV_KV_JOIN = "&", COLLECTION_JOIN = ",";
 
     @SuppressWarnings({"unchecked"})
     private static List<String> buildParamKeyVal(@Nullable final String parentKey, @Nonnull final Map.Entry<String, Serializable> entry) {
+        //键名
         final String key = entry.getKey();
+        //键值
         final Serializable val = entry.getValue();
+        //检查键名或键值是否为空
         if (Strings.isNullOrEmpty(key) || val == null) {
             return null;
         }
+        //检查键值是否为Map
         if (val instanceof Map) {
             return ((Map<String, Serializable>) val).entrySet().stream()
                     .filter(child -> child != null && !Strings.isNullOrEmpty(child.getKey()) && child.getValue() != null)
@@ -42,52 +46,82 @@ public class SignUtils {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
         }
+        //检查键值是否为集合
         if (val instanceof Collection) {
-            if (CollectionUtils.isEmpty((Collection<?>) val)) {
-                return null;
-            }
-            final String strVal = Joiner.on(COLLECTION_JOIN).skipNulls().join(((Collection<?>) val).stream()
-                    .map(v -> {
-                        String ret = null;
-                        if (v != null) {
-                            if (v instanceof String) {
-                                ret = (String) v;
-                            } else {
-                                ret = v.toString();
-                            }
-                        }
-                        return Strings.isNullOrEmpty(ret) ? null : ret;
-                    })
-                    .filter(Objects::nonNull)
-                    .sorted(Comparator.comparing(str -> str))
-                    .collect(Collectors.toList())
-            );
-            if (Strings.isNullOrEmpty(strVal)) {
-                return null;
-            }
-            return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + strVal);
+            //集合处理
+            return buildParamCollection(parentKey, key, (Collection<?>) val);
         }
+        //检查键值为数值
         if (val instanceof Number) {
+            //排除数值小于等于0
             if (((Number) val).doubleValue() <= 0) {
                 return null;
             }
+            //数值处理
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + val);
         }
+        //检查键值为布尔值
         if (val instanceof Boolean) {
+            //排除布尔值为false
             if (!((Boolean) val)) {
                 return null;
             }
+            //布尔值处理
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + val);
         }
+        //检查键值为字符串
         if (val instanceof String) {
+            //排除空字符串
             if (Strings.isNullOrEmpty((String) val)) {
                 return null;
             }
+            //字符串处理
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + val);
         }
+        //普通对象处理
         final String strVal = val.toString();
         if (!Strings.isNullOrEmpty(strVal)) {
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + strVal);
+        }
+        return null;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private static List<String> buildParamCollection(@Nullable final String parentKey, @Nonnull final String key, @Nonnull final Collection<?> vals) {
+        if (!CollectionUtils.isEmpty(vals)) {
+            //集合内容处理
+            final String strVal = Joiner.on(COLLECTION_JOIN).skipNulls().join(((Collection<?>) vals).stream()
+                    .map(v -> {
+                        if (v != null) {
+                            //集合成员为Map
+                            if (v instanceof Map) {
+                                return Joiner.on(COLLECTION_JOIN).skipNulls().join(
+                                        ((Map<String, Serializable>) v).entrySet().stream()
+                                                .map(e -> buildParamKeyVal(Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key, e))
+                                                .filter(Objects::nonNull)
+                                                .flatMap(Collection::stream)
+                                                .sorted(Comparator.comparing(kv -> Splitter.on(KV_JOIN).splitToList(kv).get(0)))
+                                                .collect(Collectors.toList())
+                                );
+                            }
+                            //集合成员为字符串
+                            if (v instanceof String) {
+                                return (String) v;
+                            } else {
+                                return v.toString();
+                            }
+                        }
+                        return null;
+                    })
+                    .filter(sv -> !Strings.isNullOrEmpty(sv))
+                    .sorted(Comparator.comparing(str -> str))
+                    .collect(Collectors.toList())
+            );
+            //检查集合内容是否为空
+            if (!Strings.isNullOrEmpty(strVal)) {
+                //输出集合内容
+                return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + strVal);
+            }
         }
         return null;
     }
