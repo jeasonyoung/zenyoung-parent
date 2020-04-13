@@ -5,7 +5,6 @@ package top.zenyoung.common.exception;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/14 6:14 下午
  **/
 public class StampExpireException extends RuntimeException {
 

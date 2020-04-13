@@ -10,7 +10,7 @@ import javax.persistence.Converter;
  *
  * @author yangyong
  * @version 1.0
- * @date 2019/11/25 7:21 下午
+ *  2019/11/25 7:21 下午
  **/
 @Converter
 public class StatusConverter implements AttributeConverter<Status, Integer> {

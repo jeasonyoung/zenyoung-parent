@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/20 5:59 下午
+ *  2020/3/20 5:59 下午
  **/
 public interface AuthenticationManager extends ReactiveAuthenticationManager {
 

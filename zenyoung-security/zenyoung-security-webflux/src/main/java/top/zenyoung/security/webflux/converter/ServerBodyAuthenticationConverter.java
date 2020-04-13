@@ -20,7 +20,7 @@ import java.util.Collections;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/20 6:08 下午
+ *  2020/3/20 6:08 下午
  **/
 @Slf4j
 public class ServerBodyAuthenticationConverter implements ServerAuthenticationConverter {

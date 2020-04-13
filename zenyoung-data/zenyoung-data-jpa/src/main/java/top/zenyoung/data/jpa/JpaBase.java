@@ -10,7 +10,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  *
  * @author yangyong
  * @version 1.0
- * @date 2019/10/18 2:49 下午
+ *  2019/10/18 2:49 下午
  **/
 @NoRepositoryBean
 public interface JpaBase<T, ID> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T>, QuerydslPredicateExecutor<T> {

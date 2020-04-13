@@ -10,7 +10,7 @@ import java.util.Collection;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/19 4:23 下午
+ *  2020/3/19 4:23 下午
  **/
 public class TokenAuthentication extends UsernamePasswordAuthenticationToken {
 

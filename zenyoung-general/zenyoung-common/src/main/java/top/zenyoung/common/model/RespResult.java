@@ -14,7 +14,6 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/6 4:39 下午
  **/
 @Data
 @Builder

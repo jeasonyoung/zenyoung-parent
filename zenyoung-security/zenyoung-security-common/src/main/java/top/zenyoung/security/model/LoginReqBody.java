@@ -9,7 +9,7 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/20 6:10 下午
+ *  2020/3/20 6:10 下午
  **/
 @Data
 public class LoginReqBody implements Serializable {

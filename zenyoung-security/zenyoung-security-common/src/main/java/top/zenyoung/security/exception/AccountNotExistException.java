@@ -5,7 +5,7 @@ package top.zenyoung.security.exception;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/14 5:54 下午
+ *  2020/3/14 5:54 下午
  **/
 public class AccountNotExistException extends RuntimeException {
 

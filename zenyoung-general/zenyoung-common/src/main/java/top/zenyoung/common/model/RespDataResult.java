@@ -7,7 +7,6 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/6 6:11 下午
  **/
 public class RespDataResult<T extends Serializable> extends RespResult<DataResult<T>> {
 

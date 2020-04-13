@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/7 12:32 下午
+ *  2020/2/7 12:32 下午
  **/
 @Data
 @NoArgsConstructor

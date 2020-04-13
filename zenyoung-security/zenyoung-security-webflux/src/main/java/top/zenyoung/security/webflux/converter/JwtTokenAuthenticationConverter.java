@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/19 4:02 下午
+ *  2020/3/19 4:02 下午
  **/
 @Slf4j
 public class JwtTokenAuthenticationConverter implements ServerAuthenticationConverter {

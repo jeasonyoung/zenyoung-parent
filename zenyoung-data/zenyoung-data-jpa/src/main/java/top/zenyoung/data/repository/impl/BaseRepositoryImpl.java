@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/6 4:34 下午
+ *  2020/2/6 4:34 下午
  **/
 @Slf4j
 public abstract class BaseRepositoryImpl {

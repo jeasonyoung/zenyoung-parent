@@ -7,7 +7,6 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/6 5:08 下午
  **/
 public interface PagingQuery<T extends Serializable> extends Serializable {
     /**

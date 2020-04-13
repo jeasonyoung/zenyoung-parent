@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/20 6:38 下午
+ *  2020/3/20 6:38 下午
  **/
 @Data
 public class LoginRespBody implements Serializable {

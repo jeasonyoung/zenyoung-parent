@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/7 2:11 下午
+ *  2020/2/7 2:11 下午
  **/
 public interface PagingQueryListener<ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> extends Function<Item, Ret>, PreHandlerListener<ReqQry>, ExceptHandlerListener {
 

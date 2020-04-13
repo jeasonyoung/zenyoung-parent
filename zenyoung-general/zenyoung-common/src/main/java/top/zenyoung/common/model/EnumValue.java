@@ -9,7 +9,6 @@ import java.util.Map;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/22 11:22 下午
  **/
 public interface EnumValue extends Serializable {
 

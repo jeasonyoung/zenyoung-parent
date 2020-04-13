@@ -28,7 +28,7 @@ import java.util.UUID;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/19 4:44 下午
+ *  2020/3/19 4:44 下午
  **/
 @Data
 @Slf4j

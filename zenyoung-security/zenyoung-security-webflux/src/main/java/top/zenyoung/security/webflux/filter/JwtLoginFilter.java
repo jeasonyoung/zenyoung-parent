@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/20 5:56 下午
+ *  2020/3/20 5:56 下午
  **/
 @Slf4j
 public class JwtLoginFilter extends AuthenticationWebFilter {

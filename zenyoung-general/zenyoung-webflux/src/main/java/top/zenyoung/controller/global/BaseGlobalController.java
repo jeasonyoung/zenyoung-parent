@@ -14,7 +14,7 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/1 11:56 上午
+ *  2020/4/1 11:56 上午
  **/
 @Slf4j
 public abstract class BaseGlobalController {

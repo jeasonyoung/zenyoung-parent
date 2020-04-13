@@ -11,7 +11,6 @@ import java.time.Duration;
  * Redis-缓存-工具类
  * @author yangyong
  * @version 1.0
- * @date 2019/11/6 4:29 下午
  **/
 @Slf4j
 public class RedisCacheUtils {

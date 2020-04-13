@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/1 7:52 上午
+ *  2020/4/1 7:52 上午
  **/
 @Slf4j
 public abstract class BaseLogFilter implements WebFilter, Ordered {

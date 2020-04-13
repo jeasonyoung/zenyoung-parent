@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/19 4:25 下午
+ *  2020/3/19 4:25 下午
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)

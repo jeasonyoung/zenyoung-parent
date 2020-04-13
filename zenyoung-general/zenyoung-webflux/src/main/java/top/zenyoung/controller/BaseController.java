@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/7 12:28 下午
+ *  2020/2/7 12:28 下午
  **/
 @Slf4j
 public abstract class BaseController {

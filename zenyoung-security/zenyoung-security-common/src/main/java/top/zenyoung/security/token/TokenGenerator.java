@@ -10,7 +10,7 @@ import java.time.Duration;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/21 7:33 下午
+ *  2020/3/21 7:33 下午
  **/
 public interface TokenGenerator {
 

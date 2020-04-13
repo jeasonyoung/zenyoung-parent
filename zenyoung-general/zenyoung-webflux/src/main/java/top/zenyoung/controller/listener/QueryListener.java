@@ -9,7 +9,7 @@ import java.util.function.Function;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/7 2:05 下午
+ *  2020/2/7 2:05 下午
  **/
 public interface QueryListener<Item extends Serializable, Ret extends Serializable> extends Function<Item, Ret>, PreHandlerListener<Void>, ExceptHandlerListener {
 

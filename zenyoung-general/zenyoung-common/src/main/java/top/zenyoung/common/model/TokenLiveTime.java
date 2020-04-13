@@ -10,7 +10,6 @@ import java.time.Duration;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/11 11:47 上午
  **/
 @Data
 public class TokenLiveTime implements Serializable {

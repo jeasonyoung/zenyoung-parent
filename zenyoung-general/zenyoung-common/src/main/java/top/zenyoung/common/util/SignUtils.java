@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/13 1:21 下午
  **/
 @Slf4j
 public class SignUtils {

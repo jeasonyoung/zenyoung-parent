@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/1 2:29 下午
+ *  2020/4/1 2:29 下午
  **/
 @Slf4j
 public abstract class BaseGlobalErrorExceptionHandler extends AbstractErrorWebExceptionHandler {

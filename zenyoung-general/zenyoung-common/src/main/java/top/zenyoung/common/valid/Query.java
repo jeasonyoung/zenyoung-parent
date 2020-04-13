@@ -5,7 +5,6 @@ package top.zenyoung.common.valid;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/5 12:16 上午
  **/
 public interface Query {
 
