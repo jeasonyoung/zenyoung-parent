@@ -14,7 +14,6 @@ import java.util.Objects;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/3/14 3:40 下午
  **/
 public class HttpUtils {
     private static final String UNKNOWN = "unknown";
