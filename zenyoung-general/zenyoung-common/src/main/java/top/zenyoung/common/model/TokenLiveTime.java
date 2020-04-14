@@ -1,6 +1,8 @@
 package top.zenyoung.common.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -12,6 +14,8 @@ import java.time.Duration;
  * @version 1.0
  **/
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TokenLiveTime implements Serializable {
     /**
      * 令牌生存期
