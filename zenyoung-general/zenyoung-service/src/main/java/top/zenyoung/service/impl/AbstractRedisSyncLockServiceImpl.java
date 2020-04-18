@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * @date 2020/4/18 5:36 下午
  **/
 @Slf4j
-public abstract class AbstractSyncLockServiceImpl implements SyncLockService {
+public abstract class AbstractRedisSyncLockServiceImpl implements SyncLockService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final Map<String, Integer> LOCK_WAIT_COUNT = Maps.newConcurrentMap();
 
@@ -34,7 +34,7 @@ public abstract class AbstractSyncLockServiceImpl implements SyncLockService {
      *
      * @param redisTemplate redis模板
      */
-    protected AbstractSyncLockServiceImpl(@Nonnull final StringRedisTemplate redisTemplate) {
+    protected AbstractRedisSyncLockServiceImpl(@Nonnull final StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
