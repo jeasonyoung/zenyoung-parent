@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zenyoung-parent</artifactId>
         <groupId>top.zenyoung</groupId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,6 +17,8 @@
         <module>zenyoung-common</module>
         <!-- WebFlux-控制器 -->
         <module>zenyoung-webflux</module>
+        <!-- WebService-服务模块 -->
+        <module>zenyoung-service</module>
     </modules>
 
     <dependencies>
@@ -38,5 +40,4 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
-
 </project>
