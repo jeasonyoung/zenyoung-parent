@@ -9,7 +9,6 @@ import java.time.Duration;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/18 2:50 下午
  **/
 public interface CacheService {
 

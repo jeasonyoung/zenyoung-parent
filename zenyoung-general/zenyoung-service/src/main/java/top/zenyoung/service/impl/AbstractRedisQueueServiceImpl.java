@@ -20,7 +20,6 @@ import java.util.function.Consumer;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/18 4:25 下午
  **/
 @Slf4j
 public abstract class AbstractRedisQueueServiceImpl implements QueueService {

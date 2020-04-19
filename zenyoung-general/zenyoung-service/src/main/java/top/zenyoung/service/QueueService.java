@@ -9,7 +9,6 @@ import java.util.function.Consumer;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/18 2:41 下午
  **/
 public interface QueueService {
 

@@ -18,7 +18,6 @@ import java.util.Map;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/18 2:57 下午
  **/
 @Slf4j
 public abstract class AbstractRedisCacheServiceImpl implements CacheService {

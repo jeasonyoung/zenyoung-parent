@@ -16,7 +16,6 @@ import java.util.function.Supplier;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/18 5:36 下午
  **/
 @Slf4j
 public abstract class AbstractRedisSyncLockServiceImpl implements SyncLockService {

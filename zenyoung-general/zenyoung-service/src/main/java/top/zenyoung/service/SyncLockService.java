@@ -9,7 +9,6 @@ import java.util.function.Supplier;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/4/18 5:06 下午
  **/
 public interface SyncLockService {
 
