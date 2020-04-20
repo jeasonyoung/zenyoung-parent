@@ -229,12 +229,27 @@ public abstract class BaseController {
      * @param process 删除处理器
      * @return 处理结果
      */
-    protected Mono<RespDeleteResult> actionDelete(@Nonnull final Runnable process) {
-        return action(new RespDeleteResult().buildSuccess(), aVoid -> {
-            //删除处理器
-            process.run();
-            return null;
-        });
+    protected Mono<RespDeleteResult> actionDelete(@Nonnull final ProccessDeleteListener process) {
+        return action(new RespDeleteResult().buildSuccess(),
+                new ProccessListener<Void, Serializable>() {
+                    @Override
+                    public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                        process.getExceptHandlers(handlers);
+                    }
+
+                    @Override
+                    public void preHandler(@Nullable final Void reqData) {
+                        process.preHandler(reqData);
+                    }
+
+                    @Override
+                    public Serializable apply(final Void aVoid) {
+                        //删除处理器
+                        process.accept(aVoid);
+                        return null;
+                    }
+                }
+        );
     }
 
     /**
@@ -312,13 +327,25 @@ public abstract class BaseController {
     /**
      * 业务处理-新增
      *
-     * @param req      请求数据
-     * @param listener 处理器
-     * @param <T>      请求数据类型
+     * @param req     请求数据
+     * @param process 处理器
+     * @param <T>     请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> Mono<RespAddResult> actionAdd(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, AddResult> listener) {
-        return action(req, () -> RespAddResult.buildSuccess(null), RespAddResult::buildFail, listener);
+    protected <T extends Serializable> Mono<RespAddResult> actionAdd(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, String> process) {
+        return action(req, () -> RespAddResult.buildSuccess(null), RespAddResult::buildFail,
+                new ProccessListener<T, AddResult>() {
+                    @Override
+                    public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                        process.getExceptHandlers(handlers);
+                    }
+
+                    @Override
+                    public AddResult apply(final T data) {
+                        return new AddResult(process.apply(data));
+                    }
+                }
+        );
     }
 
     /**
@@ -329,8 +356,35 @@ public abstract class BaseController {
      * @param <T>      请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, Serializable> listener) {
-        return action(req, () -> new RespModifyResult().buildSuccess(), RespModifyResult::buildFail, listener);
+    protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> listener) {
+        return action(req, () -> new RespModifyResult().buildSuccess(), RespModifyResult::buildFail,
+                new ProccessListener<T, Serializable>() {
+
+                    @Override
+                    public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                        listener.getExceptHandlers(handlers);
+                    }
+
+                    @Override
+                    public void preHandler(@Nullable final T reqData) {
+                        listener.preHandler(reqData);
+                    }
+
+                    @Override
+                    public Serializable apply(final T data) {
+                        listener.accept(data);
+                        return null;
+                    }
+                }
+        );
+    }
+
+    protected interface ProccessModifyListener<T> extends Consumer<T>, PreHandlerListener<T>, ExceptHandlerListener {
+
+    }
+
+    protected interface ProccessDeleteListener extends ProccessModifyListener<Void> {
+
     }
 
     @Data
