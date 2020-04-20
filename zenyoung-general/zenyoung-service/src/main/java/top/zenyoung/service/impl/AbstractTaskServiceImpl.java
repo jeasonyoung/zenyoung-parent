@@ -29,6 +29,7 @@ public abstract class AbstractTaskServiceImpl implements TaskService {
      * @return 最大并发数
      */
     protected int getTaskMaxConcurrent(@Nonnull final String key) {
+        log.debug("getTaskMaxConcurrent(key: {})...", key);
         return MAX;
     }
 
