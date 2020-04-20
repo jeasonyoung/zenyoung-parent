@@ -4,12 +4,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
-import top.zenyoung.common.model.DataResult;
-import top.zenyoung.common.model.RespDataResult;
-import top.zenyoung.common.model.RespResult;
+import top.zenyoung.common.model.*;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.controller.listener.*;
@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- *  2020/2/7 12:28 下午
+ * 2020/2/7 12:28 下午
  **/
 @Slf4j
 public abstract class BaseController {
@@ -85,35 +86,26 @@ public abstract class BaseController {
     }
 
     protected <ReqData, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
+            @Nullable final MonoSink<Resp> sink,
             @Nullable final ReqData reqData,
             @Nonnull final Resp resp,
             @Nonnull final P listener,
-            @Nonnull final Consumer<Resp> handler
+            @Nonnull final Consumer<Resp> process
     ) {
         try {
             //前置业务处理
             listener.preHandler(reqData);
             //业务处理
-            handler.accept(resp);
+            process.accept(resp);
         } catch (Throwable e) {
             log.warn("handler-exp:", e);
             if (handlerNotExcept(resp, e, listener)) {
                 resp.buildRespFail(e.getMessage());
             }
-        }
-    }
-
-    protected <ReqData, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
-            @Nonnull final MonoSink<Resp> sink,
-            @Nullable final ReqData reqData,
-            @Nonnull final Resp resp,
-            @Nonnull final P listener,
-            @Nonnull final Consumer<Resp> handler
-    ) {
-        try {
-            handler(reqData, resp, listener, handler);
         } finally {
-            sink.success(resp);
+            if (sink != null) {
+                sink.success(resp);
+            }
         }
     }
 
@@ -165,90 +157,96 @@ public abstract class BaseController {
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
     ) {
-        return Mono.create(sink -> handler(sink, reqQuery.getQuery(), new RespDataResult<Ret>(), listener, resp -> buildQueryHandler(resp, reqQuery, listener)));
-    }
-
-    private <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> void buildQueryHandler(
-            @Nonnull final RespDataResult<Ret> resp,
-            @Nonnull final PagingQuery<ReqQry> reqQuery,
-            @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
-    ) {
-        //查询条件处理
-        final PagingQuery<Qry> query = new PagingQuery<Qry>() {
-            @Override
-            public Integer getIndex() {
-                return reqQuery.getIndex();
-            }
-
-            @Override
-            public Integer getRows() {
-                return reqQuery.getRows();
-            }
-
-            @Override
-            public Qry getQuery() {
-                return listener.convert(reqQuery.getQuery());
-            }
-        };
-        //查询数据处理
-        final PagingResult<Item> queryResult = listener.query(query);
-        if (queryResult == null) {
-            resp.setData(DataResult.<Ret>builder()
-                    .total(0L)
-                    .rows(Lists.newLinkedList())
-                    .build()
-            );
-            return;
-        }
-        final Long totals = queryResult.getTotal();
-        final List<Item> items = queryResult.getRows();
-        resp.setData(DataResult.<Ret>builder()
-                //总数据
-                .total(totals == null ? 0L : totals)
-                //数据处理
-                .rows(items == null || items.size() == 0 ? Lists.newLinkedList() :
-                        items.stream()
-                                .filter(Objects::nonNull)
-                                .map(listener)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList())
-                )
-                .build()
-        );
+        return Mono.create(sink -> handler(sink, reqQuery.getQuery(), new RespDataResult<Ret>(), listener,
+                resp -> {
+                    //查询条件处理
+                    final ReqPagingQuery<Qry> query = new ReqPagingQuery<>();
+                    BeanUtils.copyProperties(reqQuery, query);
+                    //查询数据处理
+                    final PagingResult<Item> queryResult = listener.query(query);
+                    if (queryResult == null || CollectionUtils.isEmpty(queryResult.getRows())) {
+                        resp.setData(DataResult.<Ret>builder()
+                                .total(0L)
+                                .rows(Lists.newLinkedList())
+                                .build()
+                        );
+                        return;
+                    }
+                    //查询结果处理
+                    final Long totals = queryResult.getTotal();
+                    final List<Item> items = queryResult.getRows();
+                    resp.setData(DataResult.<Ret>builder()
+                            //总数据
+                            .total(totals == null ? 0L : totals)
+                            //数据处理
+                            .rows(items == null || items.size() == 0 ? Lists.newLinkedList() :
+                                    items.stream()
+                                            .filter(Objects::nonNull)
+                                            .map(listener)
+                                            .filter(Objects::nonNull)
+                                            .collect(Collectors.toList())
+                            )
+                            .build()
+                    );
+                }
+        ));
     }
 
     /**
-     * 业务处理
+     * 业务处理-无入参验证
      *
-     * @param listener 处理器
+     * @param resp     响应对象
+     * @param listener 业务处理器
      * @param <R>      返回数据类型
-     * @return 处理结果
+     * @param <Resp>   响应数据类型
+     * @return 响应数据
      */
-    protected <R extends Serializable> Mono<RespResult<R>> action(@Nonnull final ProccessListener<Void, R> listener) {
-        return Mono.create(sink -> handler(sink, null, new RespResult<R>().buildRespSuccess(null), listener,
-                resp -> {
-                    //业务处理
+    protected <R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(@Nonnull final Resp resp, @Nonnull final ProccessListener<Void, R> listener) {
+        return Mono.create(sink -> handler(sink, null, resp, listener,
+                respRet -> {
                     final R data = listener.apply(null);
                     if (data != null) {
-                        resp.setData(data);
+                        respRet.setData(data);
                     }
                 }
         ));
     }
 
     /**
-     * 业务处理
+     * 业务处理-无入参验证
      *
-     * @param req      请求数据
      * @param listener 处理器
-     * @param <T>      请求数据类型
-     * @param <R>      响应数据类型
+     * @param <R>      返回数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> listener) {
-        final Function<Throwable, String> expHandler = e -> {
-            if (e instanceof BindingResult) {
-                final String error = ((BindingResult) e).getFieldErrors().stream()
+    protected <R extends Serializable> Mono<RespResult<R>> action(@Nonnull final ProccessListener<Void, R> listener) {
+        return action(new RespResult<R>().buildRespSuccess(null), listener);
+    }
+
+    /**
+     * 业务处理-删除处理
+     *
+     * @param process 删除处理器
+     * @return 处理结果
+     */
+    protected Mono<RespDeleteResult> actionDelete(@Nonnull final Runnable process) {
+        return action(new RespDeleteResult().buildSuccess(), aVoid -> {
+            //删除处理器
+            process.run();
+            return null;
+        });
+    }
+
+    /**
+     * 业务异常消息处理
+     *
+     * @param throwable 异常
+     * @return 异常消息
+     */
+    protected String actionExceptionHandler(@Nullable final Throwable throwable) {
+        if (throwable != null) {
+            if (throwable instanceof BindingResult) {
+                final String error = ((BindingResult) throwable).getFieldErrors().stream()
                         .map(fe -> {
                             String err = fe.getDefaultMessage();
                             if (Strings.isNullOrEmpty(err)) {
@@ -262,22 +260,77 @@ public abstract class BaseController {
                     return error;
                 }
             }
-            return e.getMessage();
-        };
-        return Mono.create(sink ->
-                req.doOnError(Throwable.class, e -> sink.success(RespResult.buildFail(expHandler.apply(e))))
-                        .doOnNext(data -> handler(
-                                sink, data, RespResult.buildSuccess(null), listener,
-                                resp -> {
-                                    //业务处理
-                                    final R ret = listener.apply(data);
-                                    if (ret != null) {
-                                        resp.setData(ret);
-                                    }
-                                }
-                        ))
-                        .subscribe()
+            return throwable.getMessage();
+        }
+        return null;
+    }
+
+    /**
+     * 业务处理-有入参验证
+     *
+     * @param req                入参数据
+     * @param respSuccessHandler 响应成功数据
+     * @param respFailHandler    响应失败处理
+     * @param listener           业务处理器
+     * @param <T>                入参数据类型
+     * @param <R>                出参数据类型
+     * @param <Resp>             响应数据
+     * @return 处理结果
+     */
+    protected <T extends Serializable, R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(
+            @Nonnull final Mono<T> req,
+            @Nonnull final Supplier<Resp> respSuccessHandler,
+            @Nonnull final Function<String, Resp> respFailHandler,
+            @Nonnull final ProccessListener<T, R> listener) {
+        return Mono.create(sink -> req.doOnError(Throwable.class, e -> sink.success(respFailHandler.apply(actionExceptionHandler(e))))
+                .doOnNext(data -> handler(sink, data, respSuccessHandler.get(), listener,
+                        respRet -> {
+                            //业务处理
+                            final R ret = listener.apply(data);
+                            if (ret != null) {
+                                respRet.setData(ret);
+                            }
+                        }
+                )).subscribe()
         );
+    }
+
+    /**
+     * 业务处理
+     *
+     * @param req      请求数据
+     * @param listener 处理器
+     * @param <T>      请求数据类型
+     * @param <R>      响应数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> listener) {
+        return action(req, () -> RespResult.buildSuccess(null), RespResult::buildFail, listener);
+    }
+
+
+    /**
+     * 业务处理-新增
+     *
+     * @param req      请求数据
+     * @param listener 处理器
+     * @param <T>      请求数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable> Mono<RespAddResult> actionAdd(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, AddResult> listener) {
+        return action(req, () -> RespAddResult.buildSuccess(null), RespAddResult::buildFail, listener);
+    }
+
+    /**
+     * 业务处理-修改
+     *
+     * @param req      请求数据
+     * @param listener 处理器
+     * @param <T>      请求数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, Serializable> listener) {
+        return action(req, () -> new RespModifyResult().buildSuccess(), RespModifyResult::buildFail, listener);
     }
 
     @Data
