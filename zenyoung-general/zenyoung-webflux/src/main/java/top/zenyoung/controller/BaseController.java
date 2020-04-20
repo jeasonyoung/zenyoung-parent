@@ -341,6 +341,11 @@ public abstract class BaseController {
                     }
 
                     @Override
+                    public void preHandler(@Nullable final T reqData) {
+                        process.preHandler(reqData);
+                    }
+
+                    @Override
                     public AddResult apply(final T data) {
                         return new AddResult(process.apply(data));
                     }
