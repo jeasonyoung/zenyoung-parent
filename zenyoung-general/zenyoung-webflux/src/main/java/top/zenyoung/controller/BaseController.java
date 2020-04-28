@@ -159,11 +159,23 @@ public abstract class BaseController {
     ) {
         return Mono.create(sink -> handler(sink, reqQuery.getQuery(), new RespDataResult<Ret>(), listener,
                 resp -> {
-                    //查询条件处理
-                    final ReqPagingQuery<Qry> query = new ReqPagingQuery<>();
-                    BeanUtils.copyProperties(reqQuery, query);
                     //查询数据处理
-                    final PagingResult<Item> queryResult = listener.query(query);
+                    final PagingResult<Item> queryResult = listener.query(new PagingQuery<Qry>() {
+                        @Override
+                        public Integer getIndex() {
+                            return reqQuery.getIndex();
+                        }
+
+                        @Override
+                        public Integer getRows() {
+                            return reqQuery.getRows();
+                        }
+
+                        @Override
+                        public Qry getQuery() {
+                            return listener.convert(reqQuery.getQuery());
+                        }
+                    });
                     if (queryResult == null || CollectionUtils.isEmpty(queryResult.getRows())) {
                         resp.setData(DataResult.<Ret>builder()
                                 .total(0L)
