@@ -6,8 +6,5 @@ RUN echo "https://mirrors.aliyun.com/alpine/v3.9/main" >> /etc/apk/repositories 
     apk update && \
     apk --no-cache add openjdk11-jdk --repository="http://mirrors.aliyun.com/alpine/edge/community" && \
     apk --no-cache add tzdata && \
-    TZ=Asia/Shanghai && \
-    echo "Asia/Shanghai" > /etc/timezone && \
-    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    apk del tzdata && \
     rm -rf /tmp/* /var/cache/apk/*
+ENV TZ=Asia/Shanghai
