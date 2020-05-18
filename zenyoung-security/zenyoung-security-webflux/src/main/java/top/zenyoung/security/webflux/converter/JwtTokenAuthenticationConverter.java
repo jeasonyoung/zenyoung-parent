@@ -1,6 +1,7 @@
 package top.zenyoung.security.webflux.converter;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -11,19 +12,24 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.webflux.model.TokenAuthentication;
 import top.zenyoung.security.webflux.model.TokenUserDetails;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Jwt令牌认证转换器类
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/19 4:02 下午
+ * 2020/3/19 4:02 下午
  **/
 @Slf4j
 public class JwtTokenAuthenticationConverter implements ServerAuthenticationConverter {
@@ -34,8 +40,29 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
 
     public JwtTokenAuthenticationConverter(@Nonnull final AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-        final String[] whiteUrls = authenticationManager.getWhiteUrls();
+        final String[] whiteUrls = buildWhiteUrls(authenticationManager);
         exchangeMatcher = whiteUrls == null || whiteUrls.length == 0 ? null : ServerWebExchangeMatchers.pathMatchers(whiteUrls);
+    }
+
+    private String[] buildWhiteUrls(@Nonnull final AuthenticationManager authenticationManager) {
+        final List<String> whiteUrls = Lists.newLinkedList();
+        //用户登录
+        final String[] loginUrls = authenticationManager.getLoginUrls();
+        if (loginUrls.length > 0) {
+            whiteUrls.addAll(Arrays.stream(loginUrls)
+                    .filter(val -> !Strings.isNullOrEmpty(val))
+                    .collect(Collectors.toList())
+            );
+        }
+        //白名单
+        final String[] urls = authenticationManager.getWhiteUrls();
+        if (urls != null && urls.length > 0) {
+            whiteUrls.addAll(Arrays.stream(urls)
+                    .filter(url -> !Strings.isNullOrEmpty(url))
+                    .collect(Collectors.toList())
+            );
+        }
+        return whiteUrls.size() > 0 ? whiteUrls.toArray(new String[0]) : null;
     }
 
     @Override
@@ -43,10 +70,6 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
         //获取令牌
         final ServerHttpRequest request = exchange.getRequest();
         final String authorization = request.getHeaders().getFirst(TOKEN_HEADER_NAME);
-        if (Strings.isNullOrEmpty(authorization)) {
-            //令牌为空
-            return Mono.empty();
-        }
         //检查是否有白名单
         if (exchangeMatcher != null) {
             //白名单处理
@@ -62,7 +85,7 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
     }
 
     private Mono<? extends Authentication> fallback(@Nonnull final ServerHttpRequest request,
-                                                    @Nonnull final String authorization,
+                                                    @Nullable final String authorization,
                                                     @Nonnull final Throwable ex) {
         log.warn("fallback(request-path: {},authorization: " + authorization + ")-exp: {}", request.getPath(), ex.getMessage());
         return Mono.error(new AuthenticationException(ex.getMessage(), ex) {
@@ -70,8 +93,11 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
     }
 
     @Nonnull
-    protected Authentication parseToken(@Nonnull final String authorization) {
+    protected Authentication parseToken(@Nullable final String authorization) {
         log.debug("parseToken(authorization: {})...", authorization);
+        if (Strings.isNullOrEmpty(authorization)) {
+            throw new TokenException("令牌为空");
+        }
         //解析令牌
         final Ticket ticket = authenticationManager.getTokenGenerator().parseToken(authorization);
         final TokenUserDetails userDetails = new TokenUserDetails(ticket);
