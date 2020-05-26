@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.*;
@@ -70,6 +71,7 @@ public class JwtTokenFilter implements WebFilter {
     private Mono<Void> authenticate(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain, @Nonnull final Authentication authen) {
         final SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(authen);
+        SecurityContextHolder.setContext(securityContext);
         return this.securityContextRepository.save(exchange, securityContext)
                 .then(authenticationSuccessHandler.onAuthenticationSuccess(new WebFilterExchange(exchange, chain), authen))
                 .subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
