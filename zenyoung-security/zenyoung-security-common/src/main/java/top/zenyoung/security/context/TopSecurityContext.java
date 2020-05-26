@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/5/26 4:55 下午
  **/
 public class TopSecurityContext implements SecurityContext {
     private final SecurityContext context;
