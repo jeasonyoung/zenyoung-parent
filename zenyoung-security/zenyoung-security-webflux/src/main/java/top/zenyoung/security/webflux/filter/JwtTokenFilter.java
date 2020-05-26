@@ -17,6 +17,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import top.zenyoung.security.context.TopSecurityContext;
 import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.webflux.converter.JwtTokenAuthenticationConverter;
 import top.zenyoung.security.webflux.util.RespJsonUtils;
@@ -28,7 +29,7 @@ import javax.annotation.Nonnull;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/19 3:55 下午
+ * 2020/3/19 3:55 下午
  **/
 @Slf4j
 public class JwtTokenFilter implements WebFilter {
@@ -71,7 +72,7 @@ public class JwtTokenFilter implements WebFilter {
     private Mono<Void> authenticate(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain, @Nonnull final Authentication authen) {
         final SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(authen);
-        SecurityContextHolder.setContext(securityContext);
+        SecurityContextHolder.setContext(new TopSecurityContext(securityContext, exchange.getRequest()));
         return this.securityContextRepository.save(exchange, securityContext)
                 .then(authenticationSuccessHandler.onAuthenticationSuccess(new WebFilterExchange(exchange, chain), authen))
                 .subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
