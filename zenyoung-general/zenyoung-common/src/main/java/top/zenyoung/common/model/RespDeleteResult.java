@@ -10,8 +10,9 @@ import java.io.Serializable;
  **/
 public class RespDeleteResult extends RespResult<Serializable> {
 
-    public RespDeleteResult buildSuccess() {
-        this.buildRespSuccess(null);
-        return this;
+    public static RespDeleteResult buildFinish() {
+        final RespDeleteResult ret = new RespDeleteResult();
+        ret.buildRespSuccess(null);
+        return ret;
     }
 }

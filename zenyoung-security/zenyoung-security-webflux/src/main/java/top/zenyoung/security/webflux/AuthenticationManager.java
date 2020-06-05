@@ -1,6 +1,7 @@
 package top.zenyoung.security.webflux;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.server.RequestPath;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.UserPrincipal;
 import top.zenyoung.security.token.JwtTokenGenerator;
 import top.zenyoung.security.token.TokenGenerator;
+import top.zenyoung.security.webflux.model.TokenAuthentication;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,10 +79,11 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
     /**
      * 构建用户认证服务实现
      *
+     * @param path 请求路径
      * @return 认证服务实现
      */
     @Nonnull
-    ReactiveUserDetailsService buildAuthService();
+    ReactiveUserDetailsService buildAuthService(@Nullable final RequestPath path);
 
     /**
      * 获取用户登录请求报文类型
@@ -109,11 +112,17 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
     @Override
     default Mono<Authentication> authenticate(final Authentication authentication) {
         Assert.notNull(authentication, "'authentication'不能为空!");
-        //初始化认证处理器
-        final UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(buildAuthService());
-        //设置密码编码器
-        manager.setPasswordEncoder(getPasswordEncoder());
-        //认证处理
-        return manager.authenticate(authentication);
+        if (authentication instanceof TokenAuthentication) {
+            final TokenAuthentication tokenAuthentication = (TokenAuthentication) authentication;
+            //初始化认证处理器
+            final UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(
+                    buildAuthService(tokenAuthentication.getPath())
+            );
+            //设置密码编码器
+            manager.setPasswordEncoder(getPasswordEncoder());
+            //认证处理
+            return manager.authenticate(tokenAuthentication);
+        }
+        return Mono.error(new IllegalArgumentException("authentication is TokenAuthentication"));
     }
 }

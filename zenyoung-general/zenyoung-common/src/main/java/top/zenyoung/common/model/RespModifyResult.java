@@ -11,12 +11,13 @@ import java.io.Serializable;
  **/
 public class RespModifyResult extends RespResult<Serializable> {
 
-    public RespModifyResult buildSuccess() {
-        this.buildRespSuccess(null);
-        return this;
+    public static RespModifyResult buildFinish() {
+        final RespModifyResult ret = new RespModifyResult();
+        ret.buildRespSuccess(null);
+        return ret;
     }
 
-    public static RespModifyResult buildFail(@Nullable final String err) {
+    public static RespModifyResult buildError(@Nullable final String err) {
         final RespModifyResult ret = new RespModifyResult();
         ret.buildRespFail(err);
         return ret;

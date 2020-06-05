@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -75,12 +76,12 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
             //白名单处理
             return exchangeMatcher.matches(exchange)
                     .filter(matchResult -> !matchResult.isMatch())
-                    .map(matchResult -> parseToken(authorization))
+                    .map(matchResult -> parseToken(request.getPath(), authorization))
                     .switchIfEmpty(Mono.empty())
                     .onErrorResume(ex -> fallback(request, authorization, ex));
         }
         //无白名单处理
-        return Mono.just(parseToken(authorization))
+        return Mono.just(parseToken(request.getPath(), authorization))
                 .onErrorResume(ex -> fallback(request, authorization, ex));
     }
 
@@ -93,7 +94,7 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
     }
 
     @Nonnull
-    protected Authentication parseToken(@Nullable final String authorization) {
+    protected Authentication parseToken(@Nullable final RequestPath path, @Nullable final String authorization) {
         log.debug("parseToken(authorization: {})...", authorization);
         if (Strings.isNullOrEmpty(authorization)) {
             throw new TokenException("令牌为空");
@@ -102,6 +103,6 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
         final Ticket ticket = authenticationManager.getTokenGenerator().parseToken(authorization);
         final TokenUserDetails userDetails = new TokenUserDetails(ticket);
         //转换用户数据
-        return new TokenAuthentication(userDetails, null, userDetails.getAuthorities());
+        return new TokenAuthentication(path, userDetails, null, userDetails.getAuthorities());
     }
 }

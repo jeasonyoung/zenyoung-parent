@@ -10,15 +10,19 @@ import javax.annotation.Nullable;
  **/
 public class RespAddResult extends RespResult<AddResult> {
 
-    public static RespAddResult buildFail(@Nullable final String error) {
+    public static RespAddResult buildFinish() {
+        return buildFinish(null);
+    }
+
+    public static RespAddResult buildFinish(@Nullable final String id) {
         final RespAddResult ret = new RespAddResult();
-        ret.buildRespFail(error);
+        ret.buildRespSuccess(new AddResult(id));
         return ret;
     }
 
-    public static RespAddResult buildSuccess(@Nullable final String data) {
+    public static RespAddResult buildError(@Nullable final String error) {
         final RespAddResult ret = new RespAddResult();
-        ret.buildRespSuccess(new AddResult(data));
+        ret.buildRespFail(error);
         return ret;
     }
 }

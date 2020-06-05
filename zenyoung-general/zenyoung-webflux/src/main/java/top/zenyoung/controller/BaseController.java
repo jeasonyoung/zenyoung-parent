@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import reactor.core.publisher.Mono;
@@ -242,7 +241,7 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected Mono<RespDeleteResult> actionDelete(@Nonnull final ProccessDeleteListener process) {
-        return action(new RespDeleteResult().buildSuccess(),
+        return action(RespDeleteResult.buildFinish(),
                 new ProccessListener<Void, Serializable>() {
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -345,7 +344,7 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected <T extends Serializable> Mono<RespAddResult> actionAdd(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, String> process) {
-        return action(req, () -> RespAddResult.buildSuccess(null), RespAddResult::buildFail,
+        return action(req, RespAddResult::buildFinish, RespAddResult::buildError,
                 new ProccessListener<T, AddResult>() {
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -374,7 +373,7 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> listener) {
-        return action(req, () -> new RespModifyResult().buildSuccess(), RespModifyResult::buildFail,
+        return action(req, RespModifyResult::buildFinish, RespModifyResult::buildError,
                 new ProccessListener<T, Serializable>() {
 
                     @Override
