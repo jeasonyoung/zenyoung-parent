@@ -2,6 +2,12 @@ package top.zenyoung.security.webflux;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.Assert;
+import reactor.core.publisher.Mono;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.UserPrincipal;
@@ -16,7 +22,7 @@ import javax.annotation.Nullable;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/20 5:59 下午
+ * 2020/3/20 5:59 下午
  **/
 public interface AuthenticationManager extends ReactiveAuthenticationManager {
 
@@ -61,6 +67,22 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
     }
 
     /**
+     * 获取密码编码器
+     *
+     * @return 密码编码器
+     */
+    @Nonnull
+    PasswordEncoder getPasswordEncoder();
+
+    /**
+     * 构建用户认证服务实现
+     *
+     * @return 认证服务实现
+     */
+    @Nonnull
+    ReactiveUserDetailsService buildAuthService();
+
+    /**
      * 获取用户登录请求报文类型
      *
      * @return 用户登录请求报文类型
@@ -77,4 +99,21 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      */
     @Nonnull
     LoginRespBody getUserResp(@Nonnull final UserPrincipal userPrincipal);
+
+    /**
+     * 认证业务处理
+     *
+     * @param authentication 认证数据
+     * @return 认证结果
+     */
+    @Override
+    default Mono<Authentication> authenticate(final Authentication authentication) {
+        Assert.notNull(authentication, "'authentication'不能为空!");
+        //初始化认证处理器
+        final UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(buildAuthService());
+        //设置密码编码器
+        manager.setPasswordEncoder(getPasswordEncoder());
+        //认证处理
+        return manager.authenticate(authentication);
+    }
 }
