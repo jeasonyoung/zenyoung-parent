@@ -75,7 +75,7 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      * @return 密码编码器
      */
     default PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+        return null;
     }
 
     /**
