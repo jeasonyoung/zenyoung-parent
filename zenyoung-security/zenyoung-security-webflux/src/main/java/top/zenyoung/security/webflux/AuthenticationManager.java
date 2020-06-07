@@ -6,6 +6,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -73,8 +74,9 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      *
      * @return 密码编码器
      */
-    @Nonnull
-    PasswordEncoder getPasswordEncoder();
+    default PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     /**
      * 构建用户认证服务实现
@@ -82,8 +84,9 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      * @param path 请求路径
      * @return 认证服务实现
      */
-    @Nonnull
-    ReactiveUserDetailsService buildAuthService(@Nullable final RequestPath path);
+    default ReactiveUserDetailsService buildAuthService(@Nullable final RequestPath path) {
+        return null;
+    }
 
     /**
      * 获取用户登录请求报文类型
