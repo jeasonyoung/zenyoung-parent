@@ -13,7 +13,6 @@ import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.UserPrincipal;
 import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.webflux.converter.ServerBodyAuthenticationConverter;
-import top.zenyoung.security.webflux.model.TokenUserDetails;
 import top.zenyoung.security.webflux.util.RespJsonUtils;
 
 import javax.annotation.Nonnull;
@@ -23,7 +22,7 @@ import javax.annotation.Nonnull;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/20 5:56 下午
+ * 2020/3/20 5:56 下午
  **/
 @Slf4j
 public class JwtLoginFilter extends AuthenticationWebFilter {
@@ -37,21 +36,20 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
         //登录成功处理
         setAuthenticationSuccessHandler((filterExchange, authen) -> {
             log.info("setAuthenticationSuccessHandler(authen: {})...", authen);
-            if (authen.getPrincipal() instanceof TokenUserDetails) {
-                final ServerWebExchange exchange = filterExchange.getExchange();
-                final TokenUserDetails userDetails = (TokenUserDetails) authen.getPrincipal();
-                final UserPrincipal principal = new UserPrincipal();
-                //用户ID
-                principal.setId(userDetails.getId());
-                //用户账号
-                principal.setAccount(userDetails.getAccount());
-                //用户角色集合
-                principal.setRoles(userDetails.getRoles());
-                //构建响应数据
-                return RespJsonUtils.buildSuccessResp(
-                        exchange.getResponse(),
-                        RespResult.<LoginRespBody>builder().build().buildRespSuccess(authenticationManager.getUserResp(principal))
-                );
+            if (authen.getPrincipal() instanceof UserPrincipal) {
+                try {
+                    final ServerWebExchange exchange = filterExchange.getExchange();
+                    //构建响应数据
+                    return RespJsonUtils.buildSuccessResp(
+                            exchange.getResponse(),
+                            RespResult.<LoginRespBody>builder().build().buildRespSuccess(
+                                    authenticationManager.getUserResp((UserPrincipal) authen.getPrincipal())
+                            )
+                    );
+                } catch (Throwable ex) {
+                    log.warn("setAuthenticationSuccessHandler(authen: {})-exp: {}", authen, ex.getMessage());
+                    return Mono.error(ex);
+                }
             }
             return Mono.error(new IllegalArgumentException("authen.getPrincipal()不能转换为UserPrincipal=>" + authen.getPrincipal()));
         });

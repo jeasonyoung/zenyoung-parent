@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户数据
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/19 4:31 下午
+ * 2020/3/19 4:31 下午
  **/
 @Data
 @NoArgsConstructor
@@ -30,4 +31,9 @@ public class UserPrincipal implements Serializable {
      * 用户角色集合
      */
     private List<String> roles;
+
+    /**
+     * 扩展数据
+     */
+    private Map<String, Serializable> exts;
 }

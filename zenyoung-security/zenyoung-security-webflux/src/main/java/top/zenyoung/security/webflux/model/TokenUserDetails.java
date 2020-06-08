@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.security.model.UserPrincipal;
 
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/19 4:25 下午
+ * 2020/3/19 4:25 下午
  **/
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -85,5 +86,17 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    /**
+     * 构建用户登录认证数据
+     *
+     * @param principal 用户数据
+     * @param password  用户密码
+     * @param status    用户状态
+     * @return 认证数据
+     */
+    public static Mono<UserDetails> build(@Nonnull final UserPrincipal principal, @Nullable final String password, @Nullable final Status status) {
+        return Mono.just(new TokenUserDetails(principal, password, status));
     }
 }

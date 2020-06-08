@@ -94,7 +94,7 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
     }
 
     @Nonnull
-    protected Authentication parseToken(@Nullable final RequestPath path, @Nullable final String authorization) {
+    protected Authentication parseToken(@Nonnull final RequestPath path, @Nullable final String authorization) {
         log.debug("parseToken(authorization: {})...", authorization);
         if (Strings.isNullOrEmpty(authorization)) {
             throw new TokenException("令牌为空");
