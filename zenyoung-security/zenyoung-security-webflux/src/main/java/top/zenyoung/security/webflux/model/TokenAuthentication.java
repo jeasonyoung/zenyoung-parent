@@ -4,7 +4,9 @@ import lombok.Getter;
 import org.springframework.http.server.RequestPath;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import top.zenyoung.security.model.LoginReqBody;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
@@ -20,12 +22,16 @@ public class TokenAuthentication extends UsernamePasswordAuthenticationToken {
     @Getter
     private final RequestPath path;
 
-    public TokenAuthentication(@Nullable final RequestPath path, @Nullable final Object principal, @Nullable final Object credentials) {
+    @Getter
+    private LoginReqBody reqBody;
+
+    public TokenAuthentication(@Nonnull final RequestPath path, @Nonnull final Object principal, @Nonnull final Object credentials, @Nonnull final LoginReqBody reqBody) {
         super(principal, credentials);
         this.path = path;
+        this.reqBody = reqBody;
     }
 
-    public TokenAuthentication(@Nullable final RequestPath path, @Nullable final Object principal, @Nullable final Object credentials, @Nullable final Collection<? extends GrantedAuthority> authorities) {
+    public TokenAuthentication(@Nonnull final RequestPath path, @Nonnull final Object principal, @Nullable final Object credentials, @Nonnull final Collection<? extends GrantedAuthority> authorities) {
         super(principal, credentials, authorities);
         this.path = path;
     }

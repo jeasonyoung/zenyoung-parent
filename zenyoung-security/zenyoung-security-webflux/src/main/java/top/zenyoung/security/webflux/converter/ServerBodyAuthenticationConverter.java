@@ -44,7 +44,7 @@ public class ServerBodyAuthenticationConverter implements ServerAuthenticationCo
                     .orElseThrow(() -> new IllegalStateException("No JSON reader for LoginReqBody"))
                     .readMono(reqLoginBodyType, request, Collections.emptyMap())
                     .cast(LoginReqBody.class)
-                    .map(o -> new TokenAuthentication(request.getPath(), o.getAccount(), o.getPasswd()));
+                    .map(o -> new TokenAuthentication(request.getPath(), o.getAccount(), o.getPasswd(), o));
         }
         return Mono.empty();
     }
