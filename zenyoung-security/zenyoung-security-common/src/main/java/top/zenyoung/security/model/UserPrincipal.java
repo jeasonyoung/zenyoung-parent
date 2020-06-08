@@ -1,6 +1,6 @@
 package top.zenyoung.security.model;
 
-import lombok.AllArgsConstructor;
+import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +17,6 @@ import java.util.Map;
  **/
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserPrincipal implements Serializable {
     /**
      * 用户ID
@@ -36,4 +35,18 @@ public class UserPrincipal implements Serializable {
      * 扩展数据
      */
     private Map<String, Serializable> exts;
+
+    /**
+     * 构造函数
+     *
+     * @param id      用户ID
+     * @param account 用户账号
+     * @param roles   用户角色集合
+     */
+    public UserPrincipal(final String id, final String account, final List<String> roles) {
+        setId(id);
+        setAccount(account);
+        setRoles(roles);
+        setExts(Maps.newLinkedHashMap());
+    }
 }
