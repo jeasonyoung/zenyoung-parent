@@ -3,7 +3,6 @@ package top.zenyoung.security.webflux.model;
 import com.google.common.base.Strings;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,16 +36,24 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
      */
     private Status status = Status.Enable;
 
+    /**
+     * 构造函数
+     *
+     * @param principal 用户数据
+     * @param password  用户密码
+     * @param status    用户状态
+     */
     public TokenUserDetails(@Nonnull final UserPrincipal principal, @Nullable final String password, @Nullable final Status status) {
-        BeanUtils.copyProperties(principal, this);
-        if (!Strings.isNullOrEmpty(password)) {
-            setPassword(password);
-        }
-        if (status != null) {
-            setStatus(status);
-        }
+        super(principal);
+        this.password = password;
+        this.status = status;
     }
 
+    /**
+     * 构造函数
+     *
+     * @param principal 用户数据
+     */
     public TokenUserDetails(@Nonnull final UserPrincipal principal) {
         this(principal, null, null);
     }
