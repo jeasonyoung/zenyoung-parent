@@ -19,7 +19,7 @@ import java.util.function.Function;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/19 4:06 下午
+ * 2020/3/19 4:06 下午
  **/
 @Data
 @NoArgsConstructor
@@ -32,12 +32,7 @@ public class Ticket extends UserPrincipal {
     private static final String SEP_ROLE = ",";
 
     public Ticket(@Nonnull final UserPrincipal principal) {
-        //用户ID
-        setId(principal.getId());
-        //用户账号
-        setAccount(principal.getAccount());
-        //用户角色集合
-        setRoles(getRoles());
+        super(principal);
     }
 
     public Map<String, Object> toClaims() {

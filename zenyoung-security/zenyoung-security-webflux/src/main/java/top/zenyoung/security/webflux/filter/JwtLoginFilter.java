@@ -40,14 +40,14 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
                 try {
                     final ServerWebExchange exchange = filterExchange.getExchange();
                     //获取登录用户数据
-                    final UserPrincipal principal = (UserPrincipal) authen.getPrincipal();
+                    final UserPrincipal principal = new UserPrincipal((UserPrincipal) authen.getPrincipal());
                     //构建响应数据
                     final LoginRespBody respBody = authenticationManager.createRespBody(principal);
                     //构建响应数据
                     return RespJsonUtils.buildSuccessResp(
                             exchange.getResponse(),
                             RespResult.<LoginRespBody>builder().build().buildRespSuccess(
-                                    authenticationManager.buildRespBody(respBody, principal)
+                                    authenticationManager.buildRespBody(respBody, new UserPrincipal((UserPrincipal) authen.getPrincipal()))
                             )
                     );
                 } catch (Throwable ex) {

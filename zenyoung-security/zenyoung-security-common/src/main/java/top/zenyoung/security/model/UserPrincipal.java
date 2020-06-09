@@ -1,9 +1,10 @@
 package top.zenyoung.security.model;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import java.util.Map;
  * 2020/3/19 4:31 下午
  **/
 @Data
-@NoArgsConstructor
 public class UserPrincipal implements Serializable {
     /**
      * 用户ID
@@ -42,11 +42,39 @@ public class UserPrincipal implements Serializable {
      * @param id      用户ID
      * @param account 用户账号
      * @param roles   用户角色集合
+     * @param exts    扩展数据
+     */
+    public UserPrincipal(final String id, final String account, final List<String> roles, final Map<String, Serializable> exts) {
+        this.id = id;
+        this.account = account;
+        this.roles = roles;
+        this.exts = exts;
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param id      用户ID
+     * @param account 用户账号
+     * @param roles   用户角色集合
      */
     public UserPrincipal(final String id, final String account, final List<String> roles) {
-        setId(id);
-        setAccount(account);
-        setRoles(roles);
-        setExts(Maps.newLinkedHashMap());
+        this(id, account, roles, Maps.newLinkedHashMap());
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param principal 用户数据
+     */
+    public UserPrincipal(@Nonnull final UserPrincipal principal) {
+        this(principal.getId(), principal.getAccount(), principal.getRoles(), principal.getExts());
+    }
+
+    /**
+     * 构造函数
+     */
+    public UserPrincipal() {
+        this(null, null, Lists.newLinkedList(), Maps.newLinkedHashMap());
     }
 }
