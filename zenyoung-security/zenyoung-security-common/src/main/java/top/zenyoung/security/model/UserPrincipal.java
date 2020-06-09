@@ -3,6 +3,7 @@ package top.zenyoung.security.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -34,7 +35,7 @@ public class UserPrincipal implements Serializable {
     /**
      * 扩展数据
      */
-    private Map<String, Serializable> exts;
+    private final Map<String, Serializable> exts = Maps.newLinkedHashMap();
 
     /**
      * 构造函数
@@ -48,7 +49,9 @@ public class UserPrincipal implements Serializable {
         this.id = id;
         this.account = account;
         this.roles = roles;
-        this.exts = exts;
+        if (!CollectionUtils.isEmpty(exts)) {
+            this.exts.putAll(exts);
+        }
     }
 
     /**
@@ -59,7 +62,7 @@ public class UserPrincipal implements Serializable {
      * @param roles   用户角色集合
      */
     public UserPrincipal(final String id, final String account, final List<String> roles) {
-        this(id, account, roles, Maps.newLinkedHashMap());
+        this(id, account, roles, null);
     }
 
     /**
@@ -76,5 +79,31 @@ public class UserPrincipal implements Serializable {
      */
     public UserPrincipal() {
         this(null, null, Lists.newLinkedList(), Maps.newLinkedHashMap());
+    }
+
+    /**
+     * 添加数据
+     *
+     * @param key 数据键
+     * @param val 数据值
+     */
+    public void add(@Nonnull final String key, @Nonnull final Serializable val) {
+        getExts().put(key, val);
+    }
+
+    /**
+     * 获取数据值
+     *
+     * @param key       数据键
+     * @param dataClass 数据类型
+     * @param <T>       数据泛型
+     * @return 数据值
+     */
+    public <T extends Serializable> T getVal(@Nonnull final String key, @Nonnull final Class<T> dataClass) {
+        final Serializable obj = getExts().getOrDefault(key, null);
+        if (obj != null) {
+            return dataClass.cast(obj);
+        }
+        return null;
     }
 }
