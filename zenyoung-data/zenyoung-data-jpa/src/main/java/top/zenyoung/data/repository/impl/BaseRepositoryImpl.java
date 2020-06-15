@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
+import top.zenyoung.data.jpa.JpaBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -22,14 +24,14 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- *  2020/2/6 4:34 下午
+ * 2020/2/6 4:34 下午
  **/
 @Slf4j
 public abstract class BaseRepositoryImpl {
     private static final int DEF_PAGING_IDX = 0, DEF_PAGING_ROWS = 10;
 
     /**
-     * 构造分页查询
+     * 构建分页查询
      *
      * @param pagingQuery 查询条件处理
      * @param handler     查询处理
@@ -76,6 +78,71 @@ public abstract class BaseRepositoryImpl {
             };
         }
         return null;
+    }
+
+    /**
+     * 构建分页查询处理
+     *
+     * @param pagingQuery    查询条件
+     * @param queryConvert   查询条件转换
+     * @param orderByHandler 排序处理
+     * @param jpaRepository  JPA数据接口
+     * @param entityConvert  实体转换
+     * @param <Qry>          查询条件类型
+     * @param <Item>         数据实体类型
+     * @param <Ret>          查询结果类型
+     * @return 查询结果
+     */
+    protected <Qry extends Serializable, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
+            @Nullable final PagingQuery<Qry> pagingQuery,
+            @Nonnull final Function<Qry, Predicate> queryConvert,
+            @Nullable final Supplier<Sort> orderByHandler,
+            @Nonnull final JpaBase<Item, ?> jpaRepository,
+            @Nonnull final Function<Item, Ret> entityConvert
+    ) {
+        return buildPagingQuery(pagingQuery, new PagingQueryHandler<Qry, Item, Ret>() {
+
+            @Override
+            public Predicate queryConvert(@Nullable final Qry qry) {
+                return queryConvert.apply(qry);
+            }
+
+            @Override
+            public Sort orderBy() {
+                return orderByHandler == null ? Sort.unsorted() : orderByHandler.get();
+            }
+
+            @Override
+            public Page<Item> queryData(@Nullable final Predicate predicate, @Nonnull final Pageable pageable) {
+                return predicate == null ? jpaRepository.findAll(pageable) : jpaRepository.findAll(predicate, pageable);
+            }
+
+            @Override
+            public Ret apply(final Item item) {
+                return entityConvert.apply(item);
+            }
+        });
+    }
+
+    /**
+     * 构建分页查询处理
+     *
+     * @param pagingQuery   查询条件
+     * @param queryConvert  查询条件转换
+     * @param jpaRepository JPA数据接口
+     * @param entityConvert 实体转换
+     * @param <Qry>         查询条件类型
+     * @param <Item>        数据实体类型
+     * @param <Ret>         查询结果类型
+     * @return 查询结果
+     */
+    protected <Qry extends Serializable, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
+            @Nullable final PagingQuery<Qry> pagingQuery,
+            @Nonnull final Function<Qry, Predicate> queryConvert,
+            @Nonnull final JpaBase<Item, ?> jpaRepository,
+            @Nonnull final Function<Item, Ret> entityConvert
+    ) {
+        return buildPagingQuery(pagingQuery, queryConvert, null, jpaRepository, entityConvert);
     }
 
     /**
