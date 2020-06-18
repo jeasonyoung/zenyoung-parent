@@ -45,7 +45,7 @@ public abstract class BaseController {
         return Lists.newLinkedList();
     }
 
-    protected boolean handlerNotExcept(
+    private boolean handlerNotExcept(
             @Nonnull final RespResult<?> respResult,
             @Nullable final Throwable e,
             @Nonnull final ExceptHandlerListener listener
@@ -84,7 +84,7 @@ public abstract class BaseController {
         return true;
     }
 
-    protected <ReqData, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
+    private <ReqData, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
             @Nullable final MonoSink<Resp> sink,
             @Nullable final ReqData reqData,
             @Nonnull final Resp resp,
@@ -144,10 +144,36 @@ public abstract class BaseController {
     /**
      * 查询数据
      *
+     * @param queryHandler   查询处理器
+     * @param convertHandler 查询结果转换处理器
+     * @param <Item>         查询数据类型
+     * @param <Ret>          结果数据类型
+     * @return 查询结果
+     */
+    protected <Item extends Serializable, Ret extends Serializable> Mono<RespDataResult<Ret>> buildQuery(
+            @Nonnull final Supplier<List<Item>> queryHandler,
+            @Nonnull final Function<Item, Ret> convertHandler
+    ) {
+        return buildQuery(new QueryListener<Item, Ret>() {
+            @Override
+            public List<Item> query() {
+                return queryHandler.get();
+            }
+
+            @Override
+            public Ret apply(final Item data) {
+                return convertHandler.apply(data);
+            }
+        });
+    }
+
+    /**
+     * 分页查询数据
+     *
      * @param reqQuery 分页查询条件
      * @param listener 查询处理器
      * @param <ReqQry> 请求查询条件类型
-     * @param <Qry>    转换后查询条件
+     * @param <Qry>    转换后查询条件类型
      * @param <Item>   查询数据类型
      * @param <Ret>    结果数据类型
      * @return 查询结果
@@ -204,6 +230,43 @@ public abstract class BaseController {
     }
 
     /**
+     * 分页查询数据
+     *
+     * @param reqQuery             分页查询条件
+     * @param queryConvertHandler  查询条件转换处理
+     * @param pagingQueryHandler   分页查询处理
+     * @param resultConvertHandler 查询结果转换处理
+     * @param <ReqQry>             请求查询条件类型
+     * @param <Qry>                转换后查询条件类型
+     * @param <Item>               查询数据类型
+     * @param <Ret>                结果数据类型
+     * @return 查询结果
+     */
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> Mono<RespDataResult<Ret>> buildQuery(
+            @Nonnull final PagingQuery<ReqQry> reqQuery,
+            @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
+            @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
+            @Nonnull final Function<Item, Ret> resultConvertHandler
+    ) {
+        return buildQuery(reqQuery, new PagingQueryListener<ReqQry, Qry, Item, Ret>() {
+            @Override
+            public Qry convert(@Nullable ReqQry reqQry) {
+                return queryConvertHandler.apply(reqQry);
+            }
+
+            @Override
+            public PagingResult<Item> query(@Nonnull final PagingQuery<Qry> query) {
+                return pagingQueryHandler.apply(query);
+            }
+
+            @Override
+            public Ret apply(final Item data) {
+                return resultConvertHandler.apply(data);
+            }
+        });
+    }
+
+    /**
      * 业务处理-无入参验证
      *
      * @param resp     响应对象
@@ -212,7 +275,7 @@ public abstract class BaseController {
      * @param <Resp>   响应数据类型
      * @return 响应数据
      */
-    protected <R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(@Nonnull final Resp resp, @Nonnull final ProccessListener<Void, R> listener) {
+    private <R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(@Nonnull final Resp resp, @Nonnull final ProccessListener<Void, R> listener) {
         return Mono.create(sink -> handler(sink, null, resp, listener,
                 respRet -> {
                     final R data = listener.apply(null);
@@ -269,7 +332,7 @@ public abstract class BaseController {
      * @param throwable 异常
      * @return 异常消息
      */
-    protected String actionExceptionHandler(@Nullable final Throwable throwable) {
+    private String actionExceptionHandler(@Nullable final Throwable throwable) {
         if (throwable != null) {
             if (throwable instanceof BindingResult) {
                 final String error = ((BindingResult) throwable).getFieldErrors().stream()
