@@ -15,7 +15,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <name>zenyoung</name>
     <description>zenyoung tools for Springboot2</description>
