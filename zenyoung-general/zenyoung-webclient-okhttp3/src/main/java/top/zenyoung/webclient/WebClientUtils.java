@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/6/23 10:33 上午
+ * date 2020/6/23 10:33 上午
  **/
 @Slf4j
 public class WebClientUtils {
@@ -198,7 +198,7 @@ public class WebClientUtils {
         log.debug("sendDeleteJson(url: {},headers: {},objMapper: {},respClass: {})...", url, headers, objMapper, respClass);
         return sendJson("DELETE", url, headers, null, objMapper, respClass);
     }
-    
+
     private static class HttpLogging implements HttpLoggingInterceptor.Logger {
 
         @Override
