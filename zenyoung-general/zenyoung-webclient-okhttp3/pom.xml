@@ -3,32 +3,33 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>zenyoung-security</artifactId>
+        <artifactId>zenyoung-general</artifactId>
         <groupId>top.zenyoung</groupId>
         <version>1.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zenyoung-security-common</artifactId>
+    <artifactId>zenyoung-webclient-okhttp3</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- spring -->
+        <!-- okhttp3 -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- jwt -->
+        <!-- fastxml -->
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- 模块 -->
@@ -38,13 +39,4 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>
