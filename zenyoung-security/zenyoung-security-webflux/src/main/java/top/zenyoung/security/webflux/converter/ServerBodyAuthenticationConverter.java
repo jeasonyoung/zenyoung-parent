@@ -36,7 +36,7 @@ public class ServerBodyAuthenticationConverter implements ServerAuthenticationCo
     public Mono<Authentication> convert(final ServerWebExchange exchange) {
         final ServerHttpRequest request = exchange.getRequest();
         final MediaType contentType = request.getHeaders().getContentType();
-        log.info("ServerBodyAuthenticationConverter-convert(contentType: {})", contentType);
+        log.debug("ServerBodyAuthenticationConverter-convert(contentType: {})", contentType);
         if (MediaType.APPLICATION_JSON.isCompatibleWith(contentType)) {
             return serverCodecConfigurer.getReaders().stream()
                     .filter(reader -> reader.canRead(reqLoginBodyType, MediaType.APPLICATION_JSON))

@@ -35,7 +35,7 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
         setServerAuthenticationConverter(new ServerBodyAuthenticationConverter(serverCodecConfigurer, authenticationManager.getLoginReqBodyClass()));
         //登录成功处理
         setAuthenticationSuccessHandler((filterExchange, authen) -> {
-            log.info("setAuthenticationSuccessHandler(authen: {})...", authen);
+            log.debug("setAuthenticationSuccessHandler(authen: {})...", authen);
             if (authen.getPrincipal() instanceof UserPrincipal) {
                 try {
                     final ServerWebExchange exchange = filterExchange.getExchange();
@@ -51,7 +51,7 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
                             )
                     );
                 } catch (Throwable ex) {
-                    log.warn("setAuthenticationSuccessHandler(authen: {})-exp: {}", authen, ex.getMessage());
+                    log.debug("setAuthenticationSuccessHandler(authen: {})-exp: {}", authen, ex.getMessage());
                     return Mono.error(ex);
                 }
             }

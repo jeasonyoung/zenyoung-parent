@@ -88,7 +88,7 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
     private Mono<? extends Authentication> fallback(@Nonnull final ServerHttpRequest request,
                                                     @Nullable final String authorization,
                                                     @Nonnull final Throwable ex) {
-        log.warn("fallback(request-path: {},authorization: " + authorization + ")-exp: {}", request.getPath(), ex.getMessage());
+        log.debug("fallback(request-path: {},authorization: " + authorization + ")-exp: {}", request.getPath(), ex.getMessage());
         return Mono.error(new AuthenticationException(ex.getMessage(), ex) {
         });
     }
