@@ -3,32 +3,35 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>zenyoung-data</artifactId>
+        <artifactId>zenyoung-general</artifactId>
         <groupId>top.zenyoung</groupId>
         <version>1.5.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zenyoung-data-common</artifactId>
+    <artifactId>zenyoung-webflux-websocket</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- jakarta -->
+        <!-- spring -->
         <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+
+        <!-- fastxml -->
         <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <scope>provided</scope>
         </dependency>
 
+        <!-- 模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 </project>
