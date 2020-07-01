@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -55,7 +56,7 @@ public class JsonUtils {
      * @param <R>          目标数据类型
      * @return 对象数据
      */
-    public static <R> R fromMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final Map<String, String> map, @Nonnull final Class<R> tClass) {
+    public static <R> R fromMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final Map<String, Serializable> map, @Nonnull final Class<R> tClass) {
         final String json = toJson(objectMapper, map);
         if (!Strings.isNullOrEmpty(json)) {
             return fromJson(objectMapper, json, tClass);
