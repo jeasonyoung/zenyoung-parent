@@ -9,6 +9,7 @@ import java.time.Duration;
 
 /**
  * Redis-缓存-工具类
+ *
  * @author yangyong
  * @version 1.0
  **/
@@ -34,23 +35,14 @@ public class RedisCacheUtils {
     public static String getCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key) {
         log.debug("getCacheValue(key: {})...", key);
         Assert.hasText(key, "'key'不能为空!");
-        try {
-            //读取缓存
-            return redisTemplate.opsForValue().get(key);
-        } catch (Throwable ex) {
-            log.warn("getCacheValue(key: {})-exp: {}", key, ex.getMessage());
-            return null;
-        }
+        //读取缓存
+        return redisTemplate.opsForValue().get(key);
     }
 
     public static void clearCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key) {
         log.debug("clearCacheValue(key: {})...", key);
         Assert.hasText(key, "'key'不能为空!");
-        try {
-            //清空数据
-            redisTemplate.delete(key);
-        } catch (Throwable ex) {
-            log.warn("clearCacheValue(key: {})-exp: {}", key, ex.getMessage());
-        }
+        //清空数据
+        redisTemplate.delete(key);
     }
 }

@@ -105,9 +105,6 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
                     //缓存数据
                     RedisCacheUtils.saveCacheValue(redisTemplate, redisKey, json, liveTime);
                 }
-            } catch (Throwable ex) {
-                log.warn("addCache(key: {},data: {},liveTime: {})-exp: {}", key, data, liveTime, ex.getMessage());
-                throw new RuntimeException(ex);
             } finally {
                 LOCKS.remove(redisKey);
             }
@@ -126,13 +123,25 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
                 if (!Strings.isNullOrEmpty(json)) {
                     return deserializable(json, dataClass);
                 }
-            } catch (Throwable ex) {
-                log.warn("getCache(key: {},dataClass: {})-exp: {}", key, dataClass, ex.getMessage());
-                throw new RuntimeException(ex);
             } finally {
                 LOCKS.remove(redisKey);
             }
         }
         return null;
+    }
+
+    @Override
+    public void clear(@Nonnull final String key) {
+        log.debug("clear(key: {})...", key);
+        Assert.hasText(key, "'key'不能为空!");
+        final String redisKey = getRedisKey(key);
+        synchronized (LOCKS.computeIfAbsent(redisKey, k -> new Object())) {
+            try {
+                //清除缓存
+                RedisCacheUtils.clearCacheValue(redisTemplate, redisKey);
+            } finally {
+                LOCKS.remove(redisKey);
+            }
+        }
     }
 }

@@ -40,4 +40,11 @@ public interface CacheService {
      * @return 缓存数据
      */
     <T extends Serializable> T getCache(@Nonnull final String key, @Nonnull final Class<T> dataClass);
+
+    /**
+     * 清除缓存
+     *
+     * @param key 缓存键
+     */
+    void clear(@Nonnull final String key);
 }
