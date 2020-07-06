@@ -6,6 +6,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
@@ -18,8 +19,27 @@ import java.util.Objects;
 public class HttpUtils {
     private static final String UNKNOWN = "unknown";
 
+    /**
+     * 获取客户端IP地址
+     *
+     * @param request ServerHttpRequest
+     * @return 客户端IP地址
+     */
     public static String getClientIpAddr(@Nonnull final ServerHttpRequest request) {
-        final HttpHeaders headers = request.getHeaders();
+        String ipAddr = getClientIpAddr(request.getHeaders());
+        if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
+            ipAddr = getClientIpAddr(request.getRemoteAddress());
+        }
+        return ipAddr;
+    }
+
+    /**
+     * 获取客户端IP地址
+     *
+     * @param headers HttpHeaders
+     * @return 客户端IP地址
+     */
+    public static String getClientIpAddr(@Nullable final HttpHeaders headers) {
         if (!CollectionUtils.isEmpty(headers)) {
             String ipAddr = headers.getFirst("x-forwarded-for");
             if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
@@ -31,11 +51,20 @@ public class HttpUtils {
             if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
                 ipAddr = headers.getFirst("X-Real-IP");
             }
-            if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
-                final InetSocketAddress address = request.getRemoteAddress();
-                ipAddr = Objects.requireNonNull(address).getAddress().getHostAddress();
-            }
             return ipAddr;
+        }
+        return null;
+    }
+
+    /**
+     * 获取客户端IP地址
+     *
+     * @param address InetSocketAddress
+     * @return 客户端IP地址
+     */
+    public static String getClientIpAddr(@Nullable final InetSocketAddress address) {
+        if (address != null) {
+            return Objects.requireNonNull(address).getAddress().getHostAddress();
         }
         return null;
     }
