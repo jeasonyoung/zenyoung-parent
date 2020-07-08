@@ -9,8 +9,8 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.RespResult;
+import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginRespBody;
-import top.zenyoung.security.model.UserPrincipal;
 import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.webflux.converter.ServerBodyAuthenticationConverter;
 import top.zenyoung.security.webflux.util.RespJsonUtils;
@@ -47,7 +47,7 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
                     return RespJsonUtils.buildSuccessResp(
                             exchange.getResponse(),
                             RespResult.<LoginRespBody>builder().build().buildRespSuccess(
-                                    authenticationManager.buildRespBody(respBody, new UserPrincipal((UserPrincipal) authen.getPrincipal()))
+                                    authenticationManager.buildRespBody(respBody, principal)
                             )
                     );
                 } catch (Throwable ex) {

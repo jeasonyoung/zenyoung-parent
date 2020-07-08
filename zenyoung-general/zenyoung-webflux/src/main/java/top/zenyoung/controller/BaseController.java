@@ -84,6 +84,18 @@ public abstract class BaseController {
         return true;
     }
 
+    /**
+     * 业务处理
+     *
+     * @param sink      MonoSink<Resp>
+     * @param reqData   请求数据
+     * @param resp      响应数据
+     * @param listener  前置业务处理器
+     * @param process   业务处理器
+     * @param <ReqData> 请求数据类型
+     * @param <P>       前置处理器类型
+     * @param <Resp>    响应数据类型
+     */
     private <ReqData, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
             @Nullable final MonoSink<Resp> sink,
             @Nullable final ReqData reqData,
@@ -298,35 +310,6 @@ public abstract class BaseController {
     }
 
     /**
-     * 业务处理-删除处理
-     *
-     * @param process 删除处理器
-     * @return 处理结果
-     */
-    protected Mono<RespDeleteResult> actionDelete(@Nonnull final ProccessDeleteListener process) {
-        return action(RespDeleteResult.buildFinish(),
-                new ProccessListener<Void, Serializable>() {
-                    @Override
-                    public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
-                        process.getExceptHandlers(handlers);
-                    }
-
-                    @Override
-                    public void preHandler(@Nullable final Void reqData) {
-                        process.preHandler(reqData);
-                    }
-
-                    @Override
-                    public Serializable apply(final Void aVoid) {
-                        //删除处理器
-                        process.accept(aVoid);
-                        return null;
-                    }
-                }
-        );
-    }
-
-    /**
      * 业务异常消息处理
      *
      * @param throwable 异常
@@ -366,11 +349,12 @@ public abstract class BaseController {
      * @param <Resp>             响应数据
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(
+    private <T extends Serializable, R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(
             @Nonnull final Mono<T> req,
             @Nonnull final Supplier<Resp> respSuccessHandler,
             @Nonnull final Function<String, Resp> respFailHandler,
-            @Nonnull final ProccessListener<T, R> listener) {
+            @Nonnull final ProccessListener<T, R> listener
+    ) {
         return Mono.create(sink -> req.doOnError(Throwable.class, e -> sink.success(respFailHandler.apply(actionExceptionHandler(e))))
                 .doOnNext(data -> handler(sink, data, respSuccessHandler.get(), listener,
                         respRet -> {
@@ -387,17 +371,16 @@ public abstract class BaseController {
     /**
      * 业务处理
      *
-     * @param req      请求数据
-     * @param listener 处理器
-     * @param <T>      请求数据类型
-     * @param <R>      响应数据类型
+     * @param req     请求数据
+     * @param process 处理器
+     * @param <T>     请求数据类型
+     * @param <R>     响应数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> listener) {
-        return action(req, () -> RespResult.buildSuccess(null), RespResult::buildFail, listener);
+    protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> process) {
+        return action(req, () -> RespResult.buildSuccess(null), RespResult::buildFail, process);
     }
-
-
+    
     /**
      * 业务处理-新增
      *
@@ -430,28 +413,58 @@ public abstract class BaseController {
     /**
      * 业务处理-修改
      *
-     * @param req      请求数据
-     * @param listener 处理器
-     * @param <T>      请求数据类型
+     * @param req     请求数据
+     * @param process 处理器
+     * @param <T>     请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> listener) {
+    protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> process) {
         return action(req, RespModifyResult::buildFinish, RespModifyResult::buildError,
                 new ProccessListener<T, Serializable>() {
 
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
-                        listener.getExceptHandlers(handlers);
+                        process.getExceptHandlers(handlers);
                     }
 
                     @Override
                     public void preHandler(@Nullable final T reqData) {
-                        listener.preHandler(reqData);
+                        process.preHandler(reqData);
                     }
 
                     @Override
                     public Serializable apply(final T data) {
-                        listener.accept(data);
+                        process.accept(data);
+                        return null;
+                    }
+                }
+        );
+    }
+
+    /**
+     * 业务处理-删除处理
+     *
+     * @param process 删除处理器
+     * @return 处理结果
+     */
+    protected Mono<RespDeleteResult> actionDelete(@Nonnull final ProccessDeleteListener process) {
+        return action(RespDeleteResult.buildFinish(),
+                new ProccessListener<Void, Serializable>() {
+
+                    @Override
+                    public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                        process.getExceptHandlers(handlers);
+                    }
+
+                    @Override
+                    public void preHandler(@Nullable final Void reqData) {
+                        process.preHandler(reqData);
+                    }
+
+                    @Override
+                    public Serializable apply(final Void aVoid) {
+                        //删除处理器
+                        process.accept(aVoid);
                         return null;
                     }
                 }

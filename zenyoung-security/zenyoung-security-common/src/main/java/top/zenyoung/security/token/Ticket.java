@@ -6,7 +6,7 @@ import com.google.common.base.Strings;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import top.zenyoung.security.model.UserPrincipal;
+import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package top.zenyoung.security.model;
+package top.zenyoung.common.model;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -99,7 +99,7 @@ public class UserPrincipal implements Serializable {
      * @param <T>       数据泛型
      * @return 数据值
      */
-    public <T extends Serializable> T getVal(@Nonnull final String key, @Nonnull final Class<T> dataClass) {
+    protected <T extends Serializable> T getVal(@Nonnull final String key, @Nonnull final Class<T> dataClass) {
         final Serializable obj = getExts().getOrDefault(key, null);
         if (obj != null) {
             return dataClass.cast(obj);

@@ -11,7 +11,7 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
-import top.zenyoung.security.model.UserPrincipal;
+import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.token.JwtTokenGenerator;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenGenerator;

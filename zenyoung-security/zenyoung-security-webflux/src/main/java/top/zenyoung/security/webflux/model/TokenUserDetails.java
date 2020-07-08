@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.Status;
-import top.zenyoung.security.model.UserPrincipal;
+import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
