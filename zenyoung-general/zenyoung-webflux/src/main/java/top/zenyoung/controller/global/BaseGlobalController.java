@@ -29,6 +29,6 @@ public abstract class BaseGlobalController {
     @ResponseStatus(code = HttpStatus.OK)
     public Mono<RespResult<Serializable>> handlerException(final Throwable e) {
         log.debug("handlerException", e);
-        return Mono.create(sink -> sink.success(RespResult.buildFail(e.getMessage())));
+        return Mono.create(sink -> sink.success(RespResult.ofFail(e.getMessage())));
     }
 }

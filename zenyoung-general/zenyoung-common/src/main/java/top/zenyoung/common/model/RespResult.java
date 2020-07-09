@@ -32,6 +32,9 @@ public class RespResult<T extends Serializable> implements Serializable {
      */
     private T data;
 
+    /**
+     * 构造函数
+     */
     public RespResult() {
         final EnumData ret = EnumData.parse(ResultCode.Success);
         this.code = ret.getVal();
@@ -46,8 +49,9 @@ public class RespResult<T extends Serializable> implements Serializable {
      * @param data       响应数据
      */
     protected void buildRespResult(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final T data) {
-        setCode(resultCode.getVal());
-        setMsg(Strings.isNullOrEmpty(msg) ? resultCode.getTitle() : msg);
+        final EnumData ret = EnumData.parse(resultCode);
+        setCode(ret.getVal());
+        setMsg(Strings.isNullOrEmpty(msg) ? ret.getTitle() : msg);
         if (data != null) {
             setData(data);
         }
@@ -74,7 +78,24 @@ public class RespResult<T extends Serializable> implements Serializable {
     }
 
     /**
-     * 创建响应结果
+     * 静态构建响应结果
+     *
+     * @param code 响应状态码
+     * @param msg  响应消息
+     * @param data 响应数据
+     * @param <T>  响应数据类型
+     * @return 响应结果
+     */
+    public static <T extends Serializable> RespResult<T> of(@Nullable final Integer code, @Nullable final String msg, @Nullable final T data) {
+        return RespResult.<T>builder()
+                .code(code)
+                .msg(msg)
+                .data(data)
+                .build();
+    }
+
+    /**
+     * 静态构建响应结果
      *
      * @param resultCode 响应结果枚举
      * @param msg        响应消息
@@ -82,33 +103,30 @@ public class RespResult<T extends Serializable> implements Serializable {
      * @param <T>        响应数据类型
      * @return 响应结果
      */
-    protected static <T extends Serializable> RespResult<T> buildResult(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final T data) {
-        return RespResult.<T>builder()
-                .code(resultCode.getVal())
-                .msg(Strings.isNullOrEmpty(msg) ? resultCode.getTitle() : msg)
-                .data(data)
-                .build();
+    public static <T extends Serializable> RespResult<T> of(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final T data) {
+        final EnumData ret = EnumData.parse(resultCode);
+        return RespResult.of(ret.getVal(), Strings.isNullOrEmpty(msg) ? ret.getTitle() : msg, data);
     }
 
     /**
-     * 构建响应成功
+     * 静态构建成功响应结果
      *
      * @param data 响应数据
      * @param <T>  响应数据类型
      * @return 响应结果
      */
-    public static <T extends Serializable> RespResult<T> buildSuccess(@Nullable final T data) {
-        return buildResult(ResultCode.Success, null, data);
+    public static <T extends Serializable> RespResult<T> ofSuccess(@Nullable final T data) {
+        return RespResult.of(ResultCode.Success, null, data);
     }
 
     /**
-     * 构建响应失败
+     * 静态构建失败响应结果
      *
-     * @param error 响应错误消息
-     * @param <T>   响应数据类型
-     * @return 响应失败
+     * @param err 失败消息
+     * @param <T> 响应数据类型
+     * @return 响应结果
      */
-    public static <T extends Serializable> RespResult<T> buildFail(@Nullable final String error) {
-        return buildResult(ResultCode.Fail, error, null);
+    public static <T extends Serializable> RespResult<T> ofFail(@Nullable final String err) {
+        return RespResult.of(ResultCode.Fail, err, null);
     }
 }

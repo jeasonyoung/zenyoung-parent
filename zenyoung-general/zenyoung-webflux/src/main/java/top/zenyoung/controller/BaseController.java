@@ -131,7 +131,7 @@ public abstract class BaseController {
     protected <Item extends Serializable, Ret extends Serializable> Mono<RespDataResult<Ret>> buildQuery(
             @Nonnull final QueryListener<Item, Ret> listener
     ) {
-        return Mono.create(sink -> handler(sink, null, new RespDataResult<Ret>(), listener,
+        return Mono.create(sink -> handler(sink, null, RespDataResult.<Ret>ofSuccess(null), listener,
                 resp -> {
                     //查询数据
                     final List<Item> items = listener.query();
@@ -194,7 +194,7 @@ public abstract class BaseController {
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
     ) {
-        return Mono.create(sink -> handler(sink, reqQuery.getQuery(), new RespDataResult<Ret>(), listener,
+        return Mono.create(sink -> handler(sink, reqQuery.getQuery(), RespDataResult.<Ret>ofSuccess(null), listener,
                 resp -> {
                     //查询数据处理
                     final PagingResult<Item> queryResult = listener.query(new PagingQuery<Qry>() {
@@ -378,7 +378,7 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> process) {
-        return action(req, () -> RespResult.buildSuccess(null), RespResult::buildFail, process);
+        return action(req, () -> RespResult.ofSuccess(null), RespResult::ofFail, process);
     }
 
     /**
@@ -390,8 +390,8 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected <T extends Serializable> Mono<RespAddResult> actionAdd(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, String> process) {
-        return action(req, RespAddResult::buildFinish, RespAddResult::buildError,
-                new ProccessListener<T, AddResult>() {
+        return action(req, () -> RespAddResult.ofSuccess(null), err -> RespAddResult.of(ResultCode.Fail, err, null),
+                new ProccessListener<T, RespAddResult.AddResult>() {
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
                         process.getExceptHandlers(handlers);
@@ -403,8 +403,8 @@ public abstract class BaseController {
                     }
 
                     @Override
-                    public AddResult apply(final T data) {
-                        return new AddResult(process.apply(data));
+                    public RespAddResult.AddResult apply(final T data) {
+                        return new RespAddResult.AddResult(process.apply(data));
                     }
                 }
         );
@@ -419,7 +419,7 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> process) {
-        return action(req, RespModifyResult::buildFinish, RespModifyResult::buildError,
+        return action(req, RespModifyResult::ofFinish, err -> RespModifyResult.of(ResultCode.Fail, err),
                 new ProccessListener<T, Serializable>() {
 
                     @Override
@@ -448,7 +448,7 @@ public abstract class BaseController {
      * @return 处理结果
      */
     protected Mono<RespDeleteResult> actionDelete(@Nonnull final ProccessDeleteListener process) {
-        return action(RespDeleteResult.buildFinish(),
+        return action(RespDeleteResult.ofFinish(),
                 new ProccessListener<Void, Serializable>() {
 
                     @Override
