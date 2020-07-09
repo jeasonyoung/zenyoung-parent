@@ -23,7 +23,7 @@ import java.util.function.Function;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/8 2:32 下午
+ * date 2020/7/8 2:32 下午
  **/
 public abstract class BaseAuthController<A extends UserPrincipal> extends BaseController {
 
@@ -208,7 +208,8 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
     /**
      * 业务处理-删除处理
      *
-     * @param process 删除处理器
+     * @param principal 认证用户
+     * @param process   删除处理器
      * @return 处理结果
      */
     protected Mono<RespDeleteResult> actionDelete(

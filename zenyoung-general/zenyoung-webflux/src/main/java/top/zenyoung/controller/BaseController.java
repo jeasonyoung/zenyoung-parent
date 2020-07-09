@@ -87,7 +87,7 @@ public abstract class BaseController {
     /**
      * 业务处理
      *
-     * @param sink      MonoSink<Resp>
+     * @param sink      Mono处理器
      * @param reqData   请求数据
      * @param resp      响应数据
      * @param listener  前置业务处理器
@@ -380,7 +380,7 @@ public abstract class BaseController {
     protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> process) {
         return action(req, () -> RespResult.buildSuccess(null), RespResult::buildFail, process);
     }
-    
+
     /**
      * 业务处理-新增
      *
