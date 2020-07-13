@@ -47,10 +47,21 @@ public class DateRangeVO implements Serializable {
      * @param data 时间段数据
      * @return VO数据
      */
-    public static DateRangeVO create(@Nullable final DateRange data) {
+    public static DateRangeVO of(@Nullable final DateRange data) {
         if (data != null) {
             return new DateRangeVO(data.getStart(), data.getEnd());
         }
         return null;
+    }
+
+    /**
+     * 创建VO数据
+     *
+     * @param start 开始时间
+     * @param end   结束时间
+     * @return VO数据
+     */
+    public static DateRangeVO of(@Nullable final Date start, @Nullable final Date end) {
+        return new DateRangeVO(start, end);
     }
 }
