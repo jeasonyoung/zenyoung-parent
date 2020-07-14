@@ -22,7 +22,7 @@ import java.util.stream.StreamSupport;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 1:49 下午
+ * date 2020/7/12 1:49 下午
  **/
 @Data
 @NoArgsConstructor

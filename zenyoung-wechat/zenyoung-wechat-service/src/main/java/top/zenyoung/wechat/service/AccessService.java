@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 7:04 下午
+ * date 2020/7/12 7:04 下午
  **/
 public interface AccessService {
 

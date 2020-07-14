@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 7:08 下午
+ * date 2020/7/12 7:08 下午
  **/
 @Slf4j
 abstract class BaseAccessServiceImpl {

@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 1:23 下午
+ * date 2020/7/12 1:23 下午
  **/
 @Getter
 public enum WebScope implements EnumValue {

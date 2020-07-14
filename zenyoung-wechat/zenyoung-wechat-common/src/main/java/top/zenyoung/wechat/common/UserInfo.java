@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/13 10:35 下午
+ * date 2020/7/13 10:35 下午
  **/
 @Data
 public class UserInfo implements Serializable {

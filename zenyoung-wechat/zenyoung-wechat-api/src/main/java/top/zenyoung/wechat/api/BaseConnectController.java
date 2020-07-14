@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 2:58 下午
+ * date 2020/7/12 2:58 下午
  **/
 @Slf4j
 public abstract class BaseConnectController extends BaseController {

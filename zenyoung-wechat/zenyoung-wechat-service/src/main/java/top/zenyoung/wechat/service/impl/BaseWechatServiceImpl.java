@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 7:18 下午
+ * date 2020/7/12 7:18 下午
  **/
 @Slf4j
 public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implements AccessService {

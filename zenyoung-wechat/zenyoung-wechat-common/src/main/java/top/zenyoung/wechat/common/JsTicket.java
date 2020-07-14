@@ -13,7 +13,7 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 2:48 下午
+ * date 2020/7/12 2:48 下午
  **/
 @Data
 @NoArgsConstructor

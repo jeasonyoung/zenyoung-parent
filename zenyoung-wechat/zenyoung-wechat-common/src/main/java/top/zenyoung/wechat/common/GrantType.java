@@ -7,7 +7,7 @@ import top.zenyoung.common.model.EnumValue;
  * 授权类型-枚举
  * @author yangyong
  * @version 1.0
- * @date 2020/7/12 1:33 下午
+ * date 2020/7/12 1:33 下午
  **/
 @Getter
 public enum GrantType implements EnumValue {
