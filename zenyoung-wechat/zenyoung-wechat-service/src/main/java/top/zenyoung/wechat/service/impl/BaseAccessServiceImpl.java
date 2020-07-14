@@ -96,4 +96,18 @@ abstract class BaseAccessServiceImpl {
         //格式化url
         return String.format(url, webAccessToken, openId);
     }
+
+    /**
+     * 构建Jsapi签名票据URL
+     *
+     * @param accessToken 全局令牌
+     * @return Jsapi签名票据URL
+     */
+    protected String buildJsapiTicketUrl(@Nonnull final String accessToken) {
+        log.debug("buildJsapiTicketUrl(accessToken: {})...", accessToken);
+        Assert.hasText(accessToken, "'accessToken'不能为空!");
+        final String url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi";
+        //格式化url
+        return String.format(url, accessToken);
+    }
 }

@@ -7,19 +7,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.util.Assert;
 import top.zenyoung.common.util.CacheUtils;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.webclient.WebClient;
-import top.zenyoung.wechat.common.AccessToken;
-import top.zenyoung.wechat.common.UserInfo;
-import top.zenyoung.wechat.common.WebAccessToken;
-import top.zenyoung.wechat.common.WebScope;
+import top.zenyoung.wechat.common.*;
 import top.zenyoung.wechat.service.AccessService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 微信服务基类
@@ -30,8 +33,11 @@ import java.util.concurrent.TimeUnit;
  **/
 @Slf4j
 public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implements AccessService {
-    private static final long TOKEN_EXPIRE_DISTANCE = 10 * 60 * 1000;
-    private static final Cache<String, AccessTokenCache> ACCESS_TOKEN_CACHE = CacheUtils.createCache(100, 3600, TimeUnit.SECONDS);
+    private static final Duration EXPIRE = Duration.ofSeconds(3600);
+    private static final long EXPIRE_DISTANCE = 10 * 60 * 1000;
+
+    private static final Cache<String, AccessTokenCache> ACCESS_TOKEN_CACHE = CacheUtils.createCache(100, (int) EXPIRE.getSeconds(), TimeUnit.SECONDS);
+    private static final Cache<String, JsTicketCache> TICKET_CACHE = CacheUtils.createCache(100, (int) EXPIRE.getSeconds(), TimeUnit.SECONDS);
 
     /**
      * 获取ObjectMapper
@@ -50,12 +56,12 @@ public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implem
     protected abstract AccessTokenCache getAccessTokenCache(@Nonnull final String appId);
 
     /**
-     * 保存令牌缓存数据
+     * 缓存令牌缓存数据
      *
-     * @param appId 接入ID
-     * @param data  令牌缓存数据
+     * @param appId AppID
+     * @param cache 令牌缓存数据
      */
-    protected abstract void saveAccessTokenCache(@Nonnull final String appId, @Nonnull final AccessTokenCache data);
+    protected abstract void saveAccessTokenCache(@Nonnull final String appId, @Nonnull final AccessTokenCache cache);
 
     @Override
     public AccessToken getAccessToken(@Nonnull final String appId, @Nonnull final String appSecret) {
@@ -69,7 +75,7 @@ public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implem
                 final AccessTokenCache tokenCache = CacheUtils.getCacheValue(ACCESS_TOKEN_CACHE, key, () -> {
                     //从缓存中加载数据
                     AccessTokenCache cache = getAccessTokenCache(appId);
-                    if (cache == null || (System.currentTimeMillis() - cache.getCreateTimeStamp()) < TOKEN_EXPIRE_DISTANCE) {
+                    if (cache == null || (System.currentTimeMillis() - cache.getCreateTimeStamp()) < EXPIRE_DISTANCE) {
                         //获取WebClient
                         final WebClient webClient = getWebClient();
                         if (webClient != null) {
@@ -88,7 +94,7 @@ public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implem
                     return cache;
                 });
                 //检查是否即将过期
-                if (tokenCache != null && (System.currentTimeMillis() - tokenCache.getCreateTimeStamp()) < TOKEN_EXPIRE_DISTANCE) {
+                if (tokenCache != null && (System.currentTimeMillis() - tokenCache.getCreateTimeStamp()) < EXPIRE_DISTANCE) {
                     //本地缓存过期处理
                     ACCESS_TOKEN_CACHE.invalidate(key);
                 }
@@ -183,6 +189,102 @@ public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implem
         }
     }
 
+    /**
+     * 从缓存中加载Jsapi票据缓存数据
+     *
+     * @param appId AppID
+     * @return 票据缓存数据
+     */
+    protected abstract JsTicketCache getJsApiTicketCache(@Nonnull final String appId);
+
+    /**
+     * 缓存Jsapi票据缓存数据
+     *
+     * @param appId AppID
+     * @param cache 票据缓存数据
+     */
+    protected abstract void saveJsApiTicketCache(@Nonnull final String appId, @Nonnull final JsTicketCache cache);
+
+    @Override
+    public JsTicket getJsApiTicket(@Nonnull final AccessToken accessToken, @Nonnull final String appId) {
+        log.debug("getJsApiTicket(accessToken: {},appId: {})..", accessToken, appId);
+        Assert.hasText(appId, "'appId'不能为空!");
+        final String key = "jsapi-ticket:" + appId;
+        synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
+            try {
+                final JsTicketCache ticketCache = CacheUtils.getCacheValue(TICKET_CACHE, key, () -> {
+                    //从缓存中加载数据
+                    JsTicketCache cache = getJsApiTicketCache(appId);
+                    if (cache == null || (System.currentTimeMillis() - cache.getCreateTimeStamp()) < EXPIRE_DISTANCE) {
+                        final String token;
+                        if (!Strings.isNullOrEmpty(token = accessToken.getToken())) {
+                            //获取WebClient
+                            final WebClient webClient = getWebClient();
+                            if (webClient != null) {
+                                final String url = buildJsapiTicketUrl(token);
+                                final String json = webClient.sendRequest("GET", url, null, () -> null, resp -> resp);
+                                //数据解析
+                                final JsTicket jsTicket = JsonUtils.fromJson(getObjectMapper(), json, JsTicket.class);
+                                if (jsTicket == null || Strings.isNullOrEmpty(jsTicket.getTicket())) {
+                                    throw new RuntimeException(json);
+                                }
+                                cache = JsTicketCache.of(jsTicket, System.currentTimeMillis());
+                                //缓存数据
+                                saveJsApiTicketCache(appId, cache);
+                            }
+                        }
+                    }
+                    return cache;
+                });
+                //检查是否即将过期
+                if (ticketCache != null && (System.currentTimeMillis() - ticketCache.getCreateTimeStamp()) < EXPIRE_DISTANCE) {
+                    //本地缓存过期处理
+                    TICKET_CACHE.invalidate(key);
+                }
+                return ticketCache == null ? null : ticketCache.getJsTicket();
+            } finally {
+                LOCKS.remove(key);
+            }
+        }
+    }
+
+    @Override
+    public String createJsApiSignature(@Nonnull final JsTicket jsTicket, @Nonnull final String url,
+                                       @Nonnull final String nonce, @Nonnull final Long timestamp) {
+        log.debug("createJsApiSignature(jsTicket: {},url: {},nonce: {},timestamp: {})...", jsTicket, url, nonce, timestamp);
+        Assert.hasText(url, "'url'不能为空!");
+        Assert.hasText(nonce, "'nonce'不能为空!");
+        final String ticket;
+        Assert.hasText(ticket = jsTicket.getTicket(), "'ticket'不能为空!");
+        final String key = "js-api-signature:" + DigestUtils.sha1Hex(ticket);
+        synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
+            try {
+                //参数集合
+                final Map<String, Serializable> params = new HashMap<String, Serializable>(4) {
+                    {
+                        //随机字符串
+                        put("noncestr", nonce);
+                        //jsapi_ticket
+                        put("jsapi_ticket", ticket);
+                        //时间戳
+                        put("timestamp", timestamp);
+                        //当前网页的URL
+                        final int idx = url.lastIndexOf("#");
+                        put("url", idx > 0 ? url.substring(0, idx) : url);
+                    }
+                };
+                //排序处理
+                final String preSign = params.entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(entry -> entry.getKey() + "=" + entry.getValue())
+                        .collect(Collectors.joining("&"));
+                return DigestUtils.sha1Hex(preSign);
+            } finally {
+                LOCKS.remove(key);
+            }
+        }
+    }
+
     @Data
     @EqualsAndHashCode(callSuper = true)
     protected static class AccessTokenCache extends AccessToken {
@@ -192,18 +294,44 @@ public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implem
         private Long createTimeStamp;
 
         public AccessToken getAccessToken() {
-            return new AccessToken(this.getToken(), this.getExpiresIn());
+            return AccessToken.of(this.getToken(), this.getExpiresIn());
         }
 
         public static AccessTokenCache of(@Nonnull final AccessToken accessToken, @Nullable final Long createTimeStamp) {
-            final AccessTokenCache data = new AccessTokenCache();
+            final AccessTokenCache cache = new AccessTokenCache();
             //令牌
-            data.setToken(accessToken.getToken());
+            cache.setToken(accessToken.getToken());
             //有效期
-            data.setExpiresIn(accessToken.getExpiresIn());
+            cache.setExpiresIn(accessToken.getExpiresIn());
             //创建时间戳
-            data.setCreateTimeStamp(createTimeStamp == null || createTimeStamp <= 0 ? System.currentTimeMillis() : createTimeStamp);
-            return data;
+            cache.setCreateTimeStamp(createTimeStamp == null || createTimeStamp <= 0 ? System.currentTimeMillis() : createTimeStamp);
+            //返回
+            return cache;
+        }
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    protected static class JsTicketCache extends JsTicket {
+        /**
+         * 创建时间戳
+         */
+        private Long createTimeStamp;
+
+        public JsTicket getJsTicket() {
+            return JsTicket.of(getTicket(), getExpiresIn());
+        }
+
+        public static JsTicketCache of(@Nonnull final JsTicket ticket, @Nullable final Long createTimeStamp) {
+            final JsTicketCache cache = new JsTicketCache();
+            //临时票据
+            cache.setTicket(ticket.getTicket());
+            //有效期(7200s)
+            cache.setExpiresIn(ticket.getExpiresIn());
+            //创建时间戳
+            cache.setCreateTimeStamp(createTimeStamp == null || createTimeStamp <= 0 ? System.currentTimeMillis() : createTimeStamp);
+            //返回
+            return cache;
         }
     }
 }

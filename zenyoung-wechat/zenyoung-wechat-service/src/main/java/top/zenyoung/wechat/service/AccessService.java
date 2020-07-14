@@ -1,9 +1,6 @@
 package top.zenyoung.wechat.service;
 
-import top.zenyoung.wechat.common.AccessToken;
-import top.zenyoung.wechat.common.UserInfo;
-import top.zenyoung.wechat.common.WebAccessToken;
-import top.zenyoung.wechat.common.WebScope;
+import top.zenyoung.wechat.common.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,4 +51,24 @@ public interface AccessService {
      * @return 微信用户信息
      */
     UserInfo getUserInfo(@Nonnull final WebAccessToken token);
+
+    /**
+     * 获取Jsapi签名票据
+     *
+     * @param accessToken 全局访问令牌
+     * @param appId       AppID
+     * @return Jsapi签名票据
+     */
+    JsTicket getJsApiTicket(@Nonnull final AccessToken accessToken, @Nonnull final String appId);
+
+    /**
+     * 创建JsApi签名处理
+     *
+     * @param jsTicket  Jsapi签名票据
+     * @param url       当前网页的URL
+     * @param nonce     随机字符串
+     * @param timestamp 时间戳
+     * @return JsApi签名
+     */
+    String createJsApiSignature(@Nonnull final JsTicket jsTicket, @Nonnull final String url, @Nonnull final String nonce, @Nonnull final Long timestamp);
 }

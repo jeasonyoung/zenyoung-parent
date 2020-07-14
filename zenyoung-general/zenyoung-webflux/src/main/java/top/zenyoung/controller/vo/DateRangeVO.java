@@ -48,10 +48,7 @@ public class DateRangeVO implements Serializable {
      * @return VO数据
      */
     public static DateRangeVO of(@Nullable final DateRange data) {
-        if (data != null) {
-            return new DateRangeVO(data.getStart(), data.getEnd());
-        }
-        return null;
+        return data == null ? null : DateRangeVO.of(data.getStart(), data.getEnd());
     }
 
     /**
