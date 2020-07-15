@@ -33,7 +33,15 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param principal 认证用户
      * @return 转换数据
      */
+    @Nonnull
     protected abstract A convert(@Nonnull final UserPrincipal principal);
+
+    /**
+     * 检查认证用户
+     *
+     * @param principal 认证用户
+     */
+    protected abstract void checkAuth(@Nonnull final A principal);
 
     /**
      * 查询数据
@@ -50,7 +58,11 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final Function<A, List<Item>> queryHandler,
             @Nonnull final Function<Item, Ret> convertHandler
     ) {
-        return buildQuery(() -> queryHandler.apply(convert(principal)), convertHandler);
+        return buildQuery(() -> {
+            final A auth = convert(principal);
+            checkAuth(auth);
+            return queryHandler.apply(auth);
+        }, convertHandler);
     }
 
     /**
@@ -74,7 +86,11 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
             @Nonnull final Function<Item, Ret> resultConvertHandler
     ) {
-        return buildQuery(reqQuery, reqQry -> queryConvertHandler.apply(convert(principal), reqQry), pagingQueryHandler, resultConvertHandler);
+        return buildQuery(reqQuery, reqQry -> {
+            final A auth = convert(principal);
+            checkAuth(auth);
+            return queryConvertHandler.apply(auth, reqQry);
+        }, pagingQueryHandler, resultConvertHandler);
     }
 
     /**
@@ -93,7 +109,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
 
             @Override
             public R apply(final Void aVoid) {
-                return process.apply(convert(principal), aVoid);
+                final A auth = convert(principal);
+                checkAuth(auth);
+                return process.apply(auth, aVoid);
             }
 
             @Override
@@ -126,7 +144,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
 
             @Override
             public R apply(final T t) {
-                return process.apply(convert(principal), t);
+                final A auth = convert(principal);
+                checkAuth(auth);
+                return process.apply(auth, t);
             }
 
             @Override
@@ -158,7 +178,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
 
             @Override
             public String apply(final T t) {
-                return process.apply(convert(principal), t);
+                final A auth = convert(principal);
+                checkAuth(auth);
+                return process.apply(auth, t);
             }
 
             @Override
@@ -190,7 +212,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
 
             @Override
             public void accept(final T t) {
-                process.accept(convert(principal), t);
+                final A auth = convert(principal);
+                checkAuth(auth);
+                process.accept(auth, t);
             }
 
             @Override
@@ -220,7 +244,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
 
             @Override
             public void accept(final Void aVoid) {
-                process.accept(convert(principal), aVoid);
+                final A auth = convert(principal);
+                checkAuth(auth);
+                process.accept(auth, aVoid);
             }
 
             @Override
