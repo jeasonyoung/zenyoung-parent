@@ -108,13 +108,6 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
         return action(new ProccessListener<Void, R>() {
 
             @Override
-            public R apply(final Void aVoid) {
-                final A auth = convert(principal);
-                checkAuth(auth);
-                return process.apply(auth, aVoid);
-            }
-
-            @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
                 process.getExceptHandlers(handlers);
             }
@@ -122,6 +115,13 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Override
             public void preHandler(@Nullable final Void reqData) {
                 process.preHandler(reqData);
+            }
+
+            @Override
+            public R apply(final Void aVoid) {
+                final A auth = convert(principal);
+                checkAuth(auth);
+                return process.apply(auth, aVoid);
             }
         });
     }
@@ -139,15 +139,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
     protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(
             @Nonnull final UserPrincipal principal,
             @Nonnull final Mono<T> req,
-            @Nonnull final AuthProccessListener<A, T, R> process) {
+            @Nonnull final AuthProccessListener<A, T, R> process
+    ) {
         return action(req, new ProccessListener<T, R>() {
-
-            @Override
-            public R apply(final T t) {
-                final A auth = convert(principal);
-                checkAuth(auth);
-                return process.apply(auth, t);
-            }
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -157,6 +151,13 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Override
             public void preHandler(@Nullable final T reqData) {
                 process.preHandler(reqData);
+            }
+
+            @Override
+            public R apply(final T data) {
+                final A auth = convert(principal);
+                checkAuth(auth);
+                return process.apply(auth, data);
             }
         });
     }
@@ -173,15 +174,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
     protected <T extends Serializable> Mono<RespAddResult> actionAdd(
             @Nonnull final UserPrincipal principal,
             @Nonnull final Mono<T> req,
-            @Nonnull final AuthProccessListener<A, T, String> process) {
+            @Nonnull final AuthProccessListener<A, T, String> process
+    ) {
         return actionAdd(req, new ProccessListener<T, String>() {
-
-            @Override
-            public String apply(final T t) {
-                final A auth = convert(principal);
-                checkAuth(auth);
-                return process.apply(auth, t);
-            }
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -191,6 +186,13 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Override
             public void preHandler(@Nullable final T reqData) {
                 process.preHandler(reqData);
+            }
+
+            @Override
+            public String apply(final T data) {
+                final A auth = convert(principal);
+                checkAuth(auth);
+                return process.apply(auth, data);
             }
         });
     }
@@ -207,15 +209,9 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
     protected <T extends Serializable> Mono<RespModifyResult> actionModify(
             @Nonnull final UserPrincipal principal,
             @Nonnull final Mono<T> req,
-            @Nonnull final AuthProccessModifyListener<A, T> process) {
+            @Nonnull final AuthProccessModifyListener<A, T> process
+    ) {
         return actionModify(req, new ProccessModifyListener<T>() {
-
-            @Override
-            public void accept(final T t) {
-                final A auth = convert(principal);
-                checkAuth(auth);
-                process.accept(auth, t);
-            }
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -226,11 +222,53 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             public void preHandler(@Nullable final T reqData) {
                 process.preHandler(reqData);
             }
+
+            @Override
+            public void accept(final T data) {
+                final A auth = convert(principal);
+                checkAuth(auth);
+                process.accept(auth, data);
+            }
         });
     }
 
     /**
-     * 业务处理-删除处理
+     * 业务处理-删除
+     *
+     * @param principal 认证用户
+     * @param req       请求数据
+     * @param process   处理器
+     * @param <T>       请求数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable> Mono<RespDeleteResult> actionDelete(
+            @Nonnull final UserPrincipal principal,
+            @Nonnull final Mono<T> req,
+            @Nonnull final AuthProccessModifyListener<A, T> process
+    ) {
+        return actionDelete(req, new ProccessModifyListener<T>() {
+
+            @Override
+            public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                process.getExceptHandlers(handlers);
+            }
+
+            @Override
+            public void preHandler(@Nullable final T reqData) {
+                process.preHandler(reqData);
+            }
+
+            @Override
+            public void accept(final T data) {
+                final A auth = convert(principal);
+                checkAuth(auth);
+                process.accept(auth, data);
+            }
+        });
+    }
+
+    /**
+     * 业务处理-删除
      *
      * @param principal 认证用户
      * @param process   删除处理器
@@ -243,13 +281,6 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
         return actionDelete(new ProccessDeleteListener() {
 
             @Override
-            public void accept(final Void aVoid) {
-                final A auth = convert(principal);
-                checkAuth(auth);
-                process.accept(auth, aVoid);
-            }
-
-            @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
                 process.getExceptHandlers(handlers);
             }
@@ -257,6 +288,13 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Override
             public void preHandler(@Nullable final Void reqData) {
                 process.preHandler(reqData);
+            }
+
+            @Override
+            public void accept(final Void aVoid) {
+                final A auth = convert(principal);
+                checkAuth(auth);
+                process.accept(auth, aVoid);
             }
         });
     }

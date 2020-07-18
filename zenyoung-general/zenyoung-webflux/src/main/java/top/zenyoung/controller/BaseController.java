@@ -442,7 +442,38 @@ public abstract class BaseController {
     }
 
     /**
-     * 业务处理-删除处理
+     * 业务处理-删除
+     *
+     * @param req     请求数据
+     * @param process 业务处理器
+     * @param <T>     请求数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable> Mono<RespDeleteResult> actionDelete(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> process) {
+        return action(req, RespDeleteResult::ofFinish, err -> RespDeleteResult.of(ResultCode.Fail, err),
+                new ProccessListener<T, Serializable>() {
+
+                    @Override
+                    public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                        process.getExceptHandlers(handlers);
+                    }
+
+                    @Override
+                    public void preHandler(@Nullable final T reqData) {
+                        process.preHandler(reqData);
+                    }
+
+                    @Override
+                    public Serializable apply(final T data) {
+                        process.accept(data);
+                        return null;
+                    }
+                }
+        );
+    }
+
+    /**
+     * 业务处理-删除
      *
      * @param process 删除处理器
      * @return 处理结果
