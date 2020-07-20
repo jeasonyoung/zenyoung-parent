@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 连接控制器
+ * 连接-控制器
  *
  * @author yangyong
  * @version 1.0
