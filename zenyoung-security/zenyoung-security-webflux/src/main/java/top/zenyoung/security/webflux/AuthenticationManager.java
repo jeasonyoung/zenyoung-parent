@@ -114,15 +114,12 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
     }
 
     /**
-     * 获取返回登录用户数据
+     * 构建登录用户数据
      *
      * @param respBody      响应数据
      * @param userPrincipal 用户数据
-     * @return 返回登录用户数据
      */
-    @Nonnull
-    default LoginRespBody buildRespBody(@Nonnull final LoginRespBody respBody, @Nonnull final UserPrincipal userPrincipal) {
-        return respBody;
+    default void buildRespBody(@Nonnull final LoginRespBody respBody, @Nonnull final UserPrincipal userPrincipal) {
     }
 
     /**
