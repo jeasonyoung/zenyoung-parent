@@ -45,4 +45,10 @@ public class RedisCacheUtils {
         //清空数据
         redisTemplate.delete(key);
     }
+
+    public static void renewalCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key, @Nonnull final Duration renewalTime){
+        log.debug("renewalCacheValue(key: {},renewalTime: {})...", key, renewalTime);
+        Assert.hasText(key, "'key'不能为空!");
+        redisTemplate.expire(key, renewalTime);
+    }
 }

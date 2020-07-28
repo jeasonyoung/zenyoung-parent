@@ -47,4 +47,12 @@ public interface CacheService {
      * @param key 缓存键
      */
     void clear(@Nonnull final String key);
+
+    /**
+     * 缓存续约时间
+     *
+     * @param key         缓存键
+     * @param renewalTime 续约时间
+     */
+    void renewal(@Nonnull final String key, @Nonnull final Duration renewalTime);
 }

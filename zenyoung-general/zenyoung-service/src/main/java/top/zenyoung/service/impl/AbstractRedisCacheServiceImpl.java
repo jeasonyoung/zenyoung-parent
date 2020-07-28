@@ -144,4 +144,19 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
             }
         }
     }
+
+    @Override
+    public void renewal(@Nonnull final String key, @Nonnull final Duration renewalTime) {
+        log.debug("renewal(key: {},renewalTime: {})...", key, renewalTime);
+        Assert.hasText(key, "'key'不能为空!");
+        final String redisKey = getRedisKey(key);
+        synchronized (LOCKS.computeIfAbsent(redisKey, k -> new Object())) {
+            try {
+                //缓存续约
+                RedisCacheUtils.renewalCacheValue(redisTemplate, redisKey, renewalTime);
+            } finally {
+                LOCKS.remove(redisKey);
+            }
+        }
+    }
 }
