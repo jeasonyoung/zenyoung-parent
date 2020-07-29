@@ -1,11 +1,13 @@
 package top.zenyoung.websocket;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -18,7 +20,8 @@ import java.util.function.BiConsumer;
  **/
 @Slf4j
 public class WebSocketUserManagerMemory implements WebSocketUserManager {
-    private final Map<String, Map<String, WebSocketSender>> groupSenders = Maps.newConcurrentMap();
+    private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
+    private final Map<String, Map<String, List<WebSocketSender>>> groupSenders = Maps.newConcurrentMap();
 
     @Override
     public WebSocketSender put(@Nonnull final String groupKey, @Nonnull final String key, @Nonnull final WebSocketSender sender) {
@@ -26,50 +29,65 @@ public class WebSocketUserManagerMemory implements WebSocketUserManager {
         Assert.hasText(groupKey, "'groupKey'不能为空!");
         Assert.hasText(key, "'key'不能为空!");
         //获取分组数据集合
-        final Map<String, WebSocketSender> senders = groupSenders.computeIfAbsent(groupKey, k -> Maps.newConcurrentMap());
-        //添加数据
-        return senders.put(key, sender);
+        final Map<String, List<WebSocketSender>> mapSenders = groupSenders.computeIfAbsent(groupKey, k -> Maps.newConcurrentMap());
+        final String lock = "put:" + key;
+        synchronized (LOCKS.computeIfAbsent(lock, k -> new Object())) {
+            try {
+                //添加数据
+                final List<WebSocketSender> listSenders = mapSenders.computeIfAbsent(key, k -> Lists.newCopyOnWriteArrayList());
+                //添加数据
+                listSenders.add(sender);
+            } finally {
+                LOCKS.remove(lock);
+            }
+        }
+        return sender;
     }
 
     @Override
     public int size(@Nonnull final String groupKey) {
         log.debug("size(groupKey: {})...", groupKey);
         Assert.hasText(groupKey, "'groupKey'不能为空!");
-        final Map<String, WebSocketSender> senders = groupSenders.get(groupKey);
-        return CollectionUtils.isEmpty(senders) ? 0 : senders.size();
+        final Map<String, List<WebSocketSender>> mapSenders = groupSenders.get(groupKey);
+        if (!CollectionUtils.isEmpty(mapSenders)) {
+            return mapSenders.values().stream()
+                    .mapToInt(List::size)
+                    .sum();
+        }
+        return 0;
     }
 
     @Override
-    public WebSocketSender get(@Nonnull final String groupKey, @Nonnull final String key) {
+    public List<WebSocketSender> get(@Nonnull final String groupKey, @Nonnull final String key) {
         log.debug("get(groupKey: {},key: {})...", groupKey, key);
         Assert.hasText(groupKey, "'groupKey'不能为空!");
         Assert.hasText(key, "'key'不能为空!");
-        final Map<String, WebSocketSender> senders = groupSenders.get(groupKey);
-        if (!CollectionUtils.isEmpty(senders)) {
-            return senders.get(key);
+        final Map<String, List<WebSocketSender>> mapSenders = groupSenders.get(groupKey);
+        if (!CollectionUtils.isEmpty(mapSenders)) {
+            return mapSenders.get(key);
         }
         return null;
     }
 
     @Override
-    public WebSocketSender remove(@Nonnull final String groupKey, @Nonnull final String key) {
+    public List<WebSocketSender> remove(@Nonnull final String groupKey, @Nonnull final String key) {
         log.debug("remove(groupKey: {},key: {})...", groupKey, key);
         Assert.hasText(groupKey, "'groupKey'不能为空!");
         Assert.hasText(key, "'key'不能为空!");
-        final Map<String, WebSocketSender> senders = groupSenders.get(groupKey);
-        if (!CollectionUtils.isEmpty(senders)) {
-            return senders.remove(key);
+        final Map<String, List<WebSocketSender>> mapSenders = groupSenders.get(groupKey);
+        if (!CollectionUtils.isEmpty(mapSenders)) {
+            return mapSenders.remove(key);
         }
         return null;
     }
 
     @Override
-    public void consumers(@Nonnull final String groupKey, @Nonnull final BiConsumer<String, WebSocketSender> senderConsumer) {
+    public void consumers(@Nonnull final String groupKey, @Nonnull final BiConsumer<String, List<WebSocketSender>> senderConsumer) {
         log.debug("consumers(groupKey: {},senderConsumer: {})...", groupKey, senderConsumer);
         Assert.hasText(groupKey, "'groupKey'不能为空!");
-        final Map<String, WebSocketSender> senders = groupSenders.get(groupKey);
-        if (!CollectionUtils.isEmpty(senders)) {
-            senders.forEach(senderConsumer);
+        final Map<String, List<WebSocketSender>> mapSenders = groupSenders.get(groupKey);
+        if (!CollectionUtils.isEmpty(mapSenders)) {
+            mapSenders.forEach(senderConsumer);
         }
     }
 }

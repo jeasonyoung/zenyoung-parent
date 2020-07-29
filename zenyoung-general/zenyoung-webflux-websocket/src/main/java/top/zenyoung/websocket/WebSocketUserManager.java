@@ -1,6 +1,7 @@
 package top.zenyoung.websocket;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
@@ -37,7 +38,7 @@ public interface WebSocketUserManager {
      * @param key      用户键
      * @return WebSocket用户
      */
-    WebSocketSender get(@Nonnull final String groupKey, @Nonnull final String key);
+    List<WebSocketSender> get(@Nonnull final String groupKey, @Nonnull final String key);
 
     /**
      * 移除分组WebSocket用户
@@ -46,7 +47,7 @@ public interface WebSocketUserManager {
      * @param key      用户键
      * @return WebSocket用户
      */
-    WebSocketSender remove(@Nonnull final String groupKey, @Nonnull final String key);
+    List<WebSocketSender> remove(@Nonnull final String groupKey, @Nonnull final String key);
 
     /**
      * 分组群发消费处理
@@ -54,5 +55,5 @@ public interface WebSocketUserManager {
      * @param groupKey       分组键
      * @param senderConsumer WebSocket用户消费处理
      */
-    void consumers(@Nonnull final String groupKey, @Nonnull final BiConsumer<String, WebSocketSender> senderConsumer);
+    void consumers(@Nonnull final String groupKey, @Nonnull final BiConsumer<String, List<WebSocketSender>> senderConsumer);
 }
