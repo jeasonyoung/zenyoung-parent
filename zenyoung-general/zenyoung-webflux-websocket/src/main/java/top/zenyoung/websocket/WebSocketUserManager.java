@@ -50,6 +50,15 @@ public interface WebSocketUserManager {
     List<WebSocketSender> remove(@Nonnull final String groupKey, @Nonnull final String key);
 
     /**
+     * 移除分组指定的WebSocket用户
+     *
+     * @param groupKey 分组键
+     * @param key      用户键
+     * @param sender   指定的WebSocket
+     */
+    void remove(@Nonnull final String groupKey, @Nonnull final String key, @Nonnull final WebSocketSender sender);
+
+    /**
      * 分组群发消费处理
      *
      * @param groupKey       分组键
