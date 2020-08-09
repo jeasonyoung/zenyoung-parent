@@ -1,4 +1,4 @@
-package top.zenyoung.controller.model;
+package top.zenyoung.web;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

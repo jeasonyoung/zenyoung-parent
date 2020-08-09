@@ -4,17 +4,13 @@ import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.*;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.controller.listener.AuthProccessListener;
-import top.zenyoung.controller.listener.ExceptHandlerListener;
-import top.zenyoung.controller.listener.PreHandlerListener;
-import top.zenyoung.controller.listener.ProccessListener;
-import top.zenyoung.controller.model.ExceptHandler;
+import top.zenyoung.web.ExceptHandler;
+import top.zenyoung.web.listener.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -297,13 +293,5 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
                 process.accept(auth, aVoid);
             }
         });
-    }
-
-    protected interface AuthProccessModifyListener<A, T> extends BiConsumer<A, T>, PreHandlerListener<T>, ExceptHandlerListener {
-
-    }
-
-    protected interface AuthProccessDeleteListener<A> extends AuthProccessModifyListener<A, Void> {
-
     }
 }

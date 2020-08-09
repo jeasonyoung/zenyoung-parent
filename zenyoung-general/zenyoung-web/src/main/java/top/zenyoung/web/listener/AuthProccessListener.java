@@ -1,4 +1,4 @@
-package top.zenyoung.controller.listener;
+package top.zenyoung.web.listener;
 
 import top.zenyoung.common.model.UserPrincipal;
 

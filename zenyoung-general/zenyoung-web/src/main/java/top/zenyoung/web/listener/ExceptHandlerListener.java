@@ -1,6 +1,6 @@
-package top.zenyoung.controller.listener;
+package top.zenyoung.web.listener;
 
-import top.zenyoung.controller.model.ExceptHandler;
+import top.zenyoung.web.ExceptHandler;
 
 import javax.annotation.Nonnull;
 import java.util.List;

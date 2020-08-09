@@ -1,4 +1,4 @@
-package top.zenyoung.controller.filter;
+package top.zenyoung.web.filter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

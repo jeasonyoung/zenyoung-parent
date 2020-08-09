@@ -2,7 +2,6 @@ package top.zenyoung.controller;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
@@ -11,14 +10,14 @@ import reactor.core.publisher.MonoSink;
 import top.zenyoung.common.model.*;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.controller.listener.*;
-import top.zenyoung.controller.model.ExceptHandler;
+import top.zenyoung.web.AbstractWebController;
+import top.zenyoung.web.ExceptHandler;
+import top.zenyoung.web.listener.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -33,56 +32,7 @@ import java.util.stream.Collectors;
  * 2020/2/7 12:28 下午
  **/
 @Slf4j
-public abstract class BaseController {
-
-    /**
-     * 获取异常处理器集合
-     *
-     * @return 异常处理器集合
-     */
-    @Nonnull
-    protected List<ExceptHandler> getExceptHandlers() {
-        return Lists.newLinkedList();
-    }
-
-    private boolean handlerNotExcept(
-            @Nonnull final RespResult<?> respResult,
-            @Nullable final Throwable e,
-            @Nonnull final ExceptHandlerListener listener
-    ) {
-        //获取异常处理器集合
-        final List<ExceptHandler> exceptHandlers = getExceptHandlers();
-        if (exceptHandlers.size() > 0) {
-            //添加异常处理集合
-            listener.getExceptHandlers(exceptHandlers);
-        }
-        if (e != null && exceptHandlers.size() > 0) {
-            final Map<Class<? extends Throwable>, ExceptHandler> handlerMap = exceptHandlers.stream()
-                    .collect(Collectors.toMap(ExceptHandler::getEClass, handler -> handler, (n, o) -> n));
-            if (handlerMap.size() > 0) {
-                return handlerNotExceptCause(respResult, e, handlerMap);
-            }
-        }
-        return true;
-    }
-
-    private boolean handlerNotExceptCause(
-            @Nonnull final RespResult<?> respResult,
-            @Nonnull final Throwable e,
-            @Nonnull final Map<Class<? extends Throwable>, ExceptHandler> handlerMap
-    ) {
-        final ExceptHandler handler = handlerMap.getOrDefault(e.getClass(), null);
-        if (handler != null) {
-            respResult.setCode(handler.getCode());
-            respResult.setMsg(e.getMessage());
-            return false;
-        }
-        final Throwable cause = e.getCause();
-        if (cause != null) {
-            return handlerNotExceptCause(respResult, cause, handlerMap);
-        }
-        return true;
-    }
+public abstract class BaseController extends AbstractWebController {
 
     /**
      * 业务处理
@@ -287,7 +237,10 @@ public abstract class BaseController {
      * @param <Resp>   响应数据类型
      * @return 响应数据
      */
-    private <R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(@Nonnull final Resp resp, @Nonnull final ProccessListener<Void, R> listener) {
+    private <R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(
+            @Nonnull final Resp resp,
+            @Nonnull final ProccessListener<Void, R> listener
+    ) {
         return Mono.create(sink -> handler(sink, null, resp, listener,
                 respRet -> {
                     final R data = listener.apply(null);
@@ -377,7 +330,10 @@ public abstract class BaseController {
      * @param <R>     响应数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, R> process) {
+    protected <T extends Serializable, R extends Serializable> Mono<RespResult<R>> action(
+            @Nonnull final Mono<T> req,
+            @Nonnull final ProccessListener<T, R> process
+    ) {
         return action(req, () -> RespResult.ofSuccess(null), RespResult::ofFail, process);
     }
 
@@ -389,7 +345,10 @@ public abstract class BaseController {
      * @param <T>     请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> Mono<RespAddResult> actionAdd(@Nonnull final Mono<T> req, @Nonnull final ProccessListener<T, String> process) {
+    protected <T extends Serializable> Mono<RespAddResult> actionAdd(
+            @Nonnull final Mono<T> req,
+            @Nonnull final ProccessListener<T, String> process
+    ) {
         return action(req, () -> RespAddResult.ofSuccess(null), err -> RespAddResult.of(ResultCode.Fail, err, null),
                 new ProccessListener<T, RespAddResult.AddResult>() {
                     @Override
@@ -418,7 +377,10 @@ public abstract class BaseController {
      * @param <T>     请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> Mono<RespModifyResult> actionModify(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> process) {
+    protected <T extends Serializable> Mono<RespModifyResult> actionModify(
+            @Nonnull final Mono<T> req,
+            @Nonnull final ProccessModifyListener<T> process
+    ) {
         return action(req, RespModifyResult::ofFinish, err -> RespModifyResult.of(ResultCode.Fail, err),
                 new ProccessListener<T, Serializable>() {
 
@@ -449,7 +411,10 @@ public abstract class BaseController {
      * @param <T>     请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> Mono<RespDeleteResult> actionDelete(@Nonnull final Mono<T> req, @Nonnull final ProccessModifyListener<T> process) {
+    protected <T extends Serializable> Mono<RespDeleteResult> actionDelete(
+            @Nonnull final Mono<T> req,
+            @Nonnull final ProccessModifyListener<T> process
+    ) {
         return action(req, RespDeleteResult::ofFinish, err -> RespDeleteResult.of(ResultCode.Fail, err),
                 new ProccessListener<T, Serializable>() {
 
@@ -500,29 +465,5 @@ public abstract class BaseController {
                     }
                 }
         );
-    }
-
-    protected interface ProccessModifyListener<T> extends Consumer<T>, PreHandlerListener<T>, ExceptHandlerListener {
-
-    }
-
-    protected interface ProccessDeleteListener extends ProccessModifyListener<Void> {
-
-    }
-
-    @Data
-    protected static class ReqPagingQuery<T extends Serializable> implements PagingQuery<T> {
-        /**
-         * 页码
-         */
-        private Integer index;
-        /**
-         * 当前页数量
-         */
-        private Integer rows;
-        /**
-         * 查询条件
-         */
-        private T query;
     }
 }

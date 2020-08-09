@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zenyoung-parent</artifactId>
         <groupId>top.zenyoung</groupId>
-        <version>1.8.8</version>
+        <version>1.9.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,12 +17,15 @@
         <module>zenyoung-common</module>
         <!-- WebFlux-控制器 -->
         <module>zenyoung-webflux</module>
+        <!-- WebMvc-控制器 -->
+        <module>zenyoung-webmvc</module>
         <!-- WebService-服务模块 -->
         <module>zenyoung-service</module>
         <!-- okhttp-webclient封装模块 -->
         <module>zenyoung-webclient-okhttp3</module>
         <!-- webflux-websocket -->
         <module>zenyoung-webflux-websocket</module>
+        <module>zenyoung-web</module>
     </modules>
 
     <dependencies>

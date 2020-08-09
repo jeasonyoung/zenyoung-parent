@@ -1,4 +1,4 @@
-package top.zenyoung.controller.vo;
+package top.zenyoung.web.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

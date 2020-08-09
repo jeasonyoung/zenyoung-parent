@@ -1,4 +1,4 @@
-package top.zenyoung.controller.filter;
+package top.zenyoung.web.filter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
  * @version 1.0
  * date 2020/8/2 9:34 上午
  **/
-class LogFilterWriterDefault implements LogFilterWriter {
+public class LogFilterWriterDefault implements LogFilterWriter {
     private final StringBuilder logBudiler;
     private final long startStamp;
 
