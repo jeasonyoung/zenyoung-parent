@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
-import top.zenyoung.common.model.RespResult;
+import top.zenyoung.web.vo.RespResult;
 
 import java.io.Serializable;
 

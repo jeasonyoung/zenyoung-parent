@@ -3,7 +3,6 @@ package top.zenyoung.common.model;
 import lombok.Getter;
 import lombok.ToString;
 
-import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,18 +71,5 @@ public enum Status implements EnumValue {
                 .filter(s -> s.getVal() > -1)
                 .sorted(Comparator.comparingInt(Status::getVal))
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * 创建响应对象
-     *
-     * @param status 状态
-     * @return 响应对象
-     */
-    public static EnumData createResp(@Nullable final Status status) {
-        if (status != null) {
-            return EnumData.parse(status);
-        }
-        return null;
     }
 }

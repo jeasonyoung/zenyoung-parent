@@ -8,12 +8,12 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import top.zenyoung.common.model.RespResult;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.webflux.converter.ServerBodyAuthenticationConverter;
 import top.zenyoung.security.webflux.util.RespJsonUtils;
+import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 

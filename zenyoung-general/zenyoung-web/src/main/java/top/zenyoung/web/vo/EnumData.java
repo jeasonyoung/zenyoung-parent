@@ -1,6 +1,7 @@
-package top.zenyoung.common.model;
+package top.zenyoung.web.vo;
 
 import lombok.Getter;
+import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nullable;
 

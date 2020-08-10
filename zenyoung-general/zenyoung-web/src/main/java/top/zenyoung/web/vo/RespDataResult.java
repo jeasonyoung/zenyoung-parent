@@ -1,5 +1,4 @@
-package top.zenyoung.common.model;
-
+package top.zenyoung.web.vo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +42,7 @@ public class RespDataResult<T extends Serializable> extends RespResult<DataResul
      */
     public static <T extends Serializable> RespDataResult<T> of(@Nonnull final ResultCode resultCode, @Nullable final DataResult<T> data) {
         final EnumData ret = EnumData.parse(resultCode);
-        return RespDataResult.of(ret.getVal(), ret.getTitle(), data);
+        return of(ret.getVal(), ret.getTitle(), data);
     }
 
     /**

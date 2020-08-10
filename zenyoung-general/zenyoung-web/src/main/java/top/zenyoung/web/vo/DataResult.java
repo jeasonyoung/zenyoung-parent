@@ -1,4 +1,4 @@
-package top.zenyoung.common.model;
+package top.zenyoung.web.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

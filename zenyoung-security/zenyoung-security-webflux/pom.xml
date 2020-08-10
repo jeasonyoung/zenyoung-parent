@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zenyoung-security</artifactId>
         <groupId>top.zenyoung</groupId>
-        <version>1.9.0</version>
+        <version>1.9.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,6 +37,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-security-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>zenyoung-web</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

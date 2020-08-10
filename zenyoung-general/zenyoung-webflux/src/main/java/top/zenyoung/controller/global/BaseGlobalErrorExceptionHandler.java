@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
@@ -11,7 +12,7 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
-import top.zenyoung.common.model.RespResult;
+import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -44,7 +45,7 @@ public abstract class BaseGlobalErrorExceptionHandler extends AbstractErrorWebEx
 
     @Nonnull
     protected Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
-        final Map<String, Object> errors = getErrorAttributes(request, false);
+        final Map<String, Object> errors = getErrorAttributes(request, ErrorAttributeOptions.defaults());
         log.error("renderErrorResponse=>\n {}", errors);
         //返回数据处理
         return ServerResponse.ok()

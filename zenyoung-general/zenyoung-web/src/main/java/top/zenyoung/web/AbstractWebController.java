@@ -2,7 +2,7 @@ package top.zenyoung.web;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.common.model.RespResult;
+import top.zenyoung.web.vo.RespResult;
 import top.zenyoung.web.listener.ExceptHandlerListener;
 
 import javax.annotation.Nonnull;

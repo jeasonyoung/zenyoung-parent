@@ -1,7 +1,8 @@
-package top.zenyoung.common.model;
+package top.zenyoung.web.vo;
 
 import lombok.Getter;
 import lombok.ToString;
+import top.zenyoung.common.model.EnumValue;
 
 /**
  * 结果状态-枚举

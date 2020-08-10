@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import reactor.core.publisher.Mono;
-import top.zenyoung.common.model.RespResult;
+import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 import java.nio.charset.StandardCharsets;

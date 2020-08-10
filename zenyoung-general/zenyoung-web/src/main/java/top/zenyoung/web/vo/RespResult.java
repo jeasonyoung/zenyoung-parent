@@ -1,4 +1,4 @@
-package top.zenyoung.common.model;
+package top.zenyoung.web.vo;
 
 import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
@@ -105,7 +105,7 @@ public class RespResult<T extends Serializable> implements Serializable {
      */
     public static <T extends Serializable> RespResult<T> of(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final T data) {
         final EnumData ret = EnumData.parse(resultCode);
-        return RespResult.of(ret.getVal(), Strings.isNullOrEmpty(msg) ? ret.getTitle() : msg, data);
+        return of(ret.getVal(), Strings.isNullOrEmpty(msg) ? ret.getTitle() : msg, data);
     }
 
     /**
