@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/8/9 10:56 下午
+ * date 2020/8/9 10:56 下午
  **/
 @Data
 public class ReqPagingQuery<T extends Serializable> implements PagingQuery<T> {

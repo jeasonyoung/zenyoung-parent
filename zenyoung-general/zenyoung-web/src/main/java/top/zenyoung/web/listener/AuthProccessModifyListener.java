@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/8/9 11:03 下午
+ * date 2020/8/9 11:03 下午
  **/
 public interface AuthProccessModifyListener<A, T> extends BiConsumer<A, T>, PreHandlerListener<T>, ExceptHandlerListener {
 

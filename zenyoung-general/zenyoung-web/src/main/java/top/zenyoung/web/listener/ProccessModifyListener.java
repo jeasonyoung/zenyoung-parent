@@ -7,7 +7,7 @@ import java.util.function.Consumer;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/8/9 10:59 下午
+ * date 2020/8/9 10:59 下午
  **/
 public interface ProccessModifyListener<T> extends Consumer<T>, PreHandlerListener<T>, ExceptHandlerListener {
     
