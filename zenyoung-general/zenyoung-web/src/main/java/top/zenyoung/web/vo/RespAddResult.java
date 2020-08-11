@@ -1,9 +1,8 @@
 package top.zenyoung.web.vo;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,15 +17,6 @@ import java.io.Serializable;
 public class RespAddResult extends RespResult<RespAddResult.AddResult> {
 
     /**
-     * 构造函数
-     *
-     * @param base 基类
-     */
-    protected RespAddResult(@Nonnull final RespResult<RespAddResult.AddResult> base) {
-        BeanUtils.copyProperties(base, this);
-    }
-
-    /**
      * 静态构建响应新增结果
      *
      * @param code 响应代码
@@ -35,7 +25,9 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
      * @return 响应新增结果
      */
     public static RespAddResult of(@Nullable final Integer code, @Nullable final String msg, @Nullable final String id) {
-        return new RespAddResult(RespResult.of(code, msg, AddResult.of(id)));
+        final RespAddResult resp = new RespAddResult();
+        resp.buildResp(code, msg, AddResult.of(id));
+        return resp;
     }
 
     /**
@@ -47,7 +39,9 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
      * @return 响应新增结果
      */
     public static RespAddResult of(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final String id) {
-        return new RespAddResult(RespResult.of(resultCode, msg, AddResult.of(id)));
+        final RespAddResult resp = new RespAddResult();
+        resp.buildResp(resultCode, msg, AddResult.of(id));
+        return resp;
     }
 
     /**
@@ -63,21 +57,14 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
     /**
      * 新增-结果
      */
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class AddResult implements Serializable {
         /**
          * 新增主键ID
          */
-        private String id;
+        private final String id;
 
-        /**
-         * 静态构建数据
-         *
-         * @param id 新增主键ID
-         * @return 新增结果
-         */
         public static AddResult of(@Nullable final String id) {
             return new AddResult(id);
         }

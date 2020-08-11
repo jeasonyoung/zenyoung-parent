@@ -1,7 +1,5 @@
 package top.zenyoung.web.vo;
 
-import org.springframework.beans.BeanUtils;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -13,14 +11,6 @@ import java.io.Serializable;
  * @version 1.0.4
  **/
 public class RespDeleteResult extends RespResult<Serializable> {
-    /**
-     * 构造函数
-     *
-     * @param base 基类
-     */
-    protected RespDeleteResult(@Nonnull final RespResult<Serializable> base) {
-        BeanUtils.copyProperties(base, this);
-    }
 
     /**
      * 静态构建响应删除结果
@@ -30,7 +20,9 @@ public class RespDeleteResult extends RespResult<Serializable> {
      * @return 响应修改结果
      */
     public static RespDeleteResult of(@Nullable final Integer code, @Nullable final String msg) {
-        return new RespDeleteResult(RespResult.of(code, msg, null));
+        final RespDeleteResult resp = new RespDeleteResult();
+        resp.buildResp(code, msg);
+        return resp;
     }
 
     /**
@@ -41,7 +33,9 @@ public class RespDeleteResult extends RespResult<Serializable> {
      * @return 响应修改结果
      */
     public static RespDeleteResult of(@Nonnull final ResultCode resultCode, @Nullable final String msg) {
-        return new RespDeleteResult(RespResult.of(resultCode, msg, null));
+        final RespDeleteResult resp = new RespDeleteResult();
+        resp.buildResp(resultCode, msg);
+        return resp;
     }
 
     /**

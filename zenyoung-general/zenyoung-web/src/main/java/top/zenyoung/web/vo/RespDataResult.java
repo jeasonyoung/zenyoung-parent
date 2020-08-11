@@ -22,14 +22,9 @@ public class RespDataResult<T extends Serializable> extends RespResult<DataResul
      * @return 响应数据结果
      */
     public static <T extends Serializable> RespDataResult<T> of(@Nullable final Integer code, @Nullable final String msg, @Nullable final DataResult<T> data) {
-        final RespDataResult<T> result = new RespDataResult<>();
-        //响应状态码
-        result.setCode(code);
-        //响应消息
-        result.setMsg(msg);
-        //响应数据
-        result.setData(data);
-        return result;
+        final RespDataResult<T> resp = new RespDataResult<>();
+        resp.buildResp(code, msg, data);
+        return resp;
     }
 
     /**
@@ -55,5 +50,4 @@ public class RespDataResult<T extends Serializable> extends RespResult<DataResul
     public static <T extends Serializable> RespDataResult<T> ofSuccess(@Nullable final DataResult<T> data) {
         return RespDataResult.of(ResultCode.Success, data);
     }
-
 }

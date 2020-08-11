@@ -2,8 +2,8 @@ package top.zenyoung.web;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.web.vo.RespResult;
 import top.zenyoung.web.listener.ExceptHandlerListener;
+import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,8 +67,7 @@ public abstract class AbstractWebController {
     ) {
         final ExceptHandler handler = handlerMap.getOrDefault(e.getClass(), null);
         if (handler != null) {
-            respResult.setCode(handler.getCode());
-            respResult.setMsg(e.getMessage());
+            respResult.buildResp(handler.getCode(), e.getMessage());
             return false;
         }
         final Throwable cause = e.getCause();

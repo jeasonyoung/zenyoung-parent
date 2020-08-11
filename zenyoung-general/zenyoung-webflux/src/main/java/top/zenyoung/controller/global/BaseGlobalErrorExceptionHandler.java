@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * @author yangyong
  * @version 1.0
- *  2020/4/1 2:29 下午
+ * 2020/4/1 2:29 下午
  **/
 @Slf4j
 public abstract class BaseGlobalErrorExceptionHandler extends AbstractErrorWebExceptionHandler {
@@ -50,12 +50,7 @@ public abstract class BaseGlobalErrorExceptionHandler extends AbstractErrorWebEx
         //返回数据处理
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(RespResult.builder()
-                        .code(getHttpStatus(errors))
-                        .msg(getMessage(errors))
-                        .data(Maps.newLinkedHashMap(errors))
-                        .build()
-                ));
+                .body(BodyInserters.fromValue(RespResult.of(getHttpStatus(errors), getMessage(errors), Maps.newLinkedHashMap(errors))));
     }
 
     protected int getHttpStatus(final Map<String, Object> errorAttributes) {

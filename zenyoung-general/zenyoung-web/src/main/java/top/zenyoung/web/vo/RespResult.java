@@ -1,9 +1,9 @@
 package top.zenyoung.web.vo;
 
 import com.google.common.base.Strings;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,9 +15,8 @@ import java.io.Serializable;
  * @author yangyong
  * @version 1.0
  **/
-@Data
-@Builder
-@AllArgsConstructor
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RespResult<T extends Serializable> implements Serializable {
     /**
      * 响应状态码
@@ -35,25 +34,64 @@ public class RespResult<T extends Serializable> implements Serializable {
     /**
      * 构造函数
      */
-    public RespResult() {
-        final EnumData ret = EnumData.parse(ResultCode.Success);
-        this.code = ret.getVal();
-        this.msg = ret.getTitle();
+    protected RespResult() {
+        buildResp(ResultCode.Success, null);
     }
 
     /**
-     * 创建响应结果
+     * 构建响应数据
      *
-     * @param resultCode 响应结果枚举
+     * @param resultCode 结果枚举类型
+     * @param msg        响应消息
+     */
+    public void buildResp(@Nonnull final ResultCode resultCode, @Nullable final String msg) {
+        final EnumData ret = EnumData.parse(resultCode);
+        //响应状态码
+        this.code = ret.getVal();
+        //响应消息
+        this.msg = Strings.isNullOrEmpty(msg) ? ret.getTitle() : msg;
+    }
+
+    /**
+     * 构建响应数据
+     *
+     * @param resultCode 结果枚举类型
      * @param msg        响应消息
      * @param data       响应数据
      */
-    protected void buildRespResult(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final T data) {
-        final EnumData ret = EnumData.parse(resultCode);
-        setCode(ret.getVal());
-        setMsg(Strings.isNullOrEmpty(msg) ? ret.getTitle() : msg);
+    public void buildResp(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final T data) {
+        buildResp(resultCode, msg);
         if (data != null) {
-            setData(data);
+            this.data = data;
+        }
+    }
+
+    /**
+     * 构建响应消息
+     *
+     * @param code 响应状态码
+     * @param msg  响应消息
+     */
+    public void buildResp(@Nullable final Integer code, @Nullable final String msg) {
+        if (code != null) {
+            this.code = code;
+        }
+        if (!Strings.isNullOrEmpty(msg)) {
+            this.msg = msg;
+        }
+    }
+
+    /**
+     * 构建响应消息
+     *
+     * @param code 响应状态码
+     * @param msg  响应消息
+     * @param data 响应数据
+     */
+    public void buildResp(@Nullable final Integer code, @Nullable final String msg, @Nullable final T data) {
+        buildResp(code, msg);
+        if (data != null) {
+            this.data = data;
         }
     }
 
@@ -64,7 +102,11 @@ public class RespResult<T extends Serializable> implements Serializable {
      * @return 响应结果
      */
     public RespResult<T> buildRespSuccess(@Nullable final T data) {
-        buildRespResult(ResultCode.Success, null, data);
+        //创建响应结果
+        buildResp(ResultCode.Success, null);
+        //响应数据
+        this.data = data;
+        //返回对象
         return this;
     }
 
@@ -74,7 +116,12 @@ public class RespResult<T extends Serializable> implements Serializable {
      * @param error 失败消息
      */
     public void buildRespFail(@Nullable final String error) {
-        buildRespResult(ResultCode.Fail, error, null);
+        //创建响应结果
+        buildResp(ResultCode.Fail, null);
+        //响应消息
+        if (!Strings.isNullOrEmpty(error)) {
+            this.msg = error;
+        }
     }
 
     /**
@@ -87,11 +134,7 @@ public class RespResult<T extends Serializable> implements Serializable {
      * @return 响应结果
      */
     public static <T extends Serializable> RespResult<T> of(@Nullable final Integer code, @Nullable final String msg, @Nullable final T data) {
-        return RespResult.<T>builder()
-                .code(code)
-                .msg(msg)
-                .data(data)
-                .build();
+        return new RespResult<>(code, msg, data);
     }
 
     /**

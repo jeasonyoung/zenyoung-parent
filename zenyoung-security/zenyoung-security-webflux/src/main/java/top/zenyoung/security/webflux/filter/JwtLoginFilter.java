@@ -48,7 +48,7 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
                     //构建响应数据
                     return RespJsonUtils.buildSuccessResp(
                             exchange.getResponse(),
-                            RespResult.<LoginRespBody>builder().build().buildRespSuccess(respBody)
+                            RespResult.ofSuccess(respBody)
                     );
                 } catch (Throwable ex) {
                     log.debug("setAuthenticationSuccessHandler(authen: {})-exp: {}", authen, ex.getMessage());

@@ -1,7 +1,5 @@
 package top.zenyoung.web.vo;
 
-import org.springframework.beans.BeanUtils;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -15,15 +13,6 @@ import java.io.Serializable;
 public class RespModifyResult extends RespResult<Serializable> {
 
     /**
-     * 构造函数
-     *
-     * @param base 基类
-     */
-    protected RespModifyResult(@Nonnull final RespResult<Serializable> base) {
-        BeanUtils.copyProperties(base, this);
-    }
-
-    /**
      * 静态构建响应修改结果
      *
      * @param code 响应代码
@@ -31,7 +20,9 @@ public class RespModifyResult extends RespResult<Serializable> {
      * @return 响应修改结果
      */
     public static RespModifyResult of(@Nullable final Integer code, @Nullable final String msg) {
-        return new RespModifyResult(RespResult.of(code, msg, null));
+        final RespModifyResult resp = new RespModifyResult();
+        resp.buildResp(code, msg);
+        return resp;
     }
 
     /**
@@ -42,7 +33,9 @@ public class RespModifyResult extends RespResult<Serializable> {
      * @return 响应修改结果
      */
     public static RespModifyResult of(@Nonnull final ResultCode resultCode, @Nullable final String msg) {
-        return new RespModifyResult(RespResult.of(resultCode, msg, null));
+        final RespModifyResult resp = new RespModifyResult();
+        resp.buildResp(resultCode, msg);
+        return resp;
     }
 
     /**

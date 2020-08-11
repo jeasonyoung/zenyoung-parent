@@ -16,14 +16,14 @@ import java.nio.charset.StandardCharsets;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/20 6:23 下午
+ * 2020/3/20 6:23 下午
  **/
 @Slf4j
 public class RespJsonUtils {
     private static final ObjectMapper OBJ_MAPPER = new ObjectMapper();
 
     public static Mono<Void> buildFailResp(@Nonnull final ServerHttpResponse response, @Nonnull final HttpStatus httpStatus, @Nonnull final Throwable e) {
-        return buildResp(response, new RespResult<>(httpStatus.value(), e.getMessage(), null));
+        return buildResp(response, RespResult.of(httpStatus.value(), e.getMessage(), null));
     }
 
     public static Mono<Void> buildSuccessResp(@Nonnull final ServerHttpResponse response, @Nonnull final RespResult<?> respResult) {

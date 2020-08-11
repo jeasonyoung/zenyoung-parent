@@ -34,18 +34,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class BaseController extends AbstractWebController {
 
-    /**
-     * 业务处理
-     *
-     * @param sink      Mono处理器
-     * @param reqData   请求数据
-     * @param resp      响应数据
-     * @param listener  前置业务处理器
-     * @param process   业务处理器
-     * @param <ReqData> 请求数据类型
-     * @param <P>       前置处理器类型
-     * @param <Resp>    响应数据类型
-     */
     private <ReqData, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
             @Nullable final MonoSink<Resp> sink,
             @Nullable final ReqData reqData,
@@ -86,19 +74,15 @@ public abstract class BaseController extends AbstractWebController {
                     //查询数据
                     final List<Item> items = listener.query();
                     //结果处理
-                    resp.setData(DataResult.<Ret>builder()
-                            //数据总数
-                            .total(items == null ? 0L : (long) items.size())
-                            //数据集合转换
-                            .rows(items == null || items.size() == 0 ? Lists.newLinkedList() :
+                    resp.buildRespSuccess(DataResult.of(
+                            CollectionUtils.isEmpty(items) ? 0L : (long) items.size(),
+                            CollectionUtils.isEmpty(items) ? Lists.newLinkedList() :
                                     items.stream()
                                             .filter(Objects::nonNull)
                                             .map(listener)
                                             .filter(Objects::nonNull)
                                             .collect(Collectors.toList())
-                            )
-                            .build()
-                    );
+                    ));
                 })
         );
     }
@@ -164,29 +148,21 @@ public abstract class BaseController extends AbstractWebController {
                         }
                     });
                     if (queryResult == null || CollectionUtils.isEmpty(queryResult.getRows())) {
-                        resp.setData(DataResult.<Ret>builder()
-                                .total(0L)
-                                .rows(Lists.newLinkedList())
-                                .build()
-                        );
+                        resp.buildRespSuccess(DataResult.of(0L, Lists.newLinkedList()));
                         return;
                     }
                     //查询结果处理
                     final Long totals = queryResult.getTotal();
                     final List<Item> items = queryResult.getRows();
-                    resp.setData(DataResult.<Ret>builder()
-                            //总数据
-                            .total(totals == null ? 0L : totals)
-                            //数据处理
-                            .rows(items == null || items.size() == 0 ? Lists.newLinkedList() :
+                    resp.buildRespSuccess(DataResult.of(
+                            totals == null ? 0L : totals,
+                            CollectionUtils.isEmpty(items) ? Lists.newLinkedList() :
                                     items.stream()
                                             .filter(Objects::nonNull)
                                             .map(listener)
                                             .filter(Objects::nonNull)
                                             .collect(Collectors.toList())
-                            )
-                            .build()
-                    );
+                    ));
                 }
         ));
     }
@@ -228,15 +204,6 @@ public abstract class BaseController extends AbstractWebController {
         });
     }
 
-    /**
-     * 业务处理-无入参验证
-     *
-     * @param resp     响应对象
-     * @param listener 业务处理器
-     * @param <R>      返回数据类型
-     * @param <Resp>   响应数据类型
-     * @return 响应数据
-     */
     private <R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(
             @Nonnull final Resp resp,
             @Nonnull final ProccessListener<Void, R> listener
@@ -245,29 +212,12 @@ public abstract class BaseController extends AbstractWebController {
                 respRet -> {
                     final R data = listener.apply(null);
                     if (data != null) {
-                        respRet.setData(data);
+                        respRet.buildRespSuccess(data);
                     }
                 }
         ));
     }
 
-    /**
-     * 业务处理-无入参验证
-     *
-     * @param listener 处理器
-     * @param <R>      返回数据类型
-     * @return 处理结果
-     */
-    protected <R extends Serializable> Mono<RespResult<R>> action(@Nonnull final ProccessListener<Void, R> listener) {
-        return action(new RespResult<R>().buildRespSuccess(null), listener);
-    }
-
-    /**
-     * 业务异常消息处理
-     *
-     * @param throwable 异常
-     * @return 异常消息
-     */
     private String actionExceptionHandler(@Nullable final Throwable throwable) {
         if (throwable != null) {
             if (throwable instanceof BindingResult) {
@@ -291,17 +241,16 @@ public abstract class BaseController extends AbstractWebController {
     }
 
     /**
-     * 业务处理-有入参验证
+     * 业务处理-无入参验证
      *
-     * @param req                入参数据
-     * @param respSuccessHandler 响应成功数据
-     * @param respFailHandler    响应失败处理
-     * @param listener           业务处理器
-     * @param <T>                入参数据类型
-     * @param <R>                出参数据类型
-     * @param <Resp>             响应数据
+     * @param listener 处理器
+     * @param <R>      返回数据类型
      * @return 处理结果
      */
+    protected <R extends Serializable> Mono<RespResult<R>> action(@Nonnull final ProccessListener<Void, R> listener) {
+        return action(RespResult.ofSuccess(null), listener);
+    }
+
     private <T extends Serializable, R extends Serializable, Resp extends RespResult<R>> Mono<Resp> action(
             @Nonnull final Mono<T> req,
             @Nonnull final Supplier<Resp> respSuccessHandler,
@@ -314,7 +263,7 @@ public abstract class BaseController extends AbstractWebController {
                             //业务处理
                             final R ret = listener.apply(data);
                             if (ret != null) {
-                                respRet.setData(ret);
+                                respRet.buildRespSuccess(ret);
                             }
                         }
                 )).subscribe()
@@ -363,7 +312,7 @@ public abstract class BaseController extends AbstractWebController {
 
                     @Override
                     public RespAddResult.AddResult apply(final T data) {
-                        return new RespAddResult.AddResult(process.apply(data));
+                        return RespAddResult.AddResult.of(process.apply(data));
                     }
                 }
         );
