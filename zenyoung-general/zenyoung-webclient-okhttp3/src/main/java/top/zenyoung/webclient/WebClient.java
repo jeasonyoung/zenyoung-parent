@@ -3,13 +3,16 @@ package top.zenyoung.webclient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -144,4 +147,22 @@ public interface WebClient {
                                  @Nonnull final ObjectMapper objMapper, @Nonnull final Class<R> respClass) throws IOException {
         return sendJson("DELETE", url, headers, null, objMapper, respClass);
     }
+
+    /**
+     * 下载文件
+     *
+     * @param url          下载地址URL
+     * @param outputStream 存储流
+     * @param progress     下载进度
+     */
+    void downloadFile(@Nonnull final String url, @Nonnull final OutputStream outputStream, @Nullable final Consumer<Integer> progress);
+
+    /**
+     * 上传文件
+     *
+     * @param url                上传地址
+     * @param headers            上传消息头
+     * @param bodyBuilderHandler 上传处理
+     */
+    void uploadFile(@Nonnull final String url, @Nullable final Map<String, Serializable> headers, @Nonnull final Consumer<MultipartBody.Builder> bodyBuilderHandler);
 }

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zenyoung-general</artifactId>
         <groupId>top.zenyoung</groupId>
-        <version>1.9.2</version>
+        <version>1.9.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,6 +13,13 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- okhttp3 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
