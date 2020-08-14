@@ -59,7 +59,7 @@ public abstract class AbstractTaskServiceImpl implements TaskService {
         //获取当前计数器
         final AtomicInteger refCounter = TASK_COUTERS.computeIfAbsent(key, k -> new AtomicInteger(0));
         if (refCounter.get() >= max) {
-            log.warn("startTask(key: {},process: {})-并行超过阀值[{}/{}],请求稍后", key, process, refCounter, max);
+            log.debug("startTask(key: {},process: {})-并行超过阀值[{}/{}],请求稍后", key, process, refCounter, max);
             return;
         }
         //计数器累加
