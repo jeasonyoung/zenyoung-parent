@@ -46,7 +46,6 @@ public class WebSocketSender implements Serializable {
      * @param data 消息内容
      */
     public void sendData(@Nonnull final String data) {
-        log.info("sendData(data: {})...", data);
         sink.next(session.textMessage(data));
     }
 
