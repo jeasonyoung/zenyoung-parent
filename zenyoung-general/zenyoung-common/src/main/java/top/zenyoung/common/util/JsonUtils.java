@@ -23,6 +23,19 @@ public class JsonUtils {
      * @param objectMapper JSON处理器
      * @param data         数据
      * @param <T>          数据类型
+     * @return json字符数组
+     */
+    @SneakyThrows
+    public static <T> byte[] toJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
+        return objectMapper.writeValueAsBytes(data);
+    }
+
+    /**
+     * 数据JSON化处理
+     *
+     * @param objectMapper JSON处理器
+     * @param data         数据
+     * @param <T>          数据类型
      * @return json字符串
      */
     @SneakyThrows

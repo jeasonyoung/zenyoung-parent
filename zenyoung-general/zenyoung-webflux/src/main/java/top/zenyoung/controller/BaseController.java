@@ -3,12 +3,16 @@ package top.zenyoung.controller;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
+import top.zenyoung.controller.utl.RespJsonUtils;
 import top.zenyoung.web.AbstractWebController;
 import top.zenyoung.web.ExceptHandler;
 import top.zenyoung.web.listener.*;
@@ -17,6 +21,7 @@ import top.zenyoung.web.vo.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -69,7 +74,7 @@ public abstract class BaseController extends AbstractWebController {
     protected <Item extends Serializable, Ret extends Serializable> Mono<RespDataResult<Ret>> buildQuery(
             @Nonnull final QueryListener<Item, Ret> listener
     ) {
-        return Mono.create(sink -> handler(sink, null, RespDataResult.<Ret>ofSuccess(null), listener,
+        return Mono.create(sink -> handler(sink, null, RespDataResult.ofSuccess(null), listener,
                 resp -> {
                     //查询数据
                     final List<Item> items = listener.query();
@@ -128,7 +133,7 @@ public abstract class BaseController extends AbstractWebController {
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
     ) {
-        return Mono.create(sink -> handler(sink, reqQuery.getQuery(), RespDataResult.<Ret>ofSuccess(null), listener,
+        return Mono.create(sink -> handler(sink, reqQuery.getQuery(), RespDataResult.ofSuccess(null), listener,
                 resp -> {
                     //查询数据处理
                     final PagingResult<Item> queryResult = listener.query(new PagingQuery<Qry>() {
@@ -414,5 +419,35 @@ public abstract class BaseController extends AbstractWebController {
                     }
                 }
         );
+    }
+
+    /**
+     * 业务页面跳转处理
+     *
+     * @param response HTTP响应对象
+     * @param listener 业务处理器
+     * @return 响应结果
+     */
+    protected Mono<Void> actionRedirect(@Nonnull final ServerHttpResponse response, @Nonnull final ProccessListener<Void, URI> listener) {
+        return Mono.fromRunnable(() -> {
+            final RespResult<URI> resp = RespResult.ofSuccess(null);
+            //业务处理
+            handler(null, null, resp, listener, ret -> {
+                final URI redirectUrl = listener.apply(null);
+                Assert.notNull(redirectUrl, "'redirectUrl'不能为空!");
+                ret.buildRespSuccess(redirectUrl);
+            });
+            final URI url;
+            //业务处理失败，返回JSON数据
+            if (resp.getCode() != 0 || (url = resp.getData()) == null) {
+                //返回json处理
+                RespJsonUtils.buildResp(getObjectMapper(), response, resp);
+                return;
+            }
+            //页面跳转
+            log.info("actionRedirect=> {}", url);
+            response.setStatusCode(HttpStatus.OK);
+            response.getHeaders().setLocation(url);
+        });
     }
 }

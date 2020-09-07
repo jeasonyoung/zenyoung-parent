@@ -1,7 +1,11 @@
 package top.zenyoung.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import top.zenyoung.web.listener.ExceptHandlerListener;
 import top.zenyoung.web.vo.RespResult;
 
@@ -20,6 +24,10 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 public abstract class AbstractWebController {
+
+    @Autowired
+    @Getter(AccessLevel.PROTECTED)
+    private ObjectMapper objectMapper;
 
     /**
      * 获取异常处理器集合

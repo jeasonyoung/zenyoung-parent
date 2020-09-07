@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-web</artifactId>
+            <artifactId>zenyoung-webflux</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
