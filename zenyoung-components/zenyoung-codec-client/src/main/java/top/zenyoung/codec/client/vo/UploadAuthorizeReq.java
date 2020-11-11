@@ -3,6 +3,7 @@ package top.zenyoung.codec.client.vo;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -49,7 +50,10 @@ public class UploadAuthorizeReq extends BaseCodecReq {
                 //文件别名[文件中文名,可空]
                 put("alias", getAlias());
                 //转码代码/简称[可空]
-                put("codecs", Lists.newArrayList(getCodecs()));
+                final List<String> codecItems;
+                if (!CollectionUtils.isEmpty(codecItems = getCodecs())) {
+                    put("codecs", Lists.newArrayList(codecItems));
+                }
                 //存储简称或存储ID
                 put("bucket", getBucket());
             }

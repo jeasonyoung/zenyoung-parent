@@ -38,8 +38,7 @@ abstract class BaseCodecClientDefault {
         Assert.hasText(account, "'account'不能为空!");
         Assert.hasText(passwd, "'passwd'不能为空!");
         //服务器地址
-        final int idx = host.lastIndexOf(PATH_SEP);
-        this.host = idx > 0 ? host.substring(0, idx - 1) : host;
+        this.host = host.endsWith(PATH_SEP) ? host.substring(0, host.length() - 1) : host;
         //接入账号
         this.acount = account;
         //接入密码
@@ -73,8 +72,7 @@ abstract class BaseCodecClientDefault {
     }
 
     protected String buildUrl(@Nonnull final String url) {
-        final int idx = url.indexOf(PATH_SEP);
-        return host + (idx >= 0 ? url : PATH_SEP + url);
+        return host + (url.startsWith(PATH_SEP) ? url : PATH_SEP + url);
     }
 
     protected <T extends BaseCodecReq> String buildReqSign(@Nonnull final T req) {
