@@ -90,7 +90,7 @@ abstract class BaseCodecClientDefault {
 
     protected String buildSignHandler(@Nonnull final Map<String, Serializable> params) {
         //接入账号
-        params.put("acount", acount);
+        params.put("account", acount);
         //参数签名处理
         return SignUtils.createSign(params, passwd);
     }
