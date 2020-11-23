@@ -51,15 +51,13 @@ public class CallbackResutReq extends BaseCodecReq implements CallbackResut {
             {
                 //上传ID
                 put("id", getId());
-                //接入账号
-                put("account", getAccount());
                 //上传业务ID
                 put("bizId", getBizId());
                 //文件唯一标识码
                 put("uniqueCode", getUniqueCode());
                 //状态
                 if (getStatus() != null) {
-                    put("状态", Maps.newHashMap(getStatus().toMap()));
+                    put("status", Maps.newHashMap(getStatus().toMap()));
                 }
                 //消息
                 put("msg", getMsg());
