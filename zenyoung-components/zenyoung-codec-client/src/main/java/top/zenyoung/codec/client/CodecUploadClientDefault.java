@@ -123,6 +123,8 @@ public class CodecUploadClientDefault extends BaseCodecClientDefault implements 
     public CallbackResutResp callbackHandler(@Nonnull final CallbackResutReq req, @Nonnull final Consumer<CallbackResut> callbackBizHandler) {
         log.debug("callbackHandler(req: {},callbackBizHandler: {})...", req, callbackBizHandler);
         //回调参数检查
+        Assert.hasText(req.getAccount(), "'req.account'不能为空!");
+        Assert.hasText(req.getSign(), "'req.sign'不能为空!");
         Assert.hasText(req.getId(), "'req.id'不能为空!");
         Assert.hasText(req.getBizId(), "'req.bizId'不能为空!");
         //验证签名

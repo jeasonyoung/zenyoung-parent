@@ -1,6 +1,7 @@
 package top.zenyoung.codec.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +77,11 @@ abstract class BaseCodecClientDefault {
     }
 
     protected <T extends BaseCodecReq> String buildReqSign(@Nonnull final T req) {
+        log.debug("buildReqSign(req: {})...", req);
+        //检查接入账号
+        if(!Strings.isNullOrEmpty(req.getAccount())){
+            Assert.isTrue(acount.equalsIgnoreCase(req.getAccount()), "'req.account'错误!");
+        }
         final Map<String, Serializable> params = Maps.newLinkedHashMap();
         //检查请求参数
         final Map<String, Serializable> reqMap;

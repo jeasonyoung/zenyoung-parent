@@ -1,6 +1,8 @@
 package top.zenyoung.codec.client.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import top.zenyoung.common.model.Model;
 
 import java.io.Serializable;
@@ -13,6 +15,8 @@ import java.util.Map;
  * @author young
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CallbackCodecUrl implements Model {
     /**
      * 访问URL
