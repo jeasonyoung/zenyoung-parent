@@ -9,6 +9,7 @@ import top.zenyoung.codec.client.CodecUploadClientDefault;
 import top.zenyoung.codec.client.vo.CallbackCodecUrl;
 import top.zenyoung.codec.client.vo.CallbackResutReq;
 import top.zenyoung.codec.client.vo.CallbackResutResp;
+import top.zenyoung.codec.client.vo.UploadAuthorize;
 import top.zenyoung.web.vo.EnumData;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 public class CallbackSignTest {
 
     @Test
-    public void signTest() {
+    public void callbackSignTest() {
         final CallbackResutReq req = new CallbackResutReq();
         req.setId("b16b52ba-1e15-444e-a111-91d4a6c99889");
         req.setAccount("upload001");
@@ -36,8 +37,15 @@ public class CallbackSignTest {
         req.setMsg("发布上传成功");
         req.setSign("038f04ec9e8edb2393693d6891e116c0ee57ce1f");
         //
-        final CodecUploadClient client = CodecUploadClientDefault.getInstance("ttp://upload.codec.dev-ipower.top", "upload001", "1234567890");
+        final CodecUploadClient client = CodecUploadClientDefault.getInstance("http://upload.codec.dev-ipower.top", "upload001", "1234567890");
         final CallbackResutResp resp = client.callbackHandler(req, ret -> log.info("signTest-ret=> {}", ret));
         log.info("signTest-resp=> {}", resp);
+    }
+
+    @Test
+    public void createAuthorizeTest() {
+        final CodecUploadClient client = CodecUploadClientDefault.getInstance("http://upload.codec.dev-ipower.top", "upload007", "77777770");
+        final UploadAuthorize auth = client.createAuthorize("5e5d7fa5-a56f-4249-b87c-990ce516d396", "06a19cd186de470aa92be0ec18f81a16", "cs/1957/06a19cd186de470aa92be0ec18f81a16/", "101", "102", "201");
+        log.info("auth=> {}", auth);
     }
 }
