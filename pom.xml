@@ -15,7 +15,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.9.9</version>
+    <version>1.9.10</version>
 
     <name>zenyoung</name>
     <description>zenyoung tools for Springboot2</description>
@@ -110,15 +110,41 @@
 
     <modules>
         <!-- 1.公共模块 -->
-        <module>zenyoung-general</module>
-        <!-- 2.数据模块 -->
-        <module>zenyoung-data</module>
-        <!-- 3.安全模块 -->
-        <module>zenyoung-security</module>
-        <!-- 4.Wechat模块 -->
-        <module>zenyoung-wechat</module>
+        <module>zenyoung-common</module>
+        <!-- 2.WebService-服务模块 -->
+        <module>zenyoung-service</module>
+        <!-- 3.Web公共模块 -->
+        <module>zenyoung-web</module>
+        <!-- 4.WebFlux-控制器 -->
+        <module>zenyoung-webflux</module>
+        <!-- 5.WebMvc-控制器 -->
+        <module>zenyoung-webmvc</module>
+
+        <!-- 6.okhttp-webclient封装模块 -->
+        <module>zenyoung-webclient-okhttp3</module>
+        <!-- 7.webflux-websocket -->
+        <module>zenyoung-webflux-websocket</module>
+
+        <!-- 8.数据-通用模块 -->
+        <module>zenyoung-data-common</module>
+        <!-- 9.数据-jpa -->
+        <module>zenyoung-data-jpa</module>
+
+        <!-- 10.安全-公共模块 -->
+        <module>zenyoung-security-common</module>
+        <!-- 11.安全-WebFlux -->
+        <module>zenyoung-security-webflux</module>
+
+        <!-- 12.Wechat公共模块 -->
+        <module>zenyoung-wechat-common</module>
+        <!-- 13.Wechat服务模块 -->
+        <module>zenyoung-wechat-service</module>
+        <!-- 14.WeChat-API模块 -->
+        <module>zenyoung-wechat-api</module>
+
         <!-- 5.组件 -->
-        <module>zenyoung-components</module>
+        <!-- 5.1视频转码客户端 -->
+        <module>zenyoung-codec-client</module>
     </modules>
 
     <properties>
