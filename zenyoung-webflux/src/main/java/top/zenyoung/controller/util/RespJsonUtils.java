@@ -1,4 +1,4 @@
-package top.zenyoung.controller.utl;
+package top.zenyoung.controller.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

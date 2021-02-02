@@ -1,4 +1,4 @@
-package top.zenyoung.controller.utl;
+package top.zenyoung.controller.util;
 
 import com.google.common.base.Strings;
 import org.springframework.http.HttpHeaders;
@@ -8,6 +8,8 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,6 +20,15 @@ import java.util.Objects;
  **/
 public class HttpUtils {
     private static final String UNKNOWN = "unknown";
+
+    private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<>() {
+        {
+            add("x-forwarded-for");
+            add("Proxy-Client-IP");
+            add("WL-Proxy-Client-IP");
+            add("X-Real-IP");
+        }
+    };
 
     /**
      * 获取客户端IP地址
@@ -41,15 +52,12 @@ public class HttpUtils {
      */
     public static String getClientIpAddr(@Nullable final HttpHeaders headers) {
         if (!CollectionUtils.isEmpty(headers)) {
-            String ipAddr = headers.getFirst("x-forwarded-for");
-            if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
-                ipAddr = headers.getFirst("Proxy-Client-IP");
-            }
-            if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
-                ipAddr = headers.getFirst("WL-Proxy-Client-IP");
-            }
-            if (Strings.isNullOrEmpty(ipAddr) || UNKNOWN.equalsIgnoreCase(ipAddr)) {
-                ipAddr = headers.getFirst("X-Real-IP");
+            String ipAddr = null;
+            for (String head : HTTP_CLIENT_IP_HEAD) {
+                ipAddr = headers.getFirst(head);
+                if (!Strings.isNullOrEmpty(ipAddr) && !UNKNOWN.equalsIgnoreCase(ipAddr)) {
+                    return ipAddr;
+                }
             }
             return ipAddr;
         }

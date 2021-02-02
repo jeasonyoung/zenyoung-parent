@@ -25,17 +25,18 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import top.zenyoung.controller.util.HttpUtils;
 import top.zenyoung.web.filter.LogFilterWriter;
 import top.zenyoung.web.filter.LogFilterWriterDefault;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 /**
  * 请求日志-过滤器-基类
@@ -46,17 +47,13 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 public abstract class BaseLogFilter implements WebFilter, Ordered {
-    private static final String REQUEST_START = "\nrequest:\n";
-    private static final String REQUEST_END = "\n";
-    private static final String RESPONSE_START = "\n\nresponse:\n";
-    private static final String RESPONSE_END = REQUEST_END;
 
     @Override
     public int getOrder() {
         return -10;
     }
 
-    private boolean checkLogContentType(@Nullable final MediaType contentType) {
+    protected boolean checkLogContentType(@Nullable final MediaType contentType) {
         return true;
     }
 
@@ -94,13 +91,38 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
     protected void buildRequestHeaderLog(@Nonnull final LogFilterWriter logWriter, @Nullable final HttpMethod method, @Nonnull final URI uri,
                                          @Nullable final InetSocketAddress address, @Nonnull final HttpHeaders headers,
                                          @Nullable final MultiValueMap<String, String> reqParams) {
-        logWriter.writer(REQUEST_START)
-                .writer(method == null ? "" : method.name()).writer(": ").writer(uri.getPath())
-                .writer("\nclient: ").writer(address == null ? "" : address.getHostName() + "," + address.getPort())
-                .writer("\nheaders: ").writer(buildMultiValue(headers));
-        if (!CollectionUtils.isEmpty(reqParams)) {
-            logWriter.writer("\nquery: ").writer(buildMultiValue(reqParams));
+        logWriter.writer("request", new LinkedHashMap<>(5) {
+            {
+                if (method != null) {
+                    put("method", method.name());
+                }
+                put("path", uri.getPath());
+                if (address != null) {
+                    put("client", HttpUtils.getClientIpAddr(address));
+                }
+                if (!CollectionUtils.isEmpty(headers)) {
+                    put("headers", buildMultiValue(headers));
+                }
+                if (!CollectionUtils.isEmpty(reqParams)) {
+                    put("query", buildMultiValue(reqParams));
+                }
+            }
+        });
+    }
+
+    protected Serializable buildMultiValue(@Nullable final MultiValueMap<String, String> data) {
+        if (!CollectionUtils.isEmpty(data)) {
+            return new LinkedHashMap<String, Serializable>() {
+                {
+                    data.forEach((k, v) -> {
+                        if (!CollectionUtils.isEmpty(v)) {
+                            put(k, Joiner.on(",").skipNulls().join(v));
+                        }
+                    });
+                }
+            };
         }
+        return null;
     }
 
     /**
@@ -110,9 +132,9 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
      * @param content   报文体内容
      */
     protected void buildRequestBodyLog(@Nonnull final LogFilterWriter logWriter, @Nullable final byte[] content) {
-        logWriter.writer("\nbody: ")
-                .writer((content != null && content.length > 0) ? new String(content, StandardCharsets.UTF_8) : null)
-                .writer(REQUEST_END);
+        if (content != null && content.length > 0) {
+            logWriter.writer("body", new String(content, StandardCharsets.UTF_8));
+        }
     }
 
     /**
@@ -124,34 +146,21 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
      * @param content   响应报文体
      */
     protected void buildResponseLog(@Nonnull final LogFilterWriter logWriter, @Nullable final HttpStatus status, @Nullable final HttpHeaders headers, @Nullable final byte[] content) {
-        logWriter.writer(RESPONSE_START)
-                .writer(status == null ? null : status.toString())
-                .writer("\nheaders: ")
-                .writer(buildMultiValue(headers))
-                .writer("\nbody: ")
-                .writer((content != null && content.length > 0) ? new String(content, StandardCharsets.UTF_8) : null)
-                .writer(RESPONSE_END);
+        logWriter.writer("response", new LinkedHashMap<>(3) {
+            {
+                if (status != null) {
+                    put("status", status.value());
+                }
+                if (!CollectionUtils.isEmpty(headers)) {
+                    put("headers", buildMultiValue(headers));
+                }
+                if (content != null && content.length > 0) {
+                    put("body", new String(content, StandardCharsets.UTF_8));
+                }
+            }
+        });
         log.info("报文日志:[\n{}\n]", logWriter.outputLogs());
     }
-
-    /**
-     * 构建数据整合处理
-     *
-     * @param data 数据集合
-     * @return 整合结果
-     */
-    protected String buildMultiValue(@Nullable final MultiValueMap<String, String> data) {
-        if (!CollectionUtils.isEmpty(data)) {
-            return data.entrySet().stream()
-                    .map(entry -> {
-                        final List<String> vals = entry.getValue();
-                        return entry.getKey() + "=" + (CollectionUtils.isEmpty(vals) ? "" : Joiner.on(",").skipNulls().join(vals));
-                    })
-                    .collect(Collectors.joining("\n\t"));
-        }
-        return null;
-    }
-
 
     private static class RecorderServerHttpRequestDecorator extends ServerHttpRequestDecorator {
 
@@ -192,7 +201,6 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
 
         private final BaseLogFilter filter;
         private final LogFilterWriter logWriter;
-
 
         public RecorderServerHttpResponseDecorator(@Nonnull final BaseLogFilter logFilter, @Nonnull final LogFilterWriter logWriter, @Nonnull final ServerHttpResponse response) {
             super(response);

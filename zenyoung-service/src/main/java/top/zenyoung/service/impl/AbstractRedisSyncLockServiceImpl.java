@@ -9,6 +9,7 @@ import top.zenyoung.service.SyncLockService;
 import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -108,22 +109,20 @@ public abstract class AbstractRedisSyncLockServiceImpl implements SyncLockServic
         final String syncKey = getSyncLockKey(key);
         Assert.hasText(syncKey, "'syncKey'不能为空!");
         synchronized (LOCKS.computeIfAbsent(syncKey, k -> new Object())) {
+            final AtomicBoolean has = new AtomicBoolean(false);
             try {
                 //获取锁处理
                 if (!tryAcquire(syncKey, getLockTimeout())) {
                     //获取等待次数
                     final int count = LOCK_WAIT_COUNT.getOrDefault(syncKey, 0);
                     if (count >= getWaitMax()) {
-                        LOCKS.remove(syncKey);
                         throw new RuntimeException("等待锁超时[count: " + count + "]!");
                     }
-                    //线程等待处理
-                    final int wait = (int) (getWaitTime().toMillis() * (1 + count * Math.random()));
                     try {
                         //等待次数累计
                         LOCK_WAIT_COUNT.put(syncKey, count + 1);
                         //线程等待
-                        Thread.sleep(wait);
+                        Thread.sleep((long) (getWaitTime().toMillis() * (1 + count * Math.random())));
                     } catch (Throwable ex) {
                         log.warn("syncLock(key: {},handler: {})-exp: {}", key, handler, ex.getMessage());
                     }
@@ -132,18 +131,23 @@ public abstract class AbstractRedisSyncLockServiceImpl implements SyncLockServic
                 }
                 //移除等待计数
                 LOCK_WAIT_COUNT.remove(syncKey);
+                //执行标识
+                has.set(true);
                 //业务处理
                 return handler.get();
             } finally {
-                releaseLock(syncKey);
+                if (has.get()) {
+                    //释放分布式锁
+                    releaseLock(syncKey);
+                }
                 LOCKS.remove(syncKey);
             }
         }
     }
 
     @Override
-    public void syncLockSingle(@Nonnull final String key, @Nonnull final Duration timeout, @Nonnull final Runnable handler) {
-        log.debug("syncLockSingle(key: {},timeout: {},handler: {})...", key, timeout, handler);
+    public void syncLockSingle(@Nonnull final String key, @Nonnull final Runnable handler) {
+        log.debug("syncLockSingle(key: {},handler: {})...", key, handler);
         Assert.hasText(key, "'key'不能为空!");
         final String lockKey = getSyncLockKey(key);
         Assert.hasText(lockKey, "'lockKey'不能为空!");

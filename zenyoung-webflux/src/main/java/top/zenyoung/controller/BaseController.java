@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.controller.utl.RespJsonUtils;
+import top.zenyoung.controller.util.RespJsonUtils;
 import top.zenyoung.web.AbstractWebController;
 import top.zenyoung.web.ExceptHandler;
 import top.zenyoung.web.listener.*;
@@ -136,7 +136,7 @@ public abstract class BaseController extends AbstractWebController {
         return Mono.create(sink -> handler(sink, reqQuery.getQuery(), RespDataResult.ofSuccess(null), listener,
                 resp -> {
                     //查询数据处理
-                    final PagingResult<Item> queryResult = listener.query(new PagingQuery<Qry>() {
+                    final PagingResult<Item> queryResult = listener.query(new PagingQuery<>() {
                         @Override
                         public Integer getIndex() {
                             return reqQuery.getIndex();
@@ -304,7 +304,7 @@ public abstract class BaseController extends AbstractWebController {
             @Nonnull final ProccessListener<T, String> process
     ) {
         return action(req, () -> RespAddResult.ofSuccess(null), err -> RespAddResult.of(ResultCode.Fail, err, null),
-                new ProccessListener<T, RespAddResult.AddResult>() {
+                new ProccessListener<>() {
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
                         process.getExceptHandlers(handlers);
@@ -336,7 +336,7 @@ public abstract class BaseController extends AbstractWebController {
             @Nonnull final ProccessModifyListener<T> process
     ) {
         return action(req, RespModifyResult::ofFinish, err -> RespModifyResult.of(ResultCode.Fail, err),
-                new ProccessListener<T, Serializable>() {
+                new ProccessListener<>() {
 
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -370,7 +370,7 @@ public abstract class BaseController extends AbstractWebController {
             @Nonnull final ProccessModifyListener<T> process
     ) {
         return action(req, RespDeleteResult::ofFinish, err -> RespDeleteResult.of(ResultCode.Fail, err),
-                new ProccessListener<T, Serializable>() {
+                new ProccessListener<>() {
 
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -399,7 +399,7 @@ public abstract class BaseController extends AbstractWebController {
      */
     protected Mono<RespDeleteResult> actionDelete(@Nonnull final ProccessDeleteListener process) {
         return action(RespDeleteResult.ofFinish(),
-                new ProccessListener<Void, Serializable>() {
+                new ProccessListener<>() {
 
                     @Override
                     public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {

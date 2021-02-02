@@ -1,7 +1,6 @@
 package top.zenyoung.service;
 
 import javax.annotation.Nonnull;
-import java.time.Duration;
 import java.util.function.Supplier;
 
 /**
@@ -26,8 +25,7 @@ public interface SyncLockService {
      * 同步互斥锁业务处理
      *
      * @param key     同步锁键
-     * @param timeout 超时时间
      * @param handler 业务执行
      */
-    void syncLockSingle(@Nonnull final String key, @Nonnull final Duration timeout, @Nonnull final Runnable handler);
+    void syncLockSingle(@Nonnull final String key, @Nonnull final Runnable handler);
 }

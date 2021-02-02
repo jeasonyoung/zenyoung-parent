@@ -3,6 +3,7 @@ package top.zenyoung.web.filter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 日志记录器-接口
@@ -13,21 +14,20 @@ import java.io.Serializable;
  **/
 public interface LogFilterWriter extends Serializable {
     /**
-     * 写入日志
+     * 记录日志
      *
-     * @param logContent 日志内容
-     * @return 记录器接口
+     * @param key    日志键
+     * @param values 日志内容
      */
-    LogFilterWriter writer(@Nullable final CharSequence logContent);
+    void writer(@Nonnull final String key, @Nullable final Map<String, Serializable> values);
 
     /**
-     * 获取日志内容
+     * 记录日志
      *
-     * @return 日志内容
+     * @param key   日志键
+     * @param value 日志内容
      */
-    @Nonnull
-    @Override
-    String toString();
+    void writer(@Nonnull final String key, @Nullable final String value);
 
     /**
      * 获取输出日志处理
