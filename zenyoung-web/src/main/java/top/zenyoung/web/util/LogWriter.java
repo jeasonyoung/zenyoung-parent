@@ -1,4 +1,4 @@
-package top.zenyoung.web.filter;
+package top.zenyoung.web.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,7 +12,7 @@ import java.util.Map;
  * @version 1.0
  * date 2020/8/2 9:29 上午
  **/
-public interface LogFilterWriter extends Serializable {
+public interface LogWriter extends Serializable {
     /**
      * 记录日志
      *

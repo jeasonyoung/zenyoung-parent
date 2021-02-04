@@ -26,8 +26,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import top.zenyoung.controller.util.HttpUtils;
-import top.zenyoung.web.filter.LogFilterWriter;
-import top.zenyoung.web.filter.LogFilterWriterDefault;
+import top.zenyoung.web.util.LogWriter;
+import top.zenyoung.web.util.LogWriterDefault;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,8 +58,8 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
     }
 
     @Nonnull
-    protected LogFilterWriter getLogWriter() {
-        return new LogFilterWriterDefault();
+    protected LogWriter getLogWriter() {
+        return new LogWriterDefault();
     }
 
     @Nonnull
@@ -67,7 +67,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
     public Mono<Void> filter(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain) {
         log.debug("filter(exchange: {},chain: {})...", exchange, chain);
         //日志记录对象
-        final LogFilterWriter logWriter = getLogWriter();
+        final LogWriter logWriter = getLogWriter();
         //链式传递
         return chain.filter(exchange.mutate()
                 //请求处理
@@ -88,7 +88,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
      * @param headers   请求头消息
      * @param reqParams 请求参数集合
      */
-    protected void buildRequestHeaderLog(@Nonnull final LogFilterWriter logWriter, @Nullable final HttpMethod method, @Nonnull final URI uri,
+    protected void buildRequestHeaderLog(@Nonnull final LogWriter logWriter, @Nullable final HttpMethod method, @Nonnull final URI uri,
                                          @Nullable final InetSocketAddress address, @Nonnull final HttpHeaders headers,
                                          @Nullable final MultiValueMap<String, String> reqParams) {
         logWriter.writer("request", new LinkedHashMap<>(5) {
@@ -131,7 +131,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
      * @param logWriter 日志记录器
      * @param content   报文体内容
      */
-    protected void buildRequestBodyLog(@Nonnull final LogFilterWriter logWriter, @Nullable final byte[] content) {
+    protected void buildRequestBodyLog(@Nonnull final LogWriter logWriter, @Nullable final byte[] content) {
         if (content != null && content.length > 0) {
             logWriter.writer("body", new String(content, StandardCharsets.UTF_8));
         }
@@ -145,7 +145,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
      * @param headers   响应报文头
      * @param content   响应报文体
      */
-    protected void buildResponseLog(@Nonnull final LogFilterWriter logWriter, @Nullable final HttpStatus status, @Nullable final HttpHeaders headers, @Nullable final byte[] content) {
+    protected void buildResponseLog(@Nonnull final LogWriter logWriter, @Nullable final HttpStatus status, @Nullable final HttpHeaders headers, @Nullable final byte[] content) {
         logWriter.writer("response", new LinkedHashMap<>(3) {
             {
                 if (status != null) {
@@ -166,7 +166,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
 
         private final Flux<DataBuffer> body;
 
-        public RecorderServerHttpRequestDecorator(@Nonnull final BaseLogFilter filter, @Nonnull final LogFilterWriter logWriter, @Nonnull final ServerHttpRequest request) {
+        public RecorderServerHttpRequestDecorator(@Nonnull final BaseLogFilter filter, @Nonnull final LogWriter logWriter, @Nonnull final ServerHttpRequest request) {
             super(request);
             //请求报文处理
             final Flux<DataBuffer> flux = super.getBody();
@@ -200,9 +200,9 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
         private final DataBufferFactory bufferFactory;
 
         private final BaseLogFilter filter;
-        private final LogFilterWriter logWriter;
+        private final LogWriter logWriter;
 
-        public RecorderServerHttpResponseDecorator(@Nonnull final BaseLogFilter logFilter, @Nonnull final LogFilterWriter logWriter, @Nonnull final ServerHttpResponse response) {
+        public RecorderServerHttpResponseDecorator(@Nonnull final BaseLogFilter logFilter, @Nonnull final LogWriter logWriter, @Nonnull final ServerHttpResponse response) {
             super(response);
             this.bufferFactory = response.bufferFactory();
             this.filter = logFilter;

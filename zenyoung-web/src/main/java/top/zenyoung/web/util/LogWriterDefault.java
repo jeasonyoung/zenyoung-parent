@@ -1,5 +1,6 @@
-package top.zenyoung.web.filter;
+package top.zenyoung.web.util;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,11 +20,11 @@ import java.util.Map;
  * date 2020/8/2 9:34 上午
  **/
 @Slf4j
-public class LogFilterWriterDefault implements LogFilterWriter {
+public class LogWriterDefault implements LogWriter {
     private final Map<String, Serializable> logMaps;
     private final long startStamp;
 
-    public LogFilterWriterDefault() {
+    public LogWriterDefault() {
         logMaps = Maps.newLinkedHashMap();
         startStamp = System.currentTimeMillis();
     }
@@ -50,9 +52,17 @@ public class LogFilterWriterDefault implements LogFilterWriter {
                 builder.append(k);
                 if (v instanceof String) {
                     builder.append("=").append(v);
+                } else if (v instanceof List) {
+                    builder.append(":").append("{");
+                    builder.append(Joiner.on(",").skipNulls().join((List<?>) v));
+                    builder.append("}");
                 } else if (v instanceof Map) {
                     builder.append(":").append("{");
                     buildLogContent(builder, (Map<String, Serializable>) v);
+                    builder.append("}");
+                } else {
+                    builder.append(":").append("{");
+                    builder.append(v.toString());
                     builder.append("}");
                 }
                 builder.append("\n");

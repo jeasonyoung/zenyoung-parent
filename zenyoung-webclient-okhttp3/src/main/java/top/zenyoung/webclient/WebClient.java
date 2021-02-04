@@ -62,7 +62,7 @@ public interface WebClient {
             if (body != null) {
                 try {
                     final String bodyJson = objMapper.writeValueAsString(body);
-                    return RequestBody.create(MediaType.parse("application/json;charset=utf-8"), bodyJson);
+                    return RequestBody.create(bodyJson, MediaType.parse("application/json;charset=utf-8"));
                 } catch (Throwable ex) {
                     throw new RuntimeException(ex);
                 }
