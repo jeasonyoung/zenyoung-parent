@@ -138,7 +138,7 @@
         <okhttp3.version>3.14.9</okhttp3.version>
 
         <!-- tools -->
-        <guava.version>28.1-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <commons-codec.version>1.14</commons-codec.version>
         <commons-io.version>2.6</commons-io.version>
         <lombok.version>1.18.12</lombok.version>
