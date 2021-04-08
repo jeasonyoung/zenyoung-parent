@@ -1,4 +1,4 @@
-package top.zenyoung.security.webflux.model;
+package top.zenyoung.security.model;
 
 import com.google.common.base.Strings;
 import lombok.Data;
@@ -7,7 +7,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.model.UserPrincipal;
 
@@ -34,7 +33,7 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
     /**
      * 状态
      */
-    private Status status = Status.Enable;
+    private Status status;
 
     /**
      * 构造函数
@@ -103,7 +102,7 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
      * @param status    用户状态
      * @return 认证数据
      */
-    public static Mono<UserDetails> build(@Nonnull final UserPrincipal principal, @Nullable final String password, @Nullable final Status status) {
-        return Mono.just(new TokenUserDetails(principal, password, status));
+    public static UserDetails buildSuccess(@Nonnull final UserPrincipal principal, @Nullable final String password, @Nullable final Status status) {
+        return new TokenUserDetails(principal, password, status);
     }
 }

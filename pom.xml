@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.7.RELEASE</version>
+        <version>2.4.4</version>
         <relativePath/>
     </parent>
 
@@ -134,6 +134,8 @@
         <module>zenyoung-security-common</module>
         <!-- 11.安全-WebFlux -->
         <module>zenyoung-security-webflux</module>
+        <!-- 12.安全-WebMvc -->
+        <module>zenyoung-security-webmvc</module>
 
         <!-- 12.Wechat公共模块 -->
         <module>zenyoung-wechat-common</module>
@@ -164,10 +166,10 @@
         <okhttp3.version>4.9.1</okhttp3.version>
 
         <!-- tools -->
-        <guava.version>30.1-jre</guava.version>
+        <guava.version>30.1.1-jre</guava.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-io.version>2.8.0</commons-io.version>
-        <lombok.version>1.18.18</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
 
         <!-- slf4j -->
         <slf4j-api.version>1.7.30</slf4j-api.version>
@@ -262,4 +264,21 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

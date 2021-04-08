@@ -1,10 +1,9 @@
-package top.zenyoung.security.webflux.model;
+package top.zenyoung.security.model;
 
 import lombok.Getter;
 import org.springframework.http.server.RequestPath;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import top.zenyoung.security.model.LoginReqBody;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

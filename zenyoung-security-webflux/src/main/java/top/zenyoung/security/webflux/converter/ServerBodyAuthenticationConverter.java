@@ -10,7 +10,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.zenyoung.security.model.LoginReqBody;
-import top.zenyoung.security.webflux.model.TokenAuthentication;
+import top.zenyoung.security.model.TokenAuthentication;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;

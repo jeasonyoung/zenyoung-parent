@@ -16,8 +16,8 @@ import reactor.core.publisher.Mono;
 import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.webflux.AuthenticationManager;
-import top.zenyoung.security.webflux.model.TokenAuthentication;
-import top.zenyoung.security.webflux.model.TokenUserDetails;
+import top.zenyoung.security.model.TokenAuthentication;
+import top.zenyoung.security.model.TokenUserDetails;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

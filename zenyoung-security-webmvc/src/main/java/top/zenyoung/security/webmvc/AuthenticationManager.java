@@ -1,21 +1,20 @@
-package top.zenyoung.security.webflux;
+package top.zenyoung.security.webmvc;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.RequestPath;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
+import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
-import top.zenyoung.common.model.UserPrincipal;
+import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.token.JwtTokenGenerator;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenGenerator;
-import top.zenyoung.security.model.TokenAuthentication;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,11 +22,9 @@ import javax.annotation.Nullable;
 /**
  * 认证管理器接口
  *
- * @author yangyong
- * @version 1.0
- * 2020/3/20 5:59 下午
- **/
-public interface AuthenticationManager extends ReactiveAuthenticationManager {
+ * @author young
+ */
+public interface AuthenticationManager extends org.springframework.security.authentication.AuthenticationManager {
 
     /**
      * 获取令牌
@@ -85,9 +82,7 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      * @param path    请求路径
      * @return 认证服务实现
      */
-    default ReactiveUserDetailsService buildAuthService(@Nonnull final LoginReqBody reqBody, @Nonnull final RequestPath path) {
-        return null;
-    }
+    UserDetailsService buildAuthService(@Nonnull final LoginReqBody reqBody, @Nonnull final RequestPath path);
 
     /**
      * 获取用户登录请求报文类型
@@ -127,21 +122,22 @@ public interface AuthenticationManager extends ReactiveAuthenticationManager {
      *
      * @param authentication 认证数据
      * @return 认证结果
+     * @throws AuthenticationException 认证异常
      */
     @Override
-    default Mono<Authentication> authenticate(final Authentication authentication) {
+    default Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         Assert.notNull(authentication, "'authentication'不能为空!");
         if (authentication instanceof TokenAuthentication) {
             final TokenAuthentication tokenAuthentication = (TokenAuthentication) authentication;
             //初始化认证处理器
-            final UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(
-                    buildAuthService(tokenAuthentication.getReqBody(), tokenAuthentication.getPath())
-            );
+            final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
             //设置密码编码器
-            manager.setPasswordEncoder(getPasswordEncoder());
+            provider.setPasswordEncoder(getPasswordEncoder());
+            //设置用户认证服务
+            provider.setUserDetailsService(buildAuthService(tokenAuthentication.getReqBody(), tokenAuthentication.getPath()));
             //认证处理
-            return manager.authenticate(tokenAuthentication);
+            return provider.authenticate(tokenAuthentication);
         }
-        return Mono.error(new IllegalArgumentException("authentication is TokenAuthentication"));
+        return null;
     }
 }
