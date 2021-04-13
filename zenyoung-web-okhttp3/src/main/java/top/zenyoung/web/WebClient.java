@@ -1,4 +1,4 @@
-package top.zenyoung.webclient;
+package top.zenyoung.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;

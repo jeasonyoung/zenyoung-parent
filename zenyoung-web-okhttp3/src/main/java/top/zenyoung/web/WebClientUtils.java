@@ -1,4 +1,4 @@
-package top.zenyoung.webclient;
+package top.zenyoung.web;
 
 import com.google.common.base.Strings;
 import lombok.SneakyThrows;
