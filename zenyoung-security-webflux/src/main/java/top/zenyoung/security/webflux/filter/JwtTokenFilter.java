@@ -17,10 +17,11 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-import top.zenyoung.controller.util.RespJsonUtils;
 import top.zenyoung.security.context.TopSecurityContext;
+import top.zenyoung.security.exception.TokenExpireException;
 import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.webflux.converter.JwtTokenAuthenticationConverter;
+import top.zenyoung.web.controller.util.RespJsonUtils;
 
 import javax.annotation.Nonnull;
 
@@ -39,7 +40,13 @@ public class JwtTokenFilter implements WebFilter {
     private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
     private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
     private ServerAuthenticationFailureHandler authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(
-            (exchange, e) -> RespJsonUtils.buildFailResp(exchange.getResponse(), HttpStatus.UNAUTHORIZED, e)
+            (exchange, e) -> {
+                HttpStatus status = HttpStatus.UNAUTHORIZED;
+                if (e instanceof TokenExpireException) {
+                    status = HttpStatus.PAYLOAD_TOO_LARGE;
+                }
+                return RespJsonUtils.buildFailResp(exchange.getResponse(), status, e);
+            }
     );
 
     public void setRequiresAuthenticationMatcher(@Nonnull final ServerWebExchangeMatcher requiresAuthenticationMatcher) {
@@ -75,6 +82,6 @@ public class JwtTokenFilter implements WebFilter {
         SecurityContextHolder.setContext(new TopSecurityContext(securityContext, exchange.getRequest()));
         return this.securityContextRepository.save(exchange, securityContext)
                 .then(authenticationSuccessHandler.onAuthenticationSuccess(new WebFilterExchange(exchange, chain), authen))
-                .subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+                .contextWrite(context -> ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
     }
 }

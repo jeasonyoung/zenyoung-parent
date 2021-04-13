@@ -79,6 +79,9 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
                     final TokenAuthentication tokenAuthentication = new TokenAuthentication(requestPath, reqBody.getAccount(), reqBody.getPasswd(), reqBody);
                     return manager.authenticate(tokenAuthentication);
                 }
+            } catch (AuthenticationException ex) {
+                log.error("attemptAuthentication-exp: {}", ex.getMessage());
+                throw ex;
             } catch (Throwable ex) {
                 log.error("attemptAuthentication-exp: {}", ex.getMessage());
                 throw new AuthenticationException(ex.getMessage(), ex) {

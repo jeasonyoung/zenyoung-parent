@@ -18,7 +18,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.util.CacheUtils;
-import top.zenyoung.controller.BaseController;
+import top.zenyoung.web.controller.BaseController;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

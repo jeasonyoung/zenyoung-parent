@@ -14,10 +14,10 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.zenyoung.security.exception.TokenException;
-import top.zenyoung.security.token.Ticket;
-import top.zenyoung.security.webflux.AuthenticationManager;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.model.TokenUserDetails;
+import top.zenyoung.security.token.Ticket;
+import top.zenyoung.security.webflux.AuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -89,6 +89,9 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
                                                     @Nullable final String authorization,
                                                     @Nonnull final Throwable ex) {
         log.debug("fallback(request-path: {},authorization: " + authorization + ")-exp: {}", request.getPath(), ex.getMessage());
+        if (ex instanceof AuthenticationException) {
+            return Mono.error(ex);
+        }
         return Mono.error(new AuthenticationException(ex.getMessage(), ex) {
         });
     }

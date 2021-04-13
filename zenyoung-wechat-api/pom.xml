@@ -22,7 +22,7 @@
         <!-- 模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-webflux</artifactId>
+            <artifactId>zenyoung-web-flux</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -33,7 +33,7 @@
     </dependencies>
 
     <build>
-        <finalName>${parent.artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

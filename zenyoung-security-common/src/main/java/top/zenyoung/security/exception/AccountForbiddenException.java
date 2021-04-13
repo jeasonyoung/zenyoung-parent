@@ -1,5 +1,7 @@
 package top.zenyoung.security.exception;
 
+import org.springframework.security.core.AuthenticationException;
+
 /**
  * 异常-账号已禁用
  *
@@ -7,7 +9,7 @@ package top.zenyoung.security.exception;
  * @version 1.0
  *  2020/3/14 6:07 下午
  **/
-public class AccountForbiddenException extends RuntimeException {
+public class AccountForbiddenException extends AuthenticationException {
 
     /**
      * 构造函数

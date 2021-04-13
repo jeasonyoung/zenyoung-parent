@@ -3,6 +3,7 @@ package top.zenyoung.security.token;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import top.zenyoung.common.util.CacheUtils;
 import top.zenyoung.security.exception.TokenException;
+import top.zenyoung.security.exception.TokenExpireException;
 
 import javax.annotation.Nonnull;
 import javax.crypto.SecretKey;
@@ -28,7 +30,7 @@ import java.util.UUID;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/19 4:44 下午
+ * 2020/3/19 4:44 下午
  **/
 @Data
 @Slf4j
@@ -99,6 +101,8 @@ public class JwtTokenGenerator implements TokenGenerator {
                     .parseClaimsJws(token)
                     .getBody();
             return Ticket.create(claims);
+        } catch (ExpiredJwtException ex) {
+            throw new TokenExpireException(ex);
         } catch (Throwable ex) {
             throw new TokenException(ex);
         }

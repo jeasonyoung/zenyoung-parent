@@ -1,13 +1,15 @@
 package top.zenyoung.security.exception;
 
+import org.springframework.security.core.AuthenticationException;
+
 /**
  * 异常-账号不存在
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/14 5:54 下午
+ * 2020/3/14 5:54 下午
  **/
-public class AccountNotExistException extends RuntimeException {
+public class AccountNotExistException extends AuthenticationException {
 
     /**
      * 构造函数

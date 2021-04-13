@@ -113,15 +113,13 @@
         <module>zenyoung-common</module>
         <!-- 2.WebService-服务模块 -->
         <module>zenyoung-service</module>
-        <!-- 3.Web公共模块 -->
-        <module>zenyoung-web</module>
-        <!-- 4.WebFlux-控制器 -->
-        <module>zenyoung-webflux</module>
-        <!-- 5.WebMvc-控制器 -->
-        <module>zenyoung-webmvc</module>
 
-        <!-- 6.okhttp-webclient封装模块 -->
-        <module>zenyoung-webclient-okhttp3</module>
+        <!-- 3.Web公共模块 -->
+        <module>zenyoung-web-common</module>
+        <module>zenyoung-web-okhttp3</module>
+        <module>zenyoung-web-flux</module>
+        <module>zenyoung-web-mvc</module>
+
         <!-- 7.webflux-websocket -->
         <module>zenyoung-webflux-websocket</module>
 
@@ -137,6 +135,11 @@
         <!-- 12.安全-WebMvc -->
         <module>zenyoung-security-webmvc</module>
 
+        <!-- websocket -->
+        <module>zenyoung-websocket-common</module>
+        <module>zenyoung-websocket-webflux</module>
+        <module>zenyoung-websocket-webmvc</module>
+
         <!-- 12.Wechat公共模块 -->
         <module>zenyoung-wechat-common</module>
         <!-- 13.Wechat服务模块 -->
@@ -147,6 +150,7 @@
         <!-- 5.组件 -->
         <!-- 5.1视频转码客户端 -->
         <module>zenyoung-codec-client</module>
+
     </modules>
 
     <properties>
