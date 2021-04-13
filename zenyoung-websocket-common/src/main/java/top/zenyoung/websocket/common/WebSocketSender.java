@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 
 /**
- * WebSocket-用户发送器接口
+ * WebSocket-发送器接口
  *
  * @author yangyong
  * @version 1.0

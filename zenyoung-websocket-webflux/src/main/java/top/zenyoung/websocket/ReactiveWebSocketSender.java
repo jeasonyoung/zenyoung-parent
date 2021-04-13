@@ -11,7 +11,7 @@ import top.zenyoung.websocket.common.WebSocketSender;
 import javax.annotation.Nonnull;
 
 /**
- * WebSocket-用户发送器
+ * WebSocket-发送器实现
  *
  * @author yangyong
  * @version 1.0
