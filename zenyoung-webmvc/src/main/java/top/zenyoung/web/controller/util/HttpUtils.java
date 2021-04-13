@@ -1,6 +1,9 @@
 package top.zenyoung.web.controller.util;
 
 import com.google.common.base.Strings;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,8 +19,6 @@ import java.util.Objects;
  * @author young
  */
 public class HttpUtils {
-    private static final String UNKNOWN = "unknown";
-
     private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<>() {
         {
             add("x-forwarded-for");
@@ -34,16 +35,24 @@ public class HttpUtils {
      * @return 客户端IP地址
      */
     public static String getClientIpAddr(@Nonnull final HttpServletRequest request) {
-        String ipAddr = request.getRemoteAddr();
-        if (Strings.isNullOrEmpty(ipAddr)) {
-            for (String head : HTTP_CLIENT_IP_HEAD) {
-                ipAddr = request.getHeader(head);
-                if (!Strings.isNullOrEmpty(ipAddr) && !UNKNOWN.equalsIgnoreCase(ipAddr)) {
-                    return ipAddr;
+        return getClientIpAddr(new ServletServerHttpRequest(request));
+    }
+
+    public static String getClientIpAddr(@Nonnull final ServletServerHttpRequest request) {
+        final HttpHeaders headers = request.getHeaders();
+        for (String head : HTTP_CLIENT_IP_HEAD) {
+            if (!Strings.isNullOrEmpty(head)) {
+                final List<String> headVals = headers.getOrEmpty(head);
+                if (!CollectionUtils.isEmpty(headers)) {
+                    for (String val : headVals) {
+                        if (!Strings.isNullOrEmpty(val)) {
+                            return val;
+                        }
+                    }
                 }
             }
         }
-        return ipAddr;
+        return getClientIpAddr(request.getRemoteAddress());
     }
 
     /**

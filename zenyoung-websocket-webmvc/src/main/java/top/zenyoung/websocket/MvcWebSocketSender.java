@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
  * @author young
  */
 @Slf4j
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 public class MvcWebSocketSender implements WebSocketSender {
     private final WebSocketSession session;
 
