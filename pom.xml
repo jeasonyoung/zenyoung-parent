@@ -117,8 +117,8 @@
         <!-- 3.Web公共模块 -->
         <module>zenyoung-web-common</module>
         <module>zenyoung-web-okhttp3</module>
-        <module>zenyoung-web-flux</module>
-        <module>zenyoung-web-mvc</module>
+        <module>zenyoung-webflux</module>
+        <module>zenyoung-webmvc</module>
 
         <!-- 7.webflux-websocket -->
         <module>zenyoung-webflux-websocket</module>
@@ -147,9 +147,10 @@
         <!-- 14.WeChat-API模块 -->
         <module>zenyoung-wechat-api</module>
 
-        <!-- 5.组件 -->
-        <!-- 5.1视频转码客户端 -->
+
+        <!-- 视频转码客户端 -->
         <module>zenyoung-codec-client</module>
+
 
     </modules>
 

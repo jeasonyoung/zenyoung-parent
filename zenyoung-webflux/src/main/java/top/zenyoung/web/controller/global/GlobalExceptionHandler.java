@@ -1,11 +1,9 @@
 package top.zenyoung.web.controller.global;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.NoHandlerFoundException;
 import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 import top.zenyoung.web.vo.RespResult;
 
@@ -38,12 +36,6 @@ public class GlobalExceptionHandler {
     public RespResult<?> handleConstraintViolationException(@Nonnull final ConstraintViolationException e) {
         log.warn("handleConstraintViolationException(e: {})...", e.getMessage());
         return RespResult.ofFail(e.getMessage());
-    }
-
-    @ExceptionHandler({NoHandlerFoundException.class})
-    public RespResult<?> handlerNoFoundException(@Nonnull final NoHandlerFoundException e) {
-        log.warn("handlerNoFoundException(e: {})...", e.getMessage());
-        return RespResult.of(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
     }
 
     @ExceptionHandler({DuplicateKeyException.class})

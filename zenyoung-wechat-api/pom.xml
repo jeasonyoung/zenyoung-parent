@@ -22,7 +22,7 @@
         <!-- 模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-web-flux</artifactId>
+            <artifactId>zenyoung-webflux</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
