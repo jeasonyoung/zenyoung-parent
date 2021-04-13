@@ -1,4 +1,4 @@
-package top.zenyoung.websocket;
+package top.zenyoung.websocket.common;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

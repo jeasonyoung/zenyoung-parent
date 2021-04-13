@@ -53,5 +53,4 @@ public interface WebSocketController extends WebSocketHandler {
                 })
                 .collect(Collectors.toMap(o -> o.getKey(), o -> o.getValue(), (n, o) -> n));
     }
-
 }

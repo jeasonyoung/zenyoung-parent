@@ -1,4 +1,4 @@
-package top.zenyoung.websocket;
+package top.zenyoung.websocket.common;
 
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Indexed;

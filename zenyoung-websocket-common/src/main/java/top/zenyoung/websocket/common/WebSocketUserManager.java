@@ -1,4 +1,4 @@
-package top.zenyoung.websocket;
+package top.zenyoung.websocket.common;
 
 import javax.annotation.Nonnull;
 import java.util.List;

@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.FluxSink;
+import top.zenyoung.websocket.common.WebSocketSender;
 
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 
 /**
  * WebSocket-用户发送器
@@ -19,7 +19,7 @@ import java.io.Serializable;
  **/
 @Slf4j
 @Getter
-public class WebSocketSender implements Serializable {
+public class ReactiveWebSocketSender implements WebSocketSender {
     /**
      * WebSocket会话
      */
@@ -35,7 +35,7 @@ public class WebSocketSender implements Serializable {
      * @param session WebSocket会话
      * @param sink    WebSocket消息发送器
      */
-    public WebSocketSender(@Nonnull final WebSocketSession session, @Nonnull final FluxSink<WebSocketMessage> sink) {
+    public ReactiveWebSocketSender(@Nonnull final WebSocketSession session, @Nonnull final FluxSink<WebSocketMessage> sink) {
         this.session = session;
         this.sink = sink;
     }
@@ -45,6 +45,7 @@ public class WebSocketSender implements Serializable {
      *
      * @param data 消息内容
      */
+    @Override
     public void sendData(@Nonnull final String data) {
         sink.next(session.textMessage(data));
     }
@@ -56,6 +57,7 @@ public class WebSocketSender implements Serializable {
      * @param data         消息数据
      * @param <T>          消息数据类型
      */
+    @Override
     public <T> void sendJsonData(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
         log.debug("sendJsonData(objectMapper: {},data: {})...", objectMapper, data);
         try {

@@ -7,6 +7,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
+import top.zenyoung.websocket.common.WebSocketMapping;
 
 import java.util.Map;
 import java.util.Objects;

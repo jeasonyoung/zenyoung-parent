@@ -109,30 +109,24 @@
     </profiles>
 
     <modules>
-        <!-- 1.公共模块 -->
+        <!-- 公共模块 -->
         <module>zenyoung-common</module>
-        <!-- 2.WebService-服务模块 -->
+        <!-- 数据模块 -->
+        <module>zenyoung-data-common</module>
+        <module>zenyoung-data-jpa</module>
+
+        <!-- 业务服务模块 -->
         <module>zenyoung-service</module>
 
-        <!-- 3.Web公共模块 -->
+        <!-- Web模块 -->
         <module>zenyoung-web-common</module>
         <module>zenyoung-web-okhttp3</module>
         <module>zenyoung-webflux</module>
         <module>zenyoung-webmvc</module>
 
-        <!-- 7.webflux-websocket -->
-        <module>zenyoung-webflux-websocket</module>
-
-        <!-- 8.数据-通用模块 -->
-        <module>zenyoung-data-common</module>
-        <!-- 9.数据-jpa -->
-        <module>zenyoung-data-jpa</module>
-
-        <!-- 10.安全-公共模块 -->
+        <!-- 安全模块 -->
         <module>zenyoung-security-common</module>
-        <!-- 11.安全-WebFlux -->
         <module>zenyoung-security-webflux</module>
-        <!-- 12.安全-WebMvc -->
         <module>zenyoung-security-webmvc</module>
 
         <!-- websocket -->
@@ -140,18 +134,13 @@
         <module>zenyoung-websocket-webflux</module>
         <module>zenyoung-websocket-webmvc</module>
 
-        <!-- 12.Wechat公共模块 -->
+        <!-- Wechat模块 -->
         <module>zenyoung-wechat-common</module>
-        <!-- 13.Wechat服务模块 -->
         <module>zenyoung-wechat-service</module>
-        <!-- 14.WeChat-API模块 -->
         <module>zenyoung-wechat-api</module>
-
 
         <!-- 视频转码客户端 -->
         <module>zenyoung-codec-client</module>
-
-
     </modules>
 
     <properties>
