@@ -1,9 +1,8 @@
-package top.zenyoung.web.vo;
+package top.zenyoung.common.paging;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import top.zenyoung.common.paging.PagingResult;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;

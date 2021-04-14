@@ -1,5 +1,8 @@
 package top.zenyoung.web.vo;
 
+import top.zenyoung.common.model.EnumData;
+import top.zenyoung.common.paging.DataResult;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;

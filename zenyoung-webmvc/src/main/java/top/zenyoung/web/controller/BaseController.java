@@ -3,6 +3,7 @@ package top.zenyoung.web.controller;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.web.AbstractWebController;

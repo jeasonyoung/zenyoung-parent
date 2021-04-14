@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import top.zenyoung.common.model.EnumData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
