@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,6 +29,16 @@ public class HttpUtils {
             add("X-Real-IP");
         }
     };
+
+    /**
+     * 获取当前请求客户端IP地址
+     *
+     * @return 客户端IP地址
+     */
+    public static String getCurrentClientIpAddr() {
+        final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attrs == null ? null : getClientIpAddr(attrs.getRequest());
+    }
 
     /**
      * 获取客户端IP地址
