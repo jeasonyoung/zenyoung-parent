@@ -8,6 +8,7 @@ import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.web.AbstractWebController;
 import top.zenyoung.web.ExceptHandler;
+import top.zenyoung.web.controller.util.ReqPagingUtils;
 import top.zenyoung.web.listener.*;
 import top.zenyoung.web.vo.*;
 
@@ -114,6 +115,26 @@ public class BaseController extends AbstractWebController {
     /**
      * 分页查询数据
      *
+     * @param reqPagingQueryClass 分页查询类型
+     * @param listener            查询处理器
+     * @param <ReqQry>            请求查询条件类型
+     * @param <Qry>               转换后查询条件类型
+     * @param <Item>              查询数据类型
+     * @param <Ret>               结果数据类型
+     * @return 查询结果
+     */
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+            @Nonnull final Class<ReqQry> reqPagingQueryClass,
+            @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
+    ) {
+        log.debug("buildQuery(reqPagingQueryClass: {},listener: {})...", reqPagingQueryClass, listener);
+        //获取当前请求
+        return buildQuery(ReqPagingUtils.parseQuery(getObjectMapper(), reqPagingQueryClass), listener);
+    }
+
+    /**
+     * 分页查询数据
+     *
      * @param reqQuery 分页查询条件
      * @param listener 查询处理器
      * @param <ReqQry> 请求查询条件类型
@@ -168,6 +189,44 @@ public class BaseController extends AbstractWebController {
         });
         //返回数据
         return respResult;
+    }
+
+    /**
+     * 分页查询数据
+     *
+     * @param reqPagingQueryClass  分页查询类型
+     * @param queryConvertHandler  查询条件转换处理
+     * @param pagingQueryHandler   分页查询处理
+     * @param resultConvertHandler 查询结果转换处理
+     * @param <ReqQry>             请求查询条件类型
+     * @param <Qry>                转换后查询条件类型
+     * @param <Item>               查询数据类型
+     * @param <Ret>                结果数据类型
+     * @return 查询结果
+     */
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+            @Nonnull final Class<ReqQry> reqPagingQueryClass,
+            @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
+            @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
+            @Nonnull final Function<Item, Ret> resultConvertHandler
+    ) {
+        log.debug("buildQuery(reqPagingQueryClass: {},queryConvertHandler: {},pagingQueryHandler: {},resultConvertHandler: {})...", reqPagingQueryClass, queryConvertHandler, pagingQueryHandler, resultConvertHandler);
+        return buildQuery(reqPagingQueryClass, new PagingQueryListener<ReqQry, Qry, Item, Ret>() {
+            @Override
+            public Qry convert(@Nullable final ReqQry reqQry) {
+                return queryConvertHandler.apply(reqQry);
+            }
+
+            @Override
+            public PagingResult<Item> query(@Nonnull final PagingQuery<Qry> query) {
+                return pagingQueryHandler.apply(query);
+            }
+
+            @Override
+            public Ret apply(final Item data) {
+                return resultConvertHandler.apply(data);
+            }
+        });
     }
 
     /**
