@@ -8,7 +8,7 @@ import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.web.AbstractWebController;
 import top.zenyoung.web.ExceptHandler;
-import top.zenyoung.web.controller.util.ReqPagingUtils;
+import top.zenyoung.web.controller.util.ReqUtils;
 import top.zenyoung.web.listener.*;
 import top.zenyoung.web.vo.*;
 
@@ -129,7 +129,7 @@ public class BaseController extends AbstractWebController {
     ) {
         log.debug("buildQuery(reqPagingQueryClass: {},listener: {})...", reqPagingQueryClass, listener);
         //获取当前请求
-        return buildQuery(ReqPagingUtils.parseQuery(getObjectMapper(), reqPagingQueryClass), listener);
+        return buildQuery(ReqUtils.parsePagingQuery(reqPagingQueryClass, getObjectMapper()), listener);
     }
 
     /**

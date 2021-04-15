@@ -20,27 +20,32 @@ import java.util.Map;
  * @author young
  */
 @Slf4j
-public class ReqPagingUtils {
+public class ReqUtils {
     private static final String PAGING_QUERY_BY_INDEX = "index";
     private static final String PAGING_QUERY_BY_ROWS = "rows";
 
-    @Nonnull
-    public static <ReqQry extends Serializable> PagingQuery<ReqQry> parseQuery(@Nonnull final ObjectMapper objectMapper, @Nonnull final Class<ReqQry> reqPagingQueryClass) {
-        //获取当前请求
+    public static Map<String, String[]> getReqParams() {
         final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attrs != null) {
-            final Map<String, String[]> params = attrs.getRequest().getParameterMap();
-            if (!CollectionUtils.isEmpty(params)) {
-                final ReqPagingQuery<ReqQry> pagingQuery = new ReqPagingQuery<>();
-                //获取页码
-                pagingQuery.setIndex(getIntValue(params, PAGING_QUERY_BY_INDEX));
-                //获取每页数据量
-                pagingQuery.setRows(getIntValue(params, PAGING_QUERY_BY_ROWS));
-                //查询条件
-                pagingQuery.setQuery(parseBody(objectMapper, reqPagingQueryClass, params));
-                //返回对象
-                return pagingQuery;
-            }
+            return attrs.getRequest().getParameterMap();
+        }
+        return null;
+    }
+
+    @Nonnull
+    public static <ReqQry extends Serializable> PagingQuery<ReqQry> parsePagingQuery(@Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final ObjectMapper objectMapper) {
+        //获取当前请求
+        final Map<String, String[]> params = getReqParams();
+        if (!CollectionUtils.isEmpty(params)) {
+            final ReqPagingQuery<ReqQry> pagingQuery = new ReqPagingQuery<>();
+            //获取页码
+            pagingQuery.setIndex(getIntValue(params, PAGING_QUERY_BY_INDEX));
+            //获取每页数据量
+            pagingQuery.setRows(getIntValue(params, PAGING_QUERY_BY_ROWS));
+            //查询条件
+            pagingQuery.setQuery(parseQueryBody(params, reqPagingQueryClass, objectMapper));
+            //返回对象
+            return pagingQuery;
         }
         return new ReqPagingQuery<>();
     }
@@ -59,7 +64,7 @@ public class ReqPagingUtils {
         return 0;
     }
 
-    private static <ReqQry extends Serializable> ReqQry parseBody(@Nonnull final ObjectMapper objectMapper, @Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final Map<String, String[]> params) {
+    private static <ReqQry extends Serializable> ReqQry parseQueryBody(@Nonnull final Map<String, String[]> params, @Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final ObjectMapper objectMapper) {
         if (!CollectionUtils.isEmpty(params)) {
             try {
                 final Map<String, String[]> out = Maps.filterEntries(params, entry -> {
@@ -69,15 +74,25 @@ public class ReqPagingUtils {
                     }
                     return false;
                 });
-                if (!CollectionUtils.isEmpty(out)) {
-                    final String json = objectMapper.writeValueAsString(out);
-                    if (!Strings.isNullOrEmpty(json)) {
-                        return objectMapper.readValue(json, reqPagingQueryClass);
-                    }
-                }
+                return parse(out, reqPagingQueryClass, objectMapper);
             } catch (Throwable ex) {
                 log.warn("parseBody-exp: {}", ex.getMessage());
             }
+        }
+        return null;
+    }
+
+    public static <T> T parse(@Nonnull final Map<String, String[]> params, final Class<T> dataClass, @Nonnull final ObjectMapper objectMapper) {
+        log.debug("parse(params: {},dataClass: {},objectMapper: {})...", params, dataClass, objectMapper);
+        try {
+            if (!CollectionUtils.isEmpty(params)) {
+                final String json = objectMapper.writeValueAsString(params);
+                if (!Strings.isNullOrEmpty(json)) {
+                    return objectMapper.readValue(json, dataClass);
+                }
+            }
+        } catch (Throwable ex) {
+            log.warn("parse(params: {},dataClass: {},objectMapper: {})-exp: {}", params, dataClass, objectMapper, ex.getMessage());
         }
         return null;
     }
