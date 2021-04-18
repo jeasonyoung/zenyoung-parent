@@ -1,6 +1,6 @@
 package top.zenyoung.codec.client.vo;
 
-import top.zenyoung.web.vo.EnumData;
+import top.zenyoung.common.model.EnumData;
 
 import java.util.List;
 

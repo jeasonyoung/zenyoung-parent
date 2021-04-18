@@ -9,9 +9,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.codec.client.vo.BaseCodecReq;
 import top.zenyoung.common.util.SignUtils;
+import top.zenyoung.web.WebClient;
+import top.zenyoung.web.WebClientUtils;
 import top.zenyoung.web.vo.RespResult;
-import top.zenyoung.webclient.WebClient;
-import top.zenyoung.webclient.WebClientUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -79,7 +79,7 @@ abstract class BaseCodecClientDefault {
     protected <T extends BaseCodecReq> String buildReqSign(@Nonnull final T req) {
         log.debug("buildReqSign(req: {})...", req);
         //检查接入账号
-        if(!Strings.isNullOrEmpty(req.getAccount())){
+        if (!Strings.isNullOrEmpty(req.getAccount())) {
             Assert.isTrue(acount.equalsIgnoreCase(req.getAccount()), "'req.account'错误!");
         }
         final Map<String, Serializable> params = Maps.newLinkedHashMap();

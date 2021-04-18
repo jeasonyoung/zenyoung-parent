@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.zenyoung.web.vo.EnumData;
+import top.zenyoung.common.model.EnumData;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class CallbackResutReq extends BaseCodecReq implements CallbackResut {
 
     @Override
     public Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(6) {
+        return new HashMap<>(6) {
             {
                 //上传ID
                 put("id", getId());

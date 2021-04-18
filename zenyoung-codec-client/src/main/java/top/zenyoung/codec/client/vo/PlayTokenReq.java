@@ -30,7 +30,7 @@ public class PlayTokenReq extends BaseCodecReq {
 
     @Override
     public final Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(3) {
+        return new HashMap<>(3) {
             {
                 //视频ID(上传ID)
                 put("vodId", getVodId());

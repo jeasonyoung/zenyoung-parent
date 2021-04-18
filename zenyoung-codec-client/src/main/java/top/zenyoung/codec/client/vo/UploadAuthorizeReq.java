@@ -41,7 +41,7 @@ public class UploadAuthorizeReq extends BaseCodecReq {
 
     @Override
     public Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(5) {
+        return new HashMap<>(5) {
             {
                 //上传业务ID
                 put("bizId", getBizId());

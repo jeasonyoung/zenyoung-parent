@@ -37,7 +37,7 @@ public class CallbackCodecUrl implements Model {
 
     @Override
     public Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(4) {
+        return new HashMap<>(4) {
             {
                 //访问URL
                 put("url", getUrl());

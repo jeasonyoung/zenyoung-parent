@@ -30,7 +30,7 @@ public class CdnSafetyReq extends BaseCodecReq {
 
     @Override
     public Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(3) {
+        return new HashMap<>(3) {
             {
                 //上传ID
                 put("id", getId());

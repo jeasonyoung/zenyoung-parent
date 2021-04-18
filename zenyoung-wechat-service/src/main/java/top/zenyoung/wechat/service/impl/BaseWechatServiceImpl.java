@@ -11,7 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.util.Assert;
 import top.zenyoung.common.util.CacheUtils;
 import top.zenyoung.common.util.JsonUtils;
-import top.zenyoung.webclient.WebClient;
+import top.zenyoung.web.WebClient;
 import top.zenyoung.wechat.common.*;
 import top.zenyoung.wechat.service.AccessService;
 
@@ -260,7 +260,7 @@ public abstract class BaseWechatServiceImpl extends BaseAccessServiceImpl implem
         synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
             try {
                 //参数集合
-                final Map<String, Serializable> params = new HashMap<String, Serializable>(4) {
+                final Map<String, Serializable> params = new HashMap<>(4) {
                     {
                         //随机字符串
                         put("noncestr", nonce);

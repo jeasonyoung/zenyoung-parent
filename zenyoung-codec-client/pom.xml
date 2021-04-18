@@ -48,14 +48,14 @@
         <!-- web模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-web</artifactId>
+            <artifactId>zenyoung-web-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- httpclient模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-webclient-okhttp3</artifactId>
+            <artifactId>zenyoung-web-okhttp3</artifactId>
             <version>${project.version}</version>
         </dependency>
 

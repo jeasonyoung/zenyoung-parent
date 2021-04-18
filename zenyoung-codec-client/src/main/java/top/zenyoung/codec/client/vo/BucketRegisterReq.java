@@ -36,7 +36,7 @@ public class BucketRegisterReq extends BaseCodecReq {
 
     @Override
     public Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(4) {
+        return new HashMap<>(4) {
             {
                 //存储名称
                 put("name", getName());

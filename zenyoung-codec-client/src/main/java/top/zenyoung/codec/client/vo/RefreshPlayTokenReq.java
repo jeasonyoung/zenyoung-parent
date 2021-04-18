@@ -22,7 +22,7 @@ public class RefreshPlayTokenReq extends BaseCodecReq {
 
     @Override
     public Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(1) {
+        return new HashMap<>(1) {
             {
                 //刷新令牌
                 put("refreshToken", getRefreshToken());
