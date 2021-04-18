@@ -10,7 +10,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginRespBody;
-import top.zenyoung.security.webflux.AuthenticationManager;
+import top.zenyoung.security.webflux.ZyAuthenticationManager;
 import top.zenyoung.security.webflux.converter.ServerBodyAuthenticationConverter;
 import top.zenyoung.web.controller.util.RespJsonUtils;
 import top.zenyoung.web.vo.RespResult;
@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 @Slf4j
 public class JwtLoginFilter extends AuthenticationWebFilter {
 
-    public JwtLoginFilter(@Nonnull final AuthenticationManager authenticationManager, @Nonnull final ServerCodecConfigurer serverCodecConfigurer) {
+    public JwtLoginFilter(@Nonnull final ZyAuthenticationManager authenticationManager, @Nonnull final ServerCodecConfigurer serverCodecConfigurer) {
         super(authenticationManager);
         //设置登录地址
         setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(authenticationManager.getLoginMethod(), authenticationManager.getLoginUrls()));

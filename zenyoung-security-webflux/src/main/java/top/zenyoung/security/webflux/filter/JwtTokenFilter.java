@@ -19,7 +19,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import top.zenyoung.security.context.TopSecurityContext;
 import top.zenyoung.security.exception.TokenExpireException;
-import top.zenyoung.security.webflux.AuthenticationManager;
+import top.zenyoung.security.webflux.ZyAuthenticationManager;
 import top.zenyoung.security.webflux.converter.JwtTokenAuthenticationConverter;
 import top.zenyoung.web.controller.util.RespJsonUtils;
 
@@ -61,7 +61,7 @@ public class JwtTokenFilter implements WebFilter {
         this.authenticationFailureHandler = authenticationFailureHandler;
     }
 
-    public JwtTokenFilter(@Nonnull final AuthenticationManager authenticationManager) {
+    public JwtTokenFilter(@Nonnull final ZyAuthenticationManager authenticationManager) {
         this.securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
         this.authenticationConverter = new JwtTokenAuthenticationConverter(authenticationManager);
     }

@@ -17,7 +17,7 @@ import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.model.TokenUserDetails;
 import top.zenyoung.security.token.Ticket;
-import top.zenyoung.security.webflux.AuthenticationManager;
+import top.zenyoung.security.webflux.ZyAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,16 +36,16 @@ import java.util.stream.Collectors;
 public class JwtTokenAuthenticationConverter implements ServerAuthenticationConverter {
     private static final String TOKEN_HEADER_NAME = HttpHeaders.AUTHORIZATION;
 
-    private final AuthenticationManager authenticationManager;
+    private final ZyAuthenticationManager authenticationManager;
     private final ServerWebExchangeMatcher exchangeMatcher;
 
-    public JwtTokenAuthenticationConverter(@Nonnull final AuthenticationManager authenticationManager) {
+    public JwtTokenAuthenticationConverter(@Nonnull final ZyAuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
         final String[] whiteUrls = buildWhiteUrls(authenticationManager);
         exchangeMatcher = whiteUrls == null || whiteUrls.length == 0 ? null : ServerWebExchangeMatchers.pathMatchers(whiteUrls);
     }
 
-    private String[] buildWhiteUrls(@Nonnull final AuthenticationManager authenticationManager) {
+    private String[] buildWhiteUrls(@Nonnull final ZyAuthenticationManager authenticationManager) {
         final List<String> whiteUrls = Lists.newLinkedList();
         //用户登录
         final String[] loginUrls = authenticationManager.getLoginUrls();

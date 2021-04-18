@@ -2,6 +2,7 @@ package top.zenyoung.security.webmvc;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.RequestPath;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,7 +25,7 @@ import javax.annotation.Nullable;
  *
  * @author young
  */
-public interface AuthenticationManager extends org.springframework.security.authentication.AuthenticationManager {
+public interface ZyAuthenticationManager extends AuthenticationManager {
 
     /**
      * 获取令牌

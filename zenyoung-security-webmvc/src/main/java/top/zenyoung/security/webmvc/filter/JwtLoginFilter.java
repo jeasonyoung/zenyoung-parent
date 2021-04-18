@@ -16,7 +16,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.TokenAuthentication;
-import top.zenyoung.security.webmvc.AuthenticationManager;
+import top.zenyoung.security.webmvc.ZyAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,17 +33,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final List<RequestMatcher> requestMatchers = Lists.newLinkedList();
-    private final AuthenticationManager manager;
+    private final ZyAuthenticationManager manager;
     private final ObjectMapper objectMapper;
 
-    public JwtLoginFilter(@Nonnull final AuthenticationManager manager, @Nullable final ObjectMapper objectMapper) {
+    public JwtLoginFilter(@Nonnull final ZyAuthenticationManager manager, @Nullable final ObjectMapper objectMapper) {
         super(manager);
         this.manager = manager;
         this.objectMapper = objectMapper == null ? new ObjectMapper() : objectMapper;
-        this.buildRequestMatchers(this.requestMatchers, manager);
+        this.buildRequestMatchers(this.requestMatchers, this.manager);
     }
 
-    private void buildRequestMatchers(@Nonnull final List<RequestMatcher> requestMatchers, @Nonnull final AuthenticationManager manager) {
+    private void buildRequestMatchers(@Nonnull final List<RequestMatcher> requestMatchers, @Nonnull final ZyAuthenticationManager manager) {
         final HttpMethod method = manager.getLoginMethod();
         final List<String> loginUrls = Lists.newArrayList(manager.getLoginUrls());
         if (CollectionUtils.isEmpty(loginUrls)) {

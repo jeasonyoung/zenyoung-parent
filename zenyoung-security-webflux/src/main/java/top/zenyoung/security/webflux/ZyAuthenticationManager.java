@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
  * @version 1.0
  * 2020/3/20 5:59 下午
  **/
-public interface AuthenticationManager extends ReactiveAuthenticationManager {
+public interface ZyAuthenticationManager extends ReactiveAuthenticationManager {
 
     /**
      * 获取令牌

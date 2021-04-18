@@ -15,7 +15,7 @@ import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.model.TokenUserDetails;
 import top.zenyoung.security.token.Ticket;
-import top.zenyoung.security.webmvc.AuthenticationManager;
+import top.zenyoung.security.webmvc.ZyAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,14 +37,14 @@ import java.util.stream.Collectors;
 public class JwtTokenFilter extends OncePerRequestFilter {
     private static final String TOKEN_HEADER_NAME = HttpHeaders.AUTHORIZATION;
     private final List<RequestMatcher> whiteMatchers = Lists.newLinkedList();
-    private final AuthenticationManager manager;
+    private final ZyAuthenticationManager manager;
 
-    public JwtTokenFilter(@Nonnull final AuthenticationManager manager) {
+    public JwtTokenFilter(@Nonnull final ZyAuthenticationManager manager) {
         this.manager = manager;
-        this.buildWhiteUrls(whiteMatchers, manager);
+        this.buildWhiteUrls(whiteMatchers, this.manager);
     }
 
-    private void buildWhiteUrls(@Nonnull final List<RequestMatcher> whiteMatchers, @Nonnull final AuthenticationManager authenticationManager) {
+    private void buildWhiteUrls(@Nonnull final List<RequestMatcher> whiteMatchers, @Nonnull final ZyAuthenticationManager authenticationManager) {
         final List<String> whiteUrls = Lists.newLinkedList();
         //用户登录
         final String[] loginUrls = authenticationManager.getLoginUrls();
