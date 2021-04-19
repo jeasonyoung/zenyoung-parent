@@ -49,7 +49,7 @@ public class CacheUtils {
         }
         return CacheBuilder.newBuilder()
                 .maximumSize(maxSize > 0 ? maxSize : DEF_MAX_SIZE)
-                .expireAfterWrite(duration, timeUnit)
+                .expireAfterAccess(duration, timeUnit)
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class CacheUtils {
     public static <K, V> Cache<K, V> createCache(final int maxSize, final Duration timeout) {
         return CacheBuilder.newBuilder()
                 .maximumSize(maxSize > 0 ? maxSize : DEF_MAX_SIZE)
-                .expireAfterWrite(timeout == null ? DEF_DURATION : timeout)
+                .expireAfterAccess(timeout == null ? DEF_DURATION : timeout)
                 .build();
     }
 
