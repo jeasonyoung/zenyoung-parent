@@ -23,7 +23,6 @@ import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.webmvc.ZyAuthenticationManager;
 import top.zenyoung.web.controller.util.RespJsonUtils;
-import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -103,7 +102,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain, final Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain, final Authentication authResult) {
         log.debug("successfulAuthentication(chain: {},authResult: {})...", chain, authResult);
         SecurityContextHolder.getContext().setAuthentication(authResult);
         if (this.eventPublisher != null) {
@@ -113,7 +112,11 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             //登录成功处理
             final UserPrincipal principal = (UserPrincipal) authResult.getPrincipal();
             if (principal != null) {
-                final LoginRespBody respBody = this.manager.createRespBody(principal);
+                //创建登录响应报文体
+                final LoginRespBody respBody = manager.createRespBody(principal);
+                //构建登录用户响应数据
+                manager.buildRespBody(respBody, principal);
+                //输出响应数据
                 RespJsonUtils.buildSuccessResp(objectMapper, response, respBody);
             }
         } catch (Throwable ex) {
@@ -124,7 +127,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void unsuccessfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException failed) {
         log.debug("unsuccessfulAuthentication(failed: {})...", failed == null ? null : failed.getMessage());
         SecurityContextHolder.clearContext();
         RespJsonUtils.buildFailResp(objectMapper, response, HttpStatus.UNAUTHORIZED, failed);

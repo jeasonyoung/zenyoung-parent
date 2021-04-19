@@ -13,8 +13,6 @@ import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.TokenAuthentication;
-import top.zenyoung.security.token.JwtTokenGenerator;
-import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenGenerator;
 
 import javax.annotation.Nonnull;
@@ -26,16 +24,13 @@ import javax.annotation.Nullable;
  * @author young
  */
 public interface ZyAuthenticationManager extends AuthenticationManager {
-
     /**
      * 获取令牌
      *
      * @return 令牌
      */
     @Nonnull
-    default TokenGenerator getTokenGenerator() {
-        return new JwtTokenGenerator();
-    }
+    TokenGenerator getTokenGenerator();
 
     /**
      * 获取登录请求方法
@@ -102,11 +97,8 @@ public interface ZyAuthenticationManager extends AuthenticationManager {
      */
     @Nonnull
     default LoginRespBody createRespBody(@Nonnull final UserPrincipal userPrincipal) {
-        final LoginRespBody respBody = new LoginRespBody();
-        //登录令牌
-        respBody.setToken(getTokenGenerator().createToken(new Ticket(userPrincipal)));
-        //返回数据
-        return respBody;
+        //构建登录响应对象
+        return new LoginRespBody();
     }
 
     /**
