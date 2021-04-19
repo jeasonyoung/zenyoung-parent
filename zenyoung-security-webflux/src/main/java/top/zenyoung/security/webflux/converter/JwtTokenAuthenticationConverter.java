@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.model.TokenUserDetails;
-import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.webflux.ZyAuthenticationManager;
 
 import javax.annotation.Nonnull;
@@ -103,8 +102,8 @@ public class JwtTokenAuthenticationConverter implements ServerAuthenticationConv
             throw new TokenException("令牌为空");
         }
         //解析令牌
-        final Ticket ticket = authenticationManager.getTokenGenerator().parseToken(authorization);
-        final TokenUserDetails userDetails = new TokenUserDetails(ticket);
+        final TokenUserDetails userDetails = new TokenUserDetails(authenticationManager.parseToken(authorization));
+        log.info("parseToken(authorization: {})=> {}", authorization, userDetails);
         //转换用户数据
         return new TokenAuthentication(path, userDetails, null, userDetails.getAuthorities());
     }

@@ -10,9 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import top.zenyoung.common.model.UserPrincipal;
+import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.TokenAuthentication;
+import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenGenerator;
 
 import javax.annotation.Nonnull;
@@ -92,11 +94,11 @@ public interface ZyAuthenticationManager extends AuthenticationManager {
     /**
      * 构建响应数据
      *
-     * @param userPrincipal 用户信息
+     * @param principal 用户信息
      * @return 响应数据
      */
     @Nonnull
-    default LoginRespBody createRespBody(@Nonnull final UserPrincipal userPrincipal) {
+    default LoginRespBody createRespBody(@Nonnull final UserPrincipal principal) {
         //构建登录响应对象
         return new LoginRespBody();
     }
@@ -104,10 +106,23 @@ public interface ZyAuthenticationManager extends AuthenticationManager {
     /**
      * 构建登录用户数据
      *
-     * @param respBody      响应数据
-     * @param userPrincipal 用户数据
+     * @param respBody  响应数据
+     * @param principal 用户数据
      */
-    default void buildRespBody(@Nonnull final LoginRespBody respBody, @Nonnull final UserPrincipal userPrincipal) {
+    default void buildRespBody(@Nonnull final LoginRespBody respBody, @Nonnull final UserPrincipal principal) {
+        //创建令牌
+        respBody.setToken(getTokenGenerator().createToken(new Ticket(principal)));
+    }
+
+    /**
+     * 解析令牌
+     *
+     * @param token 令牌串
+     * @return 用户票据数据
+     * @throws TokenException 票据认证异常
+     */
+    default Ticket parseToken(@Nonnull final String token) throws TokenException {
+        return getTokenGenerator().parseToken(token);
     }
 
     /**

@@ -9,13 +9,14 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+import top.zenyoung.common.model.UserPrincipal;
+import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.LoginRespBody;
-import top.zenyoung.common.model.UserPrincipal;
+import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.token.JwtTokenGenerator;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenGenerator;
-import top.zenyoung.security.model.TokenAuthentication;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -101,25 +102,35 @@ public interface ZyAuthenticationManager extends ReactiveAuthenticationManager {
     /**
      * 构建响应数据
      *
-     * @param userPrincipal 用户信息
+     * @param principal 用户信息
      * @return 响应数据
      */
     @Nonnull
-    default LoginRespBody createRespBody(@Nonnull final UserPrincipal userPrincipal) {
-        final LoginRespBody respBody = new LoginRespBody();
-        //登录令牌
-        respBody.setToken(getTokenGenerator().createToken(new Ticket(userPrincipal)));
+    default LoginRespBody createRespBody(@Nonnull final UserPrincipal principal) {
         //返回数据
-        return respBody;
+        return new LoginRespBody();
     }
 
     /**
      * 构建登录用户数据
      *
-     * @param respBody      响应数据
-     * @param userPrincipal 用户数据
+     * @param respBody  响应数据
+     * @param principal 用户数据
      */
-    default void buildRespBody(@Nonnull final LoginRespBody respBody, @Nonnull final UserPrincipal userPrincipal) {
+    default void buildRespBody(@Nonnull final LoginRespBody respBody, @Nonnull final UserPrincipal principal) {
+        //登录令牌
+        respBody.setToken(getTokenGenerator().createToken(new Ticket(principal)));
+    }
+
+    /**
+     * 解析令牌
+     *
+     * @param token 令牌串
+     * @return 用户票据数据
+     * @throws TokenException 票据认证异常
+     */
+    default Ticket parseToken(@Nonnull final String token) throws TokenException {
+        return getTokenGenerator().parseToken(token);
     }
 
     /**
