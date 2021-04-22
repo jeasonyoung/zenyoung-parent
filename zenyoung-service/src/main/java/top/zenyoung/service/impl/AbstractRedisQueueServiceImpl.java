@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 @Slf4j
 public abstract class AbstractRedisQueueServiceImpl implements QueueService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
-    private static final long QUEUE_READ_TIMEOUT = 800;
-    private static final int QUEUE_READ_MAX = Runtime.getRuntime().availableProcessors();
+    private static final long QUEUE_READ_TIMEOUT = 10000;
+    private static final int QUEUE_READ_MAX = Runtime.getRuntime().availableProcessors() * 2;
 
     private final StringRedisTemplate redisTemplate;
 
@@ -149,16 +149,10 @@ public abstract class AbstractRedisQueueServiceImpl implements QueueService {
                 String json;
                 int count = 0;
                 while ((count < max) && !Strings.isNullOrEmpty(json = queue.rightPop(queueKey, timeout, TimeUnit.MILLISECONDS))) {
-                    //内容反序列化处理
-                    final T data = deserializable(json, dataClass);
-                    if (data != null) {
-                        //业务处理
-                        consumer.accept(data);
-                        //计数器累加
-                        count = refCounts.incrementAndGet();
-                        continue;
-                    }
-                    count++;
+                    //计数器累加
+                    count = refCounts.incrementAndGet();
+                    //业务处理
+                    consumer.accept(deserializable(json, dataClass));
                 }
             } catch (Throwable ex) {
                 log.warn("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
