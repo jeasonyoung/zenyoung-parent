@@ -27,7 +27,7 @@ public abstract class AbstractTaskServiceImpl implements TaskService {
     /**
      * 默认支持的最大并发数(CPU内核数)
      */
-    protected static final int DEF_MAX = Runtime.getRuntime().availableProcessors() + 1;
+    protected static final int DEF_MAX = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
      * 获取任务最大并发数
