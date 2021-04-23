@@ -1,14 +1,13 @@
 package top.zenyoung.security.webmvc.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.RequestPath;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -19,13 +18,10 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginReqBody;
-import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.TokenAuthentication;
-import top.zenyoung.security.webmvc.ZyAuthenticationManager;
-import top.zenyoung.web.controller.util.RespJsonUtils;
+import top.zenyoung.security.webmvc.JwtAuthenticationManager;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,26 +36,29 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final List<RequestMatcher> requestMatchers = Lists.newLinkedList();
-    private final ZyAuthenticationManager manager;
-    private final ObjectMapper objectMapper;
 
-    public JwtLoginFilter(@Nonnull final ZyAuthenticationManager manager, @Nullable final ObjectMapper objectMapper) {
+    /**
+     * 构造函数
+     *
+     * @param manager 认证管理
+     */
+    public JwtLoginFilter(@Nonnull final JwtAuthenticationManager manager) {
         super(manager);
-        this.manager = manager;
-        this.objectMapper = objectMapper == null ? new ObjectMapper() : objectMapper;
-        this.buildRequestMatchers(this.requestMatchers, this.manager);
+        this.buildRequestMatchers(this.requestMatchers);
     }
 
-    private void buildRequestMatchers(@Nonnull final List<RequestMatcher> requestMatchers, @Nonnull final ZyAuthenticationManager manager) {
-        final HttpMethod method = manager.getLoginMethod();
-        final List<String> loginUrls = Lists.newArrayList(manager.getLoginUrls());
-        if (!CollectionUtils.isEmpty(loginUrls)) {
-            requestMatchers.addAll(
-                    loginUrls.stream()
-                            .filter(url -> !Strings.isNullOrEmpty(url))
-                            .map(url -> new AntPathRequestMatcher(url, method.name()))
-                            .collect(Collectors.toList())
-            );
+    private void buildRequestMatchers(@Nonnull final List<RequestMatcher> requestMatchers) {
+        final JwtAuthenticationManager manager = (JwtAuthenticationManager) getAuthenticationManager();
+        if (manager != null) {
+            final List<String> loginUrls = Lists.newArrayList(manager.getLoginUrls());
+            if (!CollectionUtils.isEmpty(loginUrls)) {
+                requestMatchers.addAll(
+                        loginUrls.stream()
+                                .filter(url -> !Strings.isNullOrEmpty(url))
+                                .map(AntPathRequestMatcher::new)
+                                .collect(Collectors.toList())
+                );
+            }
         }
     }
 
@@ -78,14 +77,19 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest servletRequest, final HttpServletResponse servletResponse) throws AuthenticationException {
         final ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(servletRequest);
-        if (MediaType.APPLICATION_JSON.isCompatibleWith(httpRequest.getHeaders().getContentType())) {
+        if (httpRequest.getMethod() != HttpMethod.POST) {
+            throw new AuthenticationServiceException("Authentication method not supported: " + httpRequest.getMethod());
+        }
+        final MediaType contentType = httpRequest.getHeaders().getContentType();
+        if (!MediaType.APPLICATION_JSON.isCompatibleWith(contentType) || !MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType)) {
+            throw new AuthenticationServiceException("Authentication contentType not supported: " + contentType);
+        }
+        //获取认证管理器
+        final JwtAuthenticationManager manager = (JwtAuthenticationManager) getAuthenticationManager();
+        LoginReqBody reqBody;
+        if (MediaType.APPLICATION_JSON.isCompatibleWith(contentType)) {
             try {
-                final LoginReqBody reqBody = objectMapper.readValue(httpRequest.getBody(), manager.getLoginReqBodyClass());
-                if (reqBody != null) {
-                    final RequestPath requestPath = RequestPath.parse(servletRequest.getRequestURI(), servletRequest.getContextPath());
-                    final TokenAuthentication tokenAuthentication = new TokenAuthentication(requestPath, reqBody.getAccount(), reqBody.getPasswd(), reqBody);
-                    return manager.authenticate(tokenAuthentication);
-                }
+                reqBody = manager.parseReqBody(httpRequest.getBody(), manager.getLoginReqBodyClass());
             } catch (AuthenticationException ex) {
                 log.error("attemptAuthentication-exp: {}", ex.getMessage());
                 throw ex;
@@ -95,8 +99,17 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
                 };
             }
+        } else {
+            final String username = obtainUsername(servletRequest);
+            final String password = obtainPassword(servletRequest);
+            reqBody = new LoginReqBody();
+            reqBody.setAccount(Strings.isNullOrEmpty(username) ? "" : username.trim());
+            reqBody.setPasswd(Strings.isNullOrEmpty(password) ? "" : password.trim());
         }
-        return super.attemptAuthentication(servletRequest, servletResponse);
+        if (reqBody == null) {
+            throw new InternalAuthenticationServiceException("解析请求参数失败!");
+        }
+        return manager.authenticate(new TokenAuthentication(reqBody));
     }
 
     @Override
@@ -107,16 +120,9 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
             this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
         }
         try {
+            final JwtAuthenticationManager manager = (JwtAuthenticationManager) getAuthenticationManager();
             //登录成功处理
-            final UserPrincipal principal = (UserPrincipal) authResult.getPrincipal();
-            if (principal != null) {
-                //创建登录响应报文体
-                final LoginRespBody respBody = manager.createRespBody(principal);
-                //构建登录用户响应数据
-                manager.buildRespBody(respBody, principal);
-                //输出响应数据
-                RespJsonUtils.buildSuccessResp(objectMapper, response, respBody);
-            }
+            manager.successfulAuthenticationHandler(response, (UserPrincipal) authResult.getPrincipal());
         } catch (Throwable ex) {
             log.error("successfulAuthentication(chain: {},authResult: {})-exp: {}", chain, authResult, ex.getMessage());
             unsuccessfulAuthentication(request, response, new AuthenticationException(ex.getMessage(), ex) {
@@ -128,6 +134,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException failed) {
         log.debug("unsuccessfulAuthentication(failed: {})...", failed == null ? null : failed.getMessage());
         SecurityContextHolder.clearContext();
-        RespJsonUtils.buildFailResp(objectMapper, response, HttpStatus.UNAUTHORIZED, failed);
+        final JwtAuthenticationManager manager = (JwtAuthenticationManager) getAuthenticationManager();
+        //登录失败处理
+        manager.unsuccessfulAuthentication(response, failed);
     }
 }

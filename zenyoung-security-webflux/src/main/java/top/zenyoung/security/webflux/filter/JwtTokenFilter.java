@@ -1,29 +1,36 @@
 package top.zenyoung.security.webflux.filter;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.WebFilterExchange;
-import org.springframework.security.web.server.authentication.*;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.WebFilterChainServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import top.zenyoung.security.model.TokenAuthentication;
+import top.zenyoung.security.webflux.JwtAuthenticationManager;
 import top.zenyoung.security.webflux.TopSecurityContext;
-import top.zenyoung.security.exception.TokenExpireException;
-import top.zenyoung.security.webflux.ZyAuthenticationManager;
-import top.zenyoung.security.webflux.converter.JwtTokenAuthenticationConverter;
-import top.zenyoung.web.controller.util.RespJsonUtils;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Jwt令牌认证-过滤器
@@ -34,43 +41,42 @@ import javax.annotation.Nonnull;
  **/
 @Slf4j
 public class JwtTokenFilter implements WebFilter {
+    private final JwtAuthenticationManager manager;
+    private final ServerWebExchangeMatcher whiteMatchers;
+
     private final ServerSecurityContextRepository securityContextRepository;
-    private final ServerAuthenticationConverter authenticationConverter;
 
-    private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
-    private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
-    private ServerAuthenticationFailureHandler authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(
-            (exchange, e) -> {
-                HttpStatus status = HttpStatus.UNAUTHORIZED;
-                if (e instanceof TokenExpireException) {
-                    status = HttpStatus.PAYLOAD_TOO_LARGE;
-                }
-                return RespJsonUtils.buildFailResp(exchange.getResponse(), status, e);
-            }
-    );
+    private final ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final ServerAuthenticationFailureHandler authenticationFailureHandler;
 
-    public void setRequiresAuthenticationMatcher(@Nonnull final ServerWebExchangeMatcher requiresAuthenticationMatcher) {
-        this.requiresAuthenticationMatcher = requiresAuthenticationMatcher;
-    }
-
-    public void setAuthenticationSuccessHandler(@Nonnull ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
-        this.authenticationSuccessHandler = authenticationSuccessHandler;
-    }
-
-    public void setAuthenticationFailureHandler(@Nonnull ServerAuthenticationFailureHandler authenticationFailureHandler) {
-        this.authenticationFailureHandler = authenticationFailureHandler;
-    }
-
-    public JwtTokenFilter(@Nonnull final ZyAuthenticationManager authenticationManager) {
+    public JwtTokenFilter(@Nonnull final JwtAuthenticationManager manager) {
         this.securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
-        this.authenticationConverter = new JwtTokenAuthenticationConverter(authenticationManager);
+
+        this.manager = manager;
+        this.whiteMatchers = buildExchangeMatchers();
+        this.authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
+        this.authenticationFailureHandler = new ServerAuthenticationEntryPointFailureHandler(
+                (exchange, ex) -> manager.unsuccessfulAuthentication(exchange.getResponse(), ex)
+        );
     }
 
     @Nonnull
     @Override
     public Mono<Void> filter(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain) {
-        return requiresAuthenticationMatcher.matches(exchange)
-                .flatMap(matchResult -> this.authenticationConverter.convert(exchange))
+        return ServerWebExchangeMatchers.anyExchange().matches(exchange)
+                .flatMap(ret -> {
+                    final ServerHttpRequest request = exchange.getRequest();
+                    //白名单处理
+                    if (whiteMatchers != null) {
+                        return whiteMatchers.matches(exchange)
+                                .filter(matchResult -> !matchResult.isMatch())
+                                .map(matchResult -> manager.parseAuthenticationToken(request))
+                                .switchIfEmpty(Mono.empty())
+                                .onErrorResume(ex -> fallback(request, ex));
+                    }
+                    return Mono.just(manager.parseAuthenticationToken(request))
+                            .onErrorResume(ex -> fallback(request, ex));
+                })
                 .switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
                 .flatMap(authen -> authenticate(exchange, chain, authen))
                 .onErrorResume(AuthenticationException.class, e -> authenticationFailureHandler.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
@@ -83,5 +89,38 @@ public class JwtTokenFilter implements WebFilter {
         return this.securityContextRepository.save(exchange, securityContext)
                 .then(authenticationSuccessHandler.onAuthenticationSuccess(new WebFilterExchange(exchange, chain), authen))
                 .contextWrite(context -> ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+    }
+
+    private ServerWebExchangeMatcher buildExchangeMatchers() {
+        final List<String> whiteUrls = Lists.newLinkedList();
+        //用户登录
+        final String[] loginUrls = manager.getLoginUrls();
+        if (loginUrls.length > 0) {
+            whiteUrls.addAll(Arrays.stream(loginUrls)
+                    .filter(val -> !Strings.isNullOrEmpty(val))
+                    .collect(Collectors.toList())
+            );
+        }
+        //白名单
+        final String[] urls = manager.getWhiteUrls();
+        if (urls != null && urls.length > 0) {
+            whiteUrls.addAll(Arrays.stream(urls)
+                    .filter(url -> !Strings.isNullOrEmpty(url))
+                    .collect(Collectors.toList())
+            );
+        }
+        if (!CollectionUtils.isEmpty(whiteUrls)) {
+            return ServerWebExchangeMatchers.pathMatchers(whiteUrls.toArray(new String[0]));
+        }
+        return null;
+    }
+
+    protected Mono<TokenAuthentication> fallback(@Nonnull final ServerHttpRequest request, @Nonnull final Throwable ex) {
+        log.debug("fallback(request-path: {})-exp: {}", request.getPath(), ex.getMessage());
+        if (ex instanceof AuthenticationException) {
+            return Mono.error(ex);
+        }
+        return Mono.error(new AuthenticationException(ex.getMessage(), ex) {
+        });
     }
 }

@@ -1,21 +1,24 @@
 package top.zenyoung.security.webflux.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.UserPrincipal;
-import top.zenyoung.security.model.LoginRespBody;
-import top.zenyoung.security.webflux.ZyAuthenticationManager;
-import top.zenyoung.security.webflux.converter.ServerBodyAuthenticationConverter;
-import top.zenyoung.web.controller.util.RespJsonUtils;
-import top.zenyoung.web.vo.RespResult;
+import top.zenyoung.security.model.LoginReqBody;
+import top.zenyoung.security.model.TokenAuthentication;
+import top.zenyoung.security.webflux.JwtAuthenticationManager;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 
 /**
  * Jwt登录-过滤器
@@ -26,13 +29,20 @@ import javax.annotation.Nonnull;
  **/
 @Slf4j
 public class JwtLoginFilter extends AuthenticationWebFilter {
+    private final JwtAuthenticationManager manager;
 
-    public JwtLoginFilter(@Nonnull final ZyAuthenticationManager authenticationManager, @Nonnull final ServerCodecConfigurer serverCodecConfigurer) {
-        super(authenticationManager);
+    /**
+     * 构造函数
+     *
+     * @param manager 认证管理器
+     */
+    public JwtLoginFilter(@Nonnull final JwtAuthenticationManager manager) {
+        super(manager);
+        this.manager = manager;
         //设置登录地址
-        setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(authenticationManager.getLoginMethod(), authenticationManager.getLoginUrls()));
+        setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, manager.getLoginUrls()));
         //登录请求参数解析
-        setServerAuthenticationConverter(new ServerBodyAuthenticationConverter(serverCodecConfigurer, authenticationManager.getLoginReqBodyClass()));
+        setServerAuthenticationConverter(parseReqBody());
         //登录成功处理
         setAuthenticationSuccessHandler((filterExchange, authen) -> {
             log.debug("setAuthenticationSuccessHandler(authen: {})...", authen);
@@ -41,15 +51,7 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
                     final ServerWebExchange exchange = filterExchange.getExchange();
                     //获取登录用户数据
                     final UserPrincipal principal = new UserPrincipal((UserPrincipal) authen.getPrincipal());
-                    //构建响应数据
-                    final LoginRespBody respBody = authenticationManager.createRespBody(principal);
-                    //构建登录用户数据
-                    authenticationManager.buildRespBody(respBody, principal);
-                    //构建响应数据
-                    return RespJsonUtils.buildSuccessResp(
-                            exchange.getResponse(),
-                            RespResult.ofSuccess(respBody)
-                    );
+                    return manager.successfulAuthenticationHandler(exchange.getResponse(), principal);
                 } catch (Throwable ex) {
                     log.debug("setAuthenticationSuccessHandler(authen: {})-exp: {}", authen, ex.getMessage());
                     return Mono.error(ex);
@@ -59,7 +61,30 @@ public class JwtLoginFilter extends AuthenticationWebFilter {
         });
         //登录失败处理
         setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(
-                (exchange, e) -> RespJsonUtils.buildFailResp(exchange.getResponse(), HttpStatus.UNAUTHORIZED, e))
+                (exchange, e) -> manager.unsuccessfulAuthentication(exchange.getResponse(), e))
         );
     }
+
+    protected ServerAuthenticationConverter parseReqBody() {
+        return exchange -> {
+            final ServerHttpRequest request = exchange.getRequest();
+            final MediaType contentType = request.getHeaders().getContentType();
+            if (MediaType.APPLICATION_JSON.isCompatibleWith(contentType)) {
+                final ResolvableType reqLoginBodyType = ResolvableType.forClass(manager.getLoginReqBodyClass());
+                return manager.getServerCodecConfigurer()
+                        .getReaders().stream()
+                        .filter(reader -> reader.canRead(reqLoginBodyType, MediaType.APPLICATION_JSON))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("No JSON reader for LoginReqBody"))
+                        .readMono(reqLoginBodyType, request, Collections.emptyMap())
+                        .cast(LoginReqBody.class)
+                        .map(TokenAuthentication::new);
+            } else if (MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType)) {
+                return manager.parseFromData(exchange.getFormData())
+                        .cast(Authentication.class);
+            }
+            return Mono.empty();
+        };
+    }
+
 }

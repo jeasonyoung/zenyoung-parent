@@ -1,13 +1,9 @@
 package top.zenyoung.security.model;
 
 import lombok.Getter;
-import org.springframework.http.server.RequestPath;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
 
 /**
  * 令牌认证
@@ -18,20 +14,41 @@ import java.util.Collection;
  **/
 public class TokenAuthentication extends UsernamePasswordAuthenticationToken {
 
+    /**
+     * 获取请求报文体
+     */
     @Getter
-    private final RequestPath path;
+    private final LoginReqBody reqBody;
 
-    @Getter
-    private LoginReqBody reqBody;
-
-    public TokenAuthentication(@Nonnull final RequestPath path, @Nonnull final Object principal, @Nonnull final Object credentials, @Nonnull final LoginReqBody reqBody) {
-        super(principal, credentials);
-        this.path = path;
+    /**
+     * 构造函数
+     *
+     * @param reqBody 登录数据
+     */
+    public TokenAuthentication(@Nonnull final LoginReqBody reqBody) {
+        super(reqBody.getAccount(), reqBody.getPasswd());
         this.reqBody = reqBody;
     }
 
-    public TokenAuthentication(@Nonnull final RequestPath path, @Nonnull final Object principal, @Nullable final Object credentials, @Nonnull final Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, authorities);
-        this.path = path;
+    /**
+     * 构造函数
+     *
+     * @param userDetails 登录用户怇
+     */
+    public TokenAuthentication(@Nonnull final TokenUserDetails userDetails) {
+        super(userDetails, null, userDetails.getAuthorities());
+        this.reqBody = null;
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param token 用户密码认证令牌
+     */
+    public TokenAuthentication(@Nonnull final UsernamePasswordAuthenticationToken token) {
+        super(token.getPrincipal(), token.getCredentials());
+        reqBody = new LoginReqBody();
+        reqBody.setAccount((String) token.getPrincipal());
+        reqBody.setPasswd((String) token.getCredentials());
     }
 }
