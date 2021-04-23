@@ -89,6 +89,9 @@ public class CacheUtils {
         } catch (CacheLoader.InvalidCacheLoadException e) {
             log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
             return null;
+        } catch (RuntimeException e) {
+            log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
+            throw e;
         } catch (Throwable e) {
             log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
             throw new RuntimeException(e);
