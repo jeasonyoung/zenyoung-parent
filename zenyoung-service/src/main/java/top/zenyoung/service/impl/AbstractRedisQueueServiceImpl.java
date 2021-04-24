@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 import top.zenyoung.service.QueueService;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +44,7 @@ public abstract class AbstractRedisQueueServiceImpl implements QueueService {
      *
      * @return 队列前缀
      */
-    @Nonnull
+    @Nullable
     protected abstract String getQueuePrefix();
 
     /**
