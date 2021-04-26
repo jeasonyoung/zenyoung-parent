@@ -140,7 +140,7 @@
         <!-- tools -->
         <guava.version>28.1-jre</guava.version>
         <commons-codec.version>1.14</commons-codec.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <lombok.version>1.18.12</lombok.version>
 
         <!-- slf4j -->
