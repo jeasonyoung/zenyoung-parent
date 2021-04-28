@@ -1,5 +1,6 @@
 package top.zenyoung.security.webmvc;
 
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * 令牌认证管理器
@@ -30,6 +32,7 @@ import java.io.InputStream;
  */
 @Slf4j
 public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationManager implements AuthenticationManager {
+    private final static Map<Class<?>, DaoAuthenticationProvider> DAO_PROVIDERS = Maps.newConcurrentMap();
 
     /**
      * 解析请求报文
@@ -88,10 +91,10 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @throws AuthenticationException 认证异常
      */
     @Override
-    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
+    public final Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         log.debug("authenticate(authentication: {})...", authentication);
         //初始化认证处理器
-        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        final DaoAuthenticationProvider provider = DAO_PROVIDERS.computeIfAbsent(DaoAuthenticationProvider.class, k -> getAuthenticationProvider());
         //设置密码编码器
         provider.setPasswordEncoder(getPasswordEncoder());
         //认证数据
@@ -109,6 +112,15 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
         provider.setUserDetailsService(buildUserDetailsService(tokenAuthen.getReqBody()));
         //认证处理
         return provider.authenticate(tokenAuthen);
+    }
+
+    /**
+     * 获取Dao认证提供者实现
+     *
+     * @return Dao认证提供者
+     */
+    protected DaoAuthenticationProvider getAuthenticationProvider() {
+        return new DaoAuthenticationProvider();
     }
 
     /**
