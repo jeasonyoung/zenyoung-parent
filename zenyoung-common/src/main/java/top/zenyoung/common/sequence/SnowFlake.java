@@ -7,7 +7,7 @@ import lombok.Getter;
  *
  * @author young
  */
-public class SnowFlake {
+public class SnowFlake implements Sequence<Long> {
     /**
      * 时间初始值 2^41 - 1
      */
@@ -121,7 +121,8 @@ public class SnowFlake {
      *
      * @return 雪花ID
      */
-    public synchronized long nextId() {
+    @Override
+    public synchronized Long nextId() {
         //当前时间戳
         long timestamp = timeGen();
         if (timestamp < lastTimeStamp) {
