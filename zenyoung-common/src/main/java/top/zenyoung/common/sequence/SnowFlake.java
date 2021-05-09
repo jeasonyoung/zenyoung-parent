@@ -1,9 +1,6 @@
 package top.zenyoung.common.sequence;
 
-import com.google.common.collect.Lists;
 import lombok.Getter;
-
-import java.util.List;
 
 /**
  * 雪花数算法工具类
@@ -92,7 +89,7 @@ public class SnowFlake {
      */
     public static SnowFlake getInstance() {
         return SnowFlake.getInstance(
-                (long)((Math.random() + 1) * System.currentTimeMillis()) & MAX_WORKER_ID,
+                (long) ((Math.random() + 1) * System.currentTimeMillis()) & MAX_WORKER_ID,
                 ((long) (Math.random() + System.currentTimeMillis())) & MAX_DATA_CENTER_ID
         );
     }
