@@ -112,7 +112,7 @@ public abstract class BaseLogFilter implements Filter, Ordered {
             if (respContentType == null || checkContentTypes(respContentType)) {
                 final String respBody = respWrap.getBody();
                 if (!Strings.isNullOrEmpty(respBody)) {
-                    final Map<String, Serializable> respBodyMap = buildRespBodyToMap(respBody);
+                    final Map<String, Serializable> respBodyMap = buildParamsToMap(respBody);
                     if (respBodyMap != null) {
                         logWriter.writer("\nresp-body", respBodyMap);
                     } else {
@@ -126,12 +126,20 @@ public abstract class BaseLogFilter implements Filter, Ordered {
     }
 
     /**
-     * 构建响应报文体
+     * 构建数据集合
      *
-     * @param respBody 响应内容
-     * @return 报文数据
+     * @param paramJson json串
+     * @return 集合数据
      */
-    protected abstract Map<String, Serializable> buildRespBodyToMap(@Nonnull final String respBody);
+    protected abstract Map<String, Serializable> buildParamsToMap(@Nonnull final String paramJson);
+
+    /**
+     * 构建集合为Json串
+     *
+     * @param params 集合数据
+     * @return json串
+     */
+    protected abstract String buildParamsToJson(final Map<String, Serializable> params);
 
     private boolean checkContentTypes(@Nullable final MediaType contentType) {
         if (contentType != null && !FILTER_CONTENT_TYPES.isEmpty()) {
@@ -156,7 +164,7 @@ public abstract class BaseLogFilter implements Filter, Ordered {
                 }
             }
         }
-        return headerVals;
+        return convertHandler(headerVals);
     }
 
     private Map<String, Serializable> getParams(@Nullable final Map<String, String[]> params) {
@@ -168,7 +176,21 @@ public abstract class BaseLogFilter implements Filter, Ordered {
                 }
             });
         }
-        return paramVals;
+        return convertHandler(paramVals);
+    }
+
+    private Map<String, Serializable> convertHandler(@Nullable final Map<String, Serializable> params) {
+        if (!CollectionUtils.isEmpty(params)) {
+            try {
+                final String json = buildParamsToJson(params);
+                if (!Strings.isNullOrEmpty(json)) {
+                    return buildParamsToMap(json);
+                }
+            } catch (Throwable ex) {
+                log.warn("convertHandler(params: {})-exp: {}", params, ex.getMessage());
+            }
+        }
+        return params;
     }
 
     @Override
