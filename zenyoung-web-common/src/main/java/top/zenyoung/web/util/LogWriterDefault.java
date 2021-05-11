@@ -107,9 +107,17 @@ public class LogWriterDefault implements LogWriter {
     @Override
     public CharSequence outputLogs() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("\n").append("\n");
+        renderMark(builder, ">", "start");
         renderLogContent(builder, null, logMaps);
         builder.append("\n").append("耗时: ").append(System.currentTimeMillis() - startStamp).append("ms");
+        renderMark(builder, "<", "end");
         return builder.toString();
+    }
+
+    private void renderMark(@Nonnull final StringBuilder builder, @Nonnull final String mark, @Nonnull final String markTitle) {
+        if (!Strings.isNullOrEmpty(mark) && !Strings.isNullOrEmpty(markTitle)) {
+            final String markVal = mark.repeat(30);
+            builder.append("\n").append(markVal).append("-").append(markTitle).append("-").append(markVal).append("\n");
+        }
     }
 }
