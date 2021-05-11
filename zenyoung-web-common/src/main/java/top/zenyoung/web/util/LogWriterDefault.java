@@ -60,8 +60,15 @@ public class LogWriterDefault implements LogWriter {
                     builder.append(Joiner.on(",").skipNulls().join((List<?>) v));
                     builder.append("]");
                 } else if (v instanceof Map) {
-                    builder.append(":\n").append("{\n");
+                    builder.append(":\n");
+                    if(!Strings.isNullOrEmpty(prefix)){
+                        builder.append(prefix);
+                    }
+                    builder.append("{\n");
                     buildLogContent(builder, (Strings.isNullOrEmpty(prefix) ? "" : prefix) + "\t", (Map<String, Serializable>) v);
+                    if(!Strings.isNullOrEmpty(prefix)){
+                        builder.append(prefix);
+                    }
                     builder.append("}");
                 } else {
                     builder.append(":").append(v.toString());
