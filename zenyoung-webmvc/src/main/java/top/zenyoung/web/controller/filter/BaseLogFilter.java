@@ -139,7 +139,7 @@ public abstract class BaseLogFilter implements Filter, Ordered {
      * @param params 集合数据
      * @return json串
      */
-    protected abstract String buildParamsToJson(final Map<String, Serializable> params);
+    protected abstract String buildParamsToJson(@Nonnull final Map<String, Serializable> params);
 
     private boolean checkContentTypes(@Nullable final MediaType contentType) {
         if (contentType != null && !FILTER_CONTENT_TYPES.isEmpty()) {
