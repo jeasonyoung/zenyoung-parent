@@ -89,9 +89,8 @@ public abstract class BaseLogFilter implements Filter, Ordered {
             final HttpServletRequest req = (HttpServletRequest) request;
             final HttpServletResponse resp = (HttpServletResponse) response;
             //请求消息
-            logWriter.writer("\nurl", req.getRequestURI());
-            logWriter.writer("method", req.getMethod());
-            logWriter.writer("clientIpAddr", HttpUtils.getClientIpAddr(req));
+            logWriter.writer(req.getMethod(), req.getRequestURI());
+            logWriter.writer("ip", HttpUtils.getClientIpAddr(req));
             logWriter.writer("headers", getHeaders(req));
             logWriter.writer("params", getParams(req.getParameterMap()));
             //添加请求类型集合
@@ -111,12 +110,28 @@ public abstract class BaseLogFilter implements Filter, Ordered {
             final ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(respWrap);
             final MediaType respContentType = httpResponse.getHeaders().getContentType();
             if (respContentType == null || checkContentTypes(respContentType)) {
-                logWriter.writer("\nresp-body", "\n" + respWrap.getBody());
+                final String respBody = respWrap.getBody();
+                if (!Strings.isNullOrEmpty(respBody)) {
+                    final Map<String, Serializable> respBodyMap = buildRespBodyToMap(respBody);
+                    if (respBodyMap != null) {
+                        logWriter.writer("\nresp-body", respBodyMap);
+                    } else {
+                        logWriter.writer("\nresp-body", "\n" + respBody);
+                    }
+                }
             }
         } finally {
             log.info(logWriter.outputLogs() + "");
         }
     }
+
+    /**
+     * 构建响应报文体
+     *
+     * @param respBody 响应内容
+     * @return 报文数据
+     */
+    protected abstract Map<String, Serializable> buildRespBodyToMap(@Nonnull final String respBody);
 
     private boolean checkContentTypes(@Nullable final MediaType contentType) {
         if (contentType != null && !FILTER_CONTENT_TYPES.isEmpty()) {
