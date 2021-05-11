@@ -2,11 +2,14 @@ package top.zenyoung.web.controller.filter;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.web.controller.util.HttpUtils;
 import top.zenyoung.web.util.LogWriter;
@@ -23,7 +26,10 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 日志过滤器
@@ -33,6 +39,11 @@ import java.util.Map;
 @Slf4j
 public abstract class BaseLogFilter implements Filter, Ordered {
     private static final Charset CHARSET = StandardCharsets.UTF_8;
+
+    private static final List<MediaType> FILTER_CONTENT_TYPES = Lists.newArrayList(
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_FORM_URLENCODED
+    );
 
     @Override
     public int getOrder() {
@@ -49,6 +60,27 @@ public abstract class BaseLogFilter implements Filter, Ordered {
         log.info("init(config: {})...", filterConfig);
     }
 
+    private void addLogBodyContentType() {
+        final MediaType[] types = getLogBodyContentTypes();
+        if (types != null && types.length > 0) {
+            final List<MediaType> contentTypes = FILTER_CONTENT_TYPES;
+            contentTypes.addAll(
+                    Stream.of(types)
+                            .filter(t -> t != null && !contentTypes.contains(t))
+                            .collect(Collectors.toList())
+            );
+        }
+    }
+
+    /**
+     * 添加打印日志的请求类型
+     *
+     * @return 请求类型
+     */
+    protected MediaType[] getLogBodyContentTypes() {
+        return null;
+    }
+
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         log.debug("doFilter()...");
@@ -57,28 +89,44 @@ public abstract class BaseLogFilter implements Filter, Ordered {
             final HttpServletRequest req = (HttpServletRequest) request;
             final HttpServletResponse resp = (HttpServletResponse) response;
             //请求消息
-            logWriter.writer("url", req.getRequestURI());
+            logWriter.writer("\nurl", req.getRequestURI());
             logWriter.writer("method", req.getMethod());
             logWriter.writer("clientIpAddr", HttpUtils.getClientIpAddr(req));
             logWriter.writer("headers", getHeaders(req));
             logWriter.writer("params", getParams(req.getParameterMap()));
+            //添加请求类型集合
+            addLogBodyContentType();
             //请求类型
-            final String contentType = req.getContentType();
-            if (!Strings.isNullOrEmpty(contentType) && contentType.toLowerCase().contains(MediaType.APPLICATION_JSON_VALUE)) {
-                //application/json
-                final RequestWrapper reqWrap = new RequestWrapper(req);
-                final ResponseWrapper respWrap = new ResponseWrapper(resp);
-                //业务处理
-                chain.doFilter(reqWrap, respWrap);
-                //
-                logWriter.writer("req-body", ":\n" + reqWrap.getBody());
-                logWriter.writer("resp-body", ":\n" + respWrap.getBody());
-            } else {
-                chain.doFilter(req, resp);
+            final ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(req);
+            final MediaType reqContentType = httpRequest.getHeaders().getContentType();
+            //业务处理
+            final RequestWrapper reqWrap = new RequestWrapper(req);
+            final ResponseWrapper respWrap = new ResponseWrapper(resp);
+            chain.doFilter(reqWrap, respWrap);
+            //请求报文内容
+            if (checkContentTypes(reqContentType)) {
+                logWriter.writer("\nreq-body", "\n" + reqWrap.getBody());
+            }
+            //响应类型
+            final ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(respWrap);
+            final MediaType respContentType = httpResponse.getHeaders().getContentType();
+            if (respContentType == null || checkContentTypes(respContentType)) {
+                logWriter.writer("\nresp-body", "\n" + respWrap.getBody());
             }
         } finally {
             log.info(logWriter.outputLogs() + "");
         }
+    }
+
+    private boolean checkContentTypes(@Nullable final MediaType contentType) {
+        if (contentType != null && !FILTER_CONTENT_TYPES.isEmpty()) {
+            for (MediaType t : FILTER_CONTENT_TYPES) {
+                if (t != null && t.isCompatibleWith(contentType)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private Map<String, Serializable> getHeaders(@Nonnull final HttpServletRequest req) {

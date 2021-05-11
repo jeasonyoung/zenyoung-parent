@@ -46,24 +46,25 @@ public class LogWriterDefault implements LogWriter {
     }
 
     @SuppressWarnings({"unchecked"})
-    private void buildLogContent(@Nonnull final StringBuilder builder, @Nullable final Map<String, Serializable> vals) {
+    private void buildLogContent(@Nonnull final StringBuilder builder, @Nullable final String prefix, @Nullable final Map<String, Serializable> vals) {
         if (!CollectionUtils.isEmpty(vals)) {
             vals.forEach((k, v) -> {
+                if (!Strings.isNullOrEmpty(prefix)) {
+                    builder.append(prefix);
+                }
                 builder.append(k);
                 if (v instanceof String) {
                     builder.append("=").append(v);
                 } else if (v instanceof List) {
-                    builder.append(":").append("{");
+                    builder.append(":").append("[");
                     builder.append(Joiner.on(",").skipNulls().join((List<?>) v));
-                    builder.append("}");
+                    builder.append("]");
                 } else if (v instanceof Map) {
-                    builder.append(":").append("{");
-                    buildLogContent(builder, (Map<String, Serializable>) v);
+                    builder.append(":\n").append("{\n");
+                    buildLogContent(builder, (Strings.isNullOrEmpty(prefix) ? "" : prefix) + "\t", (Map<String, Serializable>) v);
                     builder.append("}");
                 } else {
-                    builder.append(":").append("{");
-                    builder.append(v.toString());
-                    builder.append("}");
+                    builder.append(":").append(v.toString());
                 }
                 builder.append("\n");
             });
@@ -73,7 +74,7 @@ public class LogWriterDefault implements LogWriter {
     @Override
     public CharSequence outputLogs() {
         final StringBuilder builder = new StringBuilder();
-        buildLogContent(builder, logMaps);
+        buildLogContent(builder, null, logMaps);
         builder.append("\n").append("耗时: ").append(System.currentTimeMillis() - startStamp).append("ms");
         return builder.toString();
     }
