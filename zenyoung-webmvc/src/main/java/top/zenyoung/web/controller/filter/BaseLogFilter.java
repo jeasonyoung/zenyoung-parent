@@ -237,51 +237,63 @@ public abstract class BaseLogFilter implements Filter, Ordered {
     }
 
     protected static class ResponseWrapper extends HttpServletResponseWrapper {
-        private final ByteArrayOutputStream outputStream;
-        private final PrintWriter writer;
+        private final ByteArrayOutputStream output;
+        private final PrintWriter cachedWriter;
+        private final HttpServletResponse response;
+        private ServletOutputStream filterOutput;
 
         public ResponseWrapper(final HttpServletResponse response) {
             super(response);
-            outputStream = new ByteArrayOutputStream();
-            writer = new PrintWriter(outputStream);
+            this.response = response;
+            output = new ByteArrayOutputStream();
+            cachedWriter = new PrintWriter(output);
         }
 
         @Override
         public ServletOutputStream getOutputStream() {
-            return new ServletOutputStream() {
-                @Override
-                public boolean isReady() {
-                    return true;
-                }
+            if (filterOutput == null) {
+                filterOutput = new ServletOutputStream() {
+                    @Override
+                    public boolean isReady() {
+                        return false;
+                    }
 
-                @Override
-                public void setWriteListener(WriteListener listener) {
+                    @Override
+                    public void setWriteListener(final WriteListener listener) {
 
-                }
+                    }
 
-                @Override
-                public void write(final int b) {
-                    outputStream.write(b);
-                }
-            };
+                    @Override
+                    public void write(int b) {
+                        output.write(b);
+                    }
+
+                    @Override
+                    public void flush() throws IOException {
+                        if (!response.isCommitted()) {
+                            final byte[] body = toByteArray();
+                            final ServletOutputStream outputStream = response.getOutputStream();
+                            outputStream.write(body);
+                            outputStream.flush();
+                        }
+                    }
+                };
+            }
+            return filterOutput;
         }
 
         @Override
         public PrintWriter getWriter() {
-            return writer;
+            return cachedWriter;
+        }
+
+        public byte[] toByteArray() {
+            return output.toByteArray();
         }
 
         @SneakyThrows
-        public void flush() {
-            writer.flush();
-            writer.close();
-            outputStream.flush();
-            outputStream.close();
-        }
-
         public String getBody() {
-            flush();
-            return outputStream.toString(CHARSET);
+            return new String(toByteArray(), StandardCharsets.UTF_8);
         }
     }
 }
