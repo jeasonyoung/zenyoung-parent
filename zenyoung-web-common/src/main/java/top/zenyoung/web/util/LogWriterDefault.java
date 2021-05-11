@@ -54,7 +54,7 @@ public class LogWriterDefault implements LogWriter {
                 }
                 builder.append(k);
                 if (v instanceof String) {
-                    builder.append("=").append(v);
+                    builder.append(":").append(v);
                 } else if (v instanceof List) {
                     builder.append(":").append("[");
                     builder.append(Joiner.on(",").skipNulls().join((List<?>) v));
