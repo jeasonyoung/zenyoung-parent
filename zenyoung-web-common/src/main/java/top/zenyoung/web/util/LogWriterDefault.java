@@ -2,6 +2,7 @@ package top.zenyoung.web.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -45,43 +46,69 @@ public class LogWriterDefault implements LogWriter {
         }
     }
 
-    @SuppressWarnings({"unchecked"})
-    private void buildLogContent(@Nonnull final StringBuilder builder, @Nullable final String prefix, @Nullable final Map<String, Serializable> vals) {
-        if (!CollectionUtils.isEmpty(vals)) {
-            vals.forEach((k, v) -> {
-                if (!Strings.isNullOrEmpty(prefix)) {
-                    builder.append(prefix);
-                }
-                builder.append(k);
-                if (v instanceof String) {
-                    builder.append(":").append(v);
+    private void renderLogContent(@Nonnull final StringBuilder builder, @Nullable final String prefix, @Nonnull final Map<?, ?> map) {
+        if (!CollectionUtils.isEmpty(map)) {
+            map.forEach((k, v) -> {
+                renderPrefix(builder, prefix).append(k).append(":");
+                if (v instanceof Map) {
+                    builder.append("{").append("\n");
+                    renderLogContent(builder, (Strings.isNullOrEmpty(prefix) ? "" : prefix) + "\t", (Map<?, ?>) v);
+                    renderPrefix(builder, prefix).append("}").append("\n");
                 } else if (v instanceof List) {
-                    builder.append(":").append("[");
-                    builder.append(Joiner.on(",").skipNulls().join((List<?>) v));
-                    builder.append("]");
-                } else if (v instanceof Map) {
-                    builder.append(":\n");
-                    if(!Strings.isNullOrEmpty(prefix)){
-                        builder.append(prefix);
-                    }
-                    builder.append("{\n");
-                    buildLogContent(builder, (Strings.isNullOrEmpty(prefix) ? "" : prefix) + "\t", (Map<String, Serializable>) v);
-                    if(!Strings.isNullOrEmpty(prefix)){
-                        builder.append(prefix);
-                    }
-                    builder.append("}");
+                    builder.append("[");
+                    renderLogContent(builder, prefix, (List<?>) v);
+                    builder.append("]").append("\n");
                 } else {
-                    builder.append(":").append(v.toString());
+                    if (v instanceof Number) {
+                        builder.append(v);
+                    } else if (v instanceof Boolean) {
+                        builder.append(v);
+                    } else {
+                        builder.append("\"").append(v).append("\"");
+                    }
+                    builder.append("\n");
                 }
-                builder.append("\n");
             });
+        }
+    }
+
+    private StringBuilder renderPrefix(@Nonnull final StringBuilder builder, @Nullable final String prefix) {
+        if (!Strings.isNullOrEmpty(prefix)) {
+            builder.append(prefix);
+        }
+        return builder;
+    }
+
+    private void renderLogContent(@Nonnull final StringBuilder builder, @Nullable final String prefix, @Nonnull final List<?> list) {
+        if (!CollectionUtils.isEmpty(list)) {
+            final List<String> vals = Lists.newLinkedList();
+            int i = 0;
+            for (Object obj : list) {
+                if (obj == null) {
+                    continue;
+                }
+                if (obj instanceof Map) {
+                    if (i++ > 1) {
+                        renderPrefix(builder, prefix).append(",").append("\n");
+                    }
+                    renderLogContent(builder, prefix, (Map<?, ?>) obj);
+                    continue;
+                }
+                vals.add(String.valueOf(obj));
+            }
+            if (!CollectionUtils.isEmpty(vals)) {
+                builder.append("\n");
+                renderPrefix(builder, prefix).append(Joiner.on(",\n").skipNulls().join(vals));
+                builder.append("\n");
+            }
         }
     }
 
     @Override
     public CharSequence outputLogs() {
         final StringBuilder builder = new StringBuilder();
-        buildLogContent(builder, null, logMaps);
+        builder.append("\n").append("\n");
+        renderLogContent(builder, null, logMaps);
         builder.append("\n").append("耗时: ").append(System.currentTimeMillis() - startStamp).append("ms");
         return builder.toString();
     }
