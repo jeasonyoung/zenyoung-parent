@@ -5,13 +5,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.4</version>
-        <relativePath/>
-    </parent>
-
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
@@ -21,92 +14,38 @@
     <description>zenyoung tools for Springboot2</description>
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>yangyong</name>
-            <email>young1982@foxmail.com</email>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</connection>
-        <developerConnection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</developerConnection>
-        <url>git@github.com:jeasonyoung/zenyoung-parent.git</url>
-    </scm>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>11</java.version>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <!-- java source -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.1</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- java doc -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.2.0</version>
-                        <configuration>
-                            <show>private</show>
-                            <nohelp>true</nohelp>
-                            <charset>UTF-8</charset>
-                            <encoding>UTF-8</encoding>
-                            <docencoding>UTF-8</docencoding>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- gpg -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <distributionManagement>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-                </repository>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-    </profiles>
+        <spring-boot.version>2.4.5</spring-boot.version>
+        <jackson-module-kotlin.version>2.12.1</jackson-module-kotlin.version>
+
+        <!-- query dsl -->
+        <query-dsl.version>4.4.0</query-dsl.version>
+
+        <!-- jwt -->
+        <jwt.version>0.9.1</jwt.version>
+
+        <!-- okhttp3 -->
+        <okhttp3.version>4.9.1</okhttp3.version>
+
+        <!-- tools -->
+        <guava.version>30.1.1-jre</guava.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <commons-io.version>2.8.0</commons-io.version>
+        <lombok.version>1.18.20</lombok.version>
+
+        <!-- slf4j -->
+        <slf4j-api.version>1.7.30</slf4j-api.version>
+
+        <!-- plugin -->
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    </properties>
 
     <modules>
         <!-- 公共模块 -->
@@ -143,44 +82,17 @@
         <module>zenyoung-codec-client</module>
     </modules>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
-
-        <jackson-module-kotlin.version>2.12.1</jackson-module-kotlin.version>
-
-        <!-- query dsl -->
-        <query-dsl.version>4.4.0</query-dsl.version>
-
-        <!-- jwt -->
-        <jwt.version>0.9.1</jwt.version>
-
-        <!-- okhttp3 -->
-        <okhttp3.version>4.9.1</okhttp3.version>
-
-        <!-- tools -->
-        <guava.version>30.1.1-jre</guava.version>
-        <commons-codec.version>1.15</commons-codec.version>
-        <commons-io.version>2.8.0</commons-io.version>
-        <lombok.version>1.18.20</lombok.version>
-
-        <!-- slf4j -->
-        <slf4j-api.version>1.7.30</slf4j-api.version>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>aliyun-central</id>
-            <url>https://maven.aliyun.com/repository/central</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
+            <!-- springboot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- jackson-module-kotlin -->
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
@@ -193,16 +105,6 @@
                 <groupId>com.querydsl</groupId>
                 <artifactId>querydsl-jpa</artifactId>
                 <version>${query-dsl.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>jsr305</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- jwt -->
@@ -259,20 +161,136 @@
         </dependencies>
     </dependencyManagement>
 
+    <repositories>
+        <repository>
+            <id>aliyun-central</id>
+            <url>https://maven.aliyun.com/repository/central</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>yangyong</name>
+            <email>young1982@foxmail.com</email>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</connection>
+        <developerConnection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</developerConnection>
+        <url>git@github.com:jeasonyoung/zenyoung-parent.git</url>
+    </scm>
+
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>${maven-source-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>${maven-javadoc-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- java source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- java doc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <show>private</show>
+                            <nohelp>true</nohelp>
+                            <charset>${project.build.sourceEncoding}</charset>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <docencoding>${project.build.sourceEncoding}</docencoding>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- gpg -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                </repository>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>
