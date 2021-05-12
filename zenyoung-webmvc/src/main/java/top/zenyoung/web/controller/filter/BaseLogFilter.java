@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 /**
  * 日志过滤器
  *
@@ -231,9 +232,8 @@ public abstract class BaseLogFilter implements Filter, Ordered {
         }
 
         public String getBody() {
-            return new String(body, CHARSET);
+            return body == null ? null : new String(body, CHARSET);
         }
-
     }
 
     protected static class ResponseWrapper extends HttpServletResponseWrapper {
@@ -293,7 +293,8 @@ public abstract class BaseLogFilter implements Filter, Ordered {
 
         @SneakyThrows
         public String getBody() {
-            return new String(toByteArray(), StandardCharsets.UTF_8);
+            final byte[] body = toByteArray();
+            return body == null ? null : new String(body, CHARSET);
         }
     }
 }
