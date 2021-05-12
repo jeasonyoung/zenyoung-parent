@@ -59,14 +59,7 @@ public class LogWriterDefault implements LogWriter {
                     renderLogContent(builder, prefix, (List<?>) v);
                     builder.append("]").append("\n");
                 } else {
-                    if (v instanceof Number) {
-                        builder.append(v);
-                    } else if (v instanceof Boolean) {
-                        builder.append(v);
-                    } else {
-                        builder.append("\"").append(v).append("\"");
-                    }
-                    builder.append("\n");
+                    builder.append(v).append("\n");
                 }
             });
         }
