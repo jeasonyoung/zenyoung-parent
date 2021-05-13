@@ -24,7 +24,7 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
      * @param id   新增主键ID
      * @return 响应新增结果
      */
-    public static RespAddResult of(@Nullable final Integer code, @Nullable final String msg, @Nullable final String id) {
+    public static RespAddResult of(@Nullable final Integer code, @Nullable final String msg, @Nullable final Serializable id) {
         final RespAddResult resp = new RespAddResult();
         resp.buildResp(code, msg, AddResult.of(id));
         return resp;
@@ -38,7 +38,7 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
      * @param id         新增主键ID
      * @return 响应新增结果
      */
-    public static RespAddResult of(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final String id) {
+    public static RespAddResult of(@Nonnull final ResultCode resultCode, @Nullable final String msg, @Nullable final Serializable id) {
         final RespAddResult resp = new RespAddResult();
         resp.buildResp(resultCode, msg, AddResult.of(id));
         return resp;
@@ -50,7 +50,7 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
      * @param id 新增主键ID
      * @return 新增结果
      */
-    public static RespAddResult ofSuccess(@Nullable final String id) {
+    public static RespAddResult ofSuccess(@Nullable final Serializable id) {
         return RespAddResult.of(ResultCode.Success, null, id);
     }
 
@@ -63,9 +63,9 @@ public class RespAddResult extends RespResult<RespAddResult.AddResult> {
         /**
          * 新增主键ID
          */
-        private final String id;
+        private final Serializable id;
 
-        public static AddResult of(@Nullable final String id) {
+        public static AddResult of(@Nullable final Serializable id) {
             return new AddResult(id);
         }
     }

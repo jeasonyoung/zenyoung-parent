@@ -335,7 +335,7 @@ public class BaseController extends AbstractWebController {
      */
     protected <T extends Serializable> RespAddResult actionAdd(
             @Nonnull final T req,
-            @Nonnull final ProccessListener<T, String> process
+            @Nonnull final ProccessListener<T, Serializable> process
     ) {
         log.debug("actionAdd(req: {},process: {})...", req, process);
         return action(RespAddResult.ofSuccess(null), req, new ProccessListener<>() {

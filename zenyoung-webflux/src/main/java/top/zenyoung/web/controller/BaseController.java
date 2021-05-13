@@ -302,7 +302,7 @@ public abstract class BaseController extends AbstractWebController {
      */
     protected <T extends Serializable> Mono<RespAddResult> actionAdd(
             @Nonnull final Mono<T> req,
-            @Nonnull final ProccessListener<T, String> process
+            @Nonnull final ProccessListener<T, Serializable> process
     ) {
         return action(req, () -> RespAddResult.ofSuccess(null), err -> RespAddResult.of(ResultCode.Fail, err, null),
                 new ProccessListener<>() {
