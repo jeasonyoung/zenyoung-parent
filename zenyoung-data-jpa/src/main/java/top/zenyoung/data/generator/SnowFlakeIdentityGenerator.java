@@ -18,7 +18,7 @@ public class SnowFlakeIdentityGenerator implements IdentifierGenerator {
     static {
         final int max = 31;
         final int cpus = Runtime.getRuntime().availableProcessors();
-        GENERATOR = SnowFlake.getInstance((int) (cpus * (Math.random() + 1)) & max, cpus & max);
+        GENERATOR = SnowFlake.getInstance((cpus * 2) & max, (cpus * 3) & max);
     }
 
     @Override

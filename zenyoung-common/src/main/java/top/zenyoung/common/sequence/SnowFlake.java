@@ -67,7 +67,7 @@ public class SnowFlake implements Sequence<Long> {
      * @param sequence     顺序号
      * @return 实例
      */
-    public static SnowFlake getInstance(final long workerId, final long dataCenterId, final long sequence) {
+    public static SnowFlake getInstance(final int workerId, final int dataCenterId, final int sequence) {
         return new SnowFlake(workerId, dataCenterId, sequence);
     }
 
@@ -78,8 +78,8 @@ public class SnowFlake implements Sequence<Long> {
      * @param dataCenterId 机房ID
      * @return 实例
      */
-    public static SnowFlake getInstance(final long workerId, final long dataCenterId) {
-        return SnowFlake.getInstance(workerId, dataCenterId, 0);
+    public static SnowFlake getInstance(final int workerId, final int dataCenterId) {
+        return new SnowFlake(workerId, dataCenterId, 0);
     }
 
     /**
@@ -88,9 +88,10 @@ public class SnowFlake implements Sequence<Long> {
      * @return 实例
      */
     public static SnowFlake getInstance() {
-        return SnowFlake.getInstance(
-                (long) ((Math.random() + 1) * System.currentTimeMillis()) & MAX_WORKER_ID,
-                ((long) (Math.random() + System.currentTimeMillis())) & MAX_DATA_CENTER_ID
+        return new SnowFlake(
+                (int) ((long) ((Math.random() + 1) * System.currentTimeMillis()) & MAX_WORKER_ID),
+                (int) (((long) (Math.random() + System.currentTimeMillis())) & MAX_DATA_CENTER_ID),
+                0
         );
     }
 
