@@ -1,15 +1,18 @@
 package top.zenyoung.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import top.zenyoung.web.listener.ExceptHandlerListener;
 import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * date 2020/8/9 11:19 下午
  **/
-public abstract class AbstractWebController {
+public abstract class AbstractWebController implements ParamHandler {
 
     @Autowired
     @Getter(AccessLevel.PROTECTED)
@@ -81,5 +84,20 @@ public abstract class AbstractWebController {
             return handlerNotExceptCause(respResult, cause, handlerMap);
         }
         return true;
+    }
+
+    @SneakyThrows
+    @Override
+    public String serialize(@Nonnull final Map<String, String[]> params) {
+        return objectMapper == null ? null : objectMapper.writeValueAsString(params);
+    }
+
+    @SneakyThrows
+    @Override
+    public <T extends Serializable> T deserialize(@Nonnull final String json, @Nonnull final Class<T> paramClass) {
+        if (!Strings.isNullOrEmpty(json) && objectMapper != null) {
+            return objectMapper.readValue(json, paramClass);
+        }
+        return null;
     }
 }

@@ -113,6 +113,32 @@ public class BaseController extends AbstractWebController {
     }
 
     /**
+     * 查询数据
+     *
+     * @param reqQueryClass       查询条件类型
+     * @param queryConvertHandler 查询条件转换
+     * @param queryHandler        查询处理
+     * @param convertHandler      查询结果转换
+     * @param <ReqQry>            查询条件类型
+     * @param <Qry>               查询条件转换类型
+     * @param <Item>              查询数据类型
+     * @param <Ret>               查询数据转换类型
+     * @return 查询结果
+     */
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+            @Nonnull final Class<ReqQry> reqQueryClass,
+            @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
+            @Nonnull final Function<Qry, List<Item>> queryHandler,
+            @Nonnull final Function<Item, Ret> convertHandler
+    ) {
+        log.debug("buildQuery(reqQueryClass: {},queryConvertHandler: {},queryHandler: {},convertHandler: {})...", reqQueryClass, queryConvertHandler, queryHandler, convertHandler);
+        return buildQuery(() -> {
+            final ReqQry reqQry = ReqUtils.parseQuery(reqQueryClass, this);
+            return queryHandler.apply(queryConvertHandler.apply(reqQry));
+        }, convertHandler);
+    }
+
+    /**
      * 分页查询数据
      *
      * @param reqPagingQueryClass 分页查询类型
@@ -123,13 +149,13 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>               结果数据类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
             @Nonnull final Class<ReqQry> reqPagingQueryClass,
             @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
     ) {
         log.debug("buildQuery(reqPagingQueryClass: {},listener: {})...", reqPagingQueryClass, listener);
         //获取当前请求
-        return buildQuery(ReqUtils.parsePagingQuery(reqPagingQueryClass, getObjectMapper()), listener);
+        return buildPagingQuery(ReqUtils.parsePagingQuery(reqPagingQueryClass, this), listener);
     }
 
     /**
@@ -143,7 +169,7 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>    结果数据类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final PagingQueryListener<ReqQry, Qry, Item, Ret> listener
     ) {
@@ -204,14 +230,14 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>                结果数据类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
             @Nonnull final Class<ReqQry> reqPagingQueryClass,
             @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
             @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
             @Nonnull final Function<Item, Ret> resultConvertHandler
     ) {
         log.debug("buildQuery(reqPagingQueryClass: {},queryConvertHandler: {},pagingQueryHandler: {},resultConvertHandler: {})...", reqPagingQueryClass, queryConvertHandler, pagingQueryHandler, resultConvertHandler);
-        return buildQuery(reqPagingQueryClass, new PagingQueryListener<ReqQry, Qry, Item, Ret>() {
+        return buildPagingQuery(reqPagingQueryClass, new PagingQueryListener<ReqQry, Qry, Item, Ret>() {
             @Override
             public Qry convert(@Nullable final ReqQry reqQry) {
                 return queryConvertHandler.apply(reqQry);
@@ -242,14 +268,14 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>                结果数据类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
             @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
             @Nonnull final Function<Item, Ret> resultConvertHandler
     ) {
         log.debug("buildQuery(reqQuery: {},queryConvertHandler: {},pagingQueryHandler: {},resultConvertHandler: {})...", reqQuery, queryConvertHandler, pagingQueryHandler, resultConvertHandler);
-        return buildQuery(reqQuery, new PagingQueryListener<ReqQry, Qry, Item, Ret>() {
+        return buildPagingQuery(reqQuery, new PagingQueryListener<ReqQry, Qry, Item, Ret>() {
             @Override
             public Qry convert(@Nullable final ReqQry reqQry) {
                 return queryConvertHandler.apply(reqQry);

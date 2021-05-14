@@ -73,14 +73,14 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <Ret>                结果数据类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
             @Nonnull final UserPrincipal principal,
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final BiFunction<A, ReqQry, Qry> queryConvertHandler,
             @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
             @Nonnull final Function<Item, Ret> resultConvertHandler
     ) {
-        return buildQuery(reqQuery, reqQry -> {
+        return buildPagingQuery(reqQuery, reqQry -> {
             final A auth = convert(principal);
             checkAuth(auth);
             return queryConvertHandler.apply(auth, reqQry);

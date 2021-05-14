@@ -1,6 +1,5 @@
 package top.zenyoung.web.controller.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.zenyoung.common.paging.PagingQuery;
+import top.zenyoung.web.ParamHandler;
 import top.zenyoung.web.vo.ReqPagingQuery;
 
 import javax.annotation.Nonnull;
@@ -32,8 +32,17 @@ public class ReqUtils {
         return null;
     }
 
+    public static <ReqQry extends Serializable> ReqQry parseQuery(@Nonnull final Class<ReqQry> reqQueryClass, @Nonnull final ParamHandler handler) {
+        //获取当前请求
+        final Map<String, String[]> params = getReqParams();
+        if (!CollectionUtils.isEmpty(params)) {
+            return parse(params, reqQueryClass, handler);
+        }
+        return null;
+    }
+
     @Nonnull
-    public static <ReqQry extends Serializable> PagingQuery<ReqQry> parsePagingQuery(@Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final ObjectMapper objectMapper) {
+    public static <ReqQry extends Serializable> PagingQuery<ReqQry> parsePagingQuery(@Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final ParamHandler handler) {
         //获取当前请求
         final Map<String, String[]> params = getReqParams();
         if (!CollectionUtils.isEmpty(params)) {
@@ -43,7 +52,7 @@ public class ReqUtils {
             //获取每页数据量
             pagingQuery.setRows(getIntValue(params, PAGING_QUERY_BY_ROWS));
             //查询条件
-            pagingQuery.setQuery(parseQueryBody(params, reqPagingQueryClass, objectMapper));
+            pagingQuery.setQuery(parseQueryBody(params, reqPagingQueryClass, handler));
             //返回对象
             return pagingQuery;
         }
@@ -64,7 +73,7 @@ public class ReqUtils {
         return 0;
     }
 
-    private static <ReqQry extends Serializable> ReqQry parseQueryBody(@Nonnull final Map<String, String[]> params, @Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final ObjectMapper objectMapper) {
+    private static <ReqQry extends Serializable> ReqQry parseQueryBody(@Nonnull final Map<String, String[]> params, @Nonnull final Class<ReqQry> reqPagingQueryClass, @Nonnull final ParamHandler handler) {
         if (!CollectionUtils.isEmpty(params)) {
             try {
                 final Map<String, String[]> out = Maps.filterEntries(params, entry -> {
@@ -74,7 +83,7 @@ public class ReqUtils {
                     }
                     return false;
                 });
-                return parse(out, reqPagingQueryClass, objectMapper);
+                return parse(out, reqPagingQueryClass, handler);
             } catch (Throwable ex) {
                 log.warn("parseBody-exp: {}", ex.getMessage());
             }
@@ -82,17 +91,17 @@ public class ReqUtils {
         return null;
     }
 
-    public static <T> T parse(@Nonnull final Map<String, String[]> params, final Class<T> dataClass, @Nonnull final ObjectMapper objectMapper) {
-        log.debug("parse(params: {},dataClass: {},objectMapper: {})...", params, dataClass, objectMapper);
+    public static <T extends Serializable> T parse(@Nonnull final Map<String, String[]> params, @Nonnull final Class<T> dataClass, @Nonnull final ParamHandler handler) {
+        log.debug("parse(params: {},dataClass: {},handler: {})...", params, dataClass, handler);
         try {
             if (!CollectionUtils.isEmpty(params)) {
-                final String json = objectMapper.writeValueAsString(params);
+                final String json = handler.serialize(params);
                 if (!Strings.isNullOrEmpty(json)) {
-                    return objectMapper.readValue(json, dataClass);
+                    return handler.deserialize(json, dataClass);
                 }
             }
         } catch (Throwable ex) {
-            log.warn("parse(params: {},dataClass: {},objectMapper: {})-exp: {}", params, dataClass, objectMapper, ex.getMessage());
+            log.warn("parse(params: {},dataClass: {},handler: {})-exp: {}", params, dataClass, handler, ex.getMessage());
         }
         return null;
     }
