@@ -103,10 +103,10 @@ public class ReqUtils {
                 final Map<String, Serializable> reqParams = Maps.newLinkedHashMap();
                 params.forEach((key, vals) -> {
                     if (!Strings.isNullOrEmpty(key) && vals != null && vals.length > 0) {
-                        if (vals.length == 1) {
-                            reqParams.put(key, vals[0]);
-                        } else {
+                        if (vals.length > 1) {
                             reqParams.put(key, Lists.newArrayList(vals));
+                        } else {
+                            reqParams.put(key, vals[0]);
                         }
                     }
                 });
