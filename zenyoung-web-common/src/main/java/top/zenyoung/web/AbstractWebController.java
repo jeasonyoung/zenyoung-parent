@@ -88,7 +88,7 @@ public abstract class AbstractWebController implements ParamHandler {
 
     @SneakyThrows
     @Override
-    public String serialize(@Nonnull final Map<String, String[]> params) {
+    public String serialize(@Nonnull final Map<String, Serializable> params) {
         return objectMapper == null ? null : objectMapper.writeValueAsString(params);
     }
 

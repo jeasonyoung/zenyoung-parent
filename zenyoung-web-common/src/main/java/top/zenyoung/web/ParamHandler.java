@@ -16,7 +16,7 @@ public interface ParamHandler {
      * @param params 参数集合
      * @return 序列化数据
      */
-    String serialize(@Nonnull final Map<String, String[]> params);
+    String serialize(@Nonnull final Map<String, Serializable> params);
 
     /**
      * 参数反序列化为对象

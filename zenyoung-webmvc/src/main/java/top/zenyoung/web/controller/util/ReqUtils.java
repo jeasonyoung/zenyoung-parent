@@ -1,6 +1,7 @@
 package top.zenyoung.web.controller.util;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -99,8 +100,19 @@ public class ReqUtils {
         log.debug("parse(params: {},dataClass: {},handler: {})...", params, dataClass, handler);
         try {
             if (!CollectionUtils.isEmpty(params)) {
-                final String json = handler.serialize(params);
+                final Map<String, Serializable> reqParams = Maps.newLinkedHashMap();
+                params.forEach((key, vals) -> {
+                    if (!Strings.isNullOrEmpty(key) && vals != null && vals.length > 0) {
+                        if (vals.length == 1) {
+                            reqParams.put(key, vals[0]);
+                        } else {
+                            reqParams.put(key, Lists.newArrayList(vals));
+                        }
+                    }
+                });
+                final String json = handler.serialize(reqParams);
                 if (!Strings.isNullOrEmpty(json)) {
+                    log.debug("parse(params: {},dataClass: {},handler: {})=>\n {}", params, dataClass, handler, json);
                     return handler.deserialize(json, dataClass);
                 }
             }
