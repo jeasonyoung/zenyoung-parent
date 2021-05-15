@@ -32,13 +32,17 @@ public class ReqUtils {
         return null;
     }
 
-    public static <ReqQry extends Serializable> ReqQry parseQuery(@Nonnull final Class<ReqQry> reqQueryClass, @Nonnull final ParamHandler handler) {
+    public static <Req extends Serializable> Req parseReq(@Nonnull final Class<Req> reqClass, @Nonnull final ParamHandler handler) {
         //获取当前请求
         final Map<String, String[]> params = getReqParams();
         if (!CollectionUtils.isEmpty(params)) {
-            return parse(params, reqQueryClass, handler);
+            return parse(params, reqClass, handler);
         }
         return null;
+    }
+
+    public static <ReqQry extends Serializable> ReqQry parseQuery(@Nonnull final Class<ReqQry> reqQueryClass, @Nonnull final ParamHandler handler) {
+        return parseReq(reqQueryClass, handler);
     }
 
     @Nonnull

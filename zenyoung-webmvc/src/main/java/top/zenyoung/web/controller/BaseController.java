@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -46,6 +47,28 @@ public class BaseController extends AbstractWebController {
             process.accept(resp);
         } catch (Throwable ex) {
             log.warn("handler(reqData: {},resp: {},listener: {},process: {})-exp: {}", reqData, resp, listener, process, ex.getMessage());
+            if (handlerNotExcept(resp, ex, listener)) {
+                resp.buildRespFail(ex.getMessage());
+            }
+        }
+    }
+
+    private <ReqData extends Serializable, P extends PreHandlerListener<ReqData> & ExceptHandlerListener, Resp extends RespResult<?>> void handler(
+            @Nonnull final Class<ReqData> reqDataClass,
+            @Nonnull final Resp resp,
+            @Nonnull final P listener,
+            @Nonnull final Consumer<Resp> process
+    ) {
+        log.debug("handler(reqDataClass: {},resp: {},listener: {},process: {})...", reqDataClass, resp, listener, process);
+        try {
+            //请求参数处理
+            final ReqData reqData = ReqUtils.parseReq(reqDataClass, this);
+            //前置业务处理
+            listener.preHandler(reqData);
+            //业务处理
+            process.accept(resp);
+        } catch (Throwable ex) {
+            log.warn("handler(reqDataClass: {},resp: {},listener: {},process: {})-exp: {}", reqDataClass, resp, listener, process, ex.getMessage());
             if (handlerNotExcept(resp, ex, listener)) {
                 resp.buildRespFail(ex.getMessage());
             }
@@ -320,13 +343,47 @@ public class BaseController extends AbstractWebController {
 
     private <T extends Serializable, R extends Serializable, Resp extends RespResult<R>> Resp action(
             @Nonnull final Resp respResult,
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final ProccessListener<T, R> listener
     ) {
         log.debug("action(respResult: {},req: {},listener: {})...", respResult, req, listener);
         handler(req, respResult, listener, resp -> {
             //业务处理
             final R ret = listener.apply(req);
+            if (ret != null) {
+                resp.buildRespSuccess(ret);
+            }
+        });
+        return respResult;
+    }
+
+    private <T extends Serializable, R extends Serializable, Resp extends RespResult<R>> Resp action(
+            @Nonnull final Resp respResult,
+            @Nonnull final Class<T> reqClass,
+            @Nonnull final ProccessListener<T, R> listener
+    ) {
+        log.debug("action(respResult: {},reqClass: {},listener: {})...", respResult, reqClass, listener);
+        final AtomicReference<T> refReq = new AtomicReference<>(null);
+        handler(reqClass, respResult, new ProccessListener<T, R>() {
+
+            @Override
+            public void preHandler(@Nullable final T reqData) {
+                refReq.set(reqData);
+                listener.preHandler(reqData);
+            }
+
+            @Override
+            public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                listener.getExceptHandlers(handlers);
+            }
+
+            @Override
+            public R apply(T t) {
+                return listener.apply(t);
+            }
+        }, resp -> {
+            //业务处理
+            final R ret = listener.apply(refReq.get());
             if (ret != null) {
                 resp.buildRespSuccess(ret);
             }
@@ -349,6 +406,23 @@ public class BaseController extends AbstractWebController {
     ) {
         log.debug("action(req: {},process: {})...", req, process);
         return action(RespResult.ofSuccess(null), req, process);
+    }
+
+    /**
+     * 业务处理
+     *
+     * @param reqClass 请求数据类型
+     * @param process  处理器
+     * @param <T>      请求数据类型
+     * @param <R>      响应数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable, R extends Serializable> RespResult<R> action(
+            @Nonnull final Class<T> reqClass,
+            @Nonnull final ProccessListener<T, R> process
+    ) {
+        log.debug("action(reqClass: {},process: {})...", reqClass, reqClass);
+        return action(RespResult.ofSuccess(null), reqClass, process);
     }
 
     /**
