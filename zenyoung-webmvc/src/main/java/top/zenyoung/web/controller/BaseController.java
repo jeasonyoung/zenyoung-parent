@@ -417,7 +417,7 @@ public class BaseController extends AbstractWebController {
      * @param <R>      响应数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable> RespResult<R> action(
+    protected <T extends Serializable, R extends Serializable> RespResult<R> actionReq(
             @Nonnull final Class<T> reqClass,
             @Nonnull final ProccessListener<T, R> process
     ) {
