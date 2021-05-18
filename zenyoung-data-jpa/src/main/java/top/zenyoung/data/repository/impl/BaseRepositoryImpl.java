@@ -1,6 +1,5 @@
 package top.zenyoung.data.repository.impl;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -210,10 +209,13 @@ public abstract class BaseRepositoryImpl {
                             String field = ob;
                             Sort.Direction direction = Sort.Direction.ASC;
                             if (!Strings.isNullOrEmpty(orderDirectionSep)) {
-                                final List<String> orderFields = Splitter.on(orderDirectionSep).omitEmptyStrings().trimResults().splitToList(ob);
-                                if (!CollectionUtils.isEmpty(orderFields) && orderFields.size() > 1) {
-                                    field = orderFields.get(0);
-                                    direction = Sort.Direction.fromOptionalString(orderFields.get(1)).orElse(Sort.Direction.ASC);
+                                final int idx = ob.lastIndexOf(orderDirectionSep);
+                                if (idx > 0 && idx < ob.length() - 1) {
+                                    field = ob.substring(0, idx);
+                                    final String d = ob.substring(idx + orderDirectionSep.length());
+                                    if (!Strings.isNullOrEmpty(d)) {
+                                        direction = Sort.Direction.fromOptionalString(d).orElse(Sort.Direction.ASC);
+                                    }
                                 }
                             }
                             if (orderFieldConvert != null) {
