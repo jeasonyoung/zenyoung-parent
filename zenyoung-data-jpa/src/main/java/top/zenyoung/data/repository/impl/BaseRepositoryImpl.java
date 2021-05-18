@@ -1,11 +1,14 @@
 package top.zenyoung.data.repository.impl;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.querydsl.core.types.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.jpa.JpaBase;
@@ -175,6 +178,61 @@ public abstract class BaseRepositoryImpl {
             @Nonnull final Function<Item, Ret> entityConvert
     ) {
         return buildPagingQuery(pagingQuery, queryConvert, (Function<Qry, Sort>) null, jpaRepository, entityConvert);
+    }
+
+    /**
+     * 创建排序字段处理
+     *
+     * @param orderBy           排序字段集合
+     * @param orderFieldConvert 排序字段转换
+     * @return 排序处理
+     */
+    protected static Sort createOrderBy(@Nullable final List<String> orderBy, @Nullable final Function<String, String> orderFieldConvert) {
+        return createOrderBy(orderBy, "_", orderFieldConvert);
+    }
+
+    /**
+     * 创建排序字段处理
+     *
+     * @param orderBy           排序字段集合
+     * @param orderDirectionSep 排序方向拆分字符
+     * @param orderFieldConvert 排序字段转换
+     * @return 排序处理
+     */
+    protected static Sort createOrderBy(@Nullable final List<String> orderBy, @Nullable final String orderDirectionSep, @Nullable final Function<String, String> orderFieldConvert) {
+        log.debug("createOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})...", orderBy, orderDirectionSep, orderFieldConvert);
+        if (!CollectionUtils.isEmpty(orderBy)) {
+            final List<Sort.Order> orders = orderBy.stream()
+                    .filter(ob -> !Strings.isNullOrEmpty(ob))
+                    .distinct()
+                    .map(ob -> {
+                        try {
+                            String field = ob;
+                            Sort.Direction direction = Sort.Direction.ASC;
+                            if (!Strings.isNullOrEmpty(orderDirectionSep)) {
+                                final List<String> orderFields = Splitter.on(orderDirectionSep).omitEmptyStrings().trimResults().splitToList(ob);
+                                if (!CollectionUtils.isEmpty(orderFields) && orderFields.size() > 1) {
+                                    field = orderFields.get(0);
+                                    direction = Sort.Direction.fromOptionalString(orderFields.get(1)).orElse(Sort.Direction.ASC);
+                                }
+                            }
+                            if (orderFieldConvert != null) {
+                                field = orderFieldConvert.apply(field);
+                            }
+                            return Strings.isNullOrEmpty(field) ? null : new Sort.Order(direction, field);
+                        } catch (Throwable ex) {
+                            log.warn("createOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})-exp: {}", orderBy, orderDirectionSep, orderFieldConvert, ex.getMessage());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(orders)) {
+                return Sort.by(orders);
+            }
+        }
+        return Sort.unsorted();
     }
 
     /**
