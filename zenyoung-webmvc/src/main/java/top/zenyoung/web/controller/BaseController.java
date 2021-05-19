@@ -162,6 +162,32 @@ public class BaseController extends AbstractWebController {
     }
 
     /**
+     * 查询数据
+     *
+     * @param reqQry              查询条件
+     * @param queryConvertHandler 查询条件转换
+     * @param queryHandler        查询处理
+     * @param convertHandler      查询结果转换
+     * @param <ReqQry>            查询条件类型
+     * @param <Qry>               查询条件转换类型
+     * @param <Item>              查询数据类型
+     * @param <Ret>               查询数据转换类型
+     * @return 查询结果
+     */
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+            @Nonnull final ReqQry reqQry,
+            @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
+            @Nonnull final Function<Qry, List<Item>> queryHandler,
+            @Nonnull final Function<Item, Ret> convertHandler
+    ) {
+        log.debug("buildQuery(reqQry: {},queryConvertHandler: {},queryHandler: {},convertHandler: {})...", reqQry, queryConvertHandler, queryHandler, convertHandler);
+        return buildQuery(() -> {
+            final Qry query = queryConvertHandler.apply(reqQry);
+            return queryHandler.apply(query);
+        }, convertHandler);
+    }
+
+    /**
      * 分页查询数据
      *
      * @param reqPagingQueryClass 分页查询类型
