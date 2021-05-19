@@ -174,7 +174,7 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>               查询数据转换类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQueryReq(
             @Nullable final ReqQry reqQry,
             @Nonnull final Function<ReqQry, Qry> queryConvertHandler,
             @Nonnull final Function<Qry, List<Item>> queryHandler,
