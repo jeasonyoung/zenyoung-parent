@@ -1,12 +1,15 @@
 package top.zenyoung.data.repository.impl;
 
 import com.google.common.base.Strings;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
@@ -202,30 +205,23 @@ public abstract class BaseRepositoryImpl {
         log.debug("createOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})...", orderBy, orderDirectionSep, orderFieldConvert);
         if (!CollectionUtils.isEmpty(orderBy)) {
             final List<Sort.Order> orders = orderBy.stream()
-                    .filter(ob -> !Strings.isNullOrEmpty(ob))
                     .distinct()
                     .map(ob -> {
-                        try {
-                            String field = ob;
-                            Sort.Direction direction = Sort.Direction.ASC;
-                            if (!Strings.isNullOrEmpty(orderDirectionSep)) {
-                                final int idx = ob.lastIndexOf(orderDirectionSep);
-                                if (idx > 0 && idx < ob.length() - 1) {
-                                    field = ob.substring(0, idx);
-                                    final String d = ob.substring(idx + orderDirectionSep.length());
-                                    if (!Strings.isNullOrEmpty(d)) {
-                                        direction = Sort.Direction.fromOptionalString(d).orElse(Sort.Direction.ASC);
+                        if (!Strings.isNullOrEmpty(ob)) {
+                            try {
+                                final Pair<String, Sort.Direction> pair = orderFieldSplitHandler(ob, orderDirectionSep);
+                                if (pair != null) {
+                                    String field = pair.getFirst();
+                                    if (orderFieldConvert != null) {
+                                        field = orderFieldConvert.apply(field);
                                     }
+                                    return Strings.isNullOrEmpty(field) ? null : new Sort.Order(pair.getSecond(), field);
                                 }
+                            } catch (Throwable ex) {
+                                log.warn("createOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})-exp: {}", orderBy, orderDirectionSep, orderFieldConvert, ex.getMessage());
                             }
-                            if (orderFieldConvert != null) {
-                                field = orderFieldConvert.apply(field);
-                            }
-                            return Strings.isNullOrEmpty(field) ? null : new Sort.Order(direction, field);
-                        } catch (Throwable ex) {
-                            log.warn("createOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})-exp: {}", orderBy, orderDirectionSep, orderFieldConvert, ex.getMessage());
-                            return null;
                         }
+                        return null;
                     })
                     .filter(Objects::nonNull)
                     .distinct()
@@ -235,6 +231,74 @@ public abstract class BaseRepositoryImpl {
             }
         }
         return Sort.unsorted();
+    }
+
+    /**
+     * 创建Dsl排序字段处理
+     *
+     * @param orderBy           排序字段
+     * @param orderFieldConvert 字段转换
+     * @return 排序集合
+     */
+    protected static OrderSpecifier<?>[] createDslOrderBy(@Nullable final List<String> orderBy, @Nonnull final Function<String, ComparableExpressionBase<?>> orderFieldConvert) {
+        return createDslOrderBy(orderBy, "_", orderFieldConvert);
+    }
+
+    /**
+     * 创建Dsl排序字段处理
+     *
+     * @param orderBy           排序字段
+     * @param orderDirectionSep 分隔符
+     * @param orderFieldConvert 字段转换
+     * @return 排序集合
+     */
+    protected static OrderSpecifier<?>[] createDslOrderBy(@Nullable final List<String> orderBy, @Nullable final String orderDirectionSep, @Nonnull final Function<String, ComparableExpressionBase<?>> orderFieldConvert) {
+        log.debug("createDslOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})...", orderBy, orderDirectionSep, orderFieldConvert);
+        if (!CollectionUtils.isEmpty(orderBy)) {
+            return orderBy.stream()
+                    .distinct()
+                    .map(ob -> {
+                        if (!Strings.isNullOrEmpty(ob)) {
+                            try {
+                                final Pair<String, Sort.Direction> pair = orderFieldSplitHandler(ob, orderDirectionSep);
+                                if (pair != null) {
+                                    final Sort.Direction direction = pair.getSecond();
+                                    final ComparableExpressionBase<?> orderField = orderFieldConvert.apply(pair.getFirst());
+                                    if (orderField != null) {
+                                        return direction.isDescending() ? orderField.desc() : orderField.asc();
+                                    }
+                                }
+                            } catch (Throwable ex) {
+                                log.warn("createOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})-exp: {}", orderBy, orderDirectionSep, orderFieldConvert, ex.getMessage());
+                            }
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toArray(OrderSpecifier[]::new);
+        }
+        return null;
+    }
+
+    private static Pair<String, Sort.Direction> orderFieldSplitHandler(@Nonnull final String orderField, @Nullable final String orderDirectSep) {
+        log.debug("orderFieldSplitHandler(orderField: {},orderDirectSep: {})...", orderField, orderDirectSep);
+        if (!Strings.isNullOrEmpty(orderField)) {
+            Sort.Direction directVal = Sort.Direction.ASC;
+            if (!Strings.isNullOrEmpty(orderDirectSep)) {
+                final int idx = orderField.lastIndexOf(orderDirectSep);
+                if (idx > 0 && idx < orderField.length() - 1) {
+                    final String field = orderField.substring(0, idx);
+                    final String direct = orderField.substring(idx + orderDirectSep.length());
+                    if (!Strings.isNullOrEmpty(direct)) {
+                        directVal = Sort.Direction.fromOptionalString(direct).orElse(Sort.Direction.ASC);
+                    }
+                    return Pair.of(field, directVal);
+                }
+            }
+            return Pair.of(orderField, directVal);
+        }
+        return null;
     }
 
     /**
