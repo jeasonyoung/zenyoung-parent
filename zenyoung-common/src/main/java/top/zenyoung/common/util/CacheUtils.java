@@ -3,10 +3,12 @@ package top.zenyoung.common.util;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @Slf4j
 public class CacheUtils {
+    private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final Duration DEF_DURATION = Duration.ofMinutes(30);
     private static final int DEF_MAX_SIZE = 500;
 
@@ -83,11 +86,18 @@ public class CacheUtils {
         try {
             V data = cache.getIfPresent(key);
             if (data == null) {
-                data = loader.call();
-                if (data != null) {
-                    cache.put(key, data);
-                } else {
-                    cache.invalidate(key);
+                final String keyVal = String.valueOf(key);
+                synchronized (LOCKS.computeIfAbsent(keyVal, k -> new Object())) {
+                    try {
+                        data = loader.call();
+                        if (data != null) {
+                            cache.put(key, data);
+                        } else {
+                            cache.invalidate(key);
+                        }
+                    } finally {
+                        LOCKS.remove(keyVal);
+                    }
                 }
             }
             return data;
