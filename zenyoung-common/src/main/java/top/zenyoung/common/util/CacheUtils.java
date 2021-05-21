@@ -81,9 +81,14 @@ public class CacheUtils {
      */
     public static <K, V> V getCacheValue(@Nonnull final Cache<K, V> cache, @Nonnull final K key, @Nonnull final Callable<? extends V> loader) {
         try {
-            final V data = cache.get(key, loader);
+            V data = cache.getIfPresent(key);
             if (data == null) {
-                cache.invalidate(key);
+                data = loader.call();
+                if (data != null) {
+                    cache.put(key, data);
+                } else {
+                    cache.invalidate(key);
+                }
             }
             return data;
         } catch (CacheLoader.InvalidCacheLoadException e) {
