@@ -1,5 +1,6 @@
 package top.zenyoung.web.controller.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,10 +9,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.zenyoung.common.paging.PagingQuery;
+import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.web.ParamHandler;
 import top.zenyoung.web.vo.ReqPagingQuery;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -24,6 +27,26 @@ import java.util.Map;
 public class ReqUtils {
     private static final String PAGING_QUERY_BY_INDEX = "index";
     private static final String PAGING_QUERY_BY_ROWS = "rows";
+
+    public static String getExceptionError(@Nullable final Throwable ex) {
+        if (ex != null) {
+            String error = ex.getMessage();
+            if (!Strings.isNullOrEmpty(error)) {
+                return error;
+            }
+            if (Strings.isNullOrEmpty(error)) {
+                final Throwable cause = ex.getCause();
+                if (cause != null) {
+                    return getExceptionError(cause);
+                }
+                final StackTraceElement[] traces = ex.getStackTrace();
+                if (traces != null && traces.length > 0) {
+                    return JsonUtils.toJson(new ObjectMapper(), traces);
+                }
+            }
+        }
+        return "未知错误";
+    }
 
     public static Map<String, String[]> getReqParams() {
         final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

@@ -46,9 +46,10 @@ public class BaseController extends AbstractWebController {
             //业务处理
             process.accept(resp);
         } catch (Throwable ex) {
-            log.warn("handler(reqData: {},resp: {},listener: {},process: {})-exp: {}", reqData, resp, listener, process, ex.getMessage());
+            final String error = ReqUtils.getExceptionError(ex);
+            log.warn("handler(reqData: {},resp: {},listener: {},process: {})-exp: {}", reqData, resp, listener, process, error);
             if (handlerNotExcept(resp, ex, listener)) {
-                resp.buildRespFail(ex.getMessage());
+                resp.buildRespFail(error);
             }
         }
     }
@@ -68,9 +69,10 @@ public class BaseController extends AbstractWebController {
             //业务处理
             process.accept(resp);
         } catch (Throwable ex) {
-            log.warn("handler(reqDataClass: {},resp: {},listener: {},process: {})-exp: {}", reqDataClass, resp, listener, process, ex.getMessage());
+            final String error = ReqUtils.getExceptionError(ex);
+            log.warn("handler(reqDataClass: {},resp: {},listener: {},process: {})-exp: {}", reqDataClass, resp, listener, process, error);
             if (handlerNotExcept(resp, ex, listener)) {
-                resp.buildRespFail(ex.getMessage());
+                resp.buildRespFail(error);
             }
         }
     }
