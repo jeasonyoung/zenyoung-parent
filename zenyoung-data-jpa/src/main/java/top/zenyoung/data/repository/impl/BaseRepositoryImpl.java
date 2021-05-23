@@ -240,7 +240,7 @@ public abstract class BaseRepositoryImpl {
      * @param orderFieldConvert 字段转换
      * @return 排序集合
      */
-    protected static OrderSpecifier<?>[] createDslOrderBy(@Nullable final List<String> orderBy, @Nonnull final Function<String, ? extends ComparableExpressionBase<?>> orderFieldConvert) {
+    protected static List<OrderSpecifier<?>> createDslOrderBy(@Nullable final List<String> orderBy, @Nonnull final Function<String, ? extends ComparableExpressionBase<?>> orderFieldConvert) {
         return createDslOrderBy(orderBy, "_", orderFieldConvert);
     }
 
@@ -252,7 +252,7 @@ public abstract class BaseRepositoryImpl {
      * @param orderFieldConvert 字段转换
      * @return 排序集合
      */
-    protected static OrderSpecifier<?>[] createDslOrderBy(@Nullable final List<String> orderBy, @Nullable final String orderDirectionSep, @Nonnull final Function<String, ? extends ComparableExpressionBase<?>> orderFieldConvert) {
+    protected static List<OrderSpecifier<?>> createDslOrderBy(@Nullable final List<String> orderBy, @Nullable final String orderDirectionSep, @Nonnull final Function<String, ? extends ComparableExpressionBase<?>> orderFieldConvert) {
         log.debug("createDslOrderBy(orderBy: {},orderDirectionSep: {},orderFieldConvert: {})...", orderBy, orderDirectionSep, orderFieldConvert);
         if (!CollectionUtils.isEmpty(orderBy)) {
             return orderBy.stream()
@@ -276,7 +276,7 @@ public abstract class BaseRepositoryImpl {
                     })
                     .filter(Objects::nonNull)
                     .distinct()
-                    .toArray(OrderSpecifier[]::new);
+                    .collect(Collectors.toList());
         }
         return null;
     }
