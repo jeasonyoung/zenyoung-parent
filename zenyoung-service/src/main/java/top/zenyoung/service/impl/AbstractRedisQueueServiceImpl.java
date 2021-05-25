@@ -156,7 +156,7 @@ public abstract class AbstractRedisQueueServiceImpl implements QueueService {
                     consumer.accept(deserializable(json, dataClass));
                 }
             } catch (Throwable ex) {
-                log.warn("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
+                log.error("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
                 throw new RuntimeException(ex);
             } finally {
                 LOCKS.remove(queueKey + "-pop");
