@@ -1,5 +1,6 @@
 package top.zenyoung.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,7 @@ import java.util.concurrent.Executor;
  *
  * @author young
  */
+@Slf4j
 public class AsyncUtils {
 
     /**
@@ -28,6 +30,8 @@ public class AsyncUtils {
                 if (bizHandler != null) {
                     bizHandler.run();
                 }
+            } catch (Throwable ex) {
+                log.warn("asyncHandler(executor: {},latch: {},bizHandler: {})-exp: {}", executor, latch, bizHandler, ex.getMessage());
             } finally {
                 latch.countDown();
             }
@@ -43,7 +47,14 @@ public class AsyncUtils {
     public static void asyncHandlers(@Nonnull final Executor executor, @Nonnull final List<Runnable> bizHandlers) {
         if (!CollectionUtils.isEmpty(bizHandlers)) {
             final CountDownLatch latch = new CountDownLatch(bizHandlers.size());
-            bizHandlers.forEach(handler -> asyncHandler(executor, latch, handler));
+            try {
+                //多线程并发处理
+                bizHandlers.forEach(handler -> asyncHandler(executor, latch, handler));
+                //等待所有的线程执行完成
+                latch.await();
+            } catch (Throwable ex) {
+                log.warn("asyncHandlers(executor: {},bizHandlers: {})-exp: {}", executor, bizHandlers, ex.getMessage());
+            }
         }
     }
 }
