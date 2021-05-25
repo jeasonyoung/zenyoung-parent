@@ -2,6 +2,7 @@ package top.zenyoung.service.impl;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -155,8 +156,10 @@ public abstract class AbstractRedisQueueServiceImpl implements QueueService {
                     //业务处理
                     consumer.accept(deserializable(json, dataClass));
                 }
+            } catch (RedisCommandTimeoutException ex) {
+                log.debug("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
             } catch (Throwable ex) {
-                log.error("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
+                log.warn("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
                 throw new RuntimeException(ex);
             } finally {
                 LOCKS.remove(queueKey + "-pop");

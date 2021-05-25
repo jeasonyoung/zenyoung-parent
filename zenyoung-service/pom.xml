@@ -20,6 +20,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- lettuce-redis -->
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- 模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
