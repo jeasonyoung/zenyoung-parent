@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
@@ -156,7 +157,7 @@ public abstract class AbstractRedisQueueServiceImpl implements QueueService {
                     //业务处理
                     consumer.accept(deserializable(json, dataClass));
                 }
-            } catch (RedisCommandTimeoutException ex) {
+            } catch (RedisCommandTimeoutException | QueryTimeoutException ex) {
                 log.debug("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
             } catch (Throwable ex) {
                 log.warn("popQueue(key: {},dataClass: {},consumer: {})-exp: {}", key, dataClass, consumer, ex.getMessage());
