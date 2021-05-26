@@ -62,7 +62,7 @@ public class StringParseUtils {
     }
 
     /**
-     * 解析为长整型
+     * 解析为长整型集合
      *
      * @param strVal 字符串
      * @return 目标数据集合
@@ -72,12 +72,22 @@ public class StringParseUtils {
     }
 
     /**
-     * 解析为整型
+     * 解析为整型集合
      *
      * @param strVal 字符串
      * @return 目标数据集合
      */
     public static List<Integer> parseInt(@Nullable final String strVal) {
         return parse(strVal, Integer::parseInt);
+    }
+
+    /**
+     * 解析为字符串集合
+     *
+     * @param strVal 字符串
+     * @return 目标数据集合
+     */
+    public static List<String> parse(@Nullable final String strVal) {
+        return parse(strVal, val -> val);
     }
 }
