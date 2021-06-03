@@ -66,7 +66,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
                 //认证前校验
                 preAuthenticationChecked(reqBody);
                 //调用用户认证
-                final TokenUserDetails userDetails = userAuthenHandler(reqBody.getAccount());
+                final TokenUserDetails userDetails = userAuthenHandler(reqBody);
                 if (userDetails == null) {
                     throw new UsernameNotFoundException("用户名不存在!");
                 }

@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 播放令牌
+ *
+ * @author young
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

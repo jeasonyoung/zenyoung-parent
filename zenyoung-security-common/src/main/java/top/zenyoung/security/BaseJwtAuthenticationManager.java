@@ -98,8 +98,8 @@ public abstract class BaseJwtAuthenticationManager {
     /**
      * 用户认证处理
      *
-     * @param username 用户账号
+     * @param reqBody 用户数据
      * @return 用户数据
      */
-    protected abstract TokenUserDetails userAuthenHandler(@Nonnull final String username);
+    protected abstract <ReqBody extends LoginReqBody> TokenUserDetails userAuthenHandler(@Nonnull final ReqBody reqBody);
 }
