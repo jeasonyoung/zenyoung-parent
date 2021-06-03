@@ -11,6 +11,7 @@ import org.springframework.security.authentication.event.InteractiveAuthenticati
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -103,6 +104,9 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
             reqBody.setAccount(Strings.isNullOrEmpty(username) ? "" : username.trim());
             reqBody.setPasswd(Strings.isNullOrEmpty(password) ? "" : password.trim());
             manager.parseFromData(reqBody, servletRequest.getParameterMap());
+        }
+        if (reqBody == null) {
+            throw new UsernameNotFoundException("用户名或密码为空!");
         }
         return manager.authenticate(new TokenAuthentication<>(reqBody));
     }
