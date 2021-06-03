@@ -9,7 +9,6 @@ import top.zenyoung.web.vo.RespResult;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Null;
 import java.io.Serializable;
 
 /**
@@ -54,7 +53,7 @@ public class RespJsonUtils {
      * @param status       响应状态
      * @param err          错误消息
      */
-    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Null final Integer status, @Nullable final String err) {
+    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final Integer status, @Nullable final String err) {
         final RespResult<?> respResult = status == null ? RespResult.ofFail(err) : RespResult.of(status, err, null);
         buildResp(objectMapper, response, respResult);
     }
