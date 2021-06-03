@@ -102,7 +102,7 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
      * @param status    用户状态
      * @return 认证数据
      */
-    public static UserDetails buildSuccess(@Nonnull final UserPrincipal principal, @Nullable final String password, @Nullable final Status status) {
+    public static TokenUserDetails of(@Nonnull final UserPrincipal principal, @Nullable final String password, @Nullable final Status status) {
         return new TokenUserDetails(principal, password, status);
     }
 }
