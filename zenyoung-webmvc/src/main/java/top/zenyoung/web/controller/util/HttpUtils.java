@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -31,13 +32,27 @@ public class HttpUtils {
     };
 
     /**
+     * 获取当前请求
+     *
+     * @return 当前请求
+     */
+    public static HttpServletRequest getWebRequest() {
+        final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            return attrs.getRequest();
+        }
+        return null;
+    }
+
+    /**
      * 获取当前请求客户端IP地址
      *
      * @return 客户端IP地址
      */
     public static String getCurrentClientIpAddr() {
-        final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        return attrs == null ? null : getClientIpAddr(attrs.getRequest());
+        final HttpServletRequest request = getWebRequest();
+        return request == null ? null : getClientIpAddr(request);
     }
 
     /**
