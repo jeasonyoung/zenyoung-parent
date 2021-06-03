@@ -63,6 +63,17 @@ public class RespJsonUtils {
      *
      * @param objectMapper Json工具对象
      * @param response     响应对象
+     * @param err          错误消息
+     */
+    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final String err) {
+        buildFailResp(objectMapper, response, null, err);
+    }
+
+    /**
+     * 构建失败响应
+     *
+     * @param objectMapper Json工具对象
+     * @param response     响应对象
      * @param httpStatus   响应状态码
      * @param e            异常数据
      */
