@@ -1,5 +1,6 @@
 package top.zenyoung.security.webmvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +34,7 @@ import java.util.Map;
 @Slf4j
 public abstract class JwtAuthenticationManager<ReqBody extends LoginReqBody> extends BaseJwtAuthenticationManager<ReqBody> implements AuthenticationManager {
     private final static Map<Class<?>, DaoAuthenticationProvider> DAO_PROVIDERS = Maps.newConcurrentMap();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 解析请求报文
@@ -41,7 +43,25 @@ public abstract class JwtAuthenticationManager<ReqBody extends LoginReqBody> ext
      * @param reqBodyClass 请求报文类型
      * @return 请求报文
      */
-    public abstract ReqBody parseReqBody(@Nonnull final InputStream inputStream, @Nonnull final Class<ReqBody> reqBodyClass);
+    public ReqBody parseReqBody(@Nonnull final InputStream inputStream, @Nonnull final Class<ReqBody> reqBodyClass) {
+        log.debug("parseReqBody(reqBodyClass: {})...", reqBodyClass);
+        try {
+            return objectMapper.readValue(inputStream, reqBodyClass);
+        } catch (Throwable ex) {
+            log.error("parseReqBody(reqBodyClass: {})-exp: {}", reqBodyClass, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * 解析表单请求数据
+     *
+     * @param reqBody   请求对象
+     * @param reqParams 请求参数集合
+     */
+    public void parseFromData(@Nonnull final ReqBody reqBody, @Nullable final Map<String, String[]> reqParams) {
+
+    }
 
     /**
      * 解析用户认证令牌

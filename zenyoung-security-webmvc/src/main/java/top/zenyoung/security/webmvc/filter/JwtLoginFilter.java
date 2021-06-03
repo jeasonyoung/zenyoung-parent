@@ -7,7 +7,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -103,9 +102,7 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
             reqBody = manager.createReqBody();
             reqBody.setAccount(Strings.isNullOrEmpty(username) ? "" : username.trim());
             reqBody.setPasswd(Strings.isNullOrEmpty(password) ? "" : password.trim());
-        }
-        if (reqBody == null) {
-            throw new InternalAuthenticationServiceException("解析请求参数失败!");
+            manager.parseFromData(reqBody, servletRequest.getParameterMap());
         }
         return manager.authenticate(new TokenAuthentication<>(reqBody));
     }

@@ -72,8 +72,7 @@ public abstract class JwtAuthenticationManager<ReqBody extends LoginReqBody> ext
             try {
                 final String username = data.getFirst(getUsernameParameter());
                 final String password = data.getFirst(getPasswordParameter());
-                final Class<ReqBody> reqBodyClass = getLoginReqBodyClass();
-                final ReqBody reqBody = reqBodyClass.getDeclaredConstructor().newInstance();
+                final ReqBody reqBody = createReqBody();
                 reqBody.setAccount(username);
                 reqBody.setPasswd(password);
                 return new TokenAuthentication<>(reqBody);
