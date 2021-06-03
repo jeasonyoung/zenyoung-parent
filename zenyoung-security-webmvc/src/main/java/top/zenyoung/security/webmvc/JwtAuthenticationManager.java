@@ -31,7 +31,7 @@ import java.util.Map;
  * @author young
  */
 @Slf4j
-public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationManager implements AuthenticationManager {
+public abstract class JwtAuthenticationManager<ReqBody extends LoginReqBody> extends BaseJwtAuthenticationManager<ReqBody> implements AuthenticationManager {
     private final static Map<Class<?>, DaoAuthenticationProvider> DAO_PROVIDERS = Maps.newConcurrentMap();
 
     /**
@@ -41,7 +41,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @param reqBodyClass 请求报文类型
      * @return 请求报文
      */
-    public abstract LoginReqBody parseReqBody(@Nonnull final InputStream inputStream, @Nonnull final Class<? extends LoginReqBody> reqBodyClass);
+    public abstract ReqBody parseReqBody(@Nonnull final InputStream inputStream, @Nonnull final Class<ReqBody> reqBodyClass);
 
     /**
      * 解析用户认证令牌
@@ -49,7 +49,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @param request 请求对象
      * @return 用户认证令牌
      */
-    public TokenAuthentication parseAuthenticationToken(@Nonnull final HttpServletRequest request) throws TokenException {
+    public TokenAuthentication<ReqBody> parseAuthenticationToken(@Nonnull final HttpServletRequest request) throws TokenException {
         return parseAuthenticationToken(request.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
@@ -59,7 +59,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @param reqBody 请求数据
      * @return 认证服务实现
      */
-    protected <ReqBody extends LoginReqBody> UserDetailsService buildUserDetailsService(@Nonnull final ReqBody reqBody) {
+    protected UserDetailsService buildUserDetailsService(@Nonnull final ReqBody reqBody) {
         log.debug("buildUserDetailsService(reqBody: {})...", reqBody);
         return username -> {
             try {
@@ -74,11 +74,6 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
             } catch (AuthenticationException ex) {
                 log.warn("buildUserDetailsService(reqBody: {})-exp: {}", reqBody, ex.getMessage());
                 throw ex;
-            } catch (Throwable ex) {
-                log.warn("buildUserDetailsService(reqBody: {})-exp: {}", reqBody, ex.getMessage());
-                throw new AuthenticationException(ex.getMessage(), ex) {
-
-                };
             }
         };
     }
@@ -90,6 +85,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @return 认证结果
      * @throws AuthenticationException 认证异常
      */
+    @SuppressWarnings("unchecked")
     @Override
     public final Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         log.debug("authenticate(authentication: {})...", authentication);
@@ -98,11 +94,11 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
         //设置密码编码器
         provider.setPasswordEncoder(getPasswordEncoder());
         //认证数据
-        TokenAuthentication tokenAuthen = null;
+        TokenAuthentication<ReqBody> tokenAuthen = null;
         if (authentication instanceof TokenAuthentication) {
-            tokenAuthen = (TokenAuthentication) authentication;
+            tokenAuthen = (TokenAuthentication<ReqBody>) authentication;
         } else if (authentication instanceof UsernamePasswordAuthenticationToken) {
-            tokenAuthen = new TokenAuthentication((UsernamePasswordAuthenticationToken) authentication);
+            tokenAuthen = new TokenAuthentication<>((UsernamePasswordAuthenticationToken) authentication, this);
         }
         //检查认证数据
         if (tokenAuthen == null) {

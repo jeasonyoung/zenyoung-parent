@@ -23,6 +23,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.webflux.JwtAuthenticationManager;
 import top.zenyoung.security.webflux.TopSecurityContext;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 public class JwtTokenFilter implements WebFilter {
-    private final JwtAuthenticationManager manager;
+    private final JwtAuthenticationManager<? extends LoginReqBody> manager;
     private final ServerWebExchangeMatcher whiteMatchers;
 
     private final ServerSecurityContextRepository securityContextRepository;
@@ -49,7 +50,7 @@ public class JwtTokenFilter implements WebFilter {
     private final ServerAuthenticationSuccessHandler authenticationSuccessHandler;
     private final ServerAuthenticationFailureHandler authenticationFailureHandler;
 
-    public JwtTokenFilter(@Nonnull final JwtAuthenticationManager manager) {
+    public JwtTokenFilter(@Nonnull final JwtAuthenticationManager<? extends LoginReqBody> manager) {
         this.securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
 
         this.manager = manager;
@@ -115,7 +116,7 @@ public class JwtTokenFilter implements WebFilter {
         return null;
     }
 
-    protected Mono<TokenAuthentication> fallback(@Nonnull final ServerHttpRequest request, @Nonnull final Throwable ex) {
+    protected <R extends LoginReqBody> Mono<TokenAuthentication<R>> fallback(@Nonnull final ServerHttpRequest request, @Nonnull final Throwable ex) {
         log.debug("fallback(request-path: {})-exp: {}", request.getPath(), ex.getMessage());
         if (ex instanceof AuthenticationException) {
             return Mono.error(ex);

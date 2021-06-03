@@ -29,14 +29,14 @@ import java.util.Collections;
  **/
 @Slf4j
 public class JwtLoginFilter extends AuthenticationWebFilter {
-    private final JwtAuthenticationManager manager;
+    private final JwtAuthenticationManager<? extends LoginReqBody> manager;
 
     /**
      * 构造函数
      *
      * @param manager 认证管理器
      */
-    public JwtLoginFilter(@Nonnull final JwtAuthenticationManager manager) {
+    public JwtLoginFilter(@Nonnull final JwtAuthenticationManager<? extends LoginReqBody> manager) {
         super(manager);
         this.manager = manager;
         //设置登录地址

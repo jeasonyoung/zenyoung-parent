@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
  * @author young
  */
 @Slf4j
-public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationManager implements ReactiveAuthenticationManager {
+public abstract class JwtAuthenticationManager<ReqBody extends LoginReqBody> extends BaseJwtAuthenticationManager<ReqBody> implements ReactiveAuthenticationManager {
 
     /**
      * 获取服务端编码配置
@@ -67,14 +67,21 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @param formData 表达数据
      * @return 认证数据
      */
-    public Mono<TokenAuthentication> parseFromData(@Nonnull final Mono<MultiValueMap<String, String>> formData) {
+    public Mono<TokenAuthentication<ReqBody>> parseFromData(@Nonnull final Mono<MultiValueMap<String, String>> formData) {
         return formData.map(data -> {
-            final String username = data.getFirst(getUsernameParameter());
-            final String password = data.getFirst(getPasswordParameter());
-            final LoginReqBody reqBody = new LoginReqBody();
-            reqBody.setAccount(username);
-            reqBody.setPasswd(password);
-            return new TokenAuthentication(reqBody);
+            try {
+                final String username = data.getFirst(getUsernameParameter());
+                final String password = data.getFirst(getPasswordParameter());
+                final Class<ReqBody> reqBodyClass = getLoginReqBodyClass();
+                final ReqBody reqBody = reqBodyClass.getDeclaredConstructor().newInstance();
+                reqBody.setAccount(username);
+                reqBody.setPasswd(password);
+                return new TokenAuthentication<>(reqBody);
+            } catch (Throwable ex) {
+                log.error("parseFromData(formData: {})-exp: {}", formData, ex.getMessage());
+                Mono.error(ex);
+                return null;
+            }
         });
     }
 
@@ -84,7 +91,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @param request 请求对象
      * @return 认证令牌
      */
-    public TokenAuthentication parseAuthenticationToken(@Nonnull final ServerHttpRequest request) {
+    public TokenAuthentication<ReqBody> parseAuthenticationToken(@Nonnull final ServerHttpRequest request) {
         final String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (!Strings.isNullOrEmpty(token)) {
             return parseAuthenticationToken(token);
@@ -92,15 +99,16 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Mono<Authentication> authenticate(final Authentication authentication) {
         log.debug("authenticate(authentication: {})...", authentication);
         //认证数据
-        TokenAuthentication tokenAuthen = null;
+        TokenAuthentication<ReqBody> tokenAuthen = null;
         if (authentication instanceof TokenAuthentication) {
-            tokenAuthen = (TokenAuthentication) authentication;
+            tokenAuthen = (TokenAuthentication<ReqBody>) authentication;
         } else if (authentication instanceof UsernamePasswordAuthenticationToken) {
-            tokenAuthen = new TokenAuthentication((UsernamePasswordAuthenticationToken) authentication);
+            tokenAuthen = new TokenAuthentication<>((UsernamePasswordAuthenticationToken) authentication, this);
         }
         //检查认证数据
         if (tokenAuthen == null) {
@@ -122,7 +130,7 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
      * @param reqBody 请求数据
      * @return 认证服务实现
      */
-    protected ReactiveUserDetailsService buildAuthService(@Nonnull final LoginReqBody reqBody) {
+    protected ReactiveUserDetailsService buildAuthService(@Nonnull final ReqBody reqBody) {
         log.debug("buildAuthService(reqBody: {})...", reqBody);
         return username -> {
             try {
@@ -137,10 +145,6 @@ public abstract class JwtAuthenticationManager extends BaseJwtAuthenticationMana
             } catch (AuthenticationException ex) {
                 log.warn("buildUserDetailsService(reqBody: {})-exp: {}", reqBody, ex.getMessage());
                 return Mono.error(ex);
-            } catch (Throwable ex) {
-                log.warn("buildUserDetailsService(reqBody: {})-exp: {}", reqBody, ex.getMessage());
-                return Mono.error(new AuthenticationException(ex.getMessage(), ex) {
-                });
             }
         };
     }

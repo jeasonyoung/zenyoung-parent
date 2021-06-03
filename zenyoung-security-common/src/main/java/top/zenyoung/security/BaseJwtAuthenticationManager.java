@@ -1,6 +1,7 @@
 package top.zenyoung.security;
 
 import com.google.common.base.Strings;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
  * @author young
  */
 @Slf4j
-public abstract class BaseJwtAuthenticationManager {
+public abstract class BaseJwtAuthenticationManager<ReqBody extends LoginReqBody> {
     /**
      * 获取白名单Urls.
      *
@@ -60,8 +61,16 @@ public abstract class BaseJwtAuthenticationManager {
      * @return 用户登录请求报文类型
      */
     @Nonnull
-    public Class<? extends LoginReqBody> getLoginReqBodyClass() {
-        return LoginReqBody.class;
+    public abstract Class<ReqBody> getLoginReqBodyClass();
+
+    /**
+     * 创建请求新对象
+     *
+     * @return 请求新对象
+     */
+    @SneakyThrows
+    public ReqBody createReqBody() {
+        return getLoginReqBodyClass().getDeclaredConstructor().newInstance();
     }
 
     /**
@@ -71,7 +80,7 @@ public abstract class BaseJwtAuthenticationManager {
      * @return 用户数据
      * @throws TokenException 令牌异常
      */
-    protected TokenAuthentication parseAuthenticationToken(@Nullable final String token) throws TokenException {
+    protected TokenAuthentication<ReqBody> parseAuthenticationToken(@Nullable final String token) throws TokenException {
         log.debug("parseAuthenticationToken(token: {})...", token);
         if (!Strings.isNullOrEmpty(token)) {
             final Ticket ticket = getTokenGenerator().parseToken(token);
@@ -79,7 +88,7 @@ public abstract class BaseJwtAuthenticationManager {
                 throw new TokenException("令牌无效!");
             }
             final TokenUserDetails userDetails = new TokenUserDetails(ticket);
-            return new TokenAuthentication(userDetails);
+            return new TokenAuthentication<>(userDetails);
         }
         return null;
     }
@@ -87,11 +96,10 @@ public abstract class BaseJwtAuthenticationManager {
     /**
      * 认证前校验
      *
-     * @param reqBody   登录请求数据
-     * @param <ReqBody> 请求数据类型
+     * @param reqBody 登录请求数据
      * @throws AuthenticationException 认证异常
      */
-    protected <ReqBody extends LoginReqBody> void preAuthenticationChecked(@Nonnull final ReqBody reqBody) throws AuthenticationException {
+    protected void preAuthenticationChecked(@Nonnull final ReqBody reqBody) throws AuthenticationException {
         log.debug("preAuthChecked(reqBody: {})...", reqBody);
     }
 
@@ -101,5 +109,5 @@ public abstract class BaseJwtAuthenticationManager {
      * @param reqBody 用户数据
      * @return 用户数据
      */
-    protected abstract <ReqBody extends LoginReqBody> TokenUserDetails userAuthenHandler(@Nonnull final ReqBody reqBody);
+    protected abstract TokenUserDetails userAuthenHandler(@Nonnull final ReqBody reqBody);
 }
