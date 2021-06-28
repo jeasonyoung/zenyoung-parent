@@ -50,7 +50,7 @@ public class LogWriterDefault implements LogWriter {
     @SneakyThrows
     private void renderLogContent(@Nonnull final StringBuilder builder, @Nonnull final Map<?, ?> map) {
         if (!CollectionUtils.isEmpty(map)) {
-            builder.append(objectMapper.writeValueAsString(map));
+            builder.append(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map));
         }
     }
     

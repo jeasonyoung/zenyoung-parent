@@ -105,7 +105,7 @@ public abstract class BaseLogFilter implements Filter, Ordered {
             chain.doFilter(reqWrap, respWrap);
             //请求报文内容
             if (checkContentTypes(reqContentType)) {
-                logWriter.writer("\nreq-body", "\n" + reqWrap.getBody());
+                logWriter.writer("req-body", reqWrap.getBody());
             }
             //响应类型
             final ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(respWrap);
@@ -115,9 +115,9 @@ public abstract class BaseLogFilter implements Filter, Ordered {
                 if (!Strings.isNullOrEmpty(respBody)) {
                     final Map<String, Serializable> respBodyMap = buildBodyToMap(respBody);
                     if (respBodyMap != null) {
-                        logWriter.writer("\nresp-body", respBodyMap);
+                        logWriter.writer("resp-body", respBodyMap);
                     } else {
-                        logWriter.writer("\nresp-body", "\n" + respBody);
+                        logWriter.writer("resp-body", respBody);
                     }
                 }
             }
@@ -164,7 +164,7 @@ public abstract class BaseLogFilter implements Filter, Ordered {
         final Map<String, Serializable> paramVals = Maps.newLinkedHashMap();
         if (!CollectionUtils.isEmpty(params)) {
             params.forEach((key, value) -> {
-                if (!Strings.isNullOrEmpty(key) && value != null) {
+                if (!Strings.isNullOrEmpty(key) && value != null && value.length > 0) {
                     paramVals.put(key, Joiner.on(",").join(value));
                 }
             });
