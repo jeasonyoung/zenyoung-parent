@@ -164,8 +164,8 @@ public abstract class BaseLogFilter implements Filter, Ordered {
         final Map<String, Serializable> paramVals = Maps.newLinkedHashMap();
         if (!CollectionUtils.isEmpty(params)) {
             params.forEach((key, value) -> {
-                if (!Strings.isNullOrEmpty(key) && value != null && value.length > 0) {
-                    paramVals.put(key, Joiner.on(",").join(value));
+                if (!Strings.isNullOrEmpty(key) && value != null) {
+                    paramVals.put(key, Joiner.on(",").skipNulls().join(value));
                 }
             });
         }
