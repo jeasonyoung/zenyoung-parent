@@ -312,7 +312,8 @@ public abstract class BaseRepositoryImpl {
      * @param updateFields 更新字段
      * @return 是否有字段更新
      */
-    protected boolean buildUpdateClause(@Nonnull final JPAUpdateClause clause, @Nonnull final Map<Path<Object>, Object> updateFields) {
+    @SuppressWarnings({"unchecked"})
+    protected <K extends Path<?>, V> boolean buildUpdateClause(@Nonnull final JPAUpdateClause clause, @Nonnull final Map<K, V> updateFields) {
         final AtomicBoolean refUpdate = new AtomicBoolean(false);
         if (!CollectionUtils.isEmpty(updateFields)) {
             updateFields.forEach((k, v) -> {
@@ -322,12 +323,12 @@ public abstract class BaseRepositoryImpl {
                         //字符串值处理
                         final String val = (String) v;
                         if (!Strings.isNullOrEmpty(val)) {
-                            clause.set(k, val);
+                            clause.set((Path<String>) k, val);
                             refUpdate.set(true);
                         }
                     } else {
                         //对象处理
-                        clause.set(k, v);
+                        clause.set((Path<? super V>) k, v);
                         refUpdate.set(true);
                     }
                 }
