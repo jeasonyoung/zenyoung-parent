@@ -2,8 +2,10 @@ package top.zenyoung.data.repository.impl;
 
 import com.google.common.base.Strings;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +21,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -299,6 +303,37 @@ public abstract class BaseRepositoryImpl {
             return Pair.of(orderField, directVal);
         }
         return null;
+    }
+
+    /**
+     * 构建JPADSLQuery更新数据
+     *
+     * @param clause       JPADSLQuery更新对象
+     * @param updateFields 更新字段
+     * @return 是否有字段更新
+     */
+    protected boolean buildUpdateClause(@Nonnull final JPAUpdateClause clause, @Nonnull final Map<Path<Object>, Object> updateFields) {
+        final AtomicBoolean refUpdate = new AtomicBoolean(false);
+        if (!CollectionUtils.isEmpty(updateFields)) {
+            updateFields.forEach((k, v) -> {
+                if (k != null && v != null) {
+                    //判断是否为字符串
+                    if (v instanceof String) {
+                        //字符串值处理
+                        final String val = (String) v;
+                        if (!Strings.isNullOrEmpty(val)) {
+                            clause.set(k, val);
+                            refUpdate.set(true);
+                        }
+                    } else {
+                        //对象处理
+                        clause.set(k, v);
+                        refUpdate.set(true);
+                    }
+                }
+            });
+        }
+        return refUpdate.get();
     }
 
     /**
