@@ -163,12 +163,13 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param req       请求数据
      * @param process   处理器
      * @param <T>       请求数据类型
+     * @param <R>       响应数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> RespAddResult actionAdd(
+    protected <T extends Serializable, R extends Serializable> RespAddResult actionAdd(
             @Nonnull final UserPrincipal principal,
             @Nonnull final T req,
-            @Nonnull final AuthProccessListener<A, T, String> process
+            @Nonnull final AuthProccessListener<A, T, R> process
     ) {
         return actionAdd(req, new ProccessListener<>() {
 
@@ -183,7 +184,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             }
 
             @Override
-            public String apply(final T data) {
+            public R apply(final T data) {
                 final A auth = convert(principal);
                 checkAuth(auth);
                 return process.apply(auth, data);
