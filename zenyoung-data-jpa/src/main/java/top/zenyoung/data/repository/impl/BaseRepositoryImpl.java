@@ -313,7 +313,7 @@ public abstract class BaseRepositoryImpl {
      * @return 是否有字段更新
      */
     @SuppressWarnings({"unchecked"})
-    protected <K extends Path<?>, V> boolean buildUpdateClause(@Nonnull final JPAUpdateClause clause, @Nonnull final Map<K, V> updateFields) {
+    protected <K extends Path<?>, V> boolean buildDslUpdateClause(@Nonnull final JPAUpdateClause clause, @Nonnull final Map<K, V> updateFields) {
         final AtomicBoolean refUpdate = new AtomicBoolean(false);
         if (!CollectionUtils.isEmpty(updateFields)) {
             updateFields.forEach((k, v) -> {
