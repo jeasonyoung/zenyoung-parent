@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
@@ -335,6 +336,36 @@ public abstract class BaseRepositoryImpl {
             });
         }
         return refUpdate.get();
+    }
+
+    /**
+     * 构建DSL查询语句
+     *
+     * @param parent 查询条件
+     * @param wheres 条件集合
+     * @return 查询条件
+     */
+    protected Predicate buildDslWhere(@Nullable final BooleanExpression parent, @Nonnull final List<BooleanExpression> wheres) {
+        final AtomicReference<BooleanExpression> refWhere = new AtomicReference<>(parent);
+        if (!CollectionUtils.isEmpty(wheres)) {
+            wheres.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(w -> {
+                        final BooleanExpression expr = refWhere.get();
+                        refWhere.set(expr == null ? w : expr.and(w));
+                    });
+        }
+        return refWhere.get();
+    }
+
+    /**
+     * 构建DSL查询
+     *
+     * @param wheres 条件集合
+     * @return 查询条件
+     */
+    protected Predicate buildDslWhere(@Nonnull final List<BooleanExpression> wheres) {
+        return buildDslWhere(null, wheres);
     }
 
     /**
