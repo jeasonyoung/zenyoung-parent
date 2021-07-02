@@ -1,6 +1,7 @@
 package top.zenyoung.data.repository.impl;
 
 import com.google.common.base.Strings;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
@@ -365,7 +366,22 @@ public abstract class BaseRepositoryImpl {
      * @return 查询条件
      */
     protected BooleanExpression buildDslWhere(@Nonnull final List<BooleanExpression> wheres) {
-        return buildDslWhere(null, wheres);
+        return buildDslWhere((BooleanExpression) null, wheres);
+    }
+
+    /**
+     * 构建DSL查询
+     *
+     * @param entity 查询实体
+     * @param wheres 条件集合
+     * @param <T>    查询实体类型
+     * @return 查询条件
+     */
+    protected <T> BooleanExpression buildDslWhere(@Nullable final EntityPath<T> entity, @Nonnull final List<BooleanExpression> wheres) {
+        if (entity != null) {
+            return buildDslWhere(wheres);
+        }
+        return null;
     }
 
     /**
