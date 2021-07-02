@@ -345,7 +345,7 @@ public abstract class BaseRepositoryImpl {
      * @param wheres 条件集合
      * @return 查询条件
      */
-    protected Predicate buildDslWhere(@Nullable final BooleanExpression parent, @Nonnull final List<BooleanExpression> wheres) {
+    protected BooleanExpression buildDslWhere(@Nullable final BooleanExpression parent, @Nonnull final List<BooleanExpression> wheres) {
         final AtomicReference<BooleanExpression> refWhere = new AtomicReference<>(parent);
         if (!CollectionUtils.isEmpty(wheres)) {
             wheres.stream()
@@ -364,7 +364,7 @@ public abstract class BaseRepositoryImpl {
      * @param wheres 条件集合
      * @return 查询条件
      */
-    protected Predicate buildDslWhere(@Nonnull final List<BooleanExpression> wheres) {
+    protected BooleanExpression buildDslWhere(@Nonnull final List<BooleanExpression> wheres) {
         return buildDslWhere(null, wheres);
     }
 
