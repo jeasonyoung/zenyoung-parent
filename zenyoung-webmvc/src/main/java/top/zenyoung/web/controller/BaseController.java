@@ -456,31 +456,31 @@ public class BaseController extends AbstractWebController {
     /**
      * 业务处理-新增
      *
-     * @param req     请求数据
-     * @param process 处理器
-     * @param <T>     请求数据类型
+     * @param req      请求数据
+     * @param proccess 处理器
+     * @param <T>      请求数据类型
      * @return 处理结果
      */
     protected <T extends Serializable> RespAddResult actionAdd(
-            @Nonnull final T req,
-            @Nonnull final ProccessListener<T, Serializable> process
+            @Nullable final T req,
+            @Nonnull final ProccessListener<T, Serializable> proccess
     ) {
-        log.debug("actionAdd(req: {},process: {})...", req, process);
+        log.debug("actionAdd(req: {},process: {})...", req, proccess);
         return action(RespAddResult.ofSuccess(null), req, new ProccessListener<>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
-                process.getExceptHandlers(handlers);
+                proccess.getExceptHandlers(handlers);
             }
 
             @Override
             public void preHandler(@Nullable final T reqData) {
-                process.preHandler(reqData);
+                proccess.preHandler(reqData);
             }
 
             @Override
             public RespAddResult.AddResult apply(final T data) {
-                return RespAddResult.AddResult.of(process.apply(data));
+                return RespAddResult.AddResult.of(proccess.apply(data));
             }
         });
     }
@@ -488,92 +488,120 @@ public class BaseController extends AbstractWebController {
     /**
      * 业务处理-修改
      *
-     * @param req     请求数据
-     * @param process 处理器
-     * @param <T>     请求数据类型
+     * @param req      请求数据
+     * @param proccess 处理器
+     * @param <T>      请求数据类型
      * @return 处理结果
      */
     protected <T extends Serializable> RespModifyResult actionModify(
             @Nonnull final T req,
-            @Nonnull final ProccessModifyListener<T> process
+            @Nonnull final ProccessModifyListener<T> proccess
     ) {
-        log.debug("actionModify(req: {},process: {})...", req, process);
+        log.debug("actionModify(req: {},proccess: {})...", req, proccess);
         return action(RespModifyResult.ofFinish(), req, new ProccessListener<>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
-                process.getExceptHandlers(handlers);
+                proccess.getExceptHandlers(handlers);
             }
 
             @Override
             public void preHandler(@Nullable final T reqData) {
-                process.preHandler(reqData);
+                proccess.preHandler(reqData);
             }
 
             @Override
             public Serializable apply(final T data) {
-                process.accept(data);
+                proccess.accept(data);
                 return null;
             }
         });
     }
 
     /**
-     * 业务处理-删除
+     * 业务处理-修改
      *
-     * @param req     请求数据
-     * @param process 业务处理器
-     * @param <T>     请求数据类型
+     * @param proccess 处理器
      * @return 处理结果
      */
-    protected <T extends Serializable> RespDeleteResult actionDelete(
-            @Nonnull final T req,
-            @Nonnull final ProccessModifyListener<T> process
-    ) {
-        log.debug("actionDelete(req: {},process: {})...", req, process);
-        return action(RespDeleteResult.ofFinish(), req, new ProccessListener<>() {
+    protected RespModifyResult actionModify(@Nonnull final ProccessModifyListener<Void> proccess) {
+        log.debug("actionModify(proccess: {})...", proccess);
+        return action(RespModifyResult.ofFinish(), new ProccessListener<Void, Serializable>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
-                process.getExceptHandlers(handlers);
-            }
-
-            @Override
-            public void preHandler(@Nullable final T reqData) {
-                process.preHandler(reqData);
-            }
-
-            @Override
-            public Serializable apply(final T data) {
-                process.accept(data);
-                return null;
-            }
-        });
-    }
-
-    /**
-     * 业务处理-删除
-     *
-     * @param process 删除处理器
-     * @return 处理结果
-     */
-    protected RespDeleteResult actionDelete(@Nonnull final ProccessDeleteListener process) {
-        log.debug("actionDelete(process: {})...", process);
-        return action(RespDeleteResult.ofFinish(), new ProccessListener<Void, Serializable>() {
-
-            @Override
-            public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
-                process.getExceptHandlers(handlers);
+                proccess.getExceptHandlers(handlers);
             }
 
             @Override
             public void preHandler(@Nullable final Void reqData) {
-                process.preHandler(reqData);
+                proccess.preHandler(reqData);
+            }
+
+            @Override
+            public Serializable apply(final Void data) {
+                proccess.accept(data);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 业务处理-删除
+     *
+     * @param req      请求数据
+     * @param proccess 业务处理器
+     * @param <T>      请求数据类型
+     * @return 处理结果
+     */
+    protected <T extends Serializable> RespDeleteResult actionDelete(
+            @Nonnull final T req,
+            @Nonnull final ProccessModifyListener<T> proccess
+    ) {
+        log.debug("actionDelete(req: {},proccess: {})...", req, proccess);
+        return action(RespDeleteResult.ofFinish(), req, new ProccessListener<>() {
+
+            @Override
+            public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                proccess.getExceptHandlers(handlers);
+            }
+
+            @Override
+            public void preHandler(@Nullable final T reqData) {
+                proccess.preHandler(reqData);
+            }
+
+            @Override
+            public Serializable apply(final T data) {
+                proccess.accept(data);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 业务处理-删除
+     *
+     * @param proccess 删除处理器
+     * @return 处理结果
+     */
+    protected RespDeleteResult actionDelete(@Nonnull final ProccessDeleteListener proccess) {
+        log.debug("actionDelete(proccess: {})...", proccess);
+        return action(RespDeleteResult.ofFinish(), new ProccessListener<Void, Serializable>() {
+
+            @Override
+            public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
+                proccess.getExceptHandlers(handlers);
+            }
+
+            @Override
+            public void preHandler(@Nullable final Void reqData) {
+                proccess.preHandler(reqData);
             }
 
             @Override
             public Serializable apply(final Void aVoid) {
-                process.accept(aVoid);
+                proccess.accept(aVoid);
                 return null;
             }
         });
