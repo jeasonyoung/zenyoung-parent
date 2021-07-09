@@ -27,6 +27,9 @@ public class AsyncUtils {
     public static void asyncHandler(@Nonnull final Executor executor, @Nonnull final CountDownLatch latch, @Nullable final Runnable bizHandler) {
         executor.execute(() -> {
             try {
+                //线程随机等待
+                ThreadUtils.randomSleep(100);
+                //业务处理
                 if (bizHandler != null) {
                     bizHandler.run();
                 }
