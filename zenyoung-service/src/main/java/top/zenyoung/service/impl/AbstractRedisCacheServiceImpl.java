@@ -9,7 +9,6 @@ import top.zenyoung.common.util.RedisCacheUtils;
 import top.zenyoung.service.CacheService;
 
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -55,7 +54,7 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
     }
 
     @Override
-    public <T extends Serializable> void addCache(@Nonnull final String key, @Nonnull final T data) {
+    public <T> void addCache(@Nonnull final String key, @Nonnull final T data) {
         log.debug("addCache(key: {},data: {})...", key, data);
         Assert.hasText(key, "'key'不能为空!");
         //缓存数据
@@ -81,7 +80,7 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
      * @param <T>  数据类型
      * @return 序列化结果
      */
-    protected abstract <T extends Serializable> String serializable(@Nonnull final T data);
+    protected abstract <T> String serializable(@Nonnull final T data);
 
     /**
      * 数据反序列化
@@ -91,10 +90,10 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
      * @param <T>       数据类型
      * @return 数据
      */
-    protected abstract <T extends Serializable> T deserializable(@Nonnull final String json, @Nonnull final Class<T> dataClass);
+    protected abstract <T> T deserializable(@Nonnull final String json, @Nonnull final Class<T> dataClass);
 
     @Override
-    public <T extends Serializable> void addCache(@Nonnull final String key, @Nonnull final T data, @Nonnull final Duration liveTime) {
+    public <T> void addCache(@Nonnull final String key, @Nonnull final T data, @Nonnull final Duration liveTime) {
         log.debug("addCache(key: {},data: {},liveTime: {})...", key, data, liveTime);
         Assert.hasText(key, "'key'不能为空!");
         final String redisKey = getRedisKey(key);
@@ -113,7 +112,7 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
     }
 
     @Override
-    public <T extends Serializable> T getCache(@Nonnull final String key, @Nonnull final Class<T> dataClass) {
+    public <T> T getCache(@Nonnull final String key, @Nonnull final Class<T> dataClass) {
         log.debug("getCache(key: {},dataClass: {})...", key, dataClass);
         Assert.hasText(key, "'key'不能为空!");
         final String redisKey = getRedisKey(key);
@@ -162,8 +161,8 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
     }
 
     @Override
-    public <T extends Serializable> T cacheHander(@Nonnull final String key, @Nonnull final Class<T> dataClass,
-                                                  @Nonnull final Duration expire, @Nonnull final Supplier<T> dataHandler) {
+    public <T> T cacheHander(@Nonnull final String key, @Nonnull final Class<T> dataClass,
+                             @Nonnull final Duration expire, @Nonnull final Supplier<T> dataHandler) {
         log.debug("cacheHander(key: {},dataClass: {},expire: {},dataHandler: {})...", key, dataClass, expire, dataHandler);
         Assert.hasText(key, "'key'不能为空!");
         Assert.isTrue(expire.getSeconds() > 0, "'expire'必须有效(至少1s)!");

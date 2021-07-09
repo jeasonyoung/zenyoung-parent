@@ -1,7 +1,6 @@
 package top.zenyoung.service;
 
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.function.Supplier;
 
@@ -20,7 +19,7 @@ public interface CacheService {
      * @param data 缓存数据
      * @param <T>  缓存数据类型
      */
-    <T extends Serializable> void addCache(@Nonnull final String key, @Nonnull final T data);
+    <T> void addCache(@Nonnull final String key, @Nonnull final T data);
 
     /**
      * 添加缓存数据
@@ -30,7 +29,7 @@ public interface CacheService {
      * @param liveTime 缓存生存期
      * @param <T>      缓存数据类型
      */
-    <T extends Serializable> void addCache(@Nonnull final String key, @Nonnull final T data, @Nonnull final Duration liveTime);
+    <T> void addCache(@Nonnull final String key, @Nonnull final T data, @Nonnull final Duration liveTime);
 
     /**
      * 获取缓存数据
@@ -40,7 +39,7 @@ public interface CacheService {
      * @param <T>       缓存数据类型
      * @return 缓存数据
      */
-    <T extends Serializable> T getCache(@Nonnull final String key, @Nonnull final Class<T> dataClass);
+    <T> T getCache(@Nonnull final String key, @Nonnull final Class<T> dataClass);
 
     /**
      * 清除缓存
@@ -67,6 +66,6 @@ public interface CacheService {
      * @param <T>         数据类型
      * @return 数据
      */
-    <T extends Serializable> T cacheHander(@Nonnull final String key, @Nonnull final Class<T> dataClass,
-                                           @Nonnull final Duration expire, @Nonnull final Supplier<T> dataHandler);
+    <T> T cacheHander(@Nonnull final String key, @Nonnull final Class<T> dataClass,
+                      @Nonnull final Duration expire, @Nonnull final Supplier<T> dataHandler);
 }
