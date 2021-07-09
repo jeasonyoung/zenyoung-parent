@@ -3,6 +3,7 @@ package top.zenyoung.service;
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.function.Supplier;
 
 /**
  * 缓存-服务接口
@@ -55,4 +56,17 @@ public interface CacheService {
      * @param renewalTime 续约时间
      */
     void renewal(@Nonnull final String key, @Nonnull final Duration renewalTime);
+
+    /**
+     * 数据缓存处理
+     *
+     * @param key         缓存键
+     * @param dataClass   缓存数据Class
+     * @param expire      缓存有效期
+     * @param dataHandler 数据处理
+     * @param <T>         数据类型
+     * @return 数据
+     */
+    <T extends Serializable> T cacheHander(@Nonnull final String key, @Nonnull final Class<T> dataClass,
+                                           @Nonnull final Duration expire, @Nonnull final Supplier<T> dataHandler);
 }

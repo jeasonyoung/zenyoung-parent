@@ -1,6 +1,7 @@
 package top.zenyoung.common.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
 
@@ -28,27 +29,44 @@ public class RedisCacheUtils {
         log.debug("saveCacheValue(key: {},val: {},timeout: {})...", key, val, timeout);
         Assert.hasText(key, "'key'不能为空!");
         Assert.hasText(val, "'val'不能为空!");
-        //保存缓存
-        redisTemplate.opsForValue().set(key, val, timeout);
+        try {
+            //保存缓存
+            redisTemplate.opsForValue().set(key, val, timeout);
+        } catch (QueryTimeoutException ex) {
+            log.debug("saveCacheValue(key: {},val: {},timeout: {})-exp: {}", key, val, timeout, ex.getMessage());
+        }
     }
 
     public static String getCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key) {
         log.debug("getCacheValue(key: {})...", key);
         Assert.hasText(key, "'key'不能为空!");
-        //读取缓存
-        return redisTemplate.opsForValue().get(key);
+        try {
+            //读取缓存
+            return redisTemplate.opsForValue().get(key);
+        } catch (QueryTimeoutException ex) {
+            log.debug("getCacheValue(key: {})-exp: {}", key, ex.getMessage());
+        }
+        return null;
     }
 
     public static void clearCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key) {
         log.debug("clearCacheValue(key: {})...", key);
         Assert.hasText(key, "'key'不能为空!");
-        //清空数据
-        redisTemplate.delete(key);
+        try {
+            //清空数据
+            redisTemplate.delete(key);
+        } catch (QueryTimeoutException ex) {
+            log.debug("clearCacheValue(key: {})-exp: {}", key, ex.getMessage());
+        }
     }
 
-    public static void renewalCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key, @Nonnull final Duration renewalTime){
+    public static void renewalCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key, @Nonnull final Duration renewalTime) {
         log.debug("renewalCacheValue(key: {},renewalTime: {})...", key, renewalTime);
         Assert.hasText(key, "'key'不能为空!");
-        redisTemplate.expire(key, renewalTime);
+        try {
+            redisTemplate.expire(key, renewalTime);
+        } catch (QueryTimeoutException ex) {
+            log.debug("renewalCacheValue(key: {},renewalTime: {})-exp: {}", key, renewalTime, ex.getMessage());
+        }
     }
 }

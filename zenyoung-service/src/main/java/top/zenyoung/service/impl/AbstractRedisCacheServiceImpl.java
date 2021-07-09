@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Redis缓存-服务接口实现
@@ -156,6 +157,29 @@ public abstract class AbstractRedisCacheServiceImpl implements CacheService {
                 RedisCacheUtils.renewalCacheValue(redisTemplate, redisKey, renewalTime);
             } finally {
                 LOCKS.remove(redisKey);
+            }
+        }
+    }
+
+    @Override
+    public <T extends Serializable> T cacheHander(@Nonnull final String key, @Nonnull final Class<T> dataClass,
+                                                  @Nonnull final Duration expire, @Nonnull final Supplier<T> dataHandler) {
+        log.debug("cacheHander(key: {},dataClass: {},expire: {},dataHandler: {})...", key, dataClass, expire, dataHandler);
+        Assert.hasText(key, "'key'不能为空!");
+        Assert.isTrue(expire.getSeconds() > 0, "'expire'必须有效(至少1s)!");
+        synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
+            try {
+                T data = getCache(key, dataClass);
+                if (data == null) {
+                    data = dataHandler.get();
+                    if (data != null) {
+                        //缓存数据处理
+                        addCache(key, data, expire);
+                    }
+                }
+                return data;
+            } finally {
+                LOCKS.remove(key);
             }
         }
     }
