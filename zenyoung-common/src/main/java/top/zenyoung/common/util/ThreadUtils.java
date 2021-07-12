@@ -112,7 +112,7 @@ public class ThreadUtils {
      * @param minMillis 最小等待时长
      */
     public static void randomSleep(final long minMillis) {
-        final long random = (long) (Math.random() * 500);
+        final long random = (long) (Math.random() * 100);
         sleep(Math.max(minMillis, random));
     }
 
