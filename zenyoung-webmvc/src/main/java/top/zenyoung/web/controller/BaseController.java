@@ -140,6 +140,29 @@ public class BaseController extends AbstractWebController {
     /**
      * 查询数据
      *
+     * @param reqQueryClass  查询处理器
+     * @param queryHandler   查询处理
+     * @param convertHandler 查询结果转换
+     * @param <ReqQry>       查询条件类型
+     * @param <Item>         查询数据类型
+     * @param <Ret>          查询数据转换类型
+     * @return 查询结果
+     */
+    protected <ReqQry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+            @Nonnull final Class<ReqQry> reqQueryClass,
+            @Nonnull final Function<ReqQry, List<Item>> queryHandler,
+            @Nonnull final Function<Item, Ret> convertHandler
+    ) {
+        return buildQuery(() -> {
+            final ReqQry reqQry = ReqUtils.parseQuery(reqQueryClass, this);
+            return queryHandler.apply(reqQry);
+        }, convertHandler);
+
+    }
+
+    /**
+     * 查询数据
+     *
      * @param reqQueryClass       查询条件类型
      * @param queryConvertHandler 查询条件转换
      * @param queryHandler        查询处理
