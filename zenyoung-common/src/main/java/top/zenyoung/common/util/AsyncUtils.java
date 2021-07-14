@@ -1,5 +1,6 @@
 package top.zenyoung.common.util;
 
+import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -9,6 +10,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 异步工具类
@@ -26,10 +29,21 @@ public class AsyncUtils implements AutoCloseable {
      * @param executors 线程池
      * @param totals    执行总数
      */
-    public AsyncUtils(@Nonnull final Executor executors, @Nonnull final Integer totals) {
+    private AsyncUtils(@Nonnull final Executor executors, @Nonnull final Integer totals) {
         Assert.isTrue(totals > 0, "'totals'必须大于0!");
         this.executors = executors;
         this.latch = new CountDownLatch(totals);
+    }
+
+    /**
+     * 获取实例对象
+     *
+     * @param executors 线程池
+     * @param totals    执行总数
+     * @return 异步工具实例
+     */
+    public static AsyncUtils getInstance(@Nonnull final Executor executors, @Nonnull final Integer totals) {
+        return new AsyncUtils(executors, totals);
     }
 
     /**
@@ -41,6 +55,37 @@ public class AsyncUtils implements AutoCloseable {
     public AsyncUtils asyncHandler(@Nullable final Runnable handler) {
         asyncHandler(executors, latch, handler);
         return this;
+    }
+
+    /**
+     * 异步执行处理(带数据缓存功能)
+     *
+     * @param cache    缓存器
+     * @param key      缓存键
+     * @param supplier 数据生产处理
+     * @param consumer 数据消费处理
+     * @param <K>      缓存键类型
+     * @param <T>      数据类型
+     * @return 异步工具实例
+     */
+    public <K, T> AsyncUtils asyncCacheHandler(@Nonnull final Cache<K, T> cache, @Nonnull final K key, @Nonnull final Supplier<T> supplier, @Nonnull final Consumer<T> consumer) {
+        return asyncHandler(() -> {
+            //读取缓存
+            T data = cache.getIfPresent(key);
+            if (data != null) {
+                //消费处理
+                consumer.accept(data);
+                return;
+            }
+            //获取数据
+            data = supplier.get();
+            if (data != null) {
+                //添加到缓存
+                cache.put(key, data);
+                //消费处理
+                consumer.accept(data);
+            }
+        });
     }
 
     /**
@@ -73,6 +118,8 @@ public class AsyncUtils implements AutoCloseable {
                 if (bizHandler != null) {
                     bizHandler.run();
                 }
+            } catch (Throwable ex) {
+                log.warn("asyncHandler(bizHandler: {})-exp: {}", bizHandler, ex.getMessage());
             } finally {
                 latch.countDown();
             }
