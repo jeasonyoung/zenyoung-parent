@@ -3,15 +3,21 @@ package top.zenyoung.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindException;
+import org.springframework.validation.MapBindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.web.listener.ExceptHandlerListener;
 import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.Validator;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +35,9 @@ public abstract class AbstractWebController implements ParamHandler {
     @Autowired
     @Getter(AccessLevel.PROTECTED)
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private Validator validator;
 
     /**
      * 获取异常处理器集合
@@ -92,12 +101,25 @@ public abstract class AbstractWebController implements ParamHandler {
         return objectMapper == null ? null : objectMapper.writeValueAsString(params);
     }
 
-    @SneakyThrows
     @Override
     public <T extends Serializable> T deserialize(@Nonnull final String json, @Nonnull final Class<T> paramClass) {
         if (!Strings.isNullOrEmpty(json) && objectMapper != null) {
-            return objectMapper.readValue(json, paramClass);
+            return JsonUtils.fromJson(objectMapper, json, paramClass);
         }
         return null;
     }
+
+    @Override
+    public <T extends Serializable> void paramValidator(@Nonnull final T req) throws Exception {
+        if (validator != null) {
+            final SpringValidatorAdapter adapter = new SpringValidatorAdapter(validator);
+            final MapBindingResult errors = new MapBindingResult(Maps.newLinkedHashMap(), "params");
+            adapter.validate(req, errors);
+            //检查是否验证失败
+            if (errors.hasErrors()) {
+                throw new BindException(errors);
+            }
+        }
+    }
+
 }

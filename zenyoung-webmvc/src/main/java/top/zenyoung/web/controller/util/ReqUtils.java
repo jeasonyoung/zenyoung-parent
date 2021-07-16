@@ -136,7 +136,13 @@ public class ReqUtils {
                 final String json = handler.serialize(reqParams);
                 if (!Strings.isNullOrEmpty(json)) {
                     log.debug("parse(params: {},dataClass: {},handler: {})=>\n {}", params, dataClass, handler, json);
-                    return handler.deserialize(json, dataClass);
+                    final T req = handler.deserialize(json, dataClass);
+                    if (req != null) {
+                        //校验处理
+                        handler.paramValidator(req);
+                        //返回数据
+                        return req;
+                    }
                 }
             }
         } catch (Throwable ex) {

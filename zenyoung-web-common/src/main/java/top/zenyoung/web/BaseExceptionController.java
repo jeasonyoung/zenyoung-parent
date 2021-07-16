@@ -2,6 +2,9 @@ package top.zenyoung.web;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import top.zenyoung.web.vo.RespResult;
@@ -24,10 +27,19 @@ public abstract class BaseExceptionController {
         return RespResult.ofFail(e.getMessage());
     }
 
-    @ExceptionHandler({Exception.class})
-    public RespResult<?> handleException(@Nonnull final Exception e) {
-        log.warn("handleException(e: {})...", e.getMessage());
-        return RespResult.ofFail(e.getMessage());
+    @ExceptionHandler({BindException.class})
+    public RespResult<?> handlerBindException(@Nonnull final BindException e) {
+        log.warn("handlerBindException(e: {})...", e.getMessage());
+        final StringBuilder builder = new StringBuilder("Validation failed for ");
+        BindingResult bindingResult = e.getBindingResult();
+        if (bindingResult.getErrorCount() > 1) {
+            builder.append(" with ").append(bindingResult.getErrorCount()).append(" errors");
+        }
+        builder.append(": ");
+        for (ObjectError error : bindingResult.getAllErrors()) {
+            builder.append("[").append(error).append("] ");
+        }
+        return RespResult.ofFail(builder.toString());
     }
 
     @ExceptionHandler({ValidationException.class})
@@ -45,6 +57,12 @@ public abstract class BaseExceptionController {
     @ExceptionHandler({DuplicateKeyException.class})
     public RespResult<?> handleDuplicateKeyException(@Nonnull final DuplicateKeyException e) {
         log.warn("handleDuplicateKeyException(e: {})...", e.getMessage());
+        return RespResult.ofFail(e.getMessage());
+    }
+
+    @ExceptionHandler({Exception.class})
+    public RespResult<?> handleException(@Nonnull final Exception e) {
+        log.warn("handleException(e: {})...", e.getMessage());
         return RespResult.ofFail(e.getMessage());
     }
 }

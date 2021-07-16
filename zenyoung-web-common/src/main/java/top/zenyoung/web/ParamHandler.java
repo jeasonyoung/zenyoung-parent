@@ -27,4 +27,13 @@ public interface ParamHandler {
      * @return 参数对象
      */
     <T extends Serializable> T deserialize(@Nonnull final String json, @Nonnull final Class<T> paramClass);
+
+    /**
+     * 参数验证处理
+     *
+     * @param req 请求参数对象
+     * @param <T> 请求参数类型
+     * @throws Exception 异常消息
+     */
+    <T extends Serializable> void paramValidator(@Nonnull final T req) throws Exception;
 }
