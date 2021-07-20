@@ -7,7 +7,6 @@ ENV PKG_RELEASE   1
 
 RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main" >> /etc/apk/repositories  \
     && echo "https://mirrors.aliyun.com/alpine/v3.13/community" >> /etc/apk/repositories \
-    && echo "https://nginx.org/packages/alpine/v3.13/main" >> /etc/apk/repositories \
     && apk update \
     && set -x \
 # create nginx user/group first, to be consistent throughout docker variants
