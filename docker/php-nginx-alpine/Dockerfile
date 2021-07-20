@@ -1,9 +1,15 @@
-FROM php:7.3-fpm-alpine
+FROM php:7.3-fpm-alpine3.13
 MAINTAINER yangyong "young1982@foxmail.com"
 
-ENV NGINX_VERSION=1.20.1 NJS_VERSION=0.6.1 PKG_RELEASE=1
+ENV NGINX_VERSION 1.20.1
+ENV NJS_VERSION   0.5.3
+ENV PKG_RELEASE   1
 
-RUN set -x \
+RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main" >> /etc/apk/repositories  \
+    && echo "https://mirrors.aliyun.com/alpine/v3.13/community" >> /etc/apk/repositories \
+    && echo "https://nginx.org/packages/alpine/v3.13/main" >> /etc/apk/repositories \
+    && apk update \
+    && set -x \
 # create nginx user/group first, to be consistent throughout docker variants
     && addgroup -g 101 -S nginx \
     && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
@@ -13,6 +19,7 @@ RUN set -x \
         nginx-module-xslt=${NGINX_VERSION}-r${PKG_RELEASE} \
         nginx-module-geoip=${NGINX_VERSION}-r${PKG_RELEASE} \
         nginx-module-image-filter=${NGINX_VERSION}-r${PKG_RELEASE} \
+        nginx-module-perl=${NGINX_VERSION}-r${PKG_RELEASE} \
         nginx-module-njs=${NGINX_VERSION}.${NJS_VERSION}-r${PKG_RELEASE} \
     " \
     && case "$apkArch" in \
@@ -96,19 +103,14 @@ RUN set -x \
 # Bring in tzdata so users could set the timezones through the environment
 # variables
     && apk add --no-cache tzdata \
-    && apk add --no-cache ttf-dejavu fontconfig \
 # Bring in curl and ca-certificates to make registering on DNS SD easier
     && apk add --no-cache curl ca-certificates \
-    && rm -rf /tmp/* /var/cache/apk/* \
 # forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log \
 # create a docker-entrypoint.d directory
     && mkdir /docker-entrypoint.d
 
-#环境变量
-ENV TZ=Asia/Shanghai LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
-#
 COPY docker-entrypoint.sh /
 COPY 10-listen-on-ipv6-by-default.sh /docker-entrypoint.d
 COPY 20-envsubst-on-templates.sh /docker-entrypoint.d
