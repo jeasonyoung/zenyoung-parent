@@ -1,17 +1,10 @@
-FROM php:7.3-fpm-alpine3.13
+FROM php:7.2-fpm-alpine3.12
 MAINTAINER yangyong "young1982@foxmail.com"
-
-ENV TZ=Asia/Shanghai
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
-
-ENV NGINX_VERSION 1.20.1
-ENV NJS_VERSION   0.5.3
-ENV PKG_RELEASE   1
-
-RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main" >> /etc/apk/repositories  \
-    && echo "https://mirrors.aliyun.com/alpine/v3.13/community" >> /etc/apk/repositories \
+#环境变量
+ENV TZ=Asia/Shanghai LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 NGINX_VERSION=1.20.1 NJS_VERSION=0.5.3 PKG_RELEASE=1
+#执行安装Nginx
+RUN echo "https://mirrors.aliyun.com/alpine/v3.12/main" >> /etc/apk/repositories  \
+    && echo "https://mirrors.aliyun.com/alpine/v3.12/community" >> /etc/apk/repositories \
     && apk update \
     && set -x \
 # create nginx user/group first, to be consistent throughout docker variants
@@ -114,15 +107,16 @@ RUN echo "https://mirrors.aliyun.com/alpine/v3.13/main" >> /etc/apk/repositories
     && ln -sf /dev/stderr /var/log/nginx/error.log \
 # create a docker-entrypoint.d directory
     && mkdir /docker-entrypoint.d
-
+#复制脚本
 COPY docker-entrypoint.sh /
 COPY 10-listen-on-ipv6-by-default.sh /docker-entrypoint.d
 COPY 20-envsubst-on-templates.sh /docker-entrypoint.d
 COPY 30-tune-worker-processes.sh /docker-entrypoint.d
+#入口
 ENTRYPOINT ["/docker-entrypoint.sh"]
-
+#暴露端口
 EXPOSE 80
-
+#信号量
 STOPSIGNAL SIGQUIT
-
+#运行参数
 CMD ["nginx", "-g", "daemon off;"]
