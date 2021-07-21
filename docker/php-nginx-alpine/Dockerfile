@@ -1,6 +1,11 @@
 FROM php:7.3-fpm-alpine3.13
 MAINTAINER yangyong "young1982@foxmail.com"
 
+ENV TZ=Asia/Shanghai
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
 ENV NGINX_VERSION 1.20.1
 ENV NJS_VERSION   0.5.3
 ENV PKG_RELEASE   1
