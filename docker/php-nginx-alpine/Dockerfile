@@ -1,24 +1,27 @@
 FROM php:7.2-fpm-alpine3.12
 MAINTAINER yangyong "young1982@foxmail.com"
 #时区/语言
-ENV TZ=Asia/Shanghai LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
+ENV TZ=Asia/Chongqing LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 #更新安装依赖包和PHP核心拓展
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
     && apk update \
-    && apk add --no-cache libmcrypt-dev freetype-dev libjpeg-turbo-dev git libpng-dev \
+    && apk add --no-cache tzdata curl \
+    && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
+    #安装php-redis
+    && mkdir -p /usr/src/php/ext/redis \
+    && curl -L https://github.com/phpredis/phpredis/archive/3.1.4.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
+    && echo 'redis' >> /usr/src/php-available-exts \
+    && docker-php-ext-install redis \
+    #安装PHP组件
+    && apk add --no-cache curl curl-dev libmcrypt-dev freetype-dev libjpeg-turbo-dev git libpng-dev \
     && docker-php-ext-install curl fileinfo sockets \
     && docker-php-ext-install gd mysqli \
     && docker-php-ext-install pdo pdo_mysql \
     && docker-php-ext-install mbstring bcmath zip opcache \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-    #安装php-redis
-    && mkdir -p /usr/src/php/ext/redis \
-    && curl -L https://github.com/phpredis/phpredis/archive/3.1.4.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
-    && echo 'redis' >> /usr/src/php-available-exts \
-    && docker-php-ext-install redis \
-    && rm -r /var/lib/apt/lists/*
-
+    #清理
+    && rm -rf /var/cache/apk/*
 #环境变量
 ENV NGINX_VERSION=1.20.1 NJS_VERSION=0.5.3 PKG_RELEASE=1
 #执行安装Nginx
