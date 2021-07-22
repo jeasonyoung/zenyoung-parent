@@ -1,12 +1,28 @@
 FROM php:7.2-fpm-alpine3.12
 MAINTAINER yangyong "young1982@foxmail.com"
-#环境变量
-ENV TZ=Asia/Shanghai LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 NGINX_VERSION=1.20.1 NJS_VERSION=0.5.3 PKG_RELEASE=1
-#执行安装Nginx
-RUN echo "https://mirrors.aliyun.com/alpine/v3.12/main" >> /etc/apk/repositories  \
-    && echo "https://mirrors.aliyun.com/alpine/v3.12/community" >> /etc/apk/repositories \
+#时区/语言
+ENV TZ=Asia/Shanghai LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
+#更新安装依赖包和PHP核心拓展
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
     && apk update \
-    && set -x \
+    && apk add --no-cache libmcrypt-dev freetype-dev libjpeg-turbo-dev git libpng-dev \
+    && docker-php-ext-install curl fileinfo sockets \
+    && docker-php-ext-install gd mysqli \
+    && docker-php-ext-install pdo pdo_mysql \
+    && docker-php-ext-install mbstring bcmath zip opcache \
+    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ \
+    && docker-php-ext-install -j$(nproc) gd \
+    #安装php-redis
+    && mkdir -p /usr/src/php/ext/redis \
+    && curl -L https://github.com/phpredis/phpredis/archive/3.1.4.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
+    && echo 'redis' >> /usr/src/php-available-exts \
+    && docker-php-ext-install redis \
+    && rm -r /var/lib/apt/lists/*
+
+#环境变量
+ENV NGINX_VERSION=1.20.1 NJS_VERSION=0.5.3 PKG_RELEASE=1
+#执行安装Nginx
+RUN set -x \
 # create nginx user/group first, to be consistent throughout docker variants
     && addgroup -g 101 -S nginx \
     && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
