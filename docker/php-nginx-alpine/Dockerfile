@@ -139,3 +139,5 @@ EXPOSE 80
 STOPSIGNAL SIGQUIT
 #运行参数
 CMD ["nginx", "-g", "daemon off;"]
+
+#docker build -t php-ngx-alpine:v7.2_1.20.1_1.3.2_1 .
