@@ -36,6 +36,6 @@ if [ "$1" = "nginx" -o "$1" = "nginx-debug" ]; then
 fi
 
 #启动php-frm守候进程
-nohup php-fpm > /var/log/php/frm.log 2>&1 &
+nohup php-fpm > /var/log/php-frm.log 2>&1 &
 #启动Nginx
 exec "$@"
