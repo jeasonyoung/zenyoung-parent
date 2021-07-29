@@ -130,7 +130,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 处理结果
      */
     protected <T extends Serializable, R extends Serializable> RespResult<R> action(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nonnull final T req,
             @Nonnull final AuthProccessListener<A, T, R> process
     ) {
@@ -166,7 +166,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 处理结果
      */
     protected <T extends Serializable, R extends Serializable> RespAddResult actionAdd(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nullable final T req,
             @Nonnull final AuthProccessListener<A, T, R> process
     ) {
@@ -201,7 +201,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 处理结果
      */
     protected <T extends Serializable> RespModifyResult actionModify(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nullable final T req,
             @Nonnull final AuthProccessModifyListener<A, T> process
     ) {
@@ -236,7 +236,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 处理结果
      */
     protected <T extends Serializable> RespDeleteResult actionDelete(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nullable final T req,
             @Nonnull final AuthProccessModifyListener<A, T> process
     ) {
@@ -269,7 +269,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 处理结果
      */
     protected RespDeleteResult actionDelete(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nonnull final AuthProccessDeleteListener<A> process
     ) {
         return actionDelete(new ProccessDeleteListener() {
