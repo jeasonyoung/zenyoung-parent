@@ -168,7 +168,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      */
     protected <T extends Serializable, R extends Serializable> RespAddResult actionAdd(
             @Nonnull final UserPrincipal principal,
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final AuthProccessListener<A, T, R> process
     ) {
         return actionAdd(req, new ProccessListener<>() {
@@ -203,7 +203,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      */
     protected <T extends Serializable> RespModifyResult actionModify(
             @Nonnull final UserPrincipal principal,
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final AuthProccessModifyListener<A, T> process
     ) {
         return actionModify(req, new ProccessModifyListener<>() {
@@ -238,7 +238,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      */
     protected <T extends Serializable> RespDeleteResult actionDelete(
             @Nonnull final UserPrincipal principal,
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final AuthProccessModifyListener<A, T> process
     ) {
         return actionDelete(req, new ProccessModifyListener<>() {
