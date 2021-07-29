@@ -517,7 +517,7 @@ public class BaseController extends AbstractWebController {
      * @return 处理结果
      */
     protected <T extends Serializable> RespModifyResult actionModify(
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final ProccessModifyListener<T> proccess
     ) {
         log.debug("actionModify(req: {},proccess: {})...", req, proccess);
