@@ -27,15 +27,14 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param principal 认证用户
      * @return 转换数据
      */
-    @Nonnull
-    protected abstract A convert(@Nonnull final UserPrincipal principal);
+    protected abstract A convert(@Nullable final UserPrincipal principal);
 
     /**
      * 检查认证用户
      *
      * @param principal 认证用户
      */
-    protected abstract void checkAuth(@Nonnull final A principal);
+    protected abstract void checkAuth(@Nullable final A principal);
 
     /**
      * 查询数据
@@ -48,7 +47,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 查询结果
      */
     protected <Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nonnull final Function<A, List<Item>> queryHandler,
             @Nonnull final Function<Item, Ret> convertHandler
     ) {
@@ -74,7 +73,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 查询结果
      */
     protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final BiFunction<A, ReqQry, Qry> queryConvertHandler,
             @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
@@ -96,7 +95,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @return 处理结果
      */
     protected <R extends Serializable> RespResult<R> action(
-            @Nonnull final UserPrincipal principal,
+            @Nullable final UserPrincipal principal,
             @Nonnull final AuthProccessListener<A, Void, R> process
     ) {
         return action(new ProccessListener<>() {
