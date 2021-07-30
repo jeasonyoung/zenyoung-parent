@@ -46,7 +46,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <Ret>          结果数据类型
      * @return 查询结果
      */
-    protected <Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildAuthQuery(
             @Nullable final UserPrincipal principal,
             @Nonnull final Function<A, List<Item>> queryHandler,
             @Nonnull final Function<Item, Ret> convertHandler
@@ -72,7 +72,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <Ret>                结果数据类型
      * @return 查询结果
      */
-    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildPagingQuery(
+    protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildAuthPagingQuery(
             @Nullable final UserPrincipal principal,
             @Nonnull final PagingQuery<ReqQry> reqQuery,
             @Nonnull final BiFunction<A, ReqQry, Qry> queryConvertHandler,
@@ -94,7 +94,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <R>       返回数据类型
      * @return 处理结果
      */
-    protected <R extends Serializable> RespResult<R> action(
+    protected <R extends Serializable> RespResult<R> actionAuth(
             @Nullable final UserPrincipal principal,
             @Nonnull final AuthProccessListener<A, Void, R> process
     ) {
@@ -129,7 +129,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <R>       响应数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable> RespResult<R> action(
+    protected <T extends Serializable, R extends Serializable> RespResult<R> actionAuth(
             @Nullable final UserPrincipal principal,
             @Nonnull final T req,
             @Nonnull final AuthProccessListener<A, T, R> process
@@ -165,7 +165,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <R>       响应数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable, R extends Serializable> RespAddResult actionAdd(
+    protected <T extends Serializable, R extends Serializable> RespAddResult actionAuthAdd(
             @Nullable final UserPrincipal principal,
             @Nullable final T req,
             @Nonnull final AuthProccessListener<A, T, R> process
@@ -200,7 +200,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <T>       请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> RespModifyResult actionModify(
+    protected <T extends Serializable> RespModifyResult actionAuthModify(
             @Nullable final UserPrincipal principal,
             @Nullable final T req,
             @Nonnull final AuthProccessModifyListener<A, T> process
@@ -235,7 +235,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param <T>       请求数据类型
      * @return 处理结果
      */
-    protected <T extends Serializable> RespDeleteResult actionDelete(
+    protected <T extends Serializable> RespDeleteResult actionAuthDelete(
             @Nullable final UserPrincipal principal,
             @Nullable final T req,
             @Nonnull final AuthProccessModifyListener<A, T> process
@@ -268,7 +268,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      * @param process   删除处理器
      * @return 处理结果
      */
-    protected RespDeleteResult actionDelete(
+    protected RespDeleteResult actionAuthDelete(
             @Nullable final UserPrincipal principal,
             @Nonnull final AuthProccessDeleteListener<A> process
     ) {
