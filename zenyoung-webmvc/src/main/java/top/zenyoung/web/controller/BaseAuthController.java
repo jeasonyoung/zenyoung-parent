@@ -131,7 +131,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
      */
     protected <T extends Serializable, R extends Serializable> RespResult<R> actionAuth(
             @Nullable final UserPrincipal principal,
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final AuthProccessListener<A, T, R> process
     ) {
         return action(req, new ProccessListener<>() {

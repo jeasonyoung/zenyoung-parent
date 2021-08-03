@@ -452,7 +452,7 @@ public class BaseController extends AbstractWebController {
      * @return 处理结果
      */
     protected <T extends Serializable, R extends Serializable> RespResult<R> action(
-            @Nonnull final T req,
+            @Nullable final T req,
             @Nonnull final ProccessListener<T, R> process
     ) {
         log.debug("action(req: {},process: {})...", req, process);
