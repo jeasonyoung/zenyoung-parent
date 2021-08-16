@@ -82,7 +82,7 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
             throw new AuthenticationServiceException("Authentication method not supported: " + httpRequest.getMethod());
         }
         final MediaType contentType = httpRequest.getHeaders().getContentType();
-        if (!MediaType.APPLICATION_JSON.isCompatibleWith(contentType) || !MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType)) {
+        if (!MediaType.APPLICATION_JSON.isCompatibleWith(contentType) && !MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType)) {
             throw new AuthenticationServiceException("Authentication contentType not supported: " + contentType);
         }
         //获取认证管理器
