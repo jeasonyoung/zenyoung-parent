@@ -105,7 +105,7 @@ public abstract class BaseLogFilter implements Filter, Ordered {
             chain.doFilter(reqWrap, respWrap);
             //请求报文内容
             if (checkContentTypes(reqContentType)) {
-                logWriter.writer("req-body", reqWrap.getBody());
+                logWriter.writer("req-body", buildBodyToMap(reqWrap.getBody()));
             }
             //响应类型
             final ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(respWrap);
