@@ -59,7 +59,6 @@
 
         <!-- Web模块 -->
         <module>zenyoung-web-common</module>
-        <module>zenyoung-web-okhttp3</module>
         <module>zenyoung-webflux</module>
         <module>zenyoung-webmvc</module>
 
@@ -77,6 +76,9 @@
         <module>zenyoung-wechat-common</module>
         <module>zenyoung-wechat-service</module>
         <module>zenyoung-wechat-api</module>
+
+        <!-- 工具模块 -->
+        <module>zenyoung-okhttp3</module>
 
         <!-- 视频转码客户端 -->
         <module>zenyoung-codec-client</module>

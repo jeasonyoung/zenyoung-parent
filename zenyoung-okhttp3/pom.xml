@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zenyoung-web-okhttp3</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>zenyoung-okhttp3</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -18,13 +17,6 @@
     </properties>
 
     <dependencies>
-        <!-- spring -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- okhttp3 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -35,24 +27,22 @@
             <artifactId>logging-interceptor</artifactId>
         </dependency>
 
-        <!-- fastxml -->
+        <!-- 工具 -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>provided</scope>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
-
-        <!-- 模块 -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- fastxml -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <scope>provided</scope>
         </dependency>
 

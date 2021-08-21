@@ -1,12 +1,10 @@
-package top.zenyoung.web;
+package top.zenyoung.okhttp3;
 
 import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,18 +39,20 @@ public class WebClientUtils implements WebClient {
     @SneakyThrows
     private WebClientUtils() {
         //网络日志
-        final HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogging());
+        final HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(content -> {
+            if (!Strings.isNullOrEmpty(content)) {
+                log.info(content);
+            }
+        });
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         //SSL
         final X509TrustManager trustManager = new X509TrustManager() {
             @Override
             public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
-
             }
 
             @Override
             public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
-
             }
 
             @Override
@@ -103,9 +103,6 @@ public class WebClientUtils implements WebClient {
             @Nonnull final Function<String, R> respBodyConvert
     ) throws IOException {
         log.debug("sendRequest(method: {},url: {},headers: {},bodyConvert: {},respBodyConvert: {})...", method, url, headers, bodyConvert, respBodyConvert);
-        Assert.hasText(method, "'method'不能为空!");
-        Assert.hasText(url, "'url'不能为空!");
-
         final Request.Builder builder = new Request.Builder().url(url);
         //headers
         if (headers != null && headers.size() > 0) {
@@ -129,7 +126,6 @@ public class WebClientUtils implements WebClient {
     @Override
     public void downloadFile(@Nonnull final String url, @Nonnull final OutputStream outputStream, @Nullable final Consumer<Integer> progress) {
         log.debug("downloadFile(url: {},progress: {})...", url, progress);
-        Assert.hasText(url, "'url'不能为空!");
         final long start = System.currentTimeMillis();
         final Request request = new Request.Builder()
                 .url(url)
@@ -171,11 +167,10 @@ public class WebClientUtils implements WebClient {
     @Override
     public void uploadFile(@Nonnull final String url, @Nullable final Map<String, Serializable> headers, @Nonnull final Consumer<MultipartBody.Builder> bodyBuilderHandler) {
         log.debug("uploadFile(url: {},headers: {},bodyBuilderHandler: {})...", url, headers, bodyBuilderHandler);
-        Assert.hasText(url, "'url'不能为空!");
         //上传请求
         final Request.Builder requestBuilder = new Request.Builder().url(url);
         //headers参数
-        if (!CollectionUtils.isEmpty(headers)) {
+        if (headers != null && !headers.isEmpty()) {
             headers.forEach((key, val) -> {
                 if (!Strings.isNullOrEmpty(key) && val != null) {
                     requestBuilder.addHeader(key, val.toString());
@@ -194,14 +189,6 @@ public class WebClientUtils implements WebClient {
             if (respBody != null) {
                 log.info("uploadFile(url: {},headers: {},bodyBuilderHandler: {})=> {}", url, headers, bodyBuilderHandler, respBody.string());
             }
-        }
-    }
-
-    private static class HttpLogging implements HttpLoggingInterceptor.Logger {
-
-        @Override
-        public void log(@Nonnull final String s) {
-            log.info(s);
         }
     }
 }
