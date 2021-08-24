@@ -15,6 +15,7 @@ import top.zenyoung.web.vo.ReqPagingQuery;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -49,9 +50,9 @@ public class ReqUtils {
     }
 
     public static Map<String, String[]> getReqParams() {
-        final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attrs != null) {
-            return attrs.getRequest().getParameterMap();
+        final HttpServletRequest request = HttpUtils.getWebRequest();
+        if(request != null){
+            return request.getParameterMap();
         }
         return null;
     }
