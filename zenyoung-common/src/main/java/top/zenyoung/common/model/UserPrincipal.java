@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import java.util.Map;
  * 2020/3/19 4:31 下午
  **/
 @Data
-public class UserPrincipal implements Serializable {
+public class UserPrincipal implements Principal, Serializable {
     /**
      * 用户ID
      */
@@ -36,6 +37,11 @@ public class UserPrincipal implements Serializable {
      * 扩展数据
      */
     private final Map<String, Serializable> exts = Maps.newLinkedHashMap();
+
+    @Override
+    public String getName() {
+        return account + "[" + id + "]";
+    }
 
     /**
      * 构造函数
