@@ -102,7 +102,14 @@ public class WebSocketUserManagerMemory implements WebSocketUserManager {
         Assert.hasText(groupKey, "'groupKey'不能为空!");
         final Map<String, List<WebSocketSender>> mapSenders = groupSenders.get(groupKey);
         if (!CollectionUtils.isEmpty(mapSenders)) {
-            mapSenders.forEach(senderConsumer);
+            //业务并行处理
+            mapSenders.entrySet().parallelStream().forEach(entry -> {
+                try {
+                    senderConsumer.accept(entry.getKey(), entry.getValue());
+                } catch (Throwable ex) {
+                    log.warn("consumers(entry-key: {})-exp: {}", entry.getKey(), ex.getMessage());
+                }
+            });
         }
     }
 }
