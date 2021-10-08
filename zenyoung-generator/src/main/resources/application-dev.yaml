@@ -1,0 +1,10 @@
+#代码生成
+gen:
+  #作者
+  author: young
+  #默认生成包路径
+  package-name: top.zenyoung.system
+  #自动去除表前缀,默认是false
+  auto-remove-pre: false
+  #表前缀(生成类名不会包含表前缀,多个用逗号分隔)
+  table-prefix: tbl_

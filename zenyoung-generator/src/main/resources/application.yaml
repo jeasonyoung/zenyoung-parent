@@ -1,0 +1,15 @@
+server:
+  port: ${server_port:8080}
+  shutdown: GRACEFUL
+spring:
+  profiles:
+    active: ${spring_profiles_active:dev}
+  application:
+    name: generator
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+
+logging:
+  level:
+    org.springframework.scheduling: 'INFO'
+    org.apache.http: 'debug'
