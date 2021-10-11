@@ -11,7 +11,6 @@
 
     <artifactId>zenyoung-data-jpa</artifactId>
     <packaging>jar</packaging>
-    <description>jpa模块</description>
 
     <dependencies>
         <!-- spring jpa -->
