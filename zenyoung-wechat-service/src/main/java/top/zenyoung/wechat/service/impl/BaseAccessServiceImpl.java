@@ -5,8 +5,8 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import top.zenyoung.common.util.CacheUtils;
-import top.zenyoung.web.WebClient;
-import top.zenyoung.web.WebClientUtils;
+import top.zenyoung.okhttp3.WebClient;
+import top.zenyoung.okhttp3.WebClientUtils;
 import top.zenyoung.wechat.common.GrantType;
 
 import javax.annotation.Nonnull;

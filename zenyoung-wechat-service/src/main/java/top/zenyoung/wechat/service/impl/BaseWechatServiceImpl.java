@@ -11,7 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.util.Assert;
 import top.zenyoung.common.util.CacheUtils;
 import top.zenyoung.common.util.JsonUtils;
-import top.zenyoung.web.WebClient;
+import top.zenyoung.okhttp3.WebClient;
 import top.zenyoung.wechat.common.*;
 import top.zenyoung.wechat.service.AccessService;
 

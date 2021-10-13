@@ -5,7 +5,7 @@
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>zenyoung-parent</artifactId>
-        <version>2.0.2</version>
+        <version>2.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,7 +42,7 @@
         <!-- 模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-web-okhttp3</artifactId>
+            <artifactId>zenyoung-okhttp3</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
