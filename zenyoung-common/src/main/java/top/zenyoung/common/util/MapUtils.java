@@ -1,7 +1,6 @@
 package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class MapUtils {
      * @return Map值
      */
     public static <V, T> T getVal(@Nonnull final Map<String, V> map, @Nonnull final String key, @Nonnull final Function<V, T> transform) {
-        if (!CollectionUtils.isEmpty(map) && !Strings.isNullOrEmpty(key)) {
+        if (!map.isEmpty() && !Strings.isNullOrEmpty(key)) {
             final V val = map.get(key);
             if (val != null) {
                 return transform.apply(val);

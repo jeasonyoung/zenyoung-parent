@@ -3,7 +3,6 @@ package top.zenyoung.common.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -55,7 +54,7 @@ public class UserPrincipal implements Principal, Serializable {
         this.id = id;
         this.account = account;
         this.roles = roles;
-        if (!CollectionUtils.isEmpty(exts)) {
+        if (exts != null && !exts.isEmpty()) {
             this.exts.putAll(exts);
         }
     }

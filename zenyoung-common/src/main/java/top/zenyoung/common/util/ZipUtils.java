@@ -3,7 +3,6 @@ package top.zenyoung.common.util;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -44,7 +43,9 @@ public class ZipUtils {
      */
     public static void toZip(@Nonnull final List<File> sourceFiles, @Nonnull final OutputStream outputStream) {
         log.debug("toZip(sourceFiles-count: {})...", sourceFiles.size());
-        Assert.notEmpty(sourceFiles, "'sourceFiles'不能为空!");
+        if (sourceFiles.isEmpty()) {
+            throw new IllegalArgumentException("'sourceFiles'不能为空!");
+        }
         toZipHandler(outputStream, zipOutputStream -> {
             for (File file : sourceFiles) {
                 if (file == null) {

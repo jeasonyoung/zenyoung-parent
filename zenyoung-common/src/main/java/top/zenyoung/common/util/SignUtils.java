@@ -6,8 +6,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -87,7 +85,7 @@ public class SignUtils {
 
     @SuppressWarnings({"unchecked"})
     private static List<String> buildParamCollection(@Nullable final String parentKey, @Nonnull final String key, @Nonnull final Collection<?> vals) {
-        if (!CollectionUtils.isEmpty(vals)) {
+        if (!vals.isEmpty()) {
             //集合内容处理
             final String strVal = Joiner.on(COLLECTION_JOIN).skipNulls().join(((Collection<?>) vals).stream()
                     .map(v -> {
@@ -133,7 +131,9 @@ public class SignUtils {
      * @return 参数签名
      */
     public static String createSign(@Nonnull final Map<String, Serializable> params, @Nullable final String secret) {
-        Assert.notEmpty(params, "'params'签名参数集合不能为空!");
+        if (params.isEmpty()) {
+            throw new IllegalArgumentException("'params'签名参数集合不能为空!");
+        }
         final String source = params.entrySet().stream()
                 .filter(entry -> !Strings.isNullOrEmpty(entry.getKey()) && entry.getValue() != null)
                 .map(entry -> buildParamKeyVal(null, entry))

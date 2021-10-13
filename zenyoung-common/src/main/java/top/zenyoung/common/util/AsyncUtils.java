@@ -2,8 +2,6 @@ package top.zenyoung.common.util;
 
 import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +28,9 @@ public class AsyncUtils implements AutoCloseable {
      * @param totals    执行总数
      */
     private AsyncUtils(@Nonnull final Executor executors, @Nonnull final Integer totals) {
-        Assert.isTrue(totals > 0, "'totals'必须大于0!");
+        if (totals <= 0) {
+            throw new IllegalArgumentException("'totals'必须大于0!");
+        }
         this.executors = executors;
         this.latch = new CountDownLatch(totals);
     }
@@ -133,7 +133,7 @@ public class AsyncUtils implements AutoCloseable {
      * @param bizHandlers 业务处理器
      */
     public static void asyncHandlers(@Nonnull final Executor executor, @Nonnull final List<Runnable> bizHandlers) {
-        if (!CollectionUtils.isEmpty(bizHandlers)) {
+        if (!bizHandlers.isEmpty()) {
             final CountDownLatch latch = new CountDownLatch(bizHandlers.size());
             try {
                 //多线程并发处理
