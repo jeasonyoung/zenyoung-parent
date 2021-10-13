@@ -12,6 +12,10 @@
     <artifactId>zenyoung-generator</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -30,6 +34,12 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${springfox-boot-starter.version}</version>
         </dependency>
 
         <!-- lombok -->
@@ -55,6 +65,13 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- 模块引用 -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>zenyoung-webmvc</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

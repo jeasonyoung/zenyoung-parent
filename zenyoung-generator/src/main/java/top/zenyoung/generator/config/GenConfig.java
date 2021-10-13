@@ -22,9 +22,13 @@ public class GenConfig {
     /**
      * 自动去除表前缀,默认是false
      */
-    private Boolean autoRemovePre;
+    private Boolean autoRemovePrefix;
     /**
      * 表前缀(生成类名不会包含表前缀,多个用逗号分隔)
      */
     private String tablePrefix;
+    /**
+     * 页面忽略表字段名称(多个用逗号分隔)
+     */
+    private String pageIgnoreColumns;
 }

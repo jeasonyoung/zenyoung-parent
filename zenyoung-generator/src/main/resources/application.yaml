@@ -16,9 +16,11 @@ gen:
   #默认生成包路径
   package-name: top.zenyoung.system
   #自动去除表前缀,默认是false
-  auto-remove-pre: false
+  auto-remove-prefix: true
   #表前缀(生成类名不会包含表前缀,多个用逗号分隔)
   table-prefix: tbl_
+  #忽略表字段名称(多个用逗号分隔)
+  page-ignore-columns: id,create_time,update_time,last_time
 
 logging:
   level:

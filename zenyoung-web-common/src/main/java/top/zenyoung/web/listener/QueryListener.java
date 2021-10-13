@@ -11,7 +11,7 @@ import java.util.function.Function;
  * @version 1.0
  *  2020/2/7 2:05 下午
  **/
-public interface QueryListener<Item extends Serializable, Ret extends Serializable> extends Function<Item, Ret>, PreHandlerListener<Void>, ExceptHandlerListener {
+public interface QueryListener<Item, Ret extends Serializable> extends Function<Item, Ret>, PreHandlerListener<Void>, ExceptHandlerListener {
 
     /**
      * 查询数据

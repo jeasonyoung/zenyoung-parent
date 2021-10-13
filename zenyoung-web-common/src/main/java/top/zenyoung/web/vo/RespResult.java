@@ -100,15 +100,12 @@ public class RespResult<T extends Serializable> implements Serializable {
      * 构建成功响应结果
      *
      * @param data 响应数据
-     * @return 响应结果
      */
-    public RespResult<T> buildRespSuccess(@Nullable final T data) {
+    public void buildRespSuccess(@Nullable final T data) {
         //创建响应结果
         buildResp(ResultCode.Success, null);
         //响应数据
         this.data = data;
-        //返回对象
-        return this;
     }
 
     /**

@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
  *
  * @author yangyong
  * @version 1.0
- *  2020/2/7 12:32 下午
+ * 2020/2/7 12:32 下午
  **/
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "of")
 public class ExceptHandler {
     /**
      * 响应代码

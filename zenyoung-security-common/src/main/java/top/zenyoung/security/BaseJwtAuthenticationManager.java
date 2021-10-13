@@ -83,7 +83,13 @@ public abstract class BaseJwtAuthenticationManager<ReqBody extends LoginReqBody>
     protected TokenAuthentication<ReqBody> parseAuthenticationToken(@Nullable final String token) throws TokenException {
         log.debug("parseAuthenticationToken(token: {})...", token);
         if (!Strings.isNullOrEmpty(token)) {
-            final Ticket ticket = getTokenGenerator().parseToken(token);
+            String tokenVal = token.trim();
+            //检查是否有Bearer
+            final String bearer = "Bearer ";
+            if(token.startsWith(bearer)){
+                tokenVal = token.replaceFirst(bearer,"").trim();
+            }
+            final Ticket ticket = getTokenGenerator().parseToken(tokenVal);
             if (ticket == null) {
                 throw new TokenException("令牌无效!");
             }

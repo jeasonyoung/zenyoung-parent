@@ -85,7 +85,7 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>    结果数据类型
      * @return 查询结果
      */
-    protected <Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <Item, Ret extends Serializable> RespDataResult<Ret> buildQuery(
             @Nonnull final QueryListener<Item, Ret> listener
     ) {
         log.debug("buildQuery(listener: {})...", listener);
@@ -119,7 +119,7 @@ public class BaseController extends AbstractWebController {
      * @param <Ret>          结果数据类型
      * @return 查询结果
      */
-    protected <Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildQuery(
+    protected <Item, Ret extends Serializable> RespDataResult<Ret> buildQuery(
             @Nonnull final Supplier<List<Item>> queryHandler,
             @Nonnull final Function<Item, Ret> convertHandler
     ) {
