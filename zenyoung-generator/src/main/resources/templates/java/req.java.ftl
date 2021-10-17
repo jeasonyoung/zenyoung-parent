@@ -5,7 +5,7 @@ package ${packageName}.vo;
  * <#assign lastTime = .now>
  * @author ${author!}
  * @version 1.0
- * @date ${lastTime?iso_utc}
+ * @date ${lastTime?string('yyyy-MM-dd HH:mm:ss')}
  **/
 @Data
 public class ${className}Req implements Serializable {
@@ -13,6 +13,9 @@ public class ${className}Req implements Serializable {
     /**
      * ${(col.comment)!}
      */
+    <#if col.javaType == 'Date'>
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    </#if>
     private ${col.javaType} ${col.javaField};
     </#list>
 }

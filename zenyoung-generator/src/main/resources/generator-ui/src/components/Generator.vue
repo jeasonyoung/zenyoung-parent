@@ -84,10 +84,10 @@
       <!-- 预览界面 -->
       <el-dialog :title="preview.title" :visible.sync="preview.open" width="80%" top="5vh" append-to-body>
         <el-tabs v-model="preview.activeName">
-          <el-tab-pane v-for="(val,key) in preview.data"
-                       :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf(codeFileSuffix))"
-                       :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf(codeFileSuffix))" :key="key">
-            <pre><code class="hljs" v-html="highlightedCode(val,key)"/></pre>
+          <el-tab-pane v-for="item in preview.data"
+                       :label="getShortName(item['fileName'])"
+                       :name="item['fileName']" :key="item['fileName']">
+            <pre><code class="hljs" v-html="highlightedCode(item['fileName'],item['fileContent'])"/></pre>
           </el-tab-pane>
         </el-tabs>
       </el-dialog>
@@ -103,7 +103,8 @@ import {setToken} from "../utils/auth";
 import codeHighlight from 'highlight.js/lib/core'
 import 'highlight.js/styles/github.css'
 
-import {genSave, genTables, genTest,genPreview} from '../api/gen'
+import {genPreview, genSave, genTables, genTest,genDownload} from '../api/gen'
+import {saveAs} from 'file-saver'
 
 codeHighlight.registerLanguage('java', require('highlight.js/lib/languages/java'));
 codeHighlight.registerLanguage('html', require('highlight.js/lib/languages/xml'));
@@ -133,7 +134,6 @@ export default {
         tableName: "",
       },
       queryResult: [],
-      codeFileSuffix: '.ftl',
       loading: false,
       preview: {
         open: false,
@@ -279,6 +279,11 @@ export default {
       if(tableName && tableName !== ''){
         genPreview(tableName).then(res=>{
           console.info(res)
+          if(res['rows']){
+            this.preview.data = res['rows']
+            this.preview.open = true;
+            this.preview.activeName = res['rows'][0]['fileName']
+          }
         })
       }else{
         Message({
@@ -289,14 +294,33 @@ export default {
       }
     },
     handlerDownload(row) {
-      console.log(row);
+      const tableName = row['tableName'];
+      console.log(`handlerDownload=> ${tableName}`);
+      if(tableName && tableName !== ''){
+        genDownload(tableName).then(res=>{
+          const blob = new Blob([res.data],{type:'application/zip'})
+          saveAs(blob, tableName)
+        })
+      }
     },
-    highlightedCode(code, key) {
-      const ftlName = key.substring(key.lastIndexOf('/') + 1, key.indexOf(this.codeFileSuffix))
-      let lang = ftlName.substring(ftlName.indexOf('.') + ftlName.length);
+    highlightedCode(name,code) {
+      const codeFileName = this.getShortName(name)
+      const lang = codeFileName.substring(codeFileName.lastIndexOf('.')+ 1);
+      console.log(`codeFileName: ${codeFileName},lang: ${lang}`)
       const ret = codeHighlight.highlight(lang, code || '', true);
       return ret.value || '&nbsp;'
-    }
+    },
+    getShortName(fileName){
+      let idx = fileName.lastIndexOf('.')
+      if(idx > 0){
+        let prefix = fileName.substring(0, idx);
+        idx = prefix.lastIndexOf('.');
+        if(idx > 0) {
+          return fileName.substring(idx + 1);
+        }
+      }
+      return fileName;
+    },
   }
 }
 </script>

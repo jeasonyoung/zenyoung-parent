@@ -70,7 +70,7 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
         if (!CollectionUtils.isEmpty(CODE_TEMPLATES)) {
             final Map<String, Object> data = genTable.toMap(mapper);
             if (!CollectionUtils.isEmpty(data)) {
-                return CODE_TEMPLATES.parallelStream().filter(Objects::nonNull)
+                return CODE_TEMPLATES.stream().filter(Objects::nonNull)
                         .map(p -> {
                             final String fileName;
                             if (!Strings.isNullOrEmpty(fileName = p.getFirst()) && !Strings.isNullOrEmpty(p.getSecond())) {
@@ -163,12 +163,12 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
                     try {
                         zip.putNextEntry(new ZipEntry(fullPathName));
                         IOUtils.write(value, zip, StandardCharsets.UTF_8);
-                        zip.finish();
                         zip.closeEntry();
                     } catch (IOException e) {
-                        log.warn("buildZipStream(fullPathName: {})-exp: {}", fullPathName, e.getMessage());
+                        log.error("buildZipStream(fullPathName: {})-exp: {}", fullPathName, e.getMessage());
                     }
                 });
+                zip.flush();
             } catch (Throwable ex) {
                 log.error("buildZipStream(files: {})-exp: {}", fileMaps.keySet(), ex.getMessage());
             }

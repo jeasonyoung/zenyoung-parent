@@ -12,7 +12,7 @@ import java.io.Serializable;
  * <#assign lastTime = .now>
  * @author ${author!}
  * @version 1.0
- * @date ${lastTime?iso_utc}
+ * @date ${lastTime?string('yyyy-MM-dd HH:mm:ss')}
  **/
 @Data
 public class ${className}DTO implements Serializable {

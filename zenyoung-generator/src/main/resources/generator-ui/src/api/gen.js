@@ -35,3 +35,13 @@ export function genPreview(tableName){
         params: {"tableName": tableName}
     })
 }
+
+//下载生产数据
+export function genDownload(tableName){
+    return request({
+        url: '/gen/data/download',
+        method: 'get',
+        responseType: 'blob',
+        params: {'tableName': tableName}
+    })
+}

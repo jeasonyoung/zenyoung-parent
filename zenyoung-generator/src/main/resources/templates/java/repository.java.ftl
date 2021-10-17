@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  * <#assign lastTime = .now>
  * @author ${author!}
  * @version 1.0
- * @date ${lastTime?iso_utc}
+ * @date ${lastTime?string('yyyy-MM-dd HH:mm:ss')}
  **/
 public interface ${className}Repository {
 

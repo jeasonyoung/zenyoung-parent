@@ -163,12 +163,14 @@ public class DatabaseConnectServiceImpl implements DatabaseConnectService {
                                     final String typeVal = type.toLowerCase();
                                     for (Map.Entry<String, Class<?>> entry : DATA_TYPE_MAPS.entrySet()) {
                                         if (typeVal.startsWith(entry.getKey())) {
+                                            //是否为时间戳
+                                            if(!col.isTimestamp()) {
+                                                col.setTimestamp("timestamp".equalsIgnoreCase(type));
+                                            }
                                             return entry.getValue();
                                         }
                                     }
                                 }
-                                //是否为时间戳
-                                col.setTimestamp("timestamp".equalsIgnoreCase(type));
                                 return String.class;
                             }));
                             //是否必须

@@ -15,7 +15,7 @@ import top.zenyoung.web.controller.BaseController;
  */
 @Slf4j
 @Controller
-@RequestMapping("/gen")
+@RequestMapping
 @RequiredArgsConstructor
 public class GeneratorController extends BaseController {
     private final GeneratorCacheService cacheService;

@@ -23,16 +23,20 @@ service.interceptors.request.use(config => {
 
 //响应拦截器
 service.interceptors.response.use(res => {
+    console.info(res);
+    if (res.request.responseType === 'blob') {
+        return res;
+    }
     //未设置状态码则默认成功状态
     const code = res.data.code || 0;
     const msg = res.data.msg || '';
-    if (code !== 0){
+    if (code !== 0) {
         Message({
             message: msg,
             type: 'error'
         })
         return Promise.reject(new Error(msg))
-    }else{
+    } else {
         return res.data['data']
     }
 }, error => {
