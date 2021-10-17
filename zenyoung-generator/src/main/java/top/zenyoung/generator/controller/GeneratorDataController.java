@@ -1,5 +1,6 @@
 package top.zenyoung.generator.controller;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,9 +26,13 @@ import top.zenyoung.web.vo.RespDataResult;
 import top.zenyoung.web.vo.RespResult;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 代码生成器-数据-控制器
@@ -50,6 +55,20 @@ public class GeneratorDataController extends BaseController {
         return Lists.newArrayList(ExceptHandler.of(401, AccessTokenException.class));
     }
 
+    private <R> R validToken(@Nullable final String token, @Nonnull final Supplier<R> handler) {
+        Assert.hasText(token, "'token'不能为空!");
+        //验证访问令牌
+        if (!cacheService.verifyToken(token)) {
+            throw new AccessTokenException();
+        }
+        //执行业务
+        return handler.get();
+    }
+
+    private RespResult<Boolean> actionHandler(@Nullable final String token, @Nullable final ConnectReq reqBody, @Nonnull final Function<ConnectReq, Boolean> handler) {
+        return action(reqBody, req -> validToken(token, () -> handler.apply(req)));
+    }
+
     /**
      * 测试数据库链接字符串
      *
@@ -61,12 +80,7 @@ public class GeneratorDataController extends BaseController {
     @ApiOperation(value = "测试数据库链接字符串")
     @ApiImplicitParams({@ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header")})
     public RespResult<Boolean> testConnect(@RequestHeader("token") final String token, @RequestBody final ConnectReq reqBody) {
-        return action(reqBody, req -> {
-            Assert.hasText(token, "'token'不能为空!");
-            //验证访问令牌
-            if (!cacheService.verifyToken(token)) {
-                throw new AccessTokenException();
-            }
+        return actionHandler(token, reqBody, req -> {
             //测试数据库链接
             connectService.testDatabaseConnect(req);
             //测试通过
@@ -85,12 +99,7 @@ public class GeneratorDataController extends BaseController {
     @ApiOperation(value = "保存数据库连接字符串")
     @ApiImplicitParams({@ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header")})
     public RespResult<Boolean> saveConnect(@RequestHeader("token") final String token, @RequestBody final ConnectReq reqBody) {
-        return action(reqBody, req -> {
-            Assert.hasText(token, "'token'不能为空!");
-            //验证访问令牌
-            if (!cacheService.verifyToken(token)) {
-                throw new AccessTokenException();
-            }
+        return actionHandler(token, reqBody, req -> {
             //测试数据库连接
             connectService.testDatabaseConnect(reqBody);
             //保存数据库连接
@@ -114,19 +123,14 @@ public class GeneratorDataController extends BaseController {
             @ApiImplicitParam(name = "queryTableName", value = "表名称(支持模糊匹配)", paramType = "query")
     })
     public RespDataResult<Table> getTables(@RequestHeader("token") final String token, @RequestParam(value = "queryTableName", required = false) final String queryTableName) {
-        return buildQuery(() -> {
-            Assert.hasText(token, "'token'不能为空!");
-            //验证访问令牌
-            if (!cacheService.verifyToken(token)) {
-                throw new AccessTokenException();
-            }
+        return buildQuery(() -> validToken(token, () -> {
             //获取连接数据
             final DatabaseConnect connect = cacheService.getConnect(token);
             if (connect == null) {
                 throw new RuntimeException("数据库连接缓存已过期!");
             }
             return connectService.queryTables(connect, queryTableName);
-        }, row -> row);
+        }), row -> row);
     }
 
     /**
@@ -144,32 +148,70 @@ public class GeneratorDataController extends BaseController {
     })
     public RespDataResult<PreviewBodyResp> getPreview(@RequestHeader("token") final String token, @RequestParam("tableName") final String tableName) {
         return buildQuery(() -> {
-            Assert.hasText(token, "'token'不能为空!");
             Assert.hasText(tableName, "'tableName'不能为空!");
-            //验证访问令牌
-            if (!cacheService.verifyToken(token)) {
-                throw new AccessTokenException();
+            return validToken(token, () -> {
+                final List<PreviewBodyResp> rows = Lists.newLinkedList();
+                final Map<String, String> codes = buildGenCode(token, tableName);
+                if (!CollectionUtils.isEmpty(codes)) {
+                    codes.forEach((k, v) -> rows.add(PreviewBodyResp.of(k, v)));
+                }
+                return rows;
+            });
+        }, row -> row);
+    }
+
+    /**
+     * 获取下载代码
+     *
+     * @param token     访问令牌
+     * @param tableName 表名
+     * @param response  响应数据
+     */
+    @GetMapping("/download")
+    @ApiOperation(value = "获取下载代码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header"),
+            @ApiImplicitParam(name = "tableName", value = "表名称(完全匹配)", paramType = "query")
+    })
+    public void download(@RequestHeader("token") final String token, @RequestParam("tableName") final String tableName, final HttpServletResponse response) {
+        validToken(token, () -> {
+            try {
+                Assert.hasText(tableName, "'tableName'不能为空!");
+                response.reset();
+                response.addHeader("Access-Control-Allow-Origin", "*");
+                response.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + tableName + ".zip\"");
+                //response.addHeader("Content-Length", "" + data.length);
+                response.setContentType("application/octet-stream; charset=UTF-8");
+                //
+                final Map<String, String> codes = buildGenCode(token, tableName);
+                codeService.buildZipStream(codes, response.getOutputStream());
+            } catch (Throwable ex) {
+                log.error("download(token: {},tableName: {})-exp: {}", token, tableName, ex.getMessage());
+                throw new RuntimeException(ex);
             }
+            return null;
+        });
+    }
+
+    private Map<String, String> buildGenCode(@Nonnull final String token, @Nonnull final String tableName) {
+        if (!Strings.isNullOrEmpty(token) && !Strings.isNullOrEmpty(tableName)) {
             //获取连接数据
             final DatabaseConnect connect = cacheService.getConnect(token);
             if (connect == null) {
                 throw new RuntimeException("数据库连接缓存已过期!");
             }
-            final List<PreviewBodyResp> rows = Lists.newLinkedList();
             //表数据
             final Table table = connectService.getTable(connect, tableName);
             if (table != null) {
                 //查询表字段
                 final List<Column> columns = connectService.getColumns(connect, tableName);
                 if (!CollectionUtils.isEmpty(columns)) {
-                    final Map<String, String> codes = codeService.generatorCodes(table, columns);
-                    if (!CollectionUtils.isEmpty(codes)) {
-                        codes.forEach((k, v) -> rows.add(PreviewBodyResp.of(k, v)));
-                    }
+                    return codeService.generatorCodes(table, columns);
                 }
             }
-            return rows;
-        }, row -> row);
+        }
+        return null;
     }
 
 

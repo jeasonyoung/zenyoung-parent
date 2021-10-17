@@ -18,10 +18,12 @@ import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 
+import javax.annotation.Nonnull;
+
 /**
- * ${comment}-数据服务接口实现
+ * ${comment!}-数据服务接口实现
  * <#assign lastTime = .now>
- * @author ${author}
+ * @author ${author!}
  * @version 1.0
  * @date ${lastTime?iso_utc}
  **/
@@ -71,9 +73,26 @@ public class ${className}RepositoryImpl extends BaseRepositoryImpl implements ${
         return jpa${className}.save(entity).getId();
     }
 
-    public void modify(@Nonnull final ${className}DTO data){
-
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void modify(@Nonnull final ${className}DTO data) {
+        final Q${className}Entity qEntity = Q${className}Entity.${lowerClassName}Entity;
+        final JPAUpdateClause updateClause = queryFactory.update(qEntity);
+        final boolean isUpdate = buildDslUpdateClause(updateClause, new LinkedHashMap<>() {
+            {
+                ///TODO::字段更新处理
+            }
+        });
+        if (isUpdate) {
+            final long ret = updateClause.where(qEntity.id.eq(modify.getId())).execute();
+            log.info("modify(modify: {})=> {}", data, ret);
+        }
     }
 
-
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void delById(@Nonnull final Long id) {
+        Assert.isTrue(id > 0, "'id' > 0");
+        jpa${className}.deleteById(id);
+    }
 }

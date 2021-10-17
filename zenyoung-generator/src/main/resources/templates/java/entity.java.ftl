@@ -13,9 +13,9 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 
 /**
- * ${comment}-数据实体
+ * ${comment!}-数据实体
  * <#assign lastTime = .now>
- * @author ${author}
+ * @author ${author!}
  * @version 1.0
  * @date ${lastTime?iso_utc}
  **/
@@ -29,7 +29,7 @@ import javax.persistence.*;
 public class ${className}Entity {
     <#list columns as col>
     /**
-     * ${col.comment}
+     * ${(col.comment)!}
      */
     <#if col.primaryKey>
     @Id

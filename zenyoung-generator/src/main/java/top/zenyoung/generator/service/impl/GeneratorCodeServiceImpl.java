@@ -1,29 +1,37 @@
 package top.zenyoung.generator.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.common.util.CacheUtils;
+import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.generator.config.GenConfig;
 import top.zenyoung.generator.domain.Column;
 import top.zenyoung.generator.domain.Table;
 import top.zenyoung.generator.service.GeneratorCodeService;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
-import java.time.Duration;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 代码生成-服务接口实现
@@ -34,52 +42,69 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class GeneratorCodeServiceImpl implements GeneratorCodeService {
-    private static final Cache<String, String> TABLE_REMOVE_PREFIX_CACHE = CacheUtils.createCache(10, Duration.ofMinutes(5));
-    private static final String SEP = ",", DB_SEP = "_", LOGIC_DEL = "status";
+    private static final String LOGIC_DEL = "status";
+    private static final String DB_SEP = "_";
+    private static final String TEMPLATE_SUFFIX = ".ftl";
 
     private static final List<Pair<String, String>> CODE_TEMPLATES = new LinkedList<>() {
         {
-            add(Pair.of("java/entity.java.ftl", ".dao.entity"));
-            add(Pair.of("java/jpa.java.ftl", ".dao.jpa"));
-            add(Pair.of("java/dto.java.ftl", ".dao.dto"));
-            add(Pair.of("java/repository.java.ftl", ".dao.repository"));
-            add(Pair.of("java/repositoryImpl.java.ftl", ".dao.repository.impl"));
+            add(Pair.of("java/entity.java" + TEMPLATE_SUFFIX, ".dao.entity"));
+            add(Pair.of("java/jpa.java" + TEMPLATE_SUFFIX, ".dao.jpa"));
+            add(Pair.of("java/dto.java" + TEMPLATE_SUFFIX, ".dao.dto"));
+            add(Pair.of("java/repository.java" + TEMPLATE_SUFFIX, ".dao.repository"));
+            add(Pair.of("java/repositoryImpl.java" + TEMPLATE_SUFFIX, ".dao.repository.impl"));
+            add(Pair.of("java/req.java" + TEMPLATE_SUFFIX, ".vo"));
+            add(Pair.of("java/res.java" + TEMPLATE_SUFFIX, ".vo"));
+            add(Pair.of("java/controller.java" + TEMPLATE_SUFFIX, ".controller"));
         }
     };
 
     private final Configuration configuration;
     private final GenConfig config;
 
-    @SneakyThrows
+    private final ObjectMapper mapper;
+
     @Override
     public Map<String, String> generatorCodes(@Nonnull final Table table, @Nonnull final List<Column> columns) {
         final GenTable genTable = GenTable.of().init(table, columns, config);
-
-        final Template template = configuration.getTemplate("");
-
+        if (!CollectionUtils.isEmpty(CODE_TEMPLATES)) {
+            final Map<String, Object> data = genTable.toMap(mapper);
+            if (!CollectionUtils.isEmpty(data)) {
+                return CODE_TEMPLATES.parallelStream().filter(Objects::nonNull)
+                        .map(p -> {
+                            final String fileName;
+                            if (!Strings.isNullOrEmpty(fileName = p.getFirst()) && !Strings.isNullOrEmpty(p.getSecond())) {
+                                try (final StringWriter sw = new StringWriter()) {
+                                    final Template template = configuration.getTemplate(p.getFirst(), "UTF-8");
+                                    if (template != null) {
+                                        //渲染模板
+                                        template.process(data, sw);
+                                        final int idx = fileName.indexOf("/");
+                                        final String endClassName = (idx > 0 ? fileName.substring(idx + 1) : fileName).replaceFirst(TEMPLATE_SUFFIX, "").trim();
+                                        final String className = genTable.getClassName() + endClassName.substring(0, 1).toUpperCase() + endClassName.substring(1);
+                                        return Pair.of(genTable.getPackageName() + p.getSecond() + "." + className, sw.toString());
+                                    }
+                                } catch (Throwable ex) {
+                                    log.error("generatorCodes(ftl: {})-exp: {}", p.getFirst(), ex.getMessage());
+                                }
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond, (n, o) -> n));
+            }
+        }
         return null;
     }
 
     private static String removeTablePrefix(@Nonnull final Table table, @Nonnull final GenConfig config) {
         final String tableName = table.getTableName();
         if (!Strings.isNullOrEmpty(tableName)) {
-            return CacheUtils.getCacheValue(TABLE_REMOVE_PREFIX_CACHE, tableName, () -> {
-                final boolean autoRemovePrefix = config.getAutoRemovePrefix();
-                final String tablePrefix = config.getTablePrefix();
-                if (autoRemovePrefix && !Strings.isNullOrEmpty(tablePrefix)) {
-                    final List<String> prefixs = Splitter.on(SEP).omitEmptyStrings().trimResults().splitToList(tableName);
-                    if (!CollectionUtils.isEmpty(prefixs)) {
-                        String copyTableName = tableName;
-                        for (String prefix : prefixs) {
-                            if (!Strings.isNullOrEmpty(prefix) && copyTableName.startsWith(prefix)) {
-                                copyTableName = copyTableName.replaceFirst(prefix, "");
-                            }
-                        }
-                        return copyTableName;
-                    }
-                }
-                return tableName;
-            });
+            final boolean autoRemovePrefix = config.getAutoRemovePrefix();
+            final String tablePrefix = config.getTablePrefix();
+            if (autoRemovePrefix && !Strings.isNullOrEmpty(tablePrefix) && tableName.startsWith(tablePrefix)) {
+                return tableName.replaceFirst(tablePrefix, "");
+            }
         }
         return tableName;
     }
@@ -88,7 +113,7 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
         return toCamelCase(removeTablePrefix(table, config));
     }
 
-    private static String toCamelCase(@Nonnull final String name) {
+    private static String toCamelCase(@Nullable final String name) {
         if (!Strings.isNullOrEmpty(name)) {
             //如果不含下划线，仅将首字母大写
             if (!name.contains(DB_SEP)) {
@@ -116,6 +141,38 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
             }
         }
         return null;
+    }
+
+    @Override
+    public void buildZipStream(@Nullable final Map<String, String> fileMaps, @Nonnull final OutputStream output) {
+        if (!CollectionUtils.isEmpty(fileMaps)) {
+            final Map<String, String> extProjects = new LinkedHashMap<>() {
+                {
+                    put(".java", "src/main/java");
+                }
+            };
+            final String cSep = ".", pSep = "/";
+            try (final ZipOutputStream zip = new ZipOutputStream(output)) {
+                fileMaps.forEach((key, value) -> {
+                    final String ext = cSep + FilenameUtils.getExtension(key);
+                    final String root = extProjects.getOrDefault(ext, "");
+                    final int idx = key.replaceFirst(ext, "").lastIndexOf(cSep);
+                    final String dirs = key.substring(0, idx).replace(cSep, pSep);
+                    final String fileName = key.substring(idx + 1);
+                    final String fullPathName = Joiner.on(pSep).skipNulls().join(root, dirs, fileName);
+                    try {
+                        zip.putNextEntry(new ZipEntry(fullPathName));
+                        IOUtils.write(value, zip, StandardCharsets.UTF_8);
+                        zip.finish();
+                        zip.closeEntry();
+                    } catch (IOException e) {
+                        log.warn("buildZipStream(fullPathName: {})-exp: {}", fullPathName, e.getMessage());
+                    }
+                });
+            } catch (Throwable ex) {
+                log.error("buildZipStream(files: {})-exp: {}", fileMaps.keySet(), ex.getMessage());
+            }
+        }
     }
 
     @Getter
@@ -185,6 +242,10 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
             }
             return this;
         }
+
+        public Map<String, Object> toMap(@Nonnull final ObjectMapper mapper) {
+            return JsonUtils.toMap(mapper, this, Object.class);
+        }
     }
 
     @Getter
@@ -230,7 +291,9 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
         public GenTableColumn init(@Nonnull final GenTable genTable, @Nonnull final Column column) {
             this.columnName = column.getColumnName();
             //是否支持逻辑删除
-            genTable.logicDelete = LOGIC_DEL.equalsIgnoreCase(this.columnName);
+            if (!genTable.isLogicDelete()) {
+                genTable.logicDelete = LOGIC_DEL.equalsIgnoreCase(this.columnName);
+            }
             this.javaField = toCamelCase(column.getColumnName());
             final String name;
             if (!Strings.isNullOrEmpty(name = this.javaField)) {

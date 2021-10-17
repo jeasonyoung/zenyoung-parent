@@ -4,9 +4,9 @@ import ${packageName}.dao.entity.${className}Entity;
 import top.zenyoung.data.jpa.JpaBase;
 
 /**
- * ${comment}-jpa
+ * ${comment!}-jpa
  * <#assign lastTime = .now>
- * @author ${author}
+ * @author ${author!}
  * @version 1.0
  * @date ${lastTime?iso_utc}
  **/

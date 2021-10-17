@@ -1,5 +1,6 @@
 package top.zenyoung.common.util;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import lombok.SneakyThrows;
@@ -76,4 +77,42 @@ public class JsonUtils {
         }
         return null;
     }
+
+    /**
+     * 将JSON字符串反序列化为Map对象
+     *
+     * @param objectMapper JSON处理器
+     * @param json         json字符串
+     * @param valClass     值数据类型class
+     * @param <R>          值类型
+     * @return Map对象
+     */
+    @SneakyThrows
+    public static <R> Map<String, R> fromJsonToMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valClass) {
+        if (!Strings.isNullOrEmpty(json)) {
+            final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valClass);
+            return objectMapper.readValue(json, javaType);
+        }
+        return null;
+    }
+
+    /**
+     * 将对象转换为Map对象
+     *
+     * @param objectMapper JSON处理器
+     * @param data         数据
+     * @param valClass     值数据类型class
+     * @param <T>          数据类型
+     * @param <R>          值类型
+     * @return Map对象
+     */
+    @SneakyThrows
+    public static <T, R> Map<String, R> toMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data, @Nonnull final Class<R> valClass) {
+        final String json = toJson(objectMapper, data);
+        if (!Strings.isNullOrEmpty(json)) {
+            return fromJsonToMap(objectMapper, json, valClass);
+        }
+        return null;
+    }
+
 }

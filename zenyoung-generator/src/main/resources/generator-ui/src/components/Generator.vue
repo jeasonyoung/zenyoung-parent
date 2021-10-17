@@ -32,8 +32,16 @@
                 <el-input v-model.number="form.dbPort" placeholder="请输入数据库连接端口"/>
               </el-form-item>
               <el-form-item>
-                <el-button icon="el-icon-refresh" type="primary" @click="onConnectTest('form')">测试连接</el-button>
-                <el-button icon="el-icon-circle-check" @click="onConnectSave('form')">保存连接</el-button>
+                <el-button icon="el-icon-refresh" type="primary" :loading="loading"
+                           @click.native.prevent="onConnectTest('form')">
+                  <span v-if="!loading">测试连接</span>
+                  <span v-else>测试中...</span>
+                </el-button>
+                <el-button icon="el-icon-circle-check" :loading="loading"
+                           @click.n.native.prevent="onConnectSave('form')">
+                  <span v-if="!loading">保存连接</span>
+                  <span v-else>保存中...</span>
+                </el-button>
                 <el-button icon="el-icon-refresh-left" @click="onConnectReset('form');">重置</el-button>
               </el-form-item>
             </el-form>
@@ -58,16 +66,16 @@
           </template>
         </el-collapse-item>
       </el-collapse>
+      <!-- 隐藏令牌 -->
+      <div style="display: none">{{ getConnToken }}</div>
       <!-- 表数据 -->
       <el-table :data="queryResult">
-        <el-table-column type="selection" width="55" align="center"/>
         <el-table-column type="index" width="50" align="center"/>
         <el-table-column label="表名称" align="left" prop="tableName"/>
         <el-table-column label="表描述" align="left" prop="tableComment"/>
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="200">
           <template slot-scope="scope">
             <el-button type="text" size="small" icon="el-icon-view" @click="handlerPreview(scope.row)">预览</el-button>
-            <el-button type="text" size="small" icon="el-icon-edit" @click="handlerEditTable(scope.row)">编辑</el-button>
             <el-button type="text" size="small" icon="el-icon-download" @click="handlerDownload(scope.row)">生成代码
             </el-button>
           </template>
@@ -76,7 +84,9 @@
       <!-- 预览界面 -->
       <el-dialog :title="preview.title" :visible.sync="preview.open" width="80%" top="5vh" append-to-body>
         <el-tabs v-model="preview.activeName">
-          <el-tab-pane v-for="(val,key) in preview.data" :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf(codeFileSuffix))" :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf(codeFileSuffix))" :key="key">
+          <el-tab-pane v-for="(val,key) in preview.data"
+                       :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf(codeFileSuffix))"
+                       :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf(codeFileSuffix))" :key="key">
             <pre><code class="hljs" v-html="highlightedCode(val,key)"/></pre>
           </el-tab-pane>
         </el-tabs>
@@ -86,8 +96,14 @@
 </template>
 
 <script>
+import {Message} from "element-ui";
+
+import Cookies from "js-cookie";
+import {setToken} from "../utils/auth";
 import codeHighlight from 'highlight.js/lib/core'
 import 'highlight.js/styles/github.css'
+
+import {genSave, genTables, genTest,genPreview} from '../api/gen'
 
 codeHighlight.registerLanguage('java', require('highlight.js/lib/languages/java'));
 codeHighlight.registerLanguage('html', require('highlight.js/lib/languages/xml'));
@@ -117,7 +133,8 @@ export default {
         tableName: "",
       },
       queryResult: [],
-      codeFileSuffix:'.ftlh',
+      codeFileSuffix: '.ftl',
+      loading: false,
       preview: {
         open: false,
         title: '代码预览',
@@ -127,34 +144,103 @@ export default {
     };
   },
   created() {
-
+    this.getCookies()
   },
   computed: {
     //数据库连接字符串
     connectString: function () {
       return `jdbc:mysql://${this.form.dbServer}:${this.form.dbPort}/${this.form.dbName}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`;
     },
+    //账号
     connectAccount: function () {
       return this.form.dbUser;
     },
+    //密码
     connectPasswd: function () {
       return this.form.dbPasswd;
     },
     connectTooltip: function () {
       return `连接字符串:${this.connectString}<br/>连接账号:${this.connectAccount}<br/>连接密码:${this.connectPasswd}`;
-    }
+    },
+    getConnToken: function () {
+      let token = window.location.hash
+      if (token && token !== '' && token.startsWith('#')) {
+        token = token.substring(1)
+        console.info(`token=> ${token}`)
+        if (token !== '') {
+          setToken(token)
+        }
+      }
+      return token
+    },
   },
   methods: {
+    //获取Cookies
+    getCookies() {
+      const server = Cookies.get('dbServer')
+      const name = Cookies.get('dbName')
+      const user = Cookies.get('dbUser')
+      const passwd = Cookies.get('dbPasswd')
+      const port = Cookies.get('dbPort')
+      console.info(`cookies=>server: ${server},name: ${name},user: ${user},passwd: ${passwd},port: ${port}`)
+      this.form = {
+        dbServer: server === undefined || server === '' ? this.form.dbServer : server,
+        dbName: name === undefined || name === '' ? this.form.dbName : name,
+        dbUser: user === undefined || user === '' ? this.form.dbUser : user,
+        dbPasswd: passwd === undefined || passwd === '' ? this.form.dbPasswd : passwd,
+        dbPort: port === undefined || port === '' ? this.form.dbPort : parseInt(port),
+      }
+    },
+    //保存到Cookie
+    addCookies() {
+      if (this.form.dbServer && this.form.dbServer !== '') {
+        Cookies.set('dbServer', this.form.dbServer)
+      }
+      if (this.form.dbName && this.form.dbName !== '') {
+        Cookies.set('dbName', this.form.dbName)
+      }
+      if (this.form.dbUser && this.form.dbUser !== '') {
+        Cookies.set('dbUser', this.form.dbUser)
+      }
+      if (this.form.dbPasswd && this.form.dbPasswd !== '') {
+        Cookies.set('dbPasswd', this.form.dbPasswd)
+      }
+      if (this.form.dbPort && this.form.dbPort > 0) {
+        Cookies.set('dbPort', this.form.dbPort)
+      }
+    },
     //测试连接
     onConnectTest(formName) {
       this.formValidHandler(formName, () => {
-        console.info('onConnectTest')
+        genTest({
+          connectString: this.connectString,
+          account: this.connectAccount,
+          passwd: this.connectPasswd,
+        }).then(res => {
+          console.info(`onConnectTest=> ${res}`)
+          Message({
+            message: res ? '连接成功' : '连接失败',
+            type: res ? 'success' : 'error',
+            duration: 15 * 1000,
+          })
+        })
       })
     },
     //连接保存
     onConnectSave(formName) {
       this.formValidHandler(formName, () => {
-        console.info('onConnectSave')
+        genSave({
+          connectString: this.connectString,
+          account: this.connectAccount,
+          passwd: this.connectPasswd,
+        }).then(res => {
+          console.info(`onConnectTest=> ${res}`)
+          Message({
+            message: res ? '保存成功' : '保存失败',
+            type: res ? 'success' : 'error',
+            duration: 15 * 1000,
+          })
+        })
       })
     },
     //重置
@@ -167,7 +253,7 @@ export default {
       if (this.$refs[formName]) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            alert('submit');
+            this.addCookies()
             if (typeof handler === 'function') {
               handler();
             }
@@ -180,12 +266,27 @@ export default {
     },
     queryRequest(formName) {
       console.log('queryRequest:' + formName)
+      genTables(this.queryParams.tableName).then(res => {
+        console.log(`queryRequest=> ${res}`)
+        if(res && res['rows']){
+          this.queryResult = res['rows'];
+        }
+      })
     },
     handlerPreview(row) {
-      console.log(row);
-    },
-    handlerEditTable(row) {
-      console.log(row);
+      const tableName = row['tableName'];
+      console.log(`handlerPreview=> ${tableName}`);
+      if(tableName && tableName !== ''){
+        genPreview(tableName).then(res=>{
+          console.info(res)
+        })
+      }else{
+        Message({
+          message: '表名不能为空',
+          type:  'error',
+          duration: 10 * 1000,
+        })
+      }
     },
     handlerDownload(row) {
       console.log(row);

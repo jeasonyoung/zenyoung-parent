@@ -2,6 +2,7 @@ package top.zenyoung.generator.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * 代码生成器配置
@@ -9,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author young
  */
 @Data
+@Configuration
 @ConfigurationProperties(prefix = "gen")
 public class GenConfig {
     /**

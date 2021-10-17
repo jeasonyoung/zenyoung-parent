@@ -153,9 +153,9 @@ public class DatabaseConnectServiceImpl implements DatabaseConnectService {
                                 return null;
                             }));
                             //列名
-                            col.setColumnName(MapUtils.getVal(map, "column_name", String.class));
+                            col.setColumnName(MapUtils.getVal(map, "column_name", val -> val == null ? "" : val.toString()));
                             //列描述
-                            col.setColumnComment(MapUtils.getVal(map, "column_comment", String.class));
+                            col.setColumnComment(MapUtils.getVal(map, "column_comment", val -> val == null ? "" : val.toString()));
                             //列类型
                             col.setColumnType(MapUtils.getVal(map, "column_type", val -> {
                                 final String type = val.toString();
@@ -172,11 +172,41 @@ public class DatabaseConnectServiceImpl implements DatabaseConnectService {
                                 return String.class;
                             }));
                             //是否必须
-                            col.setRequired(Boolean.TRUE.equals(MapUtils.getVal(map, "is_required", Integer.class) > 0));
+                            col.setRequired(Boolean.TRUE.equals(MapUtils.getVal(map, "is_required", val -> {
+                                try {
+                                    final String s = val.toString();
+                                    if (!Strings.isNullOrEmpty(s)) {
+                                        return Integer.parseInt(s) > 0;
+                                    }
+                                } catch (Throwable ex) {
+                                    log.warn("is_required({})-exp: {}", val, ex.getMessage());
+                                }
+                                return false;
+                            })));
                             //是否为主键
-                            col.setPrimaryKey(Boolean.TRUE.equals(MapUtils.getVal(map, "is_pk", Integer.class) > 0));
+                            col.setPrimaryKey(Boolean.TRUE.equals(MapUtils.getVal(map, "is_pk", val -> {
+                                try {
+                                    final String s = val.toString();
+                                    if (!Strings.isNullOrEmpty(s)) {
+                                        return Integer.parseInt(s) > 0;
+                                    }
+                                } catch (Throwable ex) {
+                                    log.warn("is_pk({})-exp: {}", val, ex.getMessage());
+                                }
+                                return false;
+                            })));
                             //是否为自增列
-                            col.setIncrement(Boolean.TRUE.equals(MapUtils.getVal(map, "is_increment", Integer.class) > 0));
+                            col.setIncrement(Boolean.TRUE.equals(MapUtils.getVal(map, "is_increment", val -> {
+                                try {
+                                    final String s = val.toString();
+                                    if (!Strings.isNullOrEmpty(s)) {
+                                        return Integer.parseInt(s) > 0;
+                                    }
+                                } catch (Throwable ex) {
+                                    log.warn("is_increment({})-exp: {}", val, ex.getMessage());
+                                }
+                                return false;
+                            })));
                             return col;
                         })
                         .sorted(Comparator.comparingInt(Column::getCode))
