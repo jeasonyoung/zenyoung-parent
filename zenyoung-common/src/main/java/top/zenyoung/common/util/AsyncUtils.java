@@ -118,7 +118,7 @@ public class AsyncUtils implements AutoCloseable {
      * 异步处理器
      *
      * @param executor   线程池
-     * @param latch      线程基数器
+     * @param latch      线程计数器
      * @param bizHandler 业务处理器
      */
     public static void asyncHandler(@Nonnull final Executor executor, @Nonnull final CountDownLatch latch, @Nullable final Runnable bizHandler) {
@@ -132,6 +132,25 @@ public class AsyncUtils implements AutoCloseable {
                 log.warn("asyncHandler(bizHandler: {})-exp: {}", bizHandler, ex.getMessage());
             } finally {
                 latch.countDown();
+            }
+        });
+    }
+
+    /**
+     * 异步处理器
+     *
+     * @param executor   线程池
+     * @param bizHandler 业务处理器
+     */
+    public static void asyncHandler(@Nonnull final Executor executor, @Nullable final Runnable bizHandler) {
+        executor.execute(() -> {
+            try {
+                //业务处理
+                if (bizHandler != null) {
+                    bizHandler.run();
+                }
+            } catch (Throwable ex) {
+                log.warn("asyncHandler(bizHandler: {})-exp: {}", bizHandler, ex.getMessage());
             }
         });
     }
