@@ -20,8 +20,10 @@ public class ThreadUtils {
     private static final AtomicLong REF_COUNT = new AtomicLong(0L);
 
     private static final Duration KEEP_ALIVE = Duration.ofSeconds(300);
-    private static final int MIN = 2;
-    private static final int MAX = 20;
+
+    private static final int CPUS = Runtime.getRuntime().availableProcessors();
+    private static final int MIN = (CPUS <= 0 ? 2 : CPUS);
+    private static final int MAX = MIN * 2;
 
     /**
      * 创建线程工厂

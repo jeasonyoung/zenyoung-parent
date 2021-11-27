@@ -47,6 +47,16 @@ public class AsyncUtils implements AutoCloseable {
     }
 
     /**
+     * 获取实例对象
+     *
+     * @param totals 执行总数
+     * @return 异步工具实例
+     */
+    public static AsyncUtils getInstance(@Nonnull final Integer totals) {
+        return new AsyncUtils(ThreadUtils.createPools(), totals);
+    }
+
+    /**
      * 异步执行处理
      *
      * @param handler 执行处理器
