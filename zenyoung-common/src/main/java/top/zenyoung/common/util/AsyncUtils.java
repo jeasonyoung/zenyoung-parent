@@ -1,6 +1,7 @@
 package top.zenyoung.common.util;
 
 import com.google.common.cache.Cache;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -161,16 +162,18 @@ public class AsyncUtils implements AutoCloseable {
      * @param executor    线程池
      * @param bizHandlers 业务处理器
      */
+    @SneakyThrows
     public static void asyncHandlers(@Nonnull final Executor executor, @Nonnull final List<Runnable> bizHandlers) {
         if (!bizHandlers.isEmpty()) {
             final CountDownLatch latch = new CountDownLatch(bizHandlers.size());
             try {
                 //多线程并发处理
                 bizHandlers.forEach(handler -> asyncHandler(executor, latch, handler));
-                //等待所有的线程执行完成
-                latch.await();
             } catch (Throwable ex) {
                 log.warn("asyncHandlers(executor: {},bizHandlers: {})-exp: {}", executor, bizHandlers, ex.getMessage());
+            } finally {
+                //等待所有的线程执行完成
+                latch.await();
             }
         }
     }

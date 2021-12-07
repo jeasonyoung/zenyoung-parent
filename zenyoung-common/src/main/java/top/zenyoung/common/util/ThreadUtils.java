@@ -18,11 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class ThreadUtils {
     private static final AtomicLong REF_COUNT = new AtomicLong(0L);
-
     private static final Duration KEEP_ALIVE = Duration.ofSeconds(300);
-
-    private static final int CPUS = Runtime.getRuntime().availableProcessors();
-    private static final int MIN = (CPUS <= 0 ? 2 : CPUS);
+    private static final int MIN = Math.max(Runtime.getRuntime().availableProcessors(), 2);
     private static final int MAX = MIN * 2;
 
     /**
