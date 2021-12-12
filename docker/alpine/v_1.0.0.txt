@@ -1,0 +1,1 @@
+docker build -t zenyoung/alpline-base:1.1.0 .
