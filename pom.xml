@@ -87,6 +87,8 @@
 
         <!-- 代码生成器 -->
         <module>zenyoung-generator</module>
+        <module>zenyoung-framework-system</module>
+        <module>zenyoung-framework-runtime</module>
     </modules>
 
     <dependencyManagement>
