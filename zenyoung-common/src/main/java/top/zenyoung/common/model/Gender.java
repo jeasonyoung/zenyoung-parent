@@ -1,5 +1,7 @@
 package top.zenyoung.common.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -12,6 +14,7 @@ import javax.annotation.Nullable;
  */
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Gender implements EnumValue {
     /**
      * 未知
@@ -28,11 +31,6 @@ public enum Gender implements EnumValue {
 
     private final int val;
     private final String title;
-
-    Gender(final int val, final String title) {
-        this.val = val;
-        this.title = title;
-    }
 
     public static Gender parse(@Nullable final Integer val) {
         if (val != null) {

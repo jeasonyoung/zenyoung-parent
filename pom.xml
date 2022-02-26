@@ -87,7 +87,12 @@
 
         <!-- 代码生成器 -->
         <module>zenyoung-generator</module>
+
+        <!-- 业务系统-公共模块 -->
+        <module>zenyoung-framework-common</module>
+        <!-- 业务系统-系统管理模块 -->
         <module>zenyoung-framework-system</module>
+        <!-- 业务系统-运行时模块 -->
         <module>zenyoung-framework-runtime</module>
     </modules>
 
@@ -157,7 +162,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- slf4j -->

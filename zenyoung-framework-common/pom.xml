@@ -9,21 +9,22 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zenyoung-framework-runtime</artifactId>
+    <artifactId>zenyoung-framework-common</artifactId>
     <packaging>jar</packaging>
-    <description>业务系统框架-运行时模块</description>
+    <description>业务系统框架-公共模块</description>
 
     <dependencies>
-        <!-- springboot starter -->
+        <!-- jpa -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- 业务系统框架-公共模块 -->
+        <!-- 通用模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-framework-common</artifactId>
+            <artifactId>zenyoung-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -41,5 +42,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

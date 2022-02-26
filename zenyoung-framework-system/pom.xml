@@ -19,16 +19,38 @@
     </properties>
 
     <dependencies>
+        <!-- springboot starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
         <!-- jpa -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-data-jpa</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- 业务系统框架-公共模块 -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>zenyoung-framework-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
             <!--querydsl -->
             <plugin>
                 <groupId>com.mysema.maven</groupId>
@@ -48,5 +70,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -24,9 +24,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
-
         <!-- tools -->
         <dependency>
             <groupId>com.google.guava</groupId>

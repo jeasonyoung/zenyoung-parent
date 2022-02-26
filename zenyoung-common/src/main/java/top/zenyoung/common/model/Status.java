@@ -1,5 +1,7 @@
 package top.zenyoung.common.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -16,6 +18,7 @@ import java.util.stream.Stream;
  **/
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Status implements EnumValue {
     /**
      * 删除
@@ -32,17 +35,6 @@ public enum Status implements EnumValue {
 
     private final int val;
     private final String title;
-
-    /**
-     * 构造函数
-     *
-     * @param val   状态值
-     * @param title 状态标题
-     */
-    Status(final int val, final String title) {
-        this.val = val;
-        this.title = title;
-    }
 
     /**
      * 状态转换
