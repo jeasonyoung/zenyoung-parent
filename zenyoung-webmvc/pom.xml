@@ -30,13 +30,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- logger -->
         <dependency>
             <groupId>org.slf4j</groupId>

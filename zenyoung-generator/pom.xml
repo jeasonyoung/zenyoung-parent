@@ -40,6 +40,12 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
             <version>${springfox-boot-starter.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.springfox</groupId>
+                    <artifactId>springfox-spring-webflux</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- lombok -->

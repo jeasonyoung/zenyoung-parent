@@ -120,6 +120,11 @@
                 <artifactId>querydsl-jpa</artifactId>
                 <version>${query-dsl.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <version>${query-dsl.version}</version>
+            </dependency>
 
             <!-- jwt -->
             <dependency>

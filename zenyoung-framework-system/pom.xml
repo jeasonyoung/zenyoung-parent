@@ -31,6 +31,10 @@
             <artifactId>zenyoung-data-jpa</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+        </dependency>
 
         <!-- 业务系统框架-公共模块 -->
         <dependency>

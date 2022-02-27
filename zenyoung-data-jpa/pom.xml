@@ -23,7 +23,6 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- 模块 -->
@@ -31,13 +30,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-data-common</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <!-- lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
