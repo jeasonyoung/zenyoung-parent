@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.Status;
-import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.system.dao.dto.DeptAddDTO;
 import top.zenyoung.framework.system.dao.dto.DeptLoadDTO;
@@ -42,8 +41,6 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
 
     private final JPAQueryFactory queryFactory;
     private final JpaDept jpaDept;
-
-    private final Sequence<Long> snowFlake;
 
     @Transactional(readOnly = true)
     @Override
@@ -84,7 +81,6 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
         Assert.hasText(data.getName(), "'data.name'不能为空!");
         final DeptEntity entity = new DeptEntity();
         BeanUtils.copyProperties(data, entity);
-        entity.setId(snowFlake.nextId());
         //排序号处理
         if (entity.getCode() != null) {
             entity.setCode(getMaxCode(data.getParentId()) + 1);

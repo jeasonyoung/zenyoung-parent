@@ -8,8 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.zenyoung.common.sequence.Sequence;
-import top.zenyoung.common.sequence.SnowFlake;
 import top.zenyoung.framework.system.config.SystemProperties;
 
 import javax.persistence.EntityManager;
@@ -29,11 +27,5 @@ public class SystemAutoConfiguration {
     @ConditionalOnMissingBean
     public JPAQueryFactory buildJpaQueryFactory(@Autowired final EntityManager entityManager) {
         return new JPAQueryFactory(entityManager);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public Sequence<Long> buildSnowFlake() {
-        return SnowFlake.getInstance();
     }
 }
