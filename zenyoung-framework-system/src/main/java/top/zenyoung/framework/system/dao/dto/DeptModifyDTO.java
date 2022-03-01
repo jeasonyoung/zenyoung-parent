@@ -1,6 +1,11 @@
 package top.zenyoung.framework.system.dao.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import top.zenyoung.common.model.Status;
+import top.zenyoung.web.valid.Modify;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 部门-修改-数据DTO
@@ -8,5 +13,15 @@ import lombok.Data;
  * @author young
  */
 @Data
-public class DeptModifyDTO {
+@EqualsAndHashCode(callSuper = true)
+public class DeptModifyDTO extends DeptAddDTO {
+    /**
+     * 部门ID
+     */
+    @NotNull(groups = {Modify.class}, message = "'id'不能为空!")
+    private Long id;
+    /**
+     * 状态
+     */
+    private Status status;
 }

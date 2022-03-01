@@ -3,6 +3,7 @@ package top.zenyoung.framework.system.dao.entity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -18,6 +19,7 @@ import java.util.List;
 @Setter
 @Entity
 @ToString
+@Accessors(chain = true)
 @Table(name = "tbl_sys_dept")
 @Where(clause = "status >= 0")
 @SQLDelete(sql = "update tbl_sys_dept set status = -1 where id = ?")

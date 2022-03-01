@@ -1,8 +1,7 @@
 package top.zenyoung.framework.system.dao.dto;
 
 import lombok.Data;
-
-import java.io.Serializable;
+import lombok.EqualsAndHashCode;
 
 /**
  * 部门-加载-数据DTO
@@ -10,6 +9,10 @@ import java.io.Serializable;
  * @author young
  */
 @Data
-public class DeptLoadDTO implements Serializable {
-
+@EqualsAndHashCode(callSuper = true)
+public class DeptLoadDTO extends DeptModifyDTO {
+    /**
+     * 祖级列表
+     */
+    private String ancestors;
 }
