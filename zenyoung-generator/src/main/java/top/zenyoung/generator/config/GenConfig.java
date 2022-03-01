@@ -11,8 +11,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "gen")
+@ConfigurationProperties(prefix = "top.zenyoung.generator")
 public class GenConfig {
+    /**
+     * 是否启用
+     */
+    private boolean enable = true;
     /**
      * 作者
      */
