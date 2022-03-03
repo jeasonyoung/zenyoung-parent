@@ -69,12 +69,18 @@ public class DeptController extends BaseController {
     @GetMapping("/tree")
     @ApiOperation("1.1.2.部门-树")
     @PreAuthorize("@ss.hasPermi('system:dept:tree')")
-    @ApiImplicitParams(value = {@ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class)})
-    public RespDataResult<DeptTreeResp> getDeptTrees(@RequestParam(required = false) final Long parentDeptId) {
-        return buildQuery(() -> buildDeptTree(deptRepository.getDeptWithChildren(parentDeptId)), d -> d);
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class),
+            @ApiImplicitParam(name = "excludes", value = "排除部门ID集合", paramType = "query", dataTypeClass = Long[].class),
+    })
+    public RespDataResult<DeptTreeResp> getDeptTrees(
+            @RequestParam(required = false) final Long parentDeptId,
+            @RequestParam(required = false) final List<Long> excludes
+    ) {
+        return buildQuery(() -> buildDeptTree(deptRepository.getDeptWithChildren(parentDeptId), excludes), d -> d);
     }
 
-    private List<DeptTreeResp> buildDeptTree(@Nullable final List<DeptLoadDTO> items) {
+    private List<DeptTreeResp> buildDeptTree(@Nullable final List<DeptLoadDTO> items, @Nullable final List<Long> excludes) {
         if (!CollectionUtils.isEmpty(items)) {
             final Map<Long, List<DeptTreeResp>> parentDeptMaps = items.stream().collect(Collectors.toMap(
                     DeptLoadDTO::getParentId,
@@ -93,19 +99,29 @@ public class DeptController extends BaseController {
                     .filter(item -> item.getParentId() == null || item.getParentId() == 0 || !parentDeptMaps.containsKey(item.getParentId()))
                     .collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(roots)) {
-                roots.forEach(root -> buildDeptChildren(root, parentDeptMaps));
+                roots.forEach(root -> {
+                    if (!CollectionUtils.isEmpty(excludes) && excludes.contains(root.getId())) {
+                        return;
+                    }
+                    buildDeptChildren(root, parentDeptMaps, excludes);
+                });
             }
             return roots;
         }
         return null;
     }
 
-    private void buildDeptChildren(@Nonnull final DeptTreeResp root, @Nonnull final Map<Long, List<DeptTreeResp>> parentDeptMaps) {
+    private void buildDeptChildren(@Nonnull final DeptTreeResp root, @Nonnull final Map<Long, List<DeptTreeResp>> parentDeptMaps, @Nullable final List<Long> excludes) {
         //获取子部门集合
         final List<DeptTreeResp> childs = parentDeptMaps.getOrDefault(root.getId(), null);
         if (!CollectionUtils.isEmpty(childs)) {
             root.getChildren().addAll(childs);
-            childs.forEach(child -> buildDeptChildren(child, parentDeptMaps));
+            childs.forEach(child -> {
+                if (!CollectionUtils.isEmpty(excludes) && excludes.contains(child.getId())) {
+                    return;
+                }
+                buildDeptChildren(child, parentDeptMaps, excludes);
+            });
         }
     }
 
