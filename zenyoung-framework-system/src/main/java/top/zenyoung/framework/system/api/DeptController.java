@@ -71,7 +71,7 @@ public class DeptController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:dept:tree')")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class),
-            @ApiImplicitParam(name = "excludes", value = "排除部门ID集合", paramType = "query", dataTypeClass = Long[].class),
+            @ApiImplicitParam(name = "excludes", value = "排除部门及子部门ID集合", paramType = "query", dataTypeClass = Long[].class),
     })
     public RespDataResult<DeptTreeResp> getDeptTrees(
             @RequestParam(required = false) final Long parentDeptId,
