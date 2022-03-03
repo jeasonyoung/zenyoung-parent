@@ -44,8 +44,13 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
 
     @Transactional(readOnly = true)
     @Override
-    public List<DeptLoadDTO> getAllDepts() {
-        return jpaDept.findAll().stream()
+    public List<DeptLoadDTO> getDeptWithChildren(@Nullable final Long parentDeptId) {
+        final QDeptEntity qEntity = QDeptEntity.deptEntity;
+        final JPAQuery<DeptEntity> query = queryFactory.selectFrom(qEntity);
+        if (parentDeptId != null && parentDeptId > 0) {
+            query.where(Expressions.booleanTemplate("find_in_set({0}, ancestors) > 0", parentDeptId));
+        }
+        return query.fetch().stream()
                 .map(this::buildConvert)
                 .sorted(Comparator.comparingLong(item -> {
                     if (item.getParentId() == null || item.getParentId() <= 0) {

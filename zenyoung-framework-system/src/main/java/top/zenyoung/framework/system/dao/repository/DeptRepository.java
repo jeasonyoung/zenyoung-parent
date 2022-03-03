@@ -5,6 +5,7 @@ import top.zenyoung.framework.system.dao.dto.DeptLoadDTO;
 import top.zenyoung.framework.system.dao.dto.DeptModifyDTO;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -15,11 +16,12 @@ import java.util.List;
 public interface DeptRepository {
 
     /**
-     * 部门-加载全部数据
+     * 部门-加载部门及子部门集合数据
      *
+     * @param parentDeptId 上级部门ID
      * @return 全部数据
      */
-    List<DeptLoadDTO> getAllDepts();
+    List<DeptLoadDTO> getDeptWithChildren(@Nullable final Long parentDeptId);
 
     /**
      * 部门-加载
