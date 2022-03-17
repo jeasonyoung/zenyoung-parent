@@ -49,12 +49,6 @@ public class GeneratorDataController extends BaseController {
     private final DatabaseConnectService connectService;
     private final GeneratorCodeService codeService;
 
-    @Nonnull
-    @Override
-    protected List<ExceptHandler> getExceptHandlers() {
-        return Lists.newArrayList(ExceptHandler.of(401, AccessTokenException.class));
-    }
-
     private <R> R validToken(@Nullable final String token, @Nonnull final Supplier<R> handler) {
         Assert.hasText(token, "'token'不能为空!");
         //验证访问令牌

@@ -1,4 +1,4 @@
-package top.zenyoung.web;
+package top.zenyoung.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -12,6 +12,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import top.zenyoung.common.util.JsonUtils;
+import top.zenyoung.web.ExceptHandler;
 import top.zenyoung.web.listener.ExceptHandlerListener;
 import top.zenyoung.web.vo.RespResult;
 

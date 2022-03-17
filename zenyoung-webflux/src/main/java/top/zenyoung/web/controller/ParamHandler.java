@@ -1,4 +1,4 @@
-package top.zenyoung.web;
+package top.zenyoung.web.controller;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;

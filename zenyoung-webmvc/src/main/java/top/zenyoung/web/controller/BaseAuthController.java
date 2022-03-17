@@ -75,15 +75,16 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
     protected <ReqQry extends Serializable, Qry extends Serializable, Item extends Serializable, Ret extends Serializable> RespDataResult<Ret> buildAuthPagingQuery(
             @Nullable final UserPrincipal principal,
             @Nonnull final PagingQuery<ReqQry> reqQuery,
-            @Nonnull final BiFunction<A, ReqQry, Qry> queryConvertHandler,
+            @Nonnull final BiFunction<A, PagingQuery<ReqQry>, PagingQuery<Qry>> queryConvertHandler,
             @Nonnull final Function<PagingQuery<Qry>, PagingResult<Item>> pagingQueryHandler,
             @Nonnull final Function<Item, Ret> resultConvertHandler
     ) {
-        return buildPagingQuery(reqQuery, reqQry -> {
-            final A auth = convert(principal);
-            checkAuth(auth);
-            return queryConvertHandler.apply(auth, reqQry);
-        }, pagingQueryHandler, resultConvertHandler);
+        return buildPagingQuery(() -> {
+                    final A auth = convert(principal);
+                    checkAuth(auth);
+                    return queryConvertHandler.apply(auth, reqQuery);
+                },
+                pagingQueryHandler, resultConvertHandler);
     }
 
     /**
