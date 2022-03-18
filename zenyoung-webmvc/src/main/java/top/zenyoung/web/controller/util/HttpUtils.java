@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Http 工具类
@@ -43,6 +44,10 @@ public class HttpUtils {
             return attrs.getRequest();
         }
         return null;
+    }
+
+    public static Optional<HttpServletRequest> getWebRequestOpt() {
+        return Optional.ofNullable(getWebRequest());
     }
 
     /**
