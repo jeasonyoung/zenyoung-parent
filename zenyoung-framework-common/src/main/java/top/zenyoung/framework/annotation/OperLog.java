@@ -5,14 +5,14 @@ import top.zenyoung.framework.common.BusinessType;
 import java.lang.annotation.*;
 
 /**
- * 自定义日志记录
+ * 操作日志记录
  *
  * @author young
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Log {
+public @interface OperLog {
     /**
      * 模块
      */

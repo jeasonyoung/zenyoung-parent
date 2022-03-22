@@ -1,12 +1,15 @@
 package top.zenyoung.framework.runtime.aspectj;
 
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 切面处理基类
@@ -27,7 +30,7 @@ abstract class BaseAspect {
      * @param cls Class
      * @return 是否为基本类型
      */
-    protected boolean isPrimitive(@Nonnull final Class<?> cls) {
+    protected static boolean isPrimitive(@Nonnull final Class<?> cls) {
         try {
             //8种值类型直接判断
             if (cls.isPrimitive()) {
@@ -50,5 +53,31 @@ abstract class BaseAspect {
             log.warn("isPrimitive(cls: {})-exp: {}", cls, ex.getMessage());
         }
         return false;
+    }
+
+    /**
+     * 从Map中递归搜索数据
+     *
+     * @param sourceMap 搜索的源Map
+     * @param key       需要搜索的目标字段
+     * @return 搜索数据
+     */
+    @SuppressWarnings({"unchecked"})
+    protected static Object recursionSearch(@Nonnull final Map<String, Object> sourceMap, @Nonnull final String key) {
+        if (!CollectionUtils.isEmpty(sourceMap) && !Strings.isNullOrEmpty(key)) {
+            Object val = sourceMap.getOrDefault(key, null);
+            if (val != null) {
+                return val;
+            }
+            for (Object v : sourceMap.values()) {
+                if (v instanceof Map) {
+                    val = recursionSearch((Map<String, Object>) v, key);
+                    if (val != null) {
+                        return val;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

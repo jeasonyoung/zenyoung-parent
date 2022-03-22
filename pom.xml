@@ -33,6 +33,9 @@
         <!-- okhttp3 -->
         <okhttp3.version>4.9.1</okhttp3.version>
 
+        <!-- redisson -->
+        <redisson-spring-boot-starter.version>3.16.0</redisson-spring-boot-starter.version>
+
         <!-- tools -->
         <guava.version>30.1.1-jre</guava.version>
         <commons-codec.version>1.15</commons-codec.version>
@@ -144,6 +147,13 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>logging-interceptor</artifactId>
                 <version>${okhttp3.version}</version>
+            </dependency>
+
+            <!-- redisson -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson-spring-boot-starter.version}</version>
             </dependency>
 
             <!-- tools -->

@@ -23,8 +23,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.common.model.Status;
+import top.zenyoung.common.util.ClassUtils;
 import top.zenyoung.common.util.JsonUtils;
-import top.zenyoung.framework.annotation.Log;
+import top.zenyoung.framework.annotation.OperLog;
 import top.zenyoung.framework.common.BusinessType;
 import top.zenyoung.framework.dao.dto.OperLogDTO;
 import top.zenyoung.framework.runtime.model.LogReqParamVal;
@@ -51,7 +52,7 @@ import java.util.stream.Stream;
 @Aspect
 @Component
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class LogAspect extends BaseAspect {
+public class OperLogAspect extends BaseAspect {
     private static final ThreadLocal<Long> LOCAL_CACHE = ThreadLocal.withInitial(() -> 0L);
 
     private final ObjectMapper objMapper;
@@ -73,7 +74,7 @@ public class LogAspect extends BaseAspect {
     }
 
     @Before("@annotation(controllerLog)")
-    public void doBefore(final JoinPoint joinPoint, final Log controllerLog) {
+    public void doBefore(final JoinPoint joinPoint, final OperLog controllerLog) {
         if (log.isDebugEnabled()) {
             log.debug("doBefore(joinPoint: {},controllerLog: {})...", joinPoint, controllerLog);
         }
@@ -81,16 +82,16 @@ public class LogAspect extends BaseAspect {
     }
 
     @AfterReturning(pointcut = "@annotation(controllerLog)", returning = "jsonResult")
-    public void doAfterReturning(final JoinPoint joinPoint, final Log controllerLog, final Object jsonResult) {
+    public void doAfterReturning(final JoinPoint joinPoint, final OperLog controllerLog, final Object jsonResult) {
         handleLog(joinPoint, controllerLog, null, jsonResult);
     }
 
     @AfterThrowing(value = "@annotation(controllerLog)", throwing = "e")
-    public void doAfterThrowing(final JoinPoint joinPoint, final Log controllerLog, final Exception e) {
+    public void doAfterThrowing(final JoinPoint joinPoint, final OperLog controllerLog, final Exception e) {
         handleLog(joinPoint, controllerLog, e, null);
     }
 
-    protected void handleLog(final JoinPoint joinPoint, final Log controllerLog, final Exception e, final Object jsonResult) {
+    protected void handleLog(final JoinPoint joinPoint, final OperLog controllerLog, final Exception e, final Object jsonResult) {
         if (log.isDebugEnabled()) {
             log.debug("handleLog(joinPoint: {},controllerLog: {},e: {},jsonResult: {})...", joinPoint, controllerLog, e, jsonResult);
         }
@@ -136,7 +137,7 @@ public class LogAspect extends BaseAspect {
         }
     }
 
-    private void handleAnnoMethod(@Nonnull final JoinPoint joinPoint, @Nonnull final Log log, @Nonnull final OperLogDTO operLog, @Nullable final Object jsonResult) {
+    private void handleAnnoMethod(@Nonnull final JoinPoint joinPoint, @Nonnull final OperLog log, @Nonnull final OperLogDTO operLog, @Nullable final Object jsonResult) {
         //业务类型
         operLog.setBusinessType(log.businessType().ordinal());
         //业务模块
@@ -162,7 +163,7 @@ public class LogAspect extends BaseAspect {
         }
     }
 
-    private void buildReqParams(@Nonnull final JoinPoint joinPoint, @Nonnull final Log log, @Nonnull final OperLogDTO operLog) {
+    private void buildReqParams(@Nonnull final JoinPoint joinPoint, @Nonnull final OperLog log, @Nonnull final OperLogDTO operLog) {
         final Map<String, LogReqParamVal> reqParamMaps = Maps.newLinkedHashMap();
         final Object[] args = joinPoint.getArgs();
         final int len;
@@ -239,7 +240,7 @@ public class LogAspect extends BaseAspect {
     }
 
     private void buildParamArgValHandler(@Nonnull final String argName, @Nullable final String argTitle, @Nonnull final Object argVal,
-                                         @Nullable final Annotation[] argAnnos, @Nonnull final Log log, @Nonnull final OperLogDTO operLog,
+                                         @Nullable final Annotation[] argAnnos, @Nonnull final OperLog log, @Nonnull final OperLogDTO operLog,
                                          @Nonnull final Map<String, LogReqParamVal> argParamValMaps) {
         final List<BusinessType> types = Lists.newArrayList(BusinessType.INSERT, BusinessType.UPDATE, BusinessType.DELETE);
         //是否为主键记录
@@ -273,7 +274,7 @@ public class LogAspect extends BaseAspect {
             }
         } else {
             final List<Field> fields = Lists.newLinkedList();
-            buildAllFields(cls, fields);
+            ClassUtils.getAllFieldsWithSuper(cls, fields);
             if (!CollectionUtils.isEmpty(fields)) {
                 fields.stream().filter(Objects::nonNull)
                         .forEach(field -> {
@@ -286,31 +287,10 @@ public class LogAspect extends BaseAspect {
                                     buildParamArgValHandler(field.getName(), null, val, field.getAnnotations(), log, operLog, argParamValMaps);
                                 }
                             } catch (Throwable ex) {
-                                LogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
+                                OperLogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
                             }
                         });
             }
-        }
-    }
-
-    private void buildAllFields(@Nonnull final Class<?> cls, @Nonnull final List<Field> listFields) {
-        final Field[] fields = cls.getDeclaredFields();
-        if (fields.length > 0) {
-            listFields.addAll(Stream.of(fields)
-                    .map(f -> {
-                        final String name = f.getName();
-                        if (!Strings.isNullOrEmpty(name)) {
-                            return f;
-                        }
-                        return null;
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList())
-            );
-        }
-        final Class<?> parent = cls.getSuperclass();
-        if (parent != null) {
-            buildAllFields(parent, listFields);
         }
     }
 
@@ -327,24 +307,4 @@ public class LogAspect extends BaseAspect {
         }
         return JsonUtils.toJson(objMapper, arg);
     }
-
-    @SuppressWarnings({"unchecked"})
-    private Object recursionSearch(@Nonnull final Map<String, Object> sourceMap, @Nonnull final String key) {
-        if (!CollectionUtils.isEmpty(sourceMap) && !Strings.isNullOrEmpty(key)) {
-            Object val = sourceMap.getOrDefault(key, null);
-            if (val != null) {
-                return val;
-            }
-            for (Object v : sourceMap.values()) {
-                if (v instanceof Map) {
-                    val = recursionSearch((Map<String, Object>) v, key);
-                    if (val != null) {
-                        return val;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
 }

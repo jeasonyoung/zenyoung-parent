@@ -12,7 +12,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface LogViewFieldValue {
+public @interface OperLogViewFieldValue {
     /**
      * 回显字段类型
      *
