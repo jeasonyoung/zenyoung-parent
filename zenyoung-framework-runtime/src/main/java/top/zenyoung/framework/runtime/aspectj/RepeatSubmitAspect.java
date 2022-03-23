@@ -1,5 +1,6 @@
 package top.zenyoung.framework.runtime.aspectj;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -14,6 +15,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.framework.annotation.RepeatSubmit;
 import top.zenyoung.framework.exception.ServiceException;
 import top.zenyoung.framework.runtime.config.RuntimeProperties;
@@ -33,11 +35,13 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 @Component
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class RepeatSubmitAspect {
+public class RepeatSubmitAspect extends BaseAspect {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
-    private static final String REPEAT_SUBMIT_KEY = "repeat_submit:";
+    private static final String REPEAT_SUBMIT_PEFIX = "repeat_submit:";
     private final RuntimeProperties properties;
+
     private final RedissonClient redissonClient;
+    private final ObjectMapper objMapper;
 
     @Before("@annotation(repeatSubmit)")
     public void doBefore(final JoinPoint joinPoint, final RepeatSubmit repeatSubmit) {
@@ -54,7 +58,7 @@ public class RepeatSubmitAspect {
             throw new ServiceException("重复提交间隔时间不能小于'1'秒:" + interval);
         }
         //当前参数字符串
-        final String params = Joiner.on(",").join(joinPoint.getArgs());
+        final String params = Joiner.on(",").join(getReqArgs(joinPoint, arg -> JsonUtils.toJson(objMapper, arg)));
         //当前请求
         final HttpServletRequest request = HttpUtils.getWebRequest();
         if (request == null) {
@@ -67,7 +71,7 @@ public class RepeatSubmitAspect {
                 params
         }));
         //唯一标识(指定key + 消息头)
-        final String cacheRepeatKey = REPEAT_SUBMIT_KEY + submitKey;
+        final String cacheRepeatKey = REPEAT_SUBMIT_PEFIX + submitKey;
         synchronized (LOCKS.computeIfAbsent(cacheRepeatKey, k -> new Object())) {
             try {
                 final long time = interval.toMillis(), wait = time * 10;

@@ -55,7 +55,7 @@ public class HttpUtils {
      *
      * @return 客户端IP地址
      */
-    public static String getCurrentClientIpAddr() {
+    public static String getClientIpAddr() {
         final HttpServletRequest request = getWebRequest();
         return request == null ? null : getClientIpAddr(request);
     }

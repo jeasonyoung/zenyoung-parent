@@ -109,7 +109,7 @@ public class OperLogAspect extends BaseAspect {
                     operLog.setOperUserName(u.getAccount());
                 });
                 //获取IP地址
-                operLog.setOperUserIpAddr(HttpUtils.getCurrentClientIpAddr());
+                operLog.setOperUserIpAddr(HttpUtils.getClientIpAddr());
                 HttpUtils.getWebRequestOpt().ifPresent(web -> {
                     //请求地址
                     operLog.setReqUrl(web.getRequestURI());

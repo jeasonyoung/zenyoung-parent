@@ -15,13 +15,10 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.web.controller.util.HttpUtils;
 
 import javax.annotation.Nonnull;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -104,26 +101,12 @@ public class RequestLogAspect extends BaseAspect {
     }
 
     private List<String> getReqParams(final JoinPoint joinPoint) {
-        final List<String> arguments = Lists.newLinkedList();
-        if (joinPoint != null) {
-            final Object[] args = joinPoint.getArgs();
-            if (args != null && args.length > 0) {
-                for (Object arg : args) {
-                    if (arg == null) {
-                        continue;
-                    }
-                    if (arg instanceof ServletRequest || arg instanceof ServletResponse || arg instanceof MultipartFile) {
-                        continue;
-                    }
-                    if (isPrimitive(arg.getClass())) {
-                        arguments.add(arg.toString());
-                    } else {
-                        arguments.add(JsonUtils.toJson(objMapper, arg));
-                    }
-                }
+        return getReqArgs(joinPoint, arg -> {
+            if (isPrimitive(arg.getClass())) {
+                return arg + "";
             }
-        }
-        return arguments;
+            return JsonUtils.toJson(objMapper, arg);
+        });
     }
 
 }

@@ -1,15 +1,22 @@
 package top.zenyoung.framework.runtime.aspectj;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nonnull;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * 切面处理基类
@@ -79,5 +86,32 @@ abstract class BaseAspect {
             }
         }
         return null;
+    }
+
+    /**
+     * 获取切面参数处理
+     *
+     * @param joinPoint 切面
+     * @param handler   参数处理
+     * @return 处理结果
+     */
+    protected static List<String> getReqArgs(@Nonnull final JoinPoint joinPoint, @Nonnull final Function<Object, String> handler) {
+        final List<String> arguments = Lists.newLinkedList();
+        final Object[] args = joinPoint.getArgs();
+        if (args != null && args.length > 0) {
+            for (Object arg : args) {
+                if (arg == null) {
+                    continue;
+                }
+                if (arg instanceof ServletRequest || arg instanceof ServletResponse || arg instanceof MultipartFile) {
+                    continue;
+                }
+                final String ret = handler.apply(arg);
+                if (!Strings.isNullOrEmpty(ret)) {
+                    arguments.add(ret);
+                }
+            }
+        }
+        return arguments;
     }
 }
