@@ -53,7 +53,7 @@ public class LogWriterDefault implements LogWriter {
             builder.append(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map));
         }
     }
-    
+
     @Override
     public CharSequence outputLogs() {
         final StringBuilder builder = new StringBuilder();
@@ -70,7 +70,7 @@ public class LogWriterDefault implements LogWriter {
     }
 
     private void renderMark(@Nonnull final StringBuilder builder, @Nonnull final Boolean start) {
-        final String mark = (start ? ">" : "<").repeat(80);
+        final String mark = Strings.repeat(start ? ">" : "<", 80);
         builder.append("\n");
         if (start) {
             builder.append("[start]");

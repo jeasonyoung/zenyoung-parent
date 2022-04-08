@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class DatabaseConnectServiceImpl implements DatabaseConnectService {
     private static final Cache<DatabaseConnect, JdbcTemplate> DATA_SOURCE_CACHE = CacheUtils.createCache(50, Duration.ofMinutes(30));
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
-    private static final Map<String, Class<?>> DATA_TYPE_MAPS = new LinkedHashMap<>() {
+    private static final Map<String, Class<?>> DATA_TYPE_MAPS = new LinkedHashMap<String, Class<?>>() {
         {
             put("bigint", Long.class);
             put("date", Date.class);

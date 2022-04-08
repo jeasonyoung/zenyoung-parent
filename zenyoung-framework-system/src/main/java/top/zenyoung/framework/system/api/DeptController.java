@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @RestController
 @Api("1.1.系统管理-部门管理")
 @RequestMapping("/system/dept")
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DeptController extends BaseController {
     private final DeptRepository deptRepository;
 

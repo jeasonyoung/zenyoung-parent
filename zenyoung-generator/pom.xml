@@ -12,10 +12,6 @@
     <artifactId>zenyoung-generator</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
-    </properties>
-
     <dependencies>
         <!-- springboot starter -->
         <dependency>
@@ -39,13 +35,6 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
-            <version>${springfox-boot-starter.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.springfox</groupId>
-                    <artifactId>springfox-spring-webflux</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

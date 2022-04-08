@@ -76,7 +76,7 @@ public abstract class BaseRepositoryImpl {
                     .map(handler)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            return new PagingResult<>() {
+            return new PagingResult<Ret>() {
                 @Override
                 public Long getTotal() {
                     return totals;

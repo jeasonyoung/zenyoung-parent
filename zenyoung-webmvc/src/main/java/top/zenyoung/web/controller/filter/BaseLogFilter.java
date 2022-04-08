@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -147,9 +147,9 @@ public abstract class BaseLogFilter implements Filter, Ordered {
 
     private Map<String, Serializable> getHeaders(@Nonnull final HttpServletRequest req) {
         final Map<String, Serializable> headerVals = Maps.newLinkedHashMap();
-        final Iterator<String> names = req.getHeaderNames().asIterator();
-        while (names.hasNext()) {
-            final String name = names.next();
+        final Enumeration<String> names = req.getHeaderNames();
+        while (names.hasMoreElements()) {
+            final String name = names.nextElement();
             if (!Strings.isNullOrEmpty(name)) {
                 final String val = req.getHeader(name);
                 if (!Strings.isNullOrEmpty(val)) {

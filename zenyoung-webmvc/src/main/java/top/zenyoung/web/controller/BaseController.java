@@ -125,7 +125,7 @@ public class BaseController {
         final RespDataResult<Ret> resp = RespDataResult.ofSuccess(null);
         try {
             //查询条件处理
-            final PagingResult<Item> queryResult = listener.query(new PagingQuery<>() {
+            final PagingResult<Item> queryResult = listener.query(new PagingQuery<Qry>() {
                 @Override
                 public Integer getIndex() {
                     return reqQuery.getIndex();
@@ -215,7 +215,7 @@ public class BaseController {
             @Nonnull final ProccessListener<Void, R> listener
     ) {
         log.debug("action(respResult: {},listener: {})...", respResult, listener);
-        return action(respResult, (Serializable) null, vod -> null);
+        return action(respResult, null, vod -> null);
     }
 
     /**
@@ -259,7 +259,7 @@ public class BaseController {
             @Nonnull final ProccessListener<T, Serializable> proccess
     ) {
         log.debug("actionAdd(req: {},process: {})...", req, proccess);
-        return action(RespAddResult.ofSuccess(null), req, new ProccessListener<>() {
+        return action(RespAddResult.ofSuccess(null), req, new ProccessListener<T, RespAddResult.AddResult>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -291,7 +291,7 @@ public class BaseController {
             @Nonnull final ProccessModifyListener<T> proccess
     ) {
         log.debug("actionModify(req: {},proccess: {})...", req, proccess);
-        return action(RespModifyResult.ofFinish(), req, new ProccessListener<>() {
+        return action(RespModifyResult.ofFinish(), req, new ProccessListener<T, Serializable>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -352,7 +352,7 @@ public class BaseController {
             @Nonnull final ProccessModifyListener<T> proccess
     ) {
         log.debug("actionDelete(req: {},proccess: {})...", req, proccess);
-        return action(RespDeleteResult.ofFinish(), req, new ProccessListener<>() {
+        return action(RespDeleteResult.ofFinish(), req, new ProccessListener<T, Serializable>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {

@@ -91,7 +91,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
     protected void buildRequestHeaderLog(@Nonnull final LogWriter logWriter, @Nullable final HttpMethod method, @Nonnull final URI uri,
                                          @Nullable final InetSocketAddress address, @Nonnull final HttpHeaders headers,
                                          @Nullable final MultiValueMap<String, String> reqParams) {
-        logWriter.writer("request", new LinkedHashMap<>(5) {
+        logWriter.writer("request", new LinkedHashMap<String, Serializable>(5) {
             {
                 if (method != null) {
                     put("method", method.name());
@@ -146,7 +146,7 @@ public abstract class BaseLogFilter implements WebFilter, Ordered {
      * @param content   响应报文体
      */
     protected void buildResponseLog(@Nonnull final LogWriter logWriter, @Nullable final HttpStatus status, @Nullable final HttpHeaders headers, @Nullable final byte[] content) {
-        logWriter.writer("response", new LinkedHashMap<>(3) {
+        logWriter.writer("response", new LinkedHashMap<String, Serializable>(3) {
             {
                 if (status != null) {
                     put("status", status.value());

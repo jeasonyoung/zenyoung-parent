@@ -23,7 +23,7 @@ import java.util.Optional;
  * @author young
  */
 public class HttpUtils {
-    private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<>() {
+    private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<String>() {
         {
             add("x-forwarded-for");
             add("Proxy-Client-IP");

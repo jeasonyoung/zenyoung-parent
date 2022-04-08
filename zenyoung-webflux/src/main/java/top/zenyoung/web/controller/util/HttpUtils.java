@@ -21,7 +21,7 @@ import java.util.Objects;
 public class HttpUtils {
     private static final String UNKNOWN = "unknown";
 
-    private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<>() {
+    private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<String>() {
         {
             add("x-forwarded-for");
             add("Proxy-Client-IP");

@@ -102,7 +102,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final UserPrincipal principal,
             @Nonnull final AuthProccessListener<A, Void, R> process
     ) {
-        return action(new ProccessListener<>() {
+        return action(new ProccessListener<Void, R>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -138,7 +138,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final Mono<T> req,
             @Nonnull final AuthProccessListener<A, T, R> process
     ) {
-        return action(req, new ProccessListener<>() {
+        return action(req, new ProccessListener<T, R>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -173,7 +173,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final Mono<T> req,
             @Nonnull final AuthProccessListener<A, T, String> process
     ) {
-        return actionAdd(req, new ProccessListener<>() {
+        return actionAdd(req, new ProccessListener<T, Serializable>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -208,7 +208,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final Mono<T> req,
             @Nonnull final AuthProccessModifyListener<A, T> process
     ) {
-        return actionModify(req, new ProccessModifyListener<>() {
+        return actionModify(req, new ProccessModifyListener<T>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {
@@ -243,7 +243,7 @@ public abstract class BaseAuthController<A extends UserPrincipal> extends BaseCo
             @Nonnull final Mono<T> req,
             @Nonnull final AuthProccessModifyListener<A, T> process
     ) {
-        return actionDelete(req, new ProccessModifyListener<>() {
+        return actionDelete(req, new ProccessModifyListener<T>() {
 
             @Override
             public void getExceptHandlers(@Nonnull final List<ExceptHandler> handlers) {

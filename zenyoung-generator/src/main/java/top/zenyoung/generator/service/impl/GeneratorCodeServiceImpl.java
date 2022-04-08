@@ -46,7 +46,7 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
     private static final String DB_SEP = "_";
     private static final String TEMPLATE_SUFFIX = ".ftl";
 
-    private static final List<Pair<String, String>> CODE_TEMPLATES = new LinkedList<>() {
+    private static final List<Pair<String, String>> CODE_TEMPLATES = new LinkedList<Pair<String, String>>() {
         {
             add(Pair.of("java/entity.java" + TEMPLATE_SUFFIX, ".dao.entity"));
             add(Pair.of("java/jpa.java" + TEMPLATE_SUFFIX, ".dao.jpa"));
@@ -146,7 +146,7 @@ public class GeneratorCodeServiceImpl implements GeneratorCodeService {
     @Override
     public void buildZipStream(@Nullable final Map<String, String> fileMaps, @Nonnull final OutputStream output) {
         if (!CollectionUtils.isEmpty(fileMaps)) {
-            final Map<String, String> extProjects = new LinkedHashMap<>() {
+            final Map<String, String> extProjects = new LinkedHashMap<String, String>() {
                 {
                     put(".java", "src/main/java");
                 }

@@ -33,7 +33,23 @@ public class WebSocketHandlerMapping extends SimpleUrlHandlerMapping {
                 }
                 final WebSocketMapping annotation = AnnotationUtils.getAnnotation(bean.getClass(), WebSocketMapping.class);
                 if (annotation != null) {
-                    return Map.entry(annotation.value(), (WebSocketHandler) bean);
+                    return new Map.Entry<String, WebSocketHandler>() {
+
+                        @Override
+                        public String getKey() {
+                            return annotation.value();
+                        }
+
+                        @Override
+                        public WebSocketHandler getValue() {
+                            return (WebSocketHandler) bean;
+                        }
+
+                        @Override
+                        public WebSocketHandler setValue(WebSocketHandler value) {
+                            return null;
+                        }
+                    };
                 }
                 return null;
             }).filter(Objects::nonNull).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (o, n) -> n));
