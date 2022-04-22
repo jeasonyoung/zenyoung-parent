@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
  **/
 @Getter
 @RequiredArgsConstructor(staticName = "of")
-public class DataResult<T extends Serializable> implements PagingResult<T> {
+public class DataResult<T> implements PagingResult<T> {
     /**
      * 数据总数
      */
@@ -26,7 +25,12 @@ public class DataResult<T extends Serializable> implements PagingResult<T> {
      */
     private final List<T> rows;
 
-    public static <T extends Serializable> DataResult<T> of(@Nullable final PagingResult<T> data) {
-        return new DataResult<>(data == null ? 0L : data.getTotal(), data == null ? Lists.newLinkedList() : data.getRows());
+    public static <T> DataResult<T> of(@Nullable final PagingResult<T> data) {
+        return DataResult.of(data == null ? 0L : data.getTotal(), data == null ? Lists.newLinkedList() : data.getRows());
+    }
+
+    public static <T> DataResult<T> of(@Nullable final List<T> items) {
+        final boolean has = items != null && items.size() > 0;
+        return DataResult.of((long) (has ? items.size() : 0), items);
     }
 }

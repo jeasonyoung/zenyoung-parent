@@ -25,7 +25,6 @@ import java.util.function.Function;
  */
 @Slf4j
 abstract class BaseAspect {
-
     private final static Class<?>[] PRIMITIVES = new Class<?>[]{
             String.class, Number.class, BigDecimal.class,
             Date.class, LocalDate.class, LocalTime.class

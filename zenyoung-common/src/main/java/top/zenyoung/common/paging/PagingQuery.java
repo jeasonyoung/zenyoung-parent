@@ -8,25 +8,18 @@ import java.io.Serializable;
  * @author yangyong
  * @version 1.0
  **/
-public interface PagingQuery<T extends Serializable> extends Serializable {
+public interface PagingQuery extends Serializable {
     /**
      * 获取页码
      *
      * @return 页码
      */
-    Integer getIndex();
+    Integer getPageIndex();
 
     /**
      * 获取每页数据量
      *
      * @return 每页数据量
      */
-    Integer getRows();
-
-    /**
-     * 获取查询条件
-     *
-     * @return 查询条件
-     */
-    T getQuery();
+    Integer getPageSize();
 }

@@ -3,8 +3,6 @@ package top.zenyoung.web.vo;
 import lombok.Data;
 import top.zenyoung.common.paging.PagingQuery;
 
-import java.io.Serializable;
-
 /**
  * 分页-请求报文体
  *
@@ -13,17 +11,13 @@ import java.io.Serializable;
  * date 2020/8/9 10:56 下午
  **/
 @Data
-public class ReqPagingQuery<T extends Serializable> implements PagingQuery<T> {
+public class ReqPagingQuery implements PagingQuery {
     /**
      * 页码
      */
-    private Integer index;
+    private Integer pageIndex;
     /**
      * 当前页数量
      */
-    private Integer rows;
-    /**
-     * 查询条件
-     */
-    private T query;
+    private Integer pageSize;
 }

@@ -1,7 +1,6 @@
 package top.zenyoung.service;
 
 import javax.annotation.Nonnull;
-import java.util.function.Supplier;
 
 /**
  * 同步锁-服务接口
@@ -16,10 +15,8 @@ public interface SyncLockService {
      *
      * @param key     同步锁键
      * @param handler 业务处理
-     * @param <T>     结果数据类型
-     * @return 结果数据
      */
-    <T> T syncLock(@Nonnull final String key, @Nonnull final Supplier<T> handler);
+    void syncLock(@Nonnull final String key, @Nonnull final Runnable handler);
 
     /**
      * 同步互斥锁业务处理

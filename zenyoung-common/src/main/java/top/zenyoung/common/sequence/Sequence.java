@@ -8,7 +8,6 @@ import java.io.Serializable;
  * @author young
  */
 public interface Sequence<T extends Serializable> {
-
     /**
      * 生成序号数据
      *

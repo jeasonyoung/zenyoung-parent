@@ -9,7 +9,7 @@ import java.util.List;
  * @author yangyong
  * @version 1.0
  **/
-public interface PagingResult<T extends Serializable> extends Serializable {
+public interface PagingResult<T> extends Serializable {
     /**
      * 获取数据总数
      *

@@ -6,7 +6,6 @@ package top.zenyoung.framework.annotation;
  * @author young
  */
 public @interface RepeatSubmit {
-
     /**
      * 间隔时间,小于此时间间隔视为重复提交
      *

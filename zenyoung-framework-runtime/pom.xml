@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zenyoung-parent</artifactId>
         <groupId>top.zenyoung</groupId>
-        <version>2.0.3</version>
+        <version>3.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,6 +32,18 @@
             <artifactId>spring-data-commons</artifactId>
         </dependency>
 
+        <!-- modelmapper -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+        </dependency>
+
+        <!-- jetcache -->
+        <dependency>
+            <groupId>com.alicp.jetcache</groupId>
+            <artifactId>jetcache-starter-redis-springdata</artifactId>
+        </dependency>
+
         <!-- redisson -->
         <dependency>
             <groupId>org.redisson</groupId>
@@ -44,7 +56,12 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
 
-        <!-- 业务系统框架-公共模块 -->
+        <!-- 框架模块 start-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>zenyoung-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-framework-common</artifactId>
@@ -60,6 +77,7 @@
             <artifactId>zenyoung-webmvc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- 框架模块 end-->
     </dependencies>
 
     <build>

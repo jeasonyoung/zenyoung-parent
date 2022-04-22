@@ -19,7 +19,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.TokenAuthentication;
-import top.zenyoung.security.webmvc.JwtAuthenticationManager;
+import top.zenyoung.security.webmvc.BaseJwtAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -36,14 +36,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswordAuthenticationFilter {
     private final List<RequestMatcher> requestMatchers = Lists.newLinkedList();
-    private final JwtAuthenticationManager<ReqBody> manager;
+    private final BaseJwtAuthenticationManager<ReqBody> manager;
 
     /**
      * 构造函数
      *
      * @param manager 认证管理
      */
-    public JwtLoginFilter(@Nonnull final JwtAuthenticationManager<ReqBody> manager) {
+    public JwtLoginFilter(@Nonnull final BaseJwtAuthenticationManager<ReqBody> manager) {
         super(manager);
         this.manager = manager;
         this.buildRequestMatchers(this.requestMatchers);

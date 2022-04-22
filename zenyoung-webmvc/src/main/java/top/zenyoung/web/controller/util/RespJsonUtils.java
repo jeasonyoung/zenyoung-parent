@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import top.zenyoung.web.vo.RespResult;
+import top.zenyoung.web.vo.ResultVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -25,8 +26,8 @@ public class RespJsonUtils {
      * @param response     响应对象
      * @param respResult   响应数据
      */
-    @SneakyThrows
-    public static void buildResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nonnull final RespResult<?> respResult) {
+    @SneakyThrows({IOException.class})
+    public static void buildResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nonnull final ResultVO<?> respResult) {
         response.setStatus(HttpStatus.OK.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), respResult);
@@ -42,7 +43,7 @@ public class RespJsonUtils {
      * @param <T>          响应数据类型
      */
     public static <T extends Serializable> void buildSuccessResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final T data) {
-        buildResp(objectMapper, response, RespResult.ofSuccess(data));
+        buildResp(objectMapper, response, ResultVO.ofSuccess(data));
     }
 
     /**
@@ -54,7 +55,10 @@ public class RespJsonUtils {
      * @param err          错误消息
      */
     public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final Integer status, @Nullable final String err) {
-        final RespResult<?> respResult = status == null ? RespResult.ofFail(err) : RespResult.of(status, err, null);
+        final ResultVO<?> respResult = ResultVO.ofFail(err);
+        if (status != null) {
+            respResult.setCode(status);
+        }
         buildResp(objectMapper, response, respResult);
     }
 

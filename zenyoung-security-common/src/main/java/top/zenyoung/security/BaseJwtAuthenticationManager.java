@@ -14,6 +14,7 @@ import top.zenyoung.security.token.TokenGenerator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * 令牌认证管理器-基类
@@ -68,7 +69,7 @@ public abstract class BaseJwtAuthenticationManager<ReqBody extends LoginReqBody>
      *
      * @return 请求新对象
      */
-    @SneakyThrows
+    @SneakyThrows({NoSuchMethodException.class, InstantiationException.class, IllegalAccessException.class, IllegalArgumentException.class, InvocationTargetException.class})
     public ReqBody createReqBody() {
         return getLoginReqBodyClass().getDeclaredConstructor().newInstance();
     }
@@ -86,8 +87,8 @@ public abstract class BaseJwtAuthenticationManager<ReqBody extends LoginReqBody>
             String tokenVal = token.trim();
             //检查是否有Bearer
             final String bearer = "Bearer ";
-            if(token.startsWith(bearer)){
-                tokenVal = token.replaceFirst(bearer,"").trim();
+            if (token.startsWith(bearer)) {
+                tokenVal = token.replaceFirst(bearer, "").trim();
             }
             final Ticket ticket = getTokenGenerator().parseToken(tokenVal);
             if (ticket == null) {

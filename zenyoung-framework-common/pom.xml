@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zenyoung-parent</artifactId>
         <groupId>top.zenyoung</groupId>
-        <version>2.0.3</version>
+        <version>3.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,11 +27,6 @@
         </dependency>
 
         <!-- 通用模块 -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-web-common</artifactId>

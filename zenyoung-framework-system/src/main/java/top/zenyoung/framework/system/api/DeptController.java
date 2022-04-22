@@ -5,6 +5,7 @@ import io.swagger.annotations.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,11 @@ import top.zenyoung.framework.system.dao.dto.DeptAddDTO;
 import top.zenyoung.framework.system.dao.dto.DeptLoadDTO;
 import top.zenyoung.framework.system.dao.dto.DeptModifyDTO;
 import top.zenyoung.framework.system.dao.repository.DeptRepository;
+import top.zenyoung.service.BeanMappingService;
 import top.zenyoung.web.controller.BaseController;
 import top.zenyoung.web.valid.Insert;
 import top.zenyoung.web.valid.Modify;
-import top.zenyoung.web.vo.*;
+import top.zenyoung.web.vo.ResultVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,9 +40,10 @@ import java.util.stream.Collectors;
 @RestController
 @Api("1.1.系统管理-部门管理")
 @RequestMapping("/system/dept")
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class DeptController extends BaseController {
     private final DeptRepository deptRepository;
+    private final BeanMappingService mappingService;
 
     /**
      * 部门-全部数据
@@ -52,12 +55,9 @@ public class DeptController extends BaseController {
     @ApiOperation("1.1.1.部门-全部")
     @PreAuthorize("@ss.hasPermi('system:dept:all')")
     @ApiImplicitParams(value = {@ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class)})
-    public RespDataResult<DeptLoadResp> getAllDepts(@RequestParam(required = false) final Long parentDeptId) {
-        return buildQuery(() -> deptRepository.getDeptWithChildren(parentDeptId), item -> {
-            final DeptLoadResp row = new DeptLoadResp();
-            BeanUtils.copyProperties(item, row);
-            return row;
-        });
+    public ResultVO<List<DeptLoadVO>> getAllDepts(@RequestParam(required = false) final Long parentDeptId) {
+        final List<DeptLoadDTO> items = deptRepository.getDeptWithChildren(parentDeptId);
+        return success(mappingService.mapping(items, DeptLoadVO.class));
     }
 
     /**
@@ -73,19 +73,18 @@ public class DeptController extends BaseController {
             @ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class),
             @ApiImplicitParam(name = "excludes", value = "排除部门及子部门ID集合", paramType = "query", dataTypeClass = Long[].class),
     })
-    public RespDataResult<DeptTreeResp> getDeptTrees(
-            @RequestParam(required = false) final Long parentDeptId,
-            @RequestParam(required = false) final List<Long> excludes
-    ) {
-        return buildQuery(() -> buildDeptTree(deptRepository.getDeptWithChildren(parentDeptId), excludes), d -> d);
+    public ResultVO<List<DeptTreeVO>> getDeptTrees(@RequestParam(required = false) final Long parentDeptId,
+                                                   @RequestParam(required = false) final List<Long> excludes) {
+        final List<DeptLoadDTO> items = deptRepository.getDeptWithChildren(parentDeptId);
+        return success(buildDeptTree(items, excludes));
     }
 
-    private List<DeptTreeResp> buildDeptTree(@Nullable final List<DeptLoadDTO> items, @Nullable final List<Long> excludes) {
+    private static List<DeptTreeVO> buildDeptTree(@Nullable final List<DeptLoadDTO> items, @Nullable final List<Long> excludes) {
         if (!CollectionUtils.isEmpty(items)) {
-            final Map<Long, List<DeptTreeResp>> parentDeptMaps = items.stream().collect(Collectors.toMap(
+            final Map<Long, List<DeptTreeVO>> parentDeptMaps = items.stream().collect(Collectors.toMap(
                     DeptLoadDTO::getParentId,
                     item -> {
-                        final DeptTreeResp row = new DeptTreeResp();
+                        final DeptTreeVO row = new DeptTreeVO();
                         BeanUtils.copyProperties(item, row, "children");
                         row.setChildren(Lists.newLinkedList());
                         return Lists.newArrayList(row);
@@ -95,7 +94,7 @@ public class DeptController extends BaseController {
                         return v1;
                     }
             ));
-            final List<DeptTreeResp> roots = parentDeptMaps.values().stream().flatMap(Collection::stream)
+            final List<DeptTreeVO> roots = parentDeptMaps.values().stream().flatMap(Collection::stream)
                     .filter(item -> item.getParentId() == null || item.getParentId() == 0 || !parentDeptMaps.containsKey(item.getParentId()))
                     .collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(roots)) {
@@ -111,9 +110,9 @@ public class DeptController extends BaseController {
         return null;
     }
 
-    private void buildDeptChildren(@Nonnull final DeptTreeResp root, @Nonnull final Map<Long, List<DeptTreeResp>> parentDeptMaps, @Nullable final List<Long> excludes) {
+    private static void buildDeptChildren(@Nonnull final DeptTreeVO root, @Nonnull final Map<Long, List<DeptTreeVO>> parentDeptMaps, @Nullable final List<Long> excludes) {
         //获取子部门集合
-        final List<DeptTreeResp> childs = parentDeptMaps.getOrDefault(root.getId(), null);
+        final List<DeptTreeVO> childs = parentDeptMaps.getOrDefault(root.getId(), null);
         if (!CollectionUtils.isEmpty(childs)) {
             root.getChildren().addAll(childs);
             childs.forEach(child -> {
@@ -135,16 +134,9 @@ public class DeptController extends BaseController {
     @ApiOperation("1.1.3.部门-加载")
     @PreAuthorize("@ss.hasPermi('system:dept:load')")
     @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptId", value = "部门ID", paramType = "path", dataTypeClass = Long.class)})
-    public RespResult<DeptLoadResp> getById(@PathVariable final Long deptId) {
-        return action(vod -> {
-            final DeptLoadDTO item = deptRepository.getDept(deptId);
-            if (item != null) {
-                final DeptLoadResp row = new DeptLoadResp();
-                BeanUtils.copyProperties(item, row);
-                return row;
-            }
-            return null;
-        });
+    public ResultVO<DeptLoadVO> getById(@PathVariable final Long deptId) {
+        final DeptLoadDTO item = deptRepository.getDept(deptId);
+        return success(mappingService.mapping(item, DeptLoadVO.class));
     }
 
     /**
@@ -156,8 +148,8 @@ public class DeptController extends BaseController {
     @PostMapping("/")
     @ApiOperation("1.1.4.部门-新增")
     @PreAuthorize("@ss.hasPermi('system:dept:add')")
-    public RespAddResult add(@Validated({Insert.class}) @RequestBody final DeptAddReq addReq) {
-        return actionAdd(addReq, deptRepository::addDept);
+    public ResultVO<Long> add(@Validated({Insert.class}) @RequestBody final DeptAddReq addReq) {
+        return success(deptRepository.addDept(addReq));
     }
 
     /**
@@ -171,13 +163,11 @@ public class DeptController extends BaseController {
     @ApiOperation("1.1.5.部门-修改")
     @PreAuthorize("@ss.hasPermi('system:dept:edit')")
     @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptId", value = "部门ID", paramType = "path", dataTypeClass = Long.class)})
-    public RespModifyResult edit(@PathVariable final Long deptId, @Validated({Modify.class}) @RequestBody final DeptModifyReq modifyReq) {
-        return actionModify(modifyReq, req -> {
-            final DeptModifyDTO data = new DeptModifyDTO();
-            BeanUtils.copyProperties(req, data);
-            data.setId(deptId);
-            deptRepository.modifyDept(data);
-        });
+    public ResultVO<?> edit(@PathVariable final Long deptId, @Validated({Modify.class}) @RequestBody final DeptModifyReq modifyReq) {
+        final DeptModifyDTO data = mappingService.mapping(modifyReq, DeptModifyDTO.class);
+        data.setId(deptId);
+        deptRepository.modifyDept(data);
+        return success();
     }
 
     /**
@@ -190,23 +180,25 @@ public class DeptController extends BaseController {
     @ApiOperation("1.1.6.部门-删除")
     @PreAuthorize("@ss.hasPermi('system:dept:del')")
     @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptIds", value = "部门ID数组", paramType = "path", dataTypeClass = Long[].class)})
-    public RespDeleteResult delById(@PathVariable final Long[] deptIds) {
-        return actionDelete(vod -> deptRepository.delDeptByIds(Lists.newArrayList(deptIds)));
+    public ResultVO<?> delById(@PathVariable final Long[] deptIds) {
+        deptRepository.delDeptByIds(Lists.newArrayList(deptIds));
+        return success();
     }
 
     @ApiModel("部门-加载-响应报文")
-    private static class DeptLoadResp extends DeptLoadDTO {
+    @ToString
+    private static class DeptLoadVO extends DeptLoadDTO {
 
     }
 
     @Data
     @ApiModel("部门-部门树-响应报文")
     @EqualsAndHashCode(callSuper = true)
-    private static class DeptTreeResp extends DeptLoadDTO {
+    private static class DeptTreeVO extends DeptLoadDTO {
         /**
          * 子部门集合
          */
-        private List<DeptTreeResp> children;
+        private List<DeptTreeVO> children;
     }
 
     @ApiModel("部门-新增-请求报文")

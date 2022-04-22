@@ -8,7 +8,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.3</version>
+    <version>3.0.0</version>
 
     <name>zenyoung</name>
     <description>zenyoung tools for Springboot2</description>
@@ -21,17 +21,23 @@
         <maven.compiler.target>8</maven.compiler.target>
         <java.version>8</java.version>
 
-        <spring-boot.version>2.4.5</spring-boot.version>
-        <jackson-module-kotlin.version>2.12.1</jackson-module-kotlin.version>
+        <spring-boot.version>2.6.6</spring-boot.version>
+        <jackson-module-kotlin.version>2.10.2</jackson-module-kotlin.version>
 
         <!-- query dsl -->
-        <query-dsl.version>4.4.0</query-dsl.version>
+        <query-dsl.version>5.0.0</query-dsl.version>
 
         <!-- jwt -->
         <jwt.version>0.9.1</jwt.version>
 
         <!-- okhttp3 -->
-        <okhttp3.version>4.9.1</okhttp3.version>
+        <okhttp3.version>4.9.3</okhttp3.version>
+
+        <!-- modelmapper -->
+        <modelmapper.version>3.1.0</modelmapper.version>
+
+        <!-- jetcache -->
+        <jetcache.version>2.6.4</jetcache.version>
 
         <!-- redisson -->
         <redisson-spring-boot-starter.version>3.16.0</redisson-spring-boot-starter.version>
@@ -62,7 +68,6 @@
         <!-- 公共模块 -->
         <module>zenyoung-common</module>
         <!-- 数据模块 -->
-        <module>zenyoung-data-common</module>
         <module>zenyoung-data-jpa</module>
 
         <!-- 业务服务模块 -->
@@ -70,29 +75,11 @@
 
         <!-- Web模块 -->
         <module>zenyoung-web-common</module>
-        <module>zenyoung-webflux</module>
         <module>zenyoung-webmvc</module>
 
         <!-- 安全模块 -->
         <module>zenyoung-security-common</module>
-        <module>zenyoung-security-webflux</module>
         <module>zenyoung-security-webmvc</module>
-
-        <!-- websocket -->
-        <module>zenyoung-websocket-common</module>
-        <module>zenyoung-websocket-webflux</module>
-        <module>zenyoung-websocket-webmvc</module>
-
-        <!-- Wechat模块 -->
-        <module>zenyoung-wechat-common</module>
-        <module>zenyoung-wechat-service</module>
-        <module>zenyoung-wechat-api</module>
-
-        <!-- 工具模块 -->
-        <module>zenyoung-okhttp3</module>
-
-        <!-- 视频转码客户端 -->
-        <!--<module>zenyoung-codec-client</module>-->
 
         <!-- 代码生成器 -->
         <module>zenyoung-generator</module>
@@ -152,6 +139,20 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>logging-interceptor</artifactId>
                 <version>${okhttp3.version}</version>
+            </dependency>
+
+            <!-- modelmapper -->
+            <dependency>
+                <groupId>org.modelmapper</groupId>
+                <artifactId>modelmapper</artifactId>
+                <version>${modelmapper.version}</version>
+            </dependency>
+
+            <!-- jetcache -->
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-starter-redis-springdata</artifactId>
+                <version>${jetcache.version}</version>
             </dependency>
 
             <!-- redisson -->

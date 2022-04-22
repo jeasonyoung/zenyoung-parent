@@ -1,7 +1,7 @@
 package top.zenyoung.generator.controller;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -10,9 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.generator.domain.Column;
 import top.zenyoung.generator.domain.Table;
 import top.zenyoung.generator.exceptions.AccessTokenException;
@@ -20,10 +22,8 @@ import top.zenyoung.generator.model.DatabaseConnect;
 import top.zenyoung.generator.service.DatabaseConnectService;
 import top.zenyoung.generator.service.GeneratorCacheService;
 import top.zenyoung.generator.service.GeneratorCodeService;
-import top.zenyoung.web.ExceptHandler;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.RespDataResult;
-import top.zenyoung.web.vo.RespResult;
+import top.zenyoung.web.vo.ResultVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * 代码生成器-数据-控制器
@@ -41,15 +41,15 @@ import java.util.function.Supplier;
  */
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/gen/data")
 @Api(tags = {"代码生成器数据接口"})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class GeneratorDataController extends BaseController {
     private final GeneratorCacheService cacheService;
     private final DatabaseConnectService connectService;
     private final GeneratorCodeService codeService;
 
-    private <R> R validToken(@Nullable final String token, @Nonnull final Supplier<R> handler) {
+    protected <R> R validToken(@Nullable final String token, @Nonnull final Supplier<R> handler) {
         Assert.hasText(token, "'token'不能为空!");
         //验证访问令牌
         if (!cacheService.verifyToken(token)) {
@@ -57,10 +57,6 @@ public class GeneratorDataController extends BaseController {
         }
         //执行业务
         return handler.get();
-    }
-
-    private RespResult<Boolean> actionHandler(@Nullable final String token, @Nullable final ConnectReq reqBody, @Nonnull final Function<ConnectReq, Boolean> handler) {
-        return action(reqBody, req -> validToken(token, () -> handler.apply(req)));
     }
 
     /**
@@ -73,13 +69,12 @@ public class GeneratorDataController extends BaseController {
     @PostMapping("/test")
     @ApiOperation(value = "测试数据库链接字符串")
     @ApiImplicitParams({@ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header")})
-    public RespResult<Boolean> testConnect(@RequestHeader("token") final String token, @RequestBody final ConnectReq reqBody) {
-        return actionHandler(token, reqBody, req -> {
+    public ResultVO<?> testConnect(@RequestHeader("token") final String token, @RequestBody final ConnectReq reqBody) {
+        return success(validToken(token, () -> {
             //测试数据库链接
-            connectService.testDatabaseConnect(req);
-            //测试通过
+            connectService.testDatabaseConnect(reqBody);
             return true;
-        });
+        }));
     }
 
     /**
@@ -92,15 +87,15 @@ public class GeneratorDataController extends BaseController {
     @PostMapping("/save")
     @ApiOperation(value = "保存数据库连接字符串")
     @ApiImplicitParams({@ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header")})
-    public RespResult<Boolean> saveConnect(@RequestHeader("token") final String token, @RequestBody final ConnectReq reqBody) {
-        return actionHandler(token, reqBody, req -> {
+    public ResultVO<?> saveConnect(@RequestHeader("token") final String token, @RequestBody final ConnectReq reqBody) {
+        return success(validToken(token, () -> {
             //测试数据库连接
             connectService.testDatabaseConnect(reqBody);
             //保存数据库连接
             cacheService.putConnect(token, reqBody);
             //保存成功
             return true;
-        });
+        }));
     }
 
     /**
@@ -116,15 +111,16 @@ public class GeneratorDataController extends BaseController {
             @ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header"),
             @ApiImplicitParam(name = "queryTableName", value = "表名称(支持模糊匹配)", paramType = "query")
     })
-    public RespDataResult<Table> getTables(@RequestHeader("token") final String token, @RequestParam(value = "queryTableName", required = false) final String queryTableName) {
-        return buildQuery(() -> validToken(token, () -> {
+    public ResultVO<DataResult<Table>> getTables(@RequestHeader("token") final String token,
+                                                 @RequestParam(value = "queryTableName", required = false) final String queryTableName) {
+        return success(validToken(token, () -> {
             //获取连接数据
             final DatabaseConnect connect = cacheService.getConnect(token);
             if (connect == null) {
                 throw new RuntimeException("数据库连接缓存已过期!");
             }
-            return connectService.queryTables(connect, queryTableName);
-        }), row -> row);
+            return DataResult.of(connectService.queryTables(connect, queryTableName));
+        }));
     }
 
     /**
@@ -140,18 +136,15 @@ public class GeneratorDataController extends BaseController {
             @ApiImplicitParam(name = "token", value = "访问令牌", required = true, paramType = "header"),
             @ApiImplicitParam(name = "tableName", value = "表名称(完全匹配)", paramType = "query")
     })
-    public RespDataResult<PreviewBodyResp> getPreview(@RequestHeader("token") final String token, @RequestParam("tableName") final String tableName) {
-        return buildQuery(() -> {
-            Assert.hasText(tableName, "'tableName'不能为空!");
-            return validToken(token, () -> {
-                final List<PreviewBodyResp> rows = Lists.newLinkedList();
-                final Map<String, String> codes = buildGenCode(token, tableName);
-                if (!CollectionUtils.isEmpty(codes)) {
-                    codes.forEach((k, v) -> rows.add(PreviewBodyResp.of(k, v)));
-                }
-                return rows;
-            });
-        }, row -> row);
+    public ResultVO<DataResult<PreviewBodyRes>> getPreview(@RequestHeader("token") final String token, @RequestParam("tableName") final String tableName) {
+        Assert.hasText(tableName, "'tableName'不能为空!");
+        return success(validToken(token, () -> {
+            final Map<String, String> codes = buildGenCode(token, tableName);
+            return DataResult.of(codes.entrySet().stream()
+                    .map(entry -> PreviewBodyRes.of(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList())
+            );
+        }));
     }
 
     /**
@@ -205,7 +198,7 @@ public class GeneratorDataController extends BaseController {
                 }
             }
         }
-        return null;
+        return Maps.newHashMap();
     }
 
 
@@ -214,7 +207,7 @@ public class GeneratorDataController extends BaseController {
 
     @Data
     @AllArgsConstructor(staticName = "of")
-    private static class PreviewBodyResp implements Serializable {
+    private static class PreviewBodyRes implements Serializable {
         /**
          * 文件名
          */

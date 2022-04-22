@@ -1,7 +1,6 @@
 package top.zenyoung.security.model;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import top.zenyoung.security.BaseJwtAuthenticationManager;
 
@@ -47,7 +46,6 @@ public class TokenAuthentication<ReqBody extends LoginReqBody> extends UsernameP
      *
      * @param token 用户密码认证令牌
      */
-    @SneakyThrows
     public TokenAuthentication(@Nonnull final UsernamePasswordAuthenticationToken token, @Nonnull final BaseJwtAuthenticationManager<ReqBody> manager) {
         super(token.getPrincipal(), token.getCredentials());
         reqBody = manager.createReqBody();

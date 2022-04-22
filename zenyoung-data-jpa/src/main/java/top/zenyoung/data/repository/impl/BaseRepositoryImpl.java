@@ -51,31 +51,25 @@ public abstract class BaseRepositoryImpl {
      * @param <Ret>       查询结果类型
      * @return 查询结果
      */
-    protected <Qry extends Serializable, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
-            @Nullable final PagingQuery<Qry> pagingQuery,
-            @Nonnull final PagingQueryHandler<Qry, Item, Ret> handler
-    ) {
+    protected <Qry extends PagingQuery, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(@Nullable final Qry pagingQuery,
+                                                                                                           @Nonnull final PagingQueryHandler<Qry, Item, Ret> handler) {
         int idx = DEF_PAGING_IDX, rows = DEF_PAGING_ROWS;
         Predicate predicate = null;
         if (pagingQuery != null) {
-            idx = pagingQuery.getIndex() == null ? 0 : pagingQuery.getIndex() - 1;
+            idx = pagingQuery.getPageIndex() == null ? 0 : pagingQuery.getPageIndex() - 1;
             if (idx < 0) {
                 idx = DEF_PAGING_IDX;
             }
-            rows = pagingQuery.getRows() == null ? 0 : pagingQuery.getRows();
+            rows = pagingQuery.getPageSize() == null ? 0 : pagingQuery.getPageSize();
             if (rows <= 0) {
                 rows = DEF_PAGING_ROWS;
             }
-            predicate = handler.queryConvert(pagingQuery.getQuery());
+            predicate = handler.queryConvert(pagingQuery);
         }
         final Page<Item> page = handler.queryData(predicate, PageRequest.of(idx, rows, handler.orderBy()));
         if (page != null) {
             final long totals = page.getTotalElements();
-            final List<Ret> items = page.getContent().stream()
-                    .filter(Objects::nonNull)
-                    .map(handler)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+            final List<Ret> items = page.getContent().stream().filter(Objects::nonNull).map(handler).filter(Objects::nonNull).collect(Collectors.toList());
             return new PagingResult<Ret>() {
                 @Override
                 public Long getTotal() {
@@ -104,8 +98,8 @@ public abstract class BaseRepositoryImpl {
      * @param <Ret>          查询结果类型
      * @return 查询结果
      */
-    protected <Qry extends Serializable, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
-            @Nullable final PagingQuery<Qry> pagingQuery,
+    protected <Qry extends PagingQuery, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
+            @Nullable final Qry pagingQuery,
             @Nonnull final Function<Qry, Predicate> queryConvert,
             @Nullable final Function<Qry, Sort> orderByHandler,
             @Nonnull final JpaBase<Item, ?> jpaRepository,
@@ -156,8 +150,8 @@ public abstract class BaseRepositoryImpl {
      * @param <Ret>          查询结果类型
      * @return 查询结果
      */
-    protected <Qry extends Serializable, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
-            @Nullable final PagingQuery<Qry> pagingQuery,
+    protected <Qry extends PagingQuery, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
+            @Nullable final Qry pagingQuery,
             @Nonnull final Function<Qry, Predicate> queryConvert,
             @Nullable final Supplier<Sort> orderByHandler,
             @Nonnull final JpaBase<Item, ?> jpaRepository,
@@ -178,8 +172,8 @@ public abstract class BaseRepositoryImpl {
      * @param <Ret>         查询结果类型
      * @return 查询结果
      */
-    protected <Qry extends Serializable, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
-            @Nullable final PagingQuery<Qry> pagingQuery,
+    protected <Qry extends PagingQuery, Item, Ret extends Serializable> PagingResult<Ret> buildPagingQuery(
+            @Nullable final Qry pagingQuery,
             @Nonnull final Function<Qry, Predicate> queryConvert,
             @Nonnull final JpaBase<Item, ?> jpaRepository,
             @Nonnull final Function<Item, Ret> entityConvert
@@ -389,7 +383,7 @@ public abstract class BaseRepositoryImpl {
      * @param <Item> 数据类型
      * @param <Ret>  结果类型
      */
-    protected interface PagingQueryHandler<Qry extends Serializable, Item, Ret extends Serializable> extends Function<Item, Ret> {
+    protected interface PagingQueryHandler<Qry extends PagingQuery, Item, Ret extends Serializable> extends Function<Item, Ret> {
 
         /**
          * 查询条件转换

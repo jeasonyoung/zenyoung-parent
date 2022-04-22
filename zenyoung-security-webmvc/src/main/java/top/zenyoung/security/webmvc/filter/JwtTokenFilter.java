@@ -11,7 +11,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.zenyoung.security.model.LoginReqBody;
-import top.zenyoung.security.webmvc.JwtAuthenticationManager;
+import top.zenyoung.security.webmvc.BaseJwtAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -31,14 +31,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final List<RequestMatcher> whiteMatchers = Lists.newLinkedList();
-    private final JwtAuthenticationManager<? extends LoginReqBody> manager;
+    private final BaseJwtAuthenticationManager<? extends LoginReqBody> manager;
 
-    public JwtTokenFilter(@Nonnull final JwtAuthenticationManager<? extends LoginReqBody> manager) {
+    public JwtTokenFilter(@Nonnull final BaseJwtAuthenticationManager<? extends LoginReqBody> manager) {
         this.manager = manager;
         this.buildWhiteUrls(whiteMatchers, manager);
     }
 
-    private void buildWhiteUrls(@Nonnull final List<RequestMatcher> whiteMatchers, @Nonnull final JwtAuthenticationManager<? extends LoginReqBody> authenticationManager) {
+    private void buildWhiteUrls(@Nonnull final List<RequestMatcher> whiteMatchers, @Nonnull final BaseJwtAuthenticationManager<? extends LoginReqBody> authenticationManager) {
         final List<String> whiteUrls = Lists.newLinkedList();
         //用户登录
         final String[] loginUrls = authenticationManager.getLoginUrls();
