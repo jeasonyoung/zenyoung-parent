@@ -1,4 +1,4 @@
-package top.zenyoung.framework.system.dao.dto;
+package top.zenyoung.framework.system.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

@@ -1,8 +1,8 @@
 package top.zenyoung.framework.system.dao.repository;
 
-import top.zenyoung.framework.system.dao.dto.DeptAddDTO;
-import top.zenyoung.framework.system.dao.dto.DeptLoadDTO;
-import top.zenyoung.framework.system.dao.dto.DeptModifyDTO;
+import top.zenyoung.framework.system.dto.DeptAddDTO;
+import top.zenyoung.framework.system.dto.DeptLoadDTO;
+import top.zenyoung.framework.system.dto.DeptModifyDTO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

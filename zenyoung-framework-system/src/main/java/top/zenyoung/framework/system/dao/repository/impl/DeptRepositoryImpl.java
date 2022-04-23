@@ -14,9 +14,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
-import top.zenyoung.framework.system.dao.dto.DeptAddDTO;
-import top.zenyoung.framework.system.dao.dto.DeptLoadDTO;
-import top.zenyoung.framework.system.dao.dto.DeptModifyDTO;
+import top.zenyoung.framework.system.dto.DeptAddDTO;
+import top.zenyoung.framework.system.dto.DeptLoadDTO;
+import top.zenyoung.framework.system.dto.DeptModifyDTO;
 import top.zenyoung.framework.system.dao.entity.DeptEntity;
 import top.zenyoung.framework.system.dao.entity.QDeptEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaDept;
@@ -65,7 +65,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Override
     public DeptLoadDTO getDept(@Nonnull final Long id) {
         if (id > 0) {
-            return buildConvert(jpaDept.getOne(id));
+            return buildConvert(jpaDept.getById(id));
         }
         return null;
     }
@@ -92,7 +92,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
         }
         //检查父节点
         if (data.getParentId() != null && data.getParentId() > 0) {
-            final DeptEntity parent = jpaDept.getOne(data.getParentId());
+            final DeptEntity parent = jpaDept.getById(data.getParentId());
             if (Status.Enable != parent.getStatus()) {
                 throw new RuntimeException("部门停用,不允许新增");
             }
@@ -114,8 +114,8 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Override
     public void modifyDept(@Nonnull final DeptModifyDTO data) {
         Assert.isTrue(data.getId() != null && data.getId() > 0, "'data.id'不能为空!");
-        final DeptEntity newParent = data.getParentId() != null && data.getParentId() >= 0 ? jpaDept.getOne(data.getParentId()) : null;
-        final DeptEntity entity = jpaDept.getOne(data.getId());
+        final DeptEntity newParent = data.getParentId() != null && data.getParentId() >= 0 ? jpaDept.getById(data.getParentId()) : null;
+        final DeptEntity entity = jpaDept.getById(data.getId());
         BeanUtils.copyProperties(data, entity);
         if (newParent != null) {
             final String newAncestors = newParent.getAncestors() + DEPT_ANCESTOR_SEP + newParent.getId();
