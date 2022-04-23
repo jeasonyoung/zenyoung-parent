@@ -1,0 +1,45 @@
+#server
+server:
+  port: ${server_port:8080}
+  shutdown: GRACEFUL
+#spring
+spring:
+  profiles:
+    active: ${spring_profiles_active:dev}
+  application:
+    name: zy-fk-main
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+  mvc:
+    format:
+      date: yyyy-MM-dd
+      time: HH:mm:ss
+      datetime: yyyy-MM-dd HH:mm:ss
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: NON_NULL
+  redis:
+    lettuce:
+      shutdown-timeout: PT15S
+      pool:
+        max-idle: 10
+        min-idle: 5
+        max-active: 20
+        max-wait: PT10S
+  jpa:
+    open-in-view: false
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL57Dialect
+    properties:
+      hibernate:
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+        jdbc:
+          batch_size: 50
+          batch_versioned_data: true
+logging:
+  level:
+    org.springframework.scheduling: 'INFO'
+    org.apache.http: 'debug'

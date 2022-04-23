@@ -42,6 +42,11 @@
         <!-- redisson -->
         <redisson-spring-boot-starter.version>3.16.0</redisson-spring-boot-starter.version>
 
+        <!-- p6spy -->
+        <p6spy.version>3.9.1</p6spy.version>
+        <!-- flyway -->
+        <flyway.version>8.5.9</flyway.version>
+
         <!-- tools -->
         <guava.version>30.1.1-jre</guava.version>
         <commons-codec.version>1.15</commons-codec.version>
@@ -70,7 +75,7 @@
         <!-- 数据模块 -->
         <module>zenyoung-data-jpa</module>
 
-        <!-- 业务服务模块 -->
+        <!-- 服务模块 -->
         <module>zenyoung-service</module>
 
         <!-- Web模块 -->
@@ -84,12 +89,14 @@
         <!-- 代码生成器 -->
         <module>zenyoung-generator</module>
 
-        <!-- 业务系统-公共模块 -->
+        <!-- 业务框架-公共模块 -->
         <module>zenyoung-framework-common</module>
-        <!-- 业务系统-系统管理模块 -->
+        <!-- 业务框架-系统管理模块 -->
         <module>zenyoung-framework-system</module>
-        <!-- 业务系统-运行时模块 -->
+        <!-- 业务框架-运行时模块 -->
         <module>zenyoung-framework-runtime</module>
+        <!-- 业务框架-主函数入口 -->
+        <module>zenyoung-framework-main</module>
     </modules>
 
     <dependencyManagement>
@@ -160,6 +167,19 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson-spring-boot-starter.version}</version>
+            </dependency>
+
+            <!-- p6spy -->
+            <dependency>
+                <groupId>p6spy</groupId>
+                <artifactId>p6spy</artifactId>
+                <version>${p6spy.version}</version>
+            </dependency>
+            <!-- flyway -->
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>${flyway.version}</version>
             </dependency>
 
             <!-- tools -->
