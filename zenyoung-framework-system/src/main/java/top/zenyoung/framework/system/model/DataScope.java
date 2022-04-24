@@ -1,5 +1,6 @@
 package top.zenyoung.framework.system.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,6 +46,7 @@ public enum DataScope implements EnumValue {
     private final int val;
     private final String title;
 
+    @JsonCreator
     public static DataScope parse(@Nullable final Integer val) {
         if (val != null) {
             for (DataScope s : DataScope.values()) {

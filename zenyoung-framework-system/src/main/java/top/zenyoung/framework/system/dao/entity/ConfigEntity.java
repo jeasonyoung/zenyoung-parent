@@ -5,8 +5,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import top.zenyoung.framework.system.dao.converter.ConfigTypeConverter;
+import top.zenyoung.framework.system.model.ConfigType;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -39,8 +42,9 @@ public class ConfigEntity extends BaseStatusEntity {
     @Column(length = 512, nullable = false)
     private String val;
     /**
-     * 系统内置(0:否,1:是)
+     * 系统内置(0:内置,1:自定义)
      */
     @Column(nullable = false)
-    private Integer type = 0;
+    @Convert(converter = ConfigTypeConverter.class)
+    private ConfigType type = ConfigType.System;
 }

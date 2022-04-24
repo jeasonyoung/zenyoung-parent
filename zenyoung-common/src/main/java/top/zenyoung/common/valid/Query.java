@@ -1,4 +1,4 @@
-package top.zenyoung.web.valid;
+package top.zenyoung.common.valid;
 
 /**
  * 数据校验-查询

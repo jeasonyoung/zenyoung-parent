@@ -2,7 +2,7 @@ package top.zenyoung.framework.system.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import top.zenyoung.web.valid.Insert;
+import top.zenyoung.common.valid.Insert;
 
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;

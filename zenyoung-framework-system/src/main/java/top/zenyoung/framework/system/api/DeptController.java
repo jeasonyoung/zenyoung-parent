@@ -18,8 +18,8 @@ import top.zenyoung.framework.system.util.DeptTreeUtils;
 import top.zenyoung.framework.system.vo.DeptTreeVO;
 import top.zenyoung.service.BeanMappingService;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.valid.Insert;
-import top.zenyoung.web.valid.Modify;
+import top.zenyoung.common.valid.Insert;
+import top.zenyoung.common.valid.Modify;
 import top.zenyoung.web.vo.ResultVO;
 
 import java.util.List;
@@ -29,7 +29,6 @@ import java.util.List;
  *
  * @author young
  */
-@Slf4j
 @RestController
 @Api("1.1.系统管理-部门管理")
 @RequestMapping("/system/dept")

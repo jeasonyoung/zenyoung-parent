@@ -15,7 +15,7 @@ import javax.persistence.MappedSuperclass;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/6 10:27 上午
+ * 2020/2/6 10:27 上午
  **/
 @Getter
 @Setter

@@ -1,5 +1,7 @@
 package top.zenyoung.common.model;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,7 @@ public interface EnumValue extends Serializable {
      *
      * @return 枚举值
      */
+    @JsonValue
     int getVal();
 
     /**

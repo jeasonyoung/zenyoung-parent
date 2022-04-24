@@ -4,41 +4,35 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nullable;
 
 /**
- * 菜单类型-枚举
+ * 配置类型
  *
  * @author young
  */
 @Getter
-@ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum MenuType implements EnumValue {
+public enum ConfigType implements EnumValue {
     /**
-     * 目录
+     * 系统内置
      */
-    Dir(1, "目录"),
+    System(0, "系统内置"),
     /**
-     * 菜单
+     * 自定义
      */
-    Menu(2, "菜单"),
-    /**
-     * 按钮
-     */
-    Button(3, "按钮");
+    Custom(1, "自定义");
 
     private final int val;
     private final String title;
 
     @JsonCreator
-    public static MenuType parse(@Nullable final Integer val) {
+    public static ConfigType parse(@Nullable final Integer val) {
         if (val != null) {
-            for (MenuType t : MenuType.values()) {
-                if (val == t.getVal()) {
+            for (ConfigType t : ConfigType.values()) {
+                if (t.getVal() == val) {
                     return t;
                 }
             }
