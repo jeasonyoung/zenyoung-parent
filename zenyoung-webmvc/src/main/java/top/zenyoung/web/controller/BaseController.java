@@ -7,7 +7,6 @@ import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.web.vo.ResultVO;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -80,7 +79,7 @@ public class BaseController {
      * @param <T>        数据类型
      * @return 响应数据
      */
-    protected <T extends Serializable> ResultVO<DataResult<T>> success(@Nullable final DataResult<T> dataResult) {
+    protected <T> ResultVO<DataResult<T>> success(@Nullable final DataResult<T> dataResult) {
         return ResultVO.ofSuccess(dataResult);
     }
 
@@ -91,7 +90,7 @@ public class BaseController {
      * @param <T>          数据类型
      * @return 响应数据
      */
-    protected <T extends Serializable> ResultVO<DataResult<T>> success(@Nullable final PagingResult<T> pagingResult) {
+    protected <T> ResultVO<DataResult<T>> success(@Nullable final PagingResult<T> pagingResult) {
         if (pagingResult != null) {
             return success(DataResult.of(pagingResult));
         }
@@ -188,6 +187,4 @@ public class BaseController {
         }
         return ret;
     }
-
-
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.framework.system.model.ConfigType;
 
+import java.io.Serializable;
+
 /**
  * 参数配置-加载DTO
  *
@@ -13,7 +15,12 @@ import top.zenyoung.framework.system.model.ConfigType;
  */
 @Data
 @ApiModel("参数配置-加载")
-public class ConfigLoadDTO {
+public class ConfigDTO implements Serializable {
+    /***
+     * 参数ID
+     */
+    @ApiModelProperty("参数ID")
+    private Long id;
     /**
      * 参数名称
      */
