@@ -2,7 +2,6 @@ package top.zenyoung.data.repository.impl;
 
 import com.google.common.base.Strings;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
@@ -16,15 +15,16 @@ import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
+import top.zenyoung.common.sequence.Sequence;
+import top.zenyoung.common.sequence.SnowFlake;
 import top.zenyoung.data.jpa.JpaBase;
+import top.zenyoung.data.querydsl.DslUpdateClause;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -40,6 +40,20 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class BaseRepositoryImpl {
     private static final int DEF_PAGING_IDX = 0, DEF_PAGING_ROWS = 10;
+
+    /**
+     * 序号对象
+     */
+    protected final Sequence<Long> sequence = initSequence();
+
+    /**
+     * 初始化序号对象
+     *
+     * @return 序号对象
+     */
+    protected Sequence<Long> initSequence() {
+        return SnowFlake.getInstance();
+    }
 
     /**
      * 构建分页查询
@@ -303,33 +317,11 @@ public abstract class BaseRepositoryImpl {
     /**
      * 构建JPADSLQuery更新数据
      *
-     * @param clause       JPADSLQuery更新对象
-     * @param updateFields 更新字段
-     * @return 是否有字段更新
+     * @param clause JPADSLQuery更新对象
+     * @return 更新处理器
      */
-    @SuppressWarnings({"unchecked"})
-    protected <K extends Path<?>, V> boolean buildDslUpdateClause(@Nonnull final JPAUpdateClause clause, @Nonnull final Map<K, V> updateFields) {
-        final AtomicBoolean refUpdate = new AtomicBoolean(false);
-        if (!CollectionUtils.isEmpty(updateFields)) {
-            updateFields.forEach((k, v) -> {
-                if (k != null && v != null) {
-                    //判断是否为字符串
-                    if (v instanceof String) {
-                        //字符串值处理
-                        final String val = (String) v;
-                        if (!Strings.isNullOrEmpty(val)) {
-                            clause.set((Path<String>) k, val);
-                            refUpdate.set(true);
-                        }
-                    } else {
-                        //对象处理
-                        clause.set((Path<? super V>) k, v);
-                        refUpdate.set(true);
-                    }
-                }
-            });
-        }
-        return refUpdate.get();
+    protected static DslUpdateClause buildDslUpdateClause(@Nonnull final JPAUpdateClause clause) {
+        return DslUpdateClause.of(clause);
     }
 
     /**
@@ -339,7 +331,7 @@ public abstract class BaseRepositoryImpl {
      * @param wheres 条件集合
      * @return 查询条件
      */
-    protected BooleanExpression buildDslWhere(@Nullable final BooleanExpression parent, @Nonnull final List<BooleanExpression> wheres) {
+    protected static BooleanExpression buildDslWhere(@Nullable final BooleanExpression parent, @Nonnull final List<BooleanExpression> wheres) {
         final AtomicReference<BooleanExpression> refWhere = new AtomicReference<>(parent);
         if (!CollectionUtils.isEmpty(wheres)) {
             wheres.stream()
@@ -358,7 +350,7 @@ public abstract class BaseRepositoryImpl {
      * @param wheres 条件集合
      * @return 查询条件
      */
-    protected BooleanExpression buildDslWhere(@Nonnull final List<BooleanExpression> wheres) {
+    protected static BooleanExpression buildDslWhere(@Nonnull final List<BooleanExpression> wheres) {
         return buildDslWhere((BooleanExpression) null, wheres);
     }
 
@@ -369,7 +361,7 @@ public abstract class BaseRepositoryImpl {
      * @param wheres   条件集合
      * @return 查询条件
      */
-    protected BooleanExpression buildDslWhere(@Nonnull final Supplier<Boolean> supplier, @Nonnull final List<BooleanExpression> wheres) {
+    protected static BooleanExpression buildDslWhere(@Nonnull final Supplier<Boolean> supplier, @Nonnull final List<BooleanExpression> wheres) {
         if (supplier.get()) {
             return buildDslWhere(wheres);
         }

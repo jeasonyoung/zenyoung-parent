@@ -354,7 +354,7 @@ create table tbl_sys_config (
     `name`  varchar(128) not null        comment '参数名称',
     `key`   varchar(128) not null        comment '参数键名',
     `val`   varchar(512) not null        comment '参数键值',
-    `type`  tinyint unsigned default 0   comment '系统内置(0:否,1:是)',
+    `type`  tinyint unsigned default 0   comment '系统内置(0:是,1:否)',
 
     `status` tinyint default 1  comment '状态(-1:删除,0:停用,1:启用)',
 
