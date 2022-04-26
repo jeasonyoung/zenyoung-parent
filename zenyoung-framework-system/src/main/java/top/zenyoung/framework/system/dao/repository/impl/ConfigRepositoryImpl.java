@@ -32,8 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRepository {
     private final JPAQueryFactory queryFactory;
-    private final JpaConfig jpaConfig;
     private final BeanMappingService mappingService;
+
+    private final JpaConfig jpaConfig;
 
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override

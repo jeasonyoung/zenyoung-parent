@@ -2,7 +2,6 @@ package top.zenyoung.framework.system.api;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,9 +51,7 @@ public class ConfigController extends BaseController {
      */
     @GetMapping("/{id}")
     @ApiOperation("1.7.2.参数管理-加载")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long[].class)
-    })
+    @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long.class)
     @PreAuthorize("@ss.hasPermi('system:config:load')")
     public ResultVO<ConfigDTO> getById(@PathVariable final Long id) {
         return success(repository.getById(id));
@@ -82,9 +79,7 @@ public class ConfigController extends BaseController {
      */
     @PutMapping("/{id}")
     @ApiOperation("1.7.4.参数管理-修改")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long[].class)
-    })
+    @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long.class)
     @PreAuthorize("@ss.hasPermi('system:config:modify')")
     public ResultVO<Void> modify(@PathVariable final Long id, @RequestBody @Validated({Modify.class}) final ConfigModifyDTO data) {
         final boolean ret = repository.update(id, data);
@@ -99,9 +94,7 @@ public class ConfigController extends BaseController {
      */
     @PutMapping("/{ids}")
     @ApiOperation("1.7.5.参数管理-删除")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "参数配置ID集合", paramType = "path", dataTypeClass = Long[].class)
-    })
+    @ApiImplicitParam(name = "ids", value = "参数配置ID集合", paramType = "path", dataTypeClass = Long[].class)
     @PreAuthorize("@ss.hasPermi('system:config:del')")
     public ResultVO<Void> del(@PathVariable final Long[] ids) {
         final boolean ret = repository.delByIds(ids);
