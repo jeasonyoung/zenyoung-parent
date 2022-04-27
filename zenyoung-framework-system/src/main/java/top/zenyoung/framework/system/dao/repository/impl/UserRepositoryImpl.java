@@ -5,12 +5,18 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
+import top.zenyoung.framework.system.dao.entity.QPostEntity;
+import top.zenyoung.framework.system.dao.entity.QRoleEntity;
 import top.zenyoung.framework.system.dao.entity.QUserEntity;
 import top.zenyoung.framework.system.dao.entity.UserEntity;
+import top.zenyoung.framework.system.dao.jpa.JpaPost;
+import top.zenyoung.framework.system.dao.jpa.JpaRole;
 import top.zenyoung.framework.system.dao.jpa.JpaUser;
 import top.zenyoung.framework.system.dao.repository.UserRepository;
 import top.zenyoung.framework.system.dto.*;
@@ -19,7 +25,9 @@ import top.zenyoung.service.BeanMappingService;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * 用户-数据服务接口实现
@@ -33,6 +41,10 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
     private final BeanMappingService mappingService;
 
     private final JpaUser jpaUser;
+    private final JpaPost jpaPost;
+    private final JpaRole jpaRole;
+
+    private final PasswordEncoder pwdEncoder;
 
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
@@ -83,18 +95,102 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         return null;
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
     public Long add(@Nonnull final UserAddDTO data) {
-        return null;
+        final UserEntity entity = mappingService.mapping(data, UserEntity.class);
+        //主键ID
+        entity.setId(sequence.nextId());
+        //密码
+        if (!Strings.isNullOrEmpty(data.getPasswd())) {
+            entity.setPasswd(pwdEncoder.encode(data.getPasswd()));
+        }
+        //所属岗位集合
+        updatePosts(entity, data.getPosts());
+        //所属角色集合
+        updateRoles(entity, data.getRoles());
+        //保存数据
+        return jpaUser.save(entity).getId();
     }
 
-    @Override
-    public boolean update(@Nonnull Long id, @Nonnull UserModifyDTO data) {
-        return false;
+    private void updatePosts(@Nonnull final UserEntity entity, @Nullable final List<Long> posts) {
+        if (!CollectionUtils.isEmpty(posts)) {
+            final QPostEntity qEntity = QPostEntity.postEntity;
+            entity.setPosts(
+                    StreamSupport.stream(jpaPost.findAll(qEntity.id.in(posts)).spliterator(), false)
+                            .collect(Collectors.toList())
+            );
+        }
     }
 
+    private void updateRoles(@Nonnull final UserEntity entity, @Nullable final List<Long> roles) {
+        if (!CollectionUtils.isEmpty(roles)) {
+            final QRoleEntity qEntity = QRoleEntity.roleEntity;
+            entity.setRoles(
+                    StreamSupport.stream(jpaRole.findAll(qEntity.id.in(roles)).spliterator(), false)
+                            .collect(Collectors.toList())
+            );
+        }
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public boolean delByIds(@Nonnull Long[] ids) {
+    public boolean update(@Nonnull final Long id, @Nonnull final UserModifyDTO data) {
+        final QUserEntity qUserEntity = QUserEntity.userEntity;
+        boolean ret = buildDslUpdateClause(queryFactory.update(qUserEntity))
+                //用户姓名
+                .add(!Strings.isNullOrEmpty(data.getName()), qUserEntity.name, data.getName())
+                //用户账号
+                .addFn(!Strings.isNullOrEmpty(data.getAccount()), qUserEntity.account, () -> {
+                    //检查账号是否已存在
+                    if (checkAccountCount(data.getAccount()) > 1) {
+                        return null;
+                    }
+                    return data.getAccount();
+                })
+                //联系电话
+                .add(!Strings.isNullOrEmpty(data.getMobile()), qUserEntity.mobile, data.getMobile())
+                //邮箱
+                .add(!Strings.isNullOrEmpty(data.getEmail()), qUserEntity.email, data.getEmail())
+                //状态
+                .add(data.getStatus() != null, qUserEntity.status, data.getStatus())
+                //密码
+                .addFn(!Strings.isNullOrEmpty(data.getPasswd()), qUserEntity.passwd, () -> pwdEncoder.encode(data.getPasswd()))
+                //所属部门ID
+                .add(data.getDeptId() != null && data.getDeptId() > 0, qUserEntity.deptId, data.getDeptId())
+                .execute(qUserEntity.id.eq(id));
+        if (ret) {
+            //所属岗位集合/角色集合是否存在
+            if (CollectionUtils.isEmpty(data.getPosts()) || CollectionUtils.isEmpty(data.getRoles())) {
+                jpaUser.findById(id)
+                        .ifPresent(entity -> {
+                            //所属岗位集合
+                            updatePosts(entity, data.getPosts());
+                            //所属角色集合
+                            updateRoles(entity, data.getRoles());
+                        });
+            }
+        }
+        return ret;
+    }
+
+    private int checkAccountCount(@Nullable final String account) {
+        if (!Strings.isNullOrEmpty(account)) {
+            final QUserEntity qEntity = QUserEntity.userEntity;
+            return (int) jpaUser.count(qEntity.account.eq(account));
+        }
+        return 0;
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public boolean delByIds(@Nonnull final Long[] ids) {
+        if (ids.length > 0) {
+            final QUserEntity qEntity = QUserEntity.userEntity;
+            return queryFactory.delete(qEntity)
+                    .where(qEntity.id.in(ids))
+                    .execute() > 0;
+        }
         return false;
     }
 }

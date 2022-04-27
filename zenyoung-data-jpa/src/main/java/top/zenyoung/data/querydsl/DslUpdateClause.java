@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * DSL更新处理
@@ -32,6 +33,24 @@ public class DslUpdateClause {
         if (condition && col != null && data != null) {
             clause.set(col, data);
             ref.getAndIncrement();
+        }
+        return this;
+    }
+
+    /**
+     * 添加更新列数据
+     *
+     * @param condition 是否更新
+     * @param col       更新列
+     * @param handler   更新数据处理
+     * @param <T>       更新数据类型
+     * @param <K>       更新列数据类型
+     * @return 链式对象
+     */
+    public <T, K extends Path<T>> DslUpdateClause addFn(final boolean condition, final K col, final Supplier<T> handler) {
+        if (handler != null) {
+            final T data = handler.get();
+            return add(condition, col, data);
         }
         return this;
     }

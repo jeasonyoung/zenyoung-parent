@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +16,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.common.sequence.Sequence;
-import top.zenyoung.common.sequence.SnowFlake;
+import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.data.jpa.JpaBase;
 import top.zenyoung.data.querydsl.DslUpdateClause;
 
@@ -44,16 +44,8 @@ public abstract class BaseRepositoryImpl {
     /**
      * 序号对象
      */
-    protected final Sequence<Long> sequence = initSequence();
-
-    /**
-     * 初始化序号对象
-     *
-     * @return 序号对象
-     */
-    protected Sequence<Long> initSequence() {
-        return SnowFlake.getInstance();
-    }
+    @Autowired
+    protected IdSequence sequence;
 
     /**
      * 构建分页查询
