@@ -6,20 +6,19 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import top.zenyoung.common.valid.Insert;
+import top.zenyoung.common.valid.Modify;
+import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.dto.DeptAddDTO;
 import top.zenyoung.framework.system.dto.DeptLoadDTO;
 import top.zenyoung.framework.system.dto.DeptModifyDTO;
-import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.util.DeptTreeUtils;
 import top.zenyoung.framework.system.vo.DeptTreeVO;
 import top.zenyoung.service.BeanMappingService;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.common.valid.Insert;
-import top.zenyoung.common.valid.Modify;
 import top.zenyoung.web.vo.ResultVO;
 
 import java.util.List;
@@ -125,7 +124,7 @@ public class DeptController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:dept:del')")
     @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptIds", value = "部门ID数组", paramType = "path", dataTypeClass = Long[].class)})
     public ResultVO<?> delById(@PathVariable final Long[] deptIds) {
-        deptRepository.delDeptByIds(Lists.newArrayList(deptIds));
-        return success();
+        final int ret = deptRepository.delDeptByIds(Lists.newArrayList(deptIds));
+        return ret > 0 ? success() : failed();
     }
 }

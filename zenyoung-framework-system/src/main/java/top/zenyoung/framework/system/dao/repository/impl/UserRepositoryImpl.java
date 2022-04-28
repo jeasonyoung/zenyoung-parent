@@ -18,6 +18,7 @@ import top.zenyoung.framework.system.dao.entity.UserEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaPost;
 import top.zenyoung.framework.system.dao.jpa.JpaRole;
 import top.zenyoung.framework.system.dao.jpa.JpaUser;
+import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.dao.repository.UserRepository;
 import top.zenyoung.framework.system.dto.*;
 import top.zenyoung.service.BeanMappingService;
@@ -43,6 +44,7 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
     private final JpaUser jpaUser;
     private final JpaPost jpaPost;
     private final JpaRole jpaRole;
+    private final DeptRepository deptRepository;
 
     private final PasswordEncoder pwdEncoder;
 
@@ -80,6 +82,11 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         if (entity != null) {
             final UserDTO data = new UserDTO();
             BeanUtils.copyProperties(entity, data, "posts", "roles");
+            //所属部门
+            final Long deptId;
+            if ((deptId = entity.getDeptId()) != null && deptId > 0) {
+                data.setDept(deptRepository.getDeptInfoById(deptId));
+            }
             //岗位集合
             data.setPosts(entity.getPosts().stream()
                     .map(p -> PostInfoDTO.of(p.getId(), p.getName()))

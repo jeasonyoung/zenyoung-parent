@@ -1,6 +1,7 @@
 package top.zenyoung.framework.system.dao.repository;
 
 import top.zenyoung.framework.system.dto.DeptAddDTO;
+import top.zenyoung.framework.system.dto.DeptInfoDTO;
 import top.zenyoung.framework.system.dto.DeptLoadDTO;
 import top.zenyoung.framework.system.dto.DeptModifyDTO;
 
@@ -30,6 +31,14 @@ public interface DeptRepository {
      * @return 加载结果
      */
     DeptLoadDTO getDept(@Nonnull final Long id);
+
+    /**
+     * 部门-基础信息
+     *
+     * @param id 部门ID
+     * @return 基础信息
+     */
+    DeptInfoDTO getDeptInfoById(@Nonnull final Long id);
 
     /**
      * 部门-新增

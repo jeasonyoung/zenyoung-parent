@@ -2,6 +2,7 @@ package top.zenyoung.framework.system.dao.repository.impl;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,13 +15,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
-import top.zenyoung.framework.system.dto.DeptAddDTO;
-import top.zenyoung.framework.system.dto.DeptLoadDTO;
-import top.zenyoung.framework.system.dto.DeptModifyDTO;
 import top.zenyoung.framework.system.dao.entity.DeptEntity;
 import top.zenyoung.framework.system.dao.entity.QDeptEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaDept;
 import top.zenyoung.framework.system.dao.repository.DeptRepository;
+import top.zenyoung.framework.system.dto.DeptAddDTO;
+import top.zenyoung.framework.system.dto.DeptInfoDTO;
+import top.zenyoung.framework.system.dto.DeptLoadDTO;
+import top.zenyoung.framework.system.dto.DeptModifyDTO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,7 +44,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     private final JPAQueryFactory queryFactory;
     private final JpaDept jpaDept;
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
     public List<DeptLoadDTO> getDeptWithChildren(@Nullable final Long parentDeptId) {
         final QDeptEntity qEntity = QDeptEntity.deptEntity;
@@ -61,7 +63,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
     public DeptLoadDTO getDept(@Nonnull final Long id) {
         if (id > 0) {
@@ -75,6 +77,20 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
             final DeptLoadDTO data = new DeptLoadDTO();
             BeanUtils.copyProperties(entity, data, "roles");
             return data;
+        }
+        return null;
+    }
+
+    @Override
+    public DeptInfoDTO getDeptInfoById(@Nonnull final Long id) {
+        if (id > 0) {
+            final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
+            final Tuple tuple = queryFactory.from(qDeptEntity)
+                    .select(qDeptEntity.id, qDeptEntity.name)
+                    .fetchOne();
+            if (tuple != null) {
+                return DeptInfoDTO.of(tuple.get(qDeptEntity.id), tuple.get(qDeptEntity.name));
+            }
         }
         return null;
     }

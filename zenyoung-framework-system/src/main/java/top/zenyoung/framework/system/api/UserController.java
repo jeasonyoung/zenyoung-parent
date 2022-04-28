@@ -15,7 +15,6 @@ import top.zenyoung.framework.system.dto.UserAddDTO;
 import top.zenyoung.framework.system.dto.UserDTO;
 import top.zenyoung.framework.system.dto.UserModifyDTO;
 import top.zenyoung.framework.system.dto.UserQueryDTO;
-import top.zenyoung.service.BeanMappingService;
 import top.zenyoung.web.controller.BaseController;
 import top.zenyoung.web.vo.ResultVO;
 
@@ -30,7 +29,6 @@ import top.zenyoung.web.vo.ResultVO;
 @RequiredArgsConstructor
 public class UserController extends BaseController {
     private final UserRepository repository;
-    private final BeanMappingService mappingService;
 
     /**
      * 用户管理-查询
