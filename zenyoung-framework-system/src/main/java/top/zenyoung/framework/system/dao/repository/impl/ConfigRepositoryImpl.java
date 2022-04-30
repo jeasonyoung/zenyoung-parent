@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.PagingResult;
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author young
  */
-@Service
+@Repository
 @RequiredArgsConstructor
 public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRepository {
     private final JPAQueryFactory queryFactory;

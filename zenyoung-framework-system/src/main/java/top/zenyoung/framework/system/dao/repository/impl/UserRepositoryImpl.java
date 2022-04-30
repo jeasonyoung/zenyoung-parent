@@ -6,7 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
@@ -35,7 +35,7 @@ import java.util.stream.StreamSupport;
  *
  * @author young
  */
-@Service
+@Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl extends BaseRepositoryImpl implements UserRepository {
     private final JPAQueryFactory queryFactory;

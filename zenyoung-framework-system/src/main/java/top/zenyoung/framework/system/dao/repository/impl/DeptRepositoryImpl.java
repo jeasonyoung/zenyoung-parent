@@ -102,7 +102,6 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public Long addDept(@Nonnull final DeptAddDTO data) {
-        log.debug("addDept(data: {})...", data);
         final DeptEntity entity = mappingService.mapping(data, DeptEntity.class);
         //主键ID
         entity.setId(sequence.nextId());
@@ -214,18 +213,20 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
 
     private void updateParentStatusEnable(@Nonnull final String ancestors) {
         if (!Strings.isNullOrEmpty(ancestors)) {
-            final QDeptEntity qDept = QDeptEntity.deptEntity;
-            final Status val = Status.Enable;
-            Splitter.on(DEPT_ANCESTOR_SEP).omitEmptyStrings().trimResults().split(ancestors).forEach(deptId -> {
-                try {
-                    final Long id = Long.parseLong(deptId);
-                    queryFactory.update(qDept)
-                            .set(qDept.status, val)
-                            .where(qDept.id.eq(id));
-                } catch (Throwable ex) {
-                    log.warn("updateParentStatusEnable(ancestors: {})-exp: {}", ancestors, ex.getMessage());
-                }
-            });
+            final List<Long> deptIds = Splitter.on(DEPT_ANCESTOR_SEP).omitEmptyStrings().trimResults()
+                    .splitToList(ancestors)
+                    .stream()
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(deptIds)) {
+                final Status val = Status.Enable;
+                final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
+                final long ret = queryFactory.update(qDeptEntity)
+                        .set(qDeptEntity.status, val)
+                        .where(qDeptEntity.id.in(deptIds))
+                        .execute();
+                log.info("updateParentStatusEnable(ancestors: {})=> {}", ancestors, ret);
+            }
         }
     }
 

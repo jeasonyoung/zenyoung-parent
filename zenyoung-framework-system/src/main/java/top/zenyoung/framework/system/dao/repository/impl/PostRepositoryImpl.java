@@ -1,26 +1,26 @@
 package top.zenyoung.framework.system.dao.repository.impl;
 
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import top.zenyoung.common.paging.PagingResult;
+import top.zenyoung.common.util.CacheUtils;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.system.dao.entity.PostEntity;
 import top.zenyoung.framework.system.dao.entity.QPostEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaPost;
 import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.dao.repository.PostRepository;
-import top.zenyoung.framework.system.dto.PostAddDTO;
-import top.zenyoung.framework.system.dto.PostDTO;
-import top.zenyoung.framework.system.dto.PostModifyDTO;
-import top.zenyoung.framework.system.dto.PostQueryDTO;
+import top.zenyoung.framework.system.dto.*;
 import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.LinkedList;
 
 /**
@@ -28,9 +28,10 @@ import java.util.LinkedList;
  *
  * @author young
  */
-@Service
+@Repository
 @RequiredArgsConstructor
 public class PostRepositoryImpl extends BaseRepositoryImpl implements PostRepository {
+    private static final Cache<Long, DeptInfoDTO> DEPT_CACHE = CacheUtils.createCache(50, Duration.ofMinutes(30));
     private final JPAQueryFactory queryFactory;
     private final JpaPost jpaPost;
     private final DeptRepository deptRepository;
@@ -67,7 +68,7 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
         final PostDTO data = mappingService.mapping(entity, PostDTO.class);
         final Long deptId;
         if ((deptId = entity.getDeptId()) != null && deptId > 0) {
-            data.setDept(deptRepository.getDeptInfoById(deptId));
+            data.setDept(CacheUtils.getCacheValue(DEPT_CACHE, deptId, () -> deptRepository.getDeptInfoById(deptId)));
         }
         return data;
     }
@@ -121,9 +122,12 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public boolean delByIds(@Nonnull final Long[] ids) {
-        final QPostEntity qPostEntity = QPostEntity.postEntity;
-        return queryFactory.delete(qPostEntity)
-                .where(qPostEntity.id.in(ids))
-                .execute() > 0;
+        if (ids.length > 0) {
+            final QPostEntity qPostEntity = QPostEntity.postEntity;
+            return queryFactory.delete(qPostEntity)
+                    .where(qPostEntity.id.in(ids))
+                    .execute() > 0;
+        }
+        return false;
     }
 }

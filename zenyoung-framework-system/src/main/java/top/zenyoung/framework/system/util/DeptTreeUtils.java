@@ -22,7 +22,7 @@ public class DeptTreeUtils {
 
     public static List<DeptTreeVO> build(@Nullable final List<DeptDTO> items, @Nullable final List<Long> excludes) {
         if (CollectionUtils.isEmpty(items)) {
-            return null;
+            return Lists.newArrayList();
         }
         //子部门Map
         final Map<Long, List<DeptTreeVO>> childMaps = items.stream()
