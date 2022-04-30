@@ -14,20 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.Status;
+import top.zenyoung.data.querydsl.DslUpdateClause;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.system.dao.entity.DeptEntity;
 import top.zenyoung.framework.system.dao.entity.QDeptEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaDept;
 import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.dto.DeptAddDTO;
+import top.zenyoung.framework.system.dto.DeptDTO;
 import top.zenyoung.framework.system.dto.DeptInfoDTO;
-import top.zenyoung.framework.system.dto.DeptLoadDTO;
 import top.zenyoung.framework.system.dto.DeptModifyDTO;
+import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -40,13 +44,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptRepository {
     private static final String DEPT_ANCESTOR_SEP = ",";
-
     private final JPAQueryFactory queryFactory;
     private final JpaDept jpaDept;
+    private final BeanMappingService mappingService;
 
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
-    public List<DeptLoadDTO> getDeptWithChildren(@Nullable final Long parentDeptId) {
+    public List<DeptDTO> getDeptWithChildren(@Nullable final Long parentDeptId) {
         final QDeptEntity qEntity = QDeptEntity.deptEntity;
         final JPAQuery<DeptEntity> query = queryFactory.selectFrom(qEntity);
         if (parentDeptId != null && parentDeptId > 0) {
@@ -65,16 +69,16 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
 
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
-    public DeptLoadDTO getDept(@Nonnull final Long id) {
+    public DeptDTO getDept(@Nonnull final Long id) {
         if (id > 0) {
             return buildConvert(jpaDept.getById(id));
         }
         return null;
     }
 
-    private DeptLoadDTO buildConvert(@Nullable final DeptEntity entity) {
+    private DeptDTO buildConvert(@Nullable final DeptEntity entity) {
         if (entity != null) {
-            final DeptLoadDTO data = new DeptLoadDTO();
+            final DeptDTO data = new DeptDTO();
             BeanUtils.copyProperties(entity, data, "roles");
             return data;
         }
@@ -99,9 +103,11 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Override
     public Long addDept(@Nonnull final DeptAddDTO data) {
         log.debug("addDept(data: {})...", data);
-        Assert.hasText(data.getName(), "'data.name'不能为空!");
-        final DeptEntity entity = new DeptEntity();
-        BeanUtils.copyProperties(data, entity);
+        final DeptEntity entity = mappingService.mapping(data, DeptEntity.class);
+        //主键ID
+        entity.setId(sequence.nextId());
+        //状态
+        entity.setStatus(Status.Enable);
         //排序号处理
         if (entity.getCode() != null) {
             entity.setCode(getMaxCode(data.getParentId()) + 1);
@@ -114,6 +120,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
             }
             entity.setAncestors(parent.getAncestors() + DEPT_ANCESTOR_SEP + parent.getParentId());
         }
+        //保存数据
         return jpaDept.save(entity).getId();
     }
 
@@ -128,21 +135,61 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     }
 
     @Override
-    public void modifyDept(@Nonnull final DeptModifyDTO data) {
-        Assert.isTrue(data.getId() != null && data.getId() > 0, "'data.id'不能为空!");
-        final DeptEntity newParent = data.getParentId() != null && data.getParentId() >= 0 ? jpaDept.getById(data.getParentId()) : null;
-        final DeptEntity entity = jpaDept.getById(data.getId());
-        BeanUtils.copyProperties(data, entity);
-        if (newParent != null) {
-            final String newAncestors = newParent.getAncestors() + DEPT_ANCESTOR_SEP + newParent.getId();
-            final String oldAncestors = entity.getAncestors();
-            entity.setAncestors(newAncestors);
-            updateChildrenAncestors(entity.getId(), newAncestors, oldAncestors);
+    public boolean modifyDept(@Nonnull final Long id, @Nonnull final DeptModifyDTO data) {
+        Assert.isTrue(id > 0, "'data.id'不能为空!");
+        final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
+        final AtomicReference<String> refNewAncestors = new AtomicReference<>(null);
+        final DslUpdateClause updateClause = buildDslUpdateClause(queryFactory.update(qDeptEntity))
+                //部门代码
+                .add(data.getCode() != null, qDeptEntity.code, data.getCode())
+                //部门名称
+                .add(!Strings.isNullOrEmpty(data.getName()), qDeptEntity.name, data.getName())
+                //负责人
+                .add(!Strings.isNullOrEmpty(data.getLeader()), qDeptEntity.leader, data.getLeader())
+                //联系电话
+                .add(!Strings.isNullOrEmpty(data.getMobile()), qDeptEntity.mobile, data.getMobile())
+                //邮箱
+                .add(!Strings.isNullOrEmpty(data.getEmail()), qDeptEntity.email, data.getEmail())
+                //状态
+                .add(data.getStatus() != null, qDeptEntity.status, data.getStatus())
+                //上级部门ID
+                .addFn(data.getParentId() != null, qDeptEntity.parentId, () -> {
+                    final String ancestors = getAncestors(data.getParentId());
+                    if (!Strings.isNullOrEmpty(ancestors)) {
+                        final String newAncestors = ancestors + DEPT_ANCESTOR_SEP + data.getParentId();
+                        refNewAncestors.set(newAncestors);
+                        return data.getParentId();
+                    }
+                    return null;
+                });
+        final String newAncestors = refNewAncestors.get();
+        if (!Strings.isNullOrEmpty(newAncestors)) {
+            updateClause.add(qDeptEntity.ancestors, newAncestors);
         }
-        if (data.getStatus() == Status.Enable && !Strings.isNullOrEmpty(entity.getAncestors())) {
+        //更新数据
+        final boolean ret = updateClause.execute(qDeptEntity.id.eq(id));
+        if (ret) {
+            final String oldAncestors = getAncestors(id);
+            if (!Strings.isNullOrEmpty(oldAncestors) && !Strings.isNullOrEmpty(newAncestors)) {
+                updateChildrenAncestors(id, newAncestors, oldAncestors);
+            }
             //如果该部门是启用状态，则启用该部门的所有上级部门
-            updateParentStatusEnable(entity.getAncestors());
+            if (data.getStatus() == Status.Enable && !Strings.isNullOrEmpty(oldAncestors)) {
+                updateParentStatusEnable(oldAncestors);
+            }
         }
+        return ret;
+    }
+
+    private String getAncestors(@Nullable final Long deptId) {
+        if (Objects.nonNull(deptId) && deptId > 0) {
+            final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
+            return queryFactory.from(qDeptEntity)
+                    .select(qDeptEntity.ancestors)
+                    .where(qDeptEntity.id.eq(deptId))
+                    .fetchOne();
+        }
+        return null;
     }
 
     private void updateChildrenAncestors(@Nonnull final Long deptId, @Nonnull final String newAncestors, @Nonnull final String oldAncestors) {

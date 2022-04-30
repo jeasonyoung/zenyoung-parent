@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.system.dao.entity.ConfigEntity;
@@ -71,6 +72,7 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
     public Long add(@Nonnull final ConfigAddDTO add) {
         final ConfigEntity entity = mappingService.mapping(add, ConfigEntity.class);
         entity.setId(sequence.nextId());
+        entity.setStatus(Status.Enable);
         return jpaConfig.save(entity).getId();
     }
 

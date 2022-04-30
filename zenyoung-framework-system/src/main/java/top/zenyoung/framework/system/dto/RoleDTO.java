@@ -4,20 +4,19 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.zenyoung.common.model.Status;
 
 /**
- * 参数配置-修改DTO
+ * 角色-加载DTO
  *
  * @author young
  */
 @Data
-@ApiModel("参数配置-修改")
+@ApiModel("角色数据")
 @EqualsAndHashCode(callSuper = true)
-public class ConfigModifyDTO extends ConfigBaseDTO {
+public class RoleDTO extends RoleBaseDTO {
     /**
-     * 状态
+     * 角色ID
      */
-    @ApiModelProperty("状态")
-    private Status status;
+    @ApiModelProperty("角色ID")
+    private Long id;
 }

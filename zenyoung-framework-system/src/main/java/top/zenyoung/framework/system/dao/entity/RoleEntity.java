@@ -42,7 +42,7 @@ public class RoleEntity extends BaseStatusEntity {
     /**
      * 角色备注
      */
-    @Column(length = 255)
+    @Column
     private String remark;
     /**
      * 数据权限范围

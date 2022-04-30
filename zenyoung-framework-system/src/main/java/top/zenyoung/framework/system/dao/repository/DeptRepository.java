@@ -1,9 +1,6 @@
 package top.zenyoung.framework.system.dao.repository;
 
-import top.zenyoung.framework.system.dto.DeptAddDTO;
-import top.zenyoung.framework.system.dto.DeptInfoDTO;
-import top.zenyoung.framework.system.dto.DeptLoadDTO;
-import top.zenyoung.framework.system.dto.DeptModifyDTO;
+import top.zenyoung.framework.system.dto.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,7 +19,7 @@ public interface DeptRepository {
      * @param parentDeptId 上级部门ID
      * @return 全部数据
      */
-    List<DeptLoadDTO> getDeptWithChildren(@Nullable final Long parentDeptId);
+    List<DeptDTO> getDeptWithChildren(@Nullable final Long parentDeptId);
 
     /**
      * 部门-加载
@@ -30,7 +27,7 @@ public interface DeptRepository {
      * @param id 部门ID
      * @return 加载结果
      */
-    DeptLoadDTO getDept(@Nonnull final Long id);
+    DeptDTO getDept(@Nonnull final Long id);
 
     /**
      * 部门-基础信息
@@ -51,9 +48,10 @@ public interface DeptRepository {
     /**
      * 部门-修改
      *
+     * @param id   部门ID
      * @param data 修改数据
      */
-    void modifyDept(@Nonnull final DeptModifyDTO data);
+    boolean modifyDept(@Nonnull final Long id, @Nonnull final DeptModifyDTO data);
 
     /**
      * 部门-删除

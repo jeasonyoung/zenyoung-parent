@@ -1,20 +1,23 @@
 package top.zenyoung.framework.system.dto;
 
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.zenyoung.common.model.Status;
+import top.zenyoung.framework.dto.BasePageDTO;
 
 /**
- * 参数配置-修改DTO
- *
+ * 角色-查询DTO
  * @author young
  */
 @Data
-@ApiModel("参数配置-修改")
 @EqualsAndHashCode(callSuper = true)
-public class ConfigModifyDTO extends ConfigBaseDTO {
+public class RoleQueryDTO extends BasePageDTO {
+    /**
+     * 角色代码/名称/简称
+     */
+    @ApiModelProperty("角色代码/名称/简称")
+    private String name;
     /**
      * 状态
      */

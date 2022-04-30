@@ -1,5 +1,6 @@
 package top.zenyoung.framework.system.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.Data;
  * @author young
  */
 @Data
+@ApiModel("部门-信息")
 @AllArgsConstructor(staticName = "of")
 public class DeptInfoDTO {
     /**

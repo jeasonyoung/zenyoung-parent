@@ -5,13 +5,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 参数配置-新增DTO
+ * 角色-修改DTO
  *
  * @author young
  */
 @Data
-@ApiModel("参数配置-新增")
+@ApiModel("角色修改")
 @EqualsAndHashCode(callSuper = true)
-public class ConfigAddDTO extends ConfigBaseDTO {
-
+public class RoleModifyDTO extends RoleBaseDTO {
 }

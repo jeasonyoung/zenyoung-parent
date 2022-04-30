@@ -4,20 +4,21 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.zenyoung.common.model.Status;
+
+import java.util.List;
 
 /**
- * 参数配置-修改DTO
+ * 部门-树DTO
  *
  * @author young
  */
 @Data
-@ApiModel("参数配置-修改")
+@ApiModel("部门-树")
 @EqualsAndHashCode(callSuper = true)
-public class ConfigModifyDTO extends ConfigBaseDTO {
+public class DeptTreeDTO extends DeptDTO {
     /**
-     * 状态
+     * 子部门集合
      */
-    @ApiModelProperty("状态")
-    private Status status;
+    @ApiModelProperty("子部门集合")
+    private List<DeptTreeDTO> children;
 }
