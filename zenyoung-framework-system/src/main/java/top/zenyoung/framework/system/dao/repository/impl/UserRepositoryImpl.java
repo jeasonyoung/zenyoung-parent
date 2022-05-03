@@ -8,13 +8,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
-import top.zenyoung.framework.system.dao.entity.QPostEntity;
-import top.zenyoung.framework.system.dao.entity.QRoleEntity;
-import top.zenyoung.framework.system.dao.entity.QUserEntity;
-import top.zenyoung.framework.system.dao.entity.UserEntity;
+import top.zenyoung.framework.auth.AuthUser;
+import top.zenyoung.framework.system.dao.entity.*;
 import top.zenyoung.framework.system.dao.jpa.JpaPost;
 import top.zenyoung.framework.system.dao.jpa.JpaRole;
 import top.zenyoung.framework.system.dao.jpa.JpaUser;
@@ -199,5 +198,27 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
                     .execute() > 0;
         }
         return false;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public AuthUser findByAccount(@Nonnull final String account) {
+        Assert.hasText(account, "'account'不能为空");
+        final QUserEntity qUserEntity = QUserEntity.userEntity;
+        final UserEntity entity = queryFactory.selectFrom(qUserEntity)
+                .where(qUserEntity.account.eq(account))
+                .fetchFirst();
+        if (entity != null) {
+            return AuthUser.builder()
+                    .id(entity.getId())
+                    .account(entity.getAccount())
+                    .name(entity.getName())
+                    .password(entity.getPasswd())
+                    .nick(entity.getName())
+                    .roles(entity.getRoles().stream().map(RoleEntity::getAbbr).collect(Collectors.toList()))
+                    .status(entity.getStatus())
+                    .build();
+        }
+        return null;
     }
 }

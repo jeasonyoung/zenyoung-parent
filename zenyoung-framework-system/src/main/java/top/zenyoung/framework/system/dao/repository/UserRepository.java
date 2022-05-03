@@ -1,6 +1,7 @@
 package top.zenyoung.framework.system.dao.repository;
 
 import top.zenyoung.common.paging.PagingResult;
+import top.zenyoung.framework.auth.AuthUser;
 import top.zenyoung.framework.system.dto.UserAddDTO;
 import top.zenyoung.framework.system.dto.UserDTO;
 import top.zenyoung.framework.system.dto.UserModifyDTO;
@@ -55,4 +56,12 @@ public interface UserRepository {
      * @return 删除结果
      */
     boolean delByIds(@Nonnull final Long[] ids);
+
+    /**
+     * 用户-查找用户
+     *
+     * @param account 登录用户
+     * @return 认证用户信息
+     */
+    AuthUser findByAccount(@Nonnull final String account);
 }

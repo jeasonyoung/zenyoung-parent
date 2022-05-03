@@ -36,6 +36,12 @@
             <artifactId>swagger-annotations</artifactId>
         </dependency>
 
+        <!-- jetcache -->
+        <dependency>
+            <groupId>com.alicp.jetcache</groupId>
+            <artifactId>jetcache-starter-redis-springdata</artifactId>
+        </dependency>
+
         <!-- 框架模块 start -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -55,6 +61,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>zenyoung-webmvc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>zenyoung-security-webmvc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- 框架模块 end -->
