@@ -3,6 +3,7 @@ package top.zenyoung.security.webmvc.filter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,7 +12,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.zenyoung.security.model.LoginReqBody;
-import top.zenyoung.security.webmvc.BaseJwtAuthenticationManager;
+import top.zenyoung.security.webmvc.BaseMvcAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -31,14 +32,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final List<RequestMatcher> whiteMatchers = Lists.newLinkedList();
-    private final BaseJwtAuthenticationManager<? extends LoginReqBody> manager;
+    private final BaseMvcAuthenticationManager<? extends LoginReqBody> manager;
 
-    public JwtTokenFilter(@Nonnull final BaseJwtAuthenticationManager<? extends LoginReqBody> manager) {
+    public JwtTokenFilter(@Nonnull final BaseMvcAuthenticationManager<? extends LoginReqBody> manager) {
         this.manager = manager;
         this.buildWhiteUrls(whiteMatchers, manager);
     }
 
-    private void buildWhiteUrls(@Nonnull final List<RequestMatcher> whiteMatchers, @Nonnull final BaseJwtAuthenticationManager<? extends LoginReqBody> authenticationManager) {
+    private void buildWhiteUrls(@Nonnull final List<RequestMatcher> whiteMatchers, @Nonnull final BaseMvcAuthenticationManager<? extends LoginReqBody> authenticationManager) {
         final List<String> whiteUrls = Lists.newLinkedList();
         //用户登录
         final String[] loginUrls = authenticationManager.getLoginUrls();
@@ -91,7 +92,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
         } catch (AuthenticationException ex) {
             log.warn("doFilterInternal-exp: {}", ex.getMessage());
-            manager.unsuccessfulAuthentication(response, ex);
+            manager.unsuccessfulAuthentication(response, HttpStatus.UNAUTHORIZED, ex);
         }
     }
 }

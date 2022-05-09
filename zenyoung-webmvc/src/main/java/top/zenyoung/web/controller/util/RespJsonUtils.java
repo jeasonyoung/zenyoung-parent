@@ -28,7 +28,8 @@ public class RespJsonUtils {
      */
     @SneakyThrows({IOException.class})
     public static void buildResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nonnull final ResultVO<?> respResult) {
-        response.setStatus(HttpStatus.OK.value());
+        final Integer code = respResult.getCode();
+        response.setStatus(code == null || code != 0 ? HttpStatus.OK.value() : code);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), respResult);
         response.flushBuffer();

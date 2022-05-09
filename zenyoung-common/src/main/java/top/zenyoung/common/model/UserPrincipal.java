@@ -31,6 +31,10 @@ public class UserPrincipal implements Principal, Serializable {
      * 用户角色集合
      */
     private List<String> roles;
+    /**
+     * 设备标识
+     */
+    private String device;
 
     /**
      * 扩展数据
@@ -48,13 +52,16 @@ public class UserPrincipal implements Principal, Serializable {
      * @param id      用户ID
      * @param account 用户账号
      * @param roles   用户角色集合
+     * @param device  用户设备标识
      * @param exts    扩展数据
      */
-    public UserPrincipal(final String id, final String account, final List<String> roles, final Map<String, Serializable> exts) {
+    public UserPrincipal(final String id, final String account, final List<String> roles, final String device,
+                         final Map<String, Serializable> exts) {
         this.id = id;
         this.account = account;
         this.roles = roles;
-        if (exts != null && !exts.isEmpty()) {
+        this.device = device;
+        if (exts != null && exts.size() > 0) {
             this.exts.putAll(exts);
         }
     }
@@ -65,9 +72,10 @@ public class UserPrincipal implements Principal, Serializable {
      * @param id      用户ID
      * @param account 用户账号
      * @param roles   用户角色集合
+     * @param device  设备标识
      */
-    public UserPrincipal(final String id, final String account, final List<String> roles) {
-        this(id, account, roles, null);
+    public UserPrincipal(final String id, final String account, final List<String> roles, final String device) {
+        this(id, account, roles, device, null);
     }
 
     /**
@@ -76,14 +84,14 @@ public class UserPrincipal implements Principal, Serializable {
      * @param principal 用户数据
      */
     public UserPrincipal(@Nonnull final UserPrincipal principal) {
-        this(principal.getId(), principal.getAccount(), principal.getRoles(), principal.getExts());
+        this(principal.getId(), principal.getAccount(), principal.getRoles(), principal.getDevice(), principal.getExts());
     }
 
     /**
      * 构造函数
      */
     public UserPrincipal() {
-        this(null, null, Lists.newLinkedList(), Maps.newLinkedHashMap());
+        this(null, null, Lists.newLinkedList(), null, Maps.newLinkedHashMap());
     }
 
     /**

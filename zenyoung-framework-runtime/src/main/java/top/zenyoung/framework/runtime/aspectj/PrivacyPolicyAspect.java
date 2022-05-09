@@ -37,7 +37,7 @@ public class PrivacyPolicyAspect extends BaseAspect {
         }
     }
 
-    @SneakyThrows
+    @SneakyThrows({})
     private void buildPrivacyPolicy(@Nonnull final Class<?> cls, @Nonnull final PrivacyPolicy policy, @Nonnull final Object objVal) {
         final List<Field> fields = Lists.newLinkedList();
         ClassUtils.getAllFieldsWithSuper(cls, fields);

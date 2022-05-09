@@ -34,8 +34,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-security-common</artifactId>
+            <artifactId>zenyoung-security-webmvc</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

@@ -9,7 +9,7 @@ import java.io.Serializable;
  *
  * @author yangyong
  * @version 1.0
- *  2020/3/20 6:10 下午
+ * 2020/3/20 6:10 下午
  **/
 @Data
 public class LoginReqBody implements Serializable {
@@ -21,4 +21,8 @@ public class LoginReqBody implements Serializable {
      * 登录密码
      */
     private String passwd;
+    /**
+     * 用户设备标识
+     */
+    private String device;
 }

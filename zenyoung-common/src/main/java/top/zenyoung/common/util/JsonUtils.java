@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class JsonUtils {
      * @param <T>          数据类型
      * @return json字符数组
      */
-    @SneakyThrows
+    @SneakyThrows({})
     public static <T> byte[] toJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
         return objectMapper.writeValueAsBytes(data);
     }
@@ -39,7 +40,7 @@ public class JsonUtils {
      * @param <T>          数据类型
      * @return json字符串
      */
-    @SneakyThrows
+    @SneakyThrows({})
     public static <T> String toJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
         return objectMapper.writeValueAsString(data);
     }
@@ -53,12 +54,26 @@ public class JsonUtils {
      * @param <R>          目标数据类型
      * @return 反序列为对象
      */
-    @SneakyThrows
+    @SneakyThrows({})
     public static <R> R fromJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> tClass) {
         if (!Strings.isNullOrEmpty(json)) {
             return objectMapper.readValue(json, tClass);
         }
         return null;
+    }
+
+    /**
+     * 将数据流转换为对象
+     *
+     * @param objectMapper JSON处理器
+     * @param inputStream  输入流
+     * @param tClass       数据类型class
+     * @param <R>          数据类型
+     * @return 数据对象
+     */
+    @SneakyThrows({})
+    public static <R> R fromStream(@Nonnull final ObjectMapper objectMapper, @Nonnull final InputStream inputStream, @Nonnull final Class<R> tClass) {
+        return objectMapper.readValue(inputStream, tClass);
     }
 
     /**
@@ -87,7 +102,7 @@ public class JsonUtils {
      * @param <R>          值类型
      * @return Map对象
      */
-    @SneakyThrows
+    @SneakyThrows({})
     public static <R> Map<String, R> fromJsonToMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valClass) {
         if (!Strings.isNullOrEmpty(json)) {
             final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valClass);
@@ -106,7 +121,7 @@ public class JsonUtils {
      * @param <R>          值类型
      * @return Map对象
      */
-    @SneakyThrows
+    @SneakyThrows({})
     public static <T, R> Map<String, R> toMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data, @Nonnull final Class<R> valClass) {
         final String json = toJson(objectMapper, data);
         if (!Strings.isNullOrEmpty(json)) {
@@ -114,5 +129,4 @@ public class JsonUtils {
         }
         return null;
     }
-
 }

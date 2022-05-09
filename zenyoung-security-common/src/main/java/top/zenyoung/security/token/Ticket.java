@@ -30,6 +30,7 @@ public class Ticket extends UserPrincipal {
     private static final String KEY_ID = "id";
     private static final String KEY_ACCOUNT = "account";
     private static final String KEY_ROLES = "roles";
+    private static final String KEY_DEVICE = "device";
     private static final String KEY_EXTS = "exts";
 
     private static final String SEP_ROLE = ",";
@@ -48,6 +49,8 @@ public class Ticket extends UserPrincipal {
                 //用户角色集合
                 final List<String> roles = getRoles();
                 put(KEY_ROLES, CollectionUtils.isEmpty(roles) ? null : Joiner.on(SEP_ROLE).skipNulls().join(roles));
+                //设备标识
+                put(KEY_DEVICE, getDevice());
                 //扩展数据
                 final Map<String, Serializable> exts = getExts();
                 put(KEY_EXTS, CollectionUtils.isEmpty(exts) ? null : exts);
@@ -55,7 +58,6 @@ public class Ticket extends UserPrincipal {
         };
     }
 
-    @SuppressWarnings({"unchecked"})
     public static Ticket create(@Nonnull final Map<String, Object> claims) {
         final Ticket ticket = new Ticket();
         if (claims.size() > 0) {
@@ -71,12 +73,17 @@ public class Ticket extends UserPrincipal {
                 }
                 return null;
             }));
+            //设备标识
+            ticket.setDevice(convert(KEY_DEVICE, claims, Object::toString));
             //扩展数据
             final Object objVal = claims.getOrDefault(KEY_EXTS, null);
             if (objVal instanceof Map) {
-                ((Map<String, Serializable>) objVal).forEach((key, value) -> {
-                    if (!Strings.isNullOrEmpty(key) && value != null) {
-                        ticket.add(key, value);
+                ((Map<?, ?>) objVal).forEach((k, v) -> {
+                    if ((k instanceof String) && (v instanceof Serializable)) {
+                        final String key = (String) k;
+                        if (!Strings.isNullOrEmpty(key)) {
+                            ticket.add(key, (Serializable) v);
+                        }
                     }
                 });
             }

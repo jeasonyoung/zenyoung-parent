@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -19,7 +20,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.TokenAuthentication;
-import top.zenyoung.security.webmvc.BaseJwtAuthenticationManager;
+import top.zenyoung.security.webmvc.BaseMvcAuthenticationManager;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -36,14 +37,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswordAuthenticationFilter {
     private final List<RequestMatcher> requestMatchers = Lists.newLinkedList();
-    private final BaseJwtAuthenticationManager<ReqBody> manager;
+    private final BaseMvcAuthenticationManager<ReqBody> manager;
 
     /**
      * 构造函数
      *
      * @param manager 认证管理
      */
-    public JwtLoginFilter(@Nonnull final BaseJwtAuthenticationManager<ReqBody> manager) {
+    public JwtLoginFilter(@Nonnull final BaseMvcAuthenticationManager<ReqBody> manager) {
         super(manager);
         this.manager = manager;
         this.buildRequestMatchers(this.requestMatchers);
@@ -98,17 +99,13 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
                 throw new RuntimeException(ex);
             }
         } else {
-            final String username = obtainUsername(servletRequest);
-            final String password = obtainPassword(servletRequest);
-            reqBody = manager.createReqBody();
-            reqBody.setAccount(Strings.isNullOrEmpty(username) ? "" : username.trim());
-            reqBody.setPasswd(Strings.isNullOrEmpty(password) ? "" : password.trim());
-            manager.parseFromData(reqBody, servletRequest.getParameterMap());
+            reqBody = manager.parseFromData(servletRequest.getParameterMap(), manager.getLoginReqBodyClass());
         }
         if (reqBody == null) {
             throw new UsernameNotFoundException("用户名或密码为空!");
         }
-        return manager.authenticate(new TokenAuthentication<>(reqBody));
+        final TokenAuthentication<ReqBody> authentication = manager.buildBeforeAuthenticate(httpRequest, reqBody);
+        return manager.authenticate(authentication);
     }
 
     @Override
@@ -132,6 +129,6 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
         log.debug("unsuccessfulAuthentication(failed: {})...", failed == null ? null : failed.getMessage());
         SecurityContextHolder.clearContext();
         //登录失败处理
-        manager.unsuccessfulAuthentication(response, failed);
+        manager.unsuccessfulAuthentication(response, HttpStatus.UNAUTHORIZED, failed);
     }
 }

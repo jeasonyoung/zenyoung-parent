@@ -1,8 +1,8 @@
 package top.zenyoung.security.model;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import top.zenyoung.security.BaseJwtAuthenticationManager;
 
 import javax.annotation.Nonnull;
 
@@ -22,13 +22,21 @@ public class TokenAuthentication<ReqBody extends LoginReqBody> extends UsernameP
     private final ReqBody reqBody;
 
     /**
+     * 是否免密认证
+     */
+    @Getter
+    @Setter
+    private Boolean freePwdAuthen;
+
+    /**
      * 构造函数
      *
      * @param reqBody 登录数据
      */
-    public TokenAuthentication(@Nonnull final ReqBody reqBody) {
+    public TokenAuthentication(@Nonnull final ReqBody reqBody, @Nonnull final Boolean freePwd) {
         super(reqBody.getAccount(), reqBody.getPasswd());
         this.reqBody = reqBody;
+        this.freePwdAuthen = freePwd;
     }
 
     /**
@@ -39,17 +47,5 @@ public class TokenAuthentication<ReqBody extends LoginReqBody> extends UsernameP
     public TokenAuthentication(@Nonnull final TokenUserDetails userDetails) {
         super(userDetails, null, userDetails.getAuthorities());
         this.reqBody = null;
-    }
-
-    /**
-     * 构造函数
-     *
-     * @param token 用户密码认证令牌
-     */
-    public TokenAuthentication(@Nonnull final UsernamePasswordAuthenticationToken token, @Nonnull final BaseJwtAuthenticationManager<ReqBody> manager) {
-        super(token.getPrincipal(), token.getCredentials());
-        reqBody = manager.createReqBody();
-        reqBody.setAccount((String) token.getPrincipal());
-        reqBody.setPasswd((String) token.getCredentials());
     }
 }

@@ -3,7 +3,10 @@ package top.zenyoung.common.util;
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * 反射类型工具
@@ -11,6 +14,25 @@ import java.util.function.Predicate;
  * @author young
  */
 public class ClassUtils {
+
+    /**
+     * 字段处理器
+     *
+     * @param cls      类型
+     * @param consumer 字段处理器
+     */
+    public static void getFieldHandlers(@Nonnull final Class<?> cls, @Nonnull final Consumer<Field> consumer) {
+        if (cls != Object.class) {
+            Stream.of(cls.getDeclaredFields())
+                    .filter(Objects::nonNull)
+                    .forEach(consumer);
+            //递归处理父类
+            final Class<?> parent = cls.getSuperclass();
+            if (parent != null && parent != Object.class) {
+                getFieldHandlers(parent, consumer);
+            }
+        }
+    }
 
     /**
      * 从类型中反射查找字段
