@@ -95,8 +95,6 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
     @Override
     public Long add(@Nonnull final MenuAddDTO data) {
         final MenuEntity entity = mappingService.mapping(data, MenuEntity.class);
-        //主键ID
-        entity.setId(sequence.nextId());
         //保存数据
         return jpaMenu.save(entity).getId();
     }

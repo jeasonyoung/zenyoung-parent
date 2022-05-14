@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +15,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.data.jpa.JpaBase;
 import top.zenyoung.data.querydsl.DslUpdateClause;
 
@@ -40,12 +38,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class BaseRepositoryImpl {
     private static final int DEF_PAGING_IDX = 0, DEF_PAGING_ROWS = 10;
-
-    /**
-     * 序号对象
-     */
-    @Autowired
-    protected IdSequence sequence;
 
     /**
      * 构建分页查询

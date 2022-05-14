@@ -17,6 +17,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.SnowFlake;
 import top.zenyoung.framework.auth.AuthConfig;
 import top.zenyoung.framework.auth.BaseAuthenticationManagerService;
 import top.zenyoung.security.webmvc.filter.JwtLoginFilter;
@@ -38,6 +40,14 @@ public class RuntimeAutoConfiguration {
     private RuntimeProperties properties;
     @Autowired
     private ApplicationContext context;
+
+    @Bean
+    @ConditionalOnMissingBean(IdSequence.class)
+    private IdSequence buildSequence() {
+        final int max = 10;
+        final int cpus = Math.max(Runtime.getRuntime().availableProcessors(), 1);
+        return SnowFlake.getInstance(cpus & max, (cpus * 2) & max);
+    }
 
     @Bean
     @ConditionalOnMissingBean(AuthConfig.class)

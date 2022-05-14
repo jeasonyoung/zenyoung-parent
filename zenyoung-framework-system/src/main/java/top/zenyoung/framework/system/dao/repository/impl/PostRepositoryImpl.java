@@ -83,8 +83,6 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
     @Override
     public Long add(@Nonnull final PostAddDTO data) {
         final PostEntity entity = mappingService.mapping(data, PostEntity.class);
-        //主键
-        entity.setId(sequence.nextId());
         //保存数据
         return jpaPost.save(entity).getId();
     }

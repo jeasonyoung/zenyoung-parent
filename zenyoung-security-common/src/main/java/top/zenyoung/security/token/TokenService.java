@@ -19,24 +19,47 @@ public interface TokenService {
     Token createToken(@Nonnull final Ticket ticket);
 
     /**
+     * 刷新令牌串
+     *
+     * @param refreshToken 刷新令牌串
+     * @return 新令牌串
+     */
+    String refreshToken(@Nonnull final String refreshToken);
+
+    /**
      * 解析令牌
      *
      * @param token 令牌串
-     * @return 用户票据信息
+     * @return 令牌票据
      * @throws TokenException 令牌异常
      */
-    Ticket parseToke(@Nonnull final String token) throws TokenException;
+    Ticket parseToken(@Nonnull final String token) throws TokenException;
+
+    /**
+     * 解析刷新令牌
+     *
+     * @param refreshToken 刷新令牌串
+     * @return 令牌票据
+     */
+    Ticket parseRefreshToken(@Nonnull final String refreshToken);
 
     /**
      * 验证令牌
      *
      * @param token 令牌串
-     * @return 用户票据信息
+     * @return 令牌票据
      */
-    Ticket valid(@Nonnull final String token);
+    Ticket validToken(@Nonnull final String token);
 
     /**
-     * 获取刷新令牌
+     * 删除令牌
+     *
+     * @param token 令牌串
+     */
+    void delToken(@Nonnull final String token);
+
+    /**
+     * 根据令牌获取刷新令牌
      *
      * @param token 令牌串
      * @return 刷新令牌串
@@ -44,10 +67,10 @@ public interface TokenService {
     String getRefreshToken(@Nonnull final String token);
 
     /**
-     * 刷新令牌
+     * 根据刷新令牌获取令牌
      *
      * @param refreshToken 刷新令牌
-     * @return 刷新令牌
+     * @return 令牌
      */
-    Token refreshToken(@Nonnull final String refreshToken);
+    String getToken(@Nonnull final String refreshToken);
 }

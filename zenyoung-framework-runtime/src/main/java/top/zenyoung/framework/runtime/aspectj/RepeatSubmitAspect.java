@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.framework.annotation.RepeatSubmit;
 import top.zenyoung.framework.exception.ServiceException;
+import top.zenyoung.framework.runtime.config.RepeatSubmitConfig;
 import top.zenyoung.framework.runtime.config.RuntimeProperties;
 import top.zenyoung.web.controller.util.HttpUtils;
 
@@ -45,7 +46,7 @@ public class RepeatSubmitAspect extends BaseAspect {
 
     @Before("@annotation(repeatSubmit)")
     public void doBefore(final JoinPoint joinPoint, final RepeatSubmit repeatSubmit) {
-        final RuntimeProperties.RepeatSubmitConfig rs = properties.getRepeatSubmit();
+        final RepeatSubmitConfig rs = properties.getRepeatSubmit();
         //检查是否启用
         if (!rs.isEnabled()) {
             return;

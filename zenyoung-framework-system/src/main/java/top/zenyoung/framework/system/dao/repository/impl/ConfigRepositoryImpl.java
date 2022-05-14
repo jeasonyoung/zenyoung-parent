@@ -71,7 +71,6 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
     @Override
     public Long add(@Nonnull final ConfigAddDTO add) {
         final ConfigEntity entity = mappingService.mapping(add, ConfigEntity.class);
-        entity.setId(sequence.nextId());
         entity.setStatus(Status.Enable);
         return jpaConfig.save(entity).getId();
     }

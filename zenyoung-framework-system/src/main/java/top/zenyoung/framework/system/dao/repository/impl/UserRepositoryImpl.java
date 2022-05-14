@@ -105,8 +105,6 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
     @Override
     public Long add(@Nonnull final UserAddDTO data) {
         final UserEntity entity = mappingService.mapping(data, UserEntity.class);
-        //主键ID
-        entity.setId(sequence.nextId());
         //密码
         if (!Strings.isNullOrEmpty(data.getPasswd())) {
             entity.setPasswd(pwdEncoder.encode(data.getPasswd()));

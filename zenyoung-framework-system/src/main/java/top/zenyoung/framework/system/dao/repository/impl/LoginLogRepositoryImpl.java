@@ -67,8 +67,6 @@ public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginL
     @Override
     public Long add(@Nonnull final LoginLogAddDTO data) {
         final LoginLogEntity entity = mappingService.mapping(data, LoginLogEntity.class);
-        //登录ID
-        entity.setId(sequence.nextId());
         //保存数据
         return jpaLoginLog.save(entity).getId();
     }

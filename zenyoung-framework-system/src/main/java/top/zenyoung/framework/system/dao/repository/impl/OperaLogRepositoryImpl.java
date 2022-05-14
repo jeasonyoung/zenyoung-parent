@@ -67,8 +67,6 @@ public class OperaLogRepositoryImpl extends BaseRepositoryImpl implements OperaL
     @Override
     public Long add(@Nonnull final OperaLogAddDTO data) {
         final OperaLogEntity entity = mappingService.mapping(data, OperaLogEntity.class);
-        //主键ID
-        entity.setId(sequence.nextId());
         //保存数据
         return jpaOperaLog.save(entity).getId();
     }

@@ -14,7 +14,6 @@ import java.util.Date;
  *
  * @author yangyong
  * @version 1.0
- * @date 2020/2/6 10:23 上午
  **/
 @Getter
 @Setter

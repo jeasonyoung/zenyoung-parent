@@ -6,4 +6,5 @@ package top.zenyoung.common.sequence;
  * @author young
  */
 public interface IdSequence extends Sequence<Long> {
+
 }

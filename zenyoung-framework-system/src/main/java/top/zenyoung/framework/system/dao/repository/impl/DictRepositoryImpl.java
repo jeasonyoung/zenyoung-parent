@@ -84,8 +84,6 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
             throw new ServiceException("[" + data.getType() + "]已存在");
         }
         final DictTypeEntity entity = mappingService.mapping(data, DictTypeEntity.class);
-        //主键
-        entity.setId(sequence.nextId());
         //保存数据
         return jpaDictType.save(entity).getId();
     }
@@ -160,8 +158,6 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                 jpaDictData.saveAll(items.stream()
                         .map(item -> {
                             final DictDataEntity entity = mappingService.mapping(item, DictDataEntity.class);
-                            //字典数据ID
-                            entity.setId(sequence.nextId());
                             //字典代码
                             if (entity.getCode() == null || entity.getCode() <= 0) {
                                 entity.setCode(ref.incrementAndGet());

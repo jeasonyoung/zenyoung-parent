@@ -16,9 +16,9 @@ import java.io.Serializable;
 @AllArgsConstructor(staticName = "of")
 public class Token implements Serializable {
     /**
-     * 授权令牌
+     * 访问令牌
      */
-    private String token;
+    private String accessToken;
     /**
      * 刷新令牌
      */

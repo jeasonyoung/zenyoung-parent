@@ -7,7 +7,7 @@ import lombok.Getter;
  *
  * @author young
  */
-public class SnowFlake implements Sequence<Long> {
+public class SnowFlake implements Sequence<Long>, IdSequence {
     /**
      * 时间初始值 2^41 - 1
      */

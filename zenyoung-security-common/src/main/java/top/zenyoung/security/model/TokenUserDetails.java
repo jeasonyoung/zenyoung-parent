@@ -76,6 +76,9 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
+        if(getStatus() != null){
+            return getStatus() != Status.Del;
+        }
         return true;
     }
 
@@ -91,6 +94,9 @@ public class TokenUserDetails extends UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
+        if(getStatus() != null){
+            return getStatus() != Status.Disable;
+        }
         return true;
     }
 

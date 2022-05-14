@@ -103,8 +103,6 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Override
     public Long addDept(@Nonnull final DeptAddDTO data) {
         final DeptEntity entity = mappingService.mapping(data, DeptEntity.class);
-        //主键ID
-        entity.setId(sequence.nextId());
         //状态
         entity.setStatus(Status.Enable);
         //排序号处理

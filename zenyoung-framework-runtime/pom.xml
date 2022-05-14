@@ -42,12 +42,6 @@
             <artifactId>modelmapper</artifactId>
         </dependency>
 
-        <!-- jetcache -->
-        <dependency>
-            <groupId>com.alicp.jetcache</groupId>
-            <artifactId>jetcache-starter-redis-springdata</artifactId>
-        </dependency>
-
         <!-- redisson -->
         <dependency>
             <groupId>org.redisson</groupId>
