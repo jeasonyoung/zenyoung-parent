@@ -52,10 +52,6 @@ public class TokenVerifyServiceImpl implements TokenVerifyService {
             //令牌异常
             throw new ServiceException(ExceptionEnum.TOKEN_ERROR);
         }
-        //判断limit是否存在
-        if (Objects.nonNull(ticket)) {
-            judgeLimitExists(ticket, token);
-        }
         return ticket;
     }
 

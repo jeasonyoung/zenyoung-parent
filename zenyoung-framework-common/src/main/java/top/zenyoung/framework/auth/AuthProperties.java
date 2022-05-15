@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
  * @author young
  */
 @Data
-public class AuthConfig implements Serializable {
+public class AuthProperties implements Serializable {
     /**
      * 登录URL地址
      */
@@ -23,6 +24,18 @@ public class AuthConfig implements Serializable {
      * 免登录验证白名单
      */
     private List<String> whiteUrls = Lists.newArrayList();
+    /**
+     * 令牌有效期
+     */
+    private Duration tokenExpire = Duration.ofMinutes(10);
+    /**
+     * 刷新令牌有效期
+     */
+    private Duration refreshTokenExpire = Duration.ofMinutes(60);
+    /**
+     * 用户最大登录数
+     */
+    private Integer maxLoginTotals = 5;
 
     /**
      * 获取白名单数组

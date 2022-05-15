@@ -17,7 +17,7 @@ public abstract class BaseAuthenticationManagerService extends BaseMvcAuthentica
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private AuthConfig authConfig;
+    private AuthProperties authConfig;
     @Autowired
     private PasswordEncoder passwordEncoder;
 

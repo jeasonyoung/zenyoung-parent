@@ -29,11 +29,11 @@ public interface TokenService {
     /**
      * 解析令牌
      *
-     * @param token 令牌串
+     * @param accessToken 访问令牌串
      * @return 令牌票据
      * @throws TokenException 令牌异常
      */
-    Ticket parseToken(@Nonnull final String token) throws TokenException;
+    Ticket parseToken(@Nonnull final String accessToken) throws TokenException;
 
     /**
      * 解析刷新令牌
@@ -46,25 +46,25 @@ public interface TokenService {
     /**
      * 验证令牌
      *
-     * @param token 令牌串
+     * @param accessToken 令牌串
      * @return 令牌票据
      */
-    Ticket validToken(@Nonnull final String token);
+    Ticket validToken(@Nonnull final String accessToken);
 
     /**
-     * 删除令牌
+     * 删除令访令牌
      *
-     * @param token 令牌串
+     * @param accessToken 令访令牌串
      */
-    void delToken(@Nonnull final String token);
+    void delToken(@Nonnull final String accessToken);
 
     /**
-     * 根据令牌获取刷新令牌
+     * 根据访问令牌获取刷新令牌
      *
-     * @param token 令牌串
+     * @param accessToken 令访问牌串
      * @return 刷新令牌串
      */
-    String getRefreshToken(@Nonnull final String token);
+    String getRefreshToken(@Nonnull final String accessToken);
 
     /**
      * 根据刷新令牌获取令牌

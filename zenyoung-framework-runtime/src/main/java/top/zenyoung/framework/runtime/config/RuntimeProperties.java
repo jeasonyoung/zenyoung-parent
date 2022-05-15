@@ -2,7 +2,7 @@ package top.zenyoung.framework.runtime.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import top.zenyoung.framework.auth.AuthConfig;
+import top.zenyoung.framework.auth.AuthProperties;
 
 /**
  * 运行时模块配置
@@ -15,7 +15,7 @@ public class RuntimeProperties {
     /**
      * 登录认证配置
      */
-    private AuthConfig auth = new AuthConfig();
+    private AuthProperties auth = new AuthProperties();
     /**
      * 防止重复提交
      */

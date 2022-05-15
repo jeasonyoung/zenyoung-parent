@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.common.sequence.SnowFlake;
-import top.zenyoung.framework.auth.AuthConfig;
+import top.zenyoung.framework.auth.AuthProperties;
 import top.zenyoung.framework.auth.BaseAuthenticationManagerService;
 import top.zenyoung.security.webmvc.filter.JwtLoginFilter;
 import top.zenyoung.security.webmvc.filter.JwtTokenFilter;
@@ -50,8 +50,8 @@ public class RuntimeAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(AuthConfig.class)
-    public AuthConfig getAuthConfig() {
+    @ConditionalOnMissingBean(AuthProperties.class)
+    public AuthProperties getAuthConfig() {
         return properties.getAuth();
     }
 
@@ -67,7 +67,7 @@ public class RuntimeAutoConfiguration {
         return new WebSecurityConfigurerAdapter() {
             @Override
             protected void configure(final HttpSecurity http) throws Exception {
-                final AuthConfig auth = properties.getAuth();
+                final AuthProperties auth = properties.getAuth();
                 final BaseAuthenticationManagerService manager = context.getBean(BaseAuthenticationManagerService.class);
                 http.authorizeRequests()
                         .antMatchers(HttpMethod.OPTIONS).permitAll()

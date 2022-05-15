@@ -8,6 +8,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import top.zenyoung.common.util.LocalSyncUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.service.SyncLockService;
 
@@ -45,24 +46,16 @@ public class RedisSyncLockServiceImpl implements SyncLockService {
         log.debug("syncLock(key: {},handler: {})...", key, handler);
         Assert.hasText(key, "'key'不能为空!");
         final String lockKey = getSyncLockKey(key);
-        synchronized (LOCKS.computeIfAbsent(lockKey, k -> new Object())) {
+        LocalSyncUtils.syncHandler(LOCKS, lockKey, () -> {
             final RLock lock = client.getLock(lockKey);
             try {
-                if (lock.tryLock()) {
-                    try {
-                        handler.run();
-                    } finally {
-                        if (lock.isLocked()) {
-                            lock.unlock();
-                        }
-                    }
-                }
-            } catch (Throwable ex) {
-                log.warn("syncLock(lockKey: {},handler: {})-exp: {}", lockKey, handler, ex.getMessage());
+                handler.run();
             } finally {
-                LOCKS.remove(lockKey);
+                if (lock.isLocked()) {
+                    lock.unlock();
+                }
             }
-        }
+        });
     }
 
     @Override
@@ -70,7 +63,7 @@ public class RedisSyncLockServiceImpl implements SyncLockService {
         log.debug("syncLockSingle(key: {},handler: {})...", key, handler);
         Assert.hasText(key, "'key'不能为空!");
         final String lockKey = getSyncLockKey(key);
-        synchronized (LOCKS.computeIfAbsent(lockKey, k -> new Object())) {
+        LocalSyncUtils.syncHandler(LOCKS, lockKey, () -> {
             final RLock lock = client.getLock(lockKey);
             try {
                 //获取锁
@@ -84,11 +77,9 @@ public class RedisSyncLockServiceImpl implements SyncLockService {
                         }
                     }
                 }
-            } catch (Throwable ex) {
-                log.warn("syncLockSingle(lockKey: {},handler: {})-exp: {}", lockKey, handler, ex.getMessage());
-            } finally {
-                LOCKS.remove(lockKey);
+            } catch (InterruptedException e) {
+                log.warn("syncLockSingle(key: {},handler: {})-exp: {}", key, handler, e.getMessage());
             }
-        }
+        });
     }
 }
