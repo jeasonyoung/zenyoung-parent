@@ -43,3 +43,9 @@ logging:
   level:
     org.springframework.scheduling: 'INFO'
     org.apache.http: 'debug'
+#框架配置
+top:
+  zenyoung:
+    auth:
+      white-urls:
+        - /auth/captcha

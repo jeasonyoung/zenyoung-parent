@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import org.springframework.util.CollectionUtils;
+import top.zenyoung.framework.captcha.CaptchaProperties;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -36,6 +37,10 @@ public class AuthProperties implements Serializable {
      * 用户最大登录数
      */
     private Integer maxLoginTotals = 5;
+    /**
+     * 认证验证码图片配置
+     */
+    private CaptchaProperties captcha = new CaptchaProperties();
 
     /**
      * 获取白名单数组
