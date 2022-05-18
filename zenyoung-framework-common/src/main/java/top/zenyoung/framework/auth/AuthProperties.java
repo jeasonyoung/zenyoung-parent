@@ -41,18 +41,4 @@ public class AuthProperties implements Serializable {
      * 认证验证码图片配置
      */
     private CaptchaProperties captcha = new CaptchaProperties();
-
-    /**
-     * 获取白名单数组
-     *
-     * @return 白名单数组
-     */
-    public String[] getWhiteLists() {
-        if (CollectionUtils.isEmpty(whiteUrls)) {
-            return new String[0];
-        }
-        return whiteUrls.stream()
-                .filter(w -> !Strings.isNullOrEmpty(w))
-                .toArray(String[]::new);
-    }
 }

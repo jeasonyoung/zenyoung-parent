@@ -128,11 +128,6 @@ public abstract class BaseCaptcha implements Captcha {
     }
 
     @Override
-    public boolean verify(final String userInputCode) {
-        return this.generator.verify(getCode(), userInputCode);
-    }
-
-    @Override
     public void write(final OutputStream out) throws IOException {
         IOUtils.write(getImageBytes(), out);
     }
@@ -163,6 +158,7 @@ public abstract class BaseCaptcha implements Captcha {
      *
      * @return 图片的Base64
      */
+    @Override
     public String getImageBase64() {
         return Base64.encodeBase64String(getImageBytes());
     }
@@ -172,8 +168,14 @@ public abstract class BaseCaptcha implements Captcha {
      *
      * @return 图片带文件格式的 Base64
      */
+    @Override
     public String getImageBase64Data() {
         return ImageUtils.getDataUri("image/png", null, "base64", getImageBase64());
+    }
+
+    @Override
+    public boolean verify(final String captchaCode, final String inputCode) {
+        return this.generator.verify(captchaCode, inputCode);
     }
 
     /**

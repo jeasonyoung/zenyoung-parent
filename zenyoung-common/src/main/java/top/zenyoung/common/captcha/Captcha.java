@@ -23,12 +23,27 @@ public interface Captcha {
     String getCode();
 
     /**
+     * 获得图片的Base64形式
+     *
+     * @return 图片的Base64
+     */
+    String getImageBase64();
+
+    /**
+     * 获取图片带文件格式的 Base64
+     *
+     * @return 图片带文件格式的 Base64
+     */
+    String getImageBase64Data();
+
+    /**
      * 验证验证码是否正确，建议忽略大小写
      *
-     * @param userInputCode 用户输入的验证码
+     * @param captchaCode 验证码
+     * @param inputCode   用户输入的验证码
      * @return 是否与生成的一直
      */
-    boolean verify(final String userInputCode);
+    boolean verify(final String captchaCode, final String inputCode);
 
     /**
      * 将验证码写出到目标流中

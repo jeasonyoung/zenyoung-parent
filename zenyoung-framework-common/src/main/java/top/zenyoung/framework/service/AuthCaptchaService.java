@@ -22,11 +22,11 @@ public interface AuthCaptchaService {
     /**
      * 校验验证码
      *
-     * @param captchaId   验证码ID
-     * @param captchaCode 验证码值
+     * @param captchaId 验证码ID
+     * @param inputCode 输入验证码值
      * @return 校验结果
      */
-    boolean verify(@Nonnull final Long captchaId, final String captchaCode);
+    boolean verify(@Nonnull final Long captchaId, @Nonnull final String inputCode);
 
     /**
      * 认证验证码
@@ -41,6 +41,6 @@ public interface AuthCaptchaService {
         /**
          * 验证码图片(base64)
          */
-        private final String base64CaptchaPic;
+        private final String base64Data;
     }
 }

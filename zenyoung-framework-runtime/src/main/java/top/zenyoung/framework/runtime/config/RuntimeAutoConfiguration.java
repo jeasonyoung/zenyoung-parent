@@ -67,11 +67,10 @@ public class RuntimeAutoConfiguration {
         return new WebSecurityConfigurerAdapter() {
             @Override
             protected void configure(final HttpSecurity http) throws Exception {
-                final AuthProperties auth = properties.getAuth();
                 final BaseAuthenticationManagerService manager = context.getBean(BaseAuthenticationManagerService.class);
                 http.authorizeRequests()
                         .antMatchers(HttpMethod.OPTIONS).permitAll()
-                        .antMatchers(auth.getWhiteLists()).permitAll()
+                        .antMatchers(manager.getWhiteUrls()).permitAll()
                         .anyRequest().authenticated()
                         .and()
                         .addFilterBefore(new JwtTokenFilter(manager), UsernamePasswordAuthenticationFilter.class)

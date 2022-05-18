@@ -1,11 +1,13 @@
 package top.zenyoung.common.captcha;
 
+import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.common.image.gif.AnimatedGifEncoder;
 import top.zenyoung.common.util.RandomUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -13,6 +15,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@Slf4j
 public class GifCaptcha extends BaseCaptcha {
     /**
      * 量化器取样间隔 - 默认是10ms
@@ -104,30 +107,33 @@ public class GifCaptcha extends BaseCaptcha {
     @Override
     public void createCode() {
         generateCode();
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        // gif编码类
-        final AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
-        //生成字符
-        gifEncoder.start(out);
-        //设置量化器取样间隔
-        gifEncoder.setQuality(quality);
-        // 帧延迟 (默认100)
-        int delay = 100;
-        //设置帧延迟
-        gifEncoder.setDelay(delay);
-        //帧循环次数
-        gifEncoder.setRepeat(repeat);
-        BufferedImage frame;
-        final char[] chars = code.toCharArray();
-        final Color[] fontColor = new Color[chars.length];
-        for (int i = 0; i < chars.length; i++) {
-            fontColor[i] = getRandomColor(minColor, maxColor);
-            frame = graphicsImage(chars, fontColor, chars, i);
-            gifEncoder.addFrame(frame);
-            frame.flush();
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            // gif编码类
+            final AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
+            //生成字符
+            gifEncoder.start(out);
+            //设置量化器取样间隔
+            gifEncoder.setQuality(quality);
+            // 帧延迟 (默认100)
+            int delay = 100;
+            //设置帧延迟
+            gifEncoder.setDelay(delay);
+            //帧循环次数
+            gifEncoder.setRepeat(repeat);
+            BufferedImage frame;
+            final char[] chars = code.toCharArray();
+            final Color[] fontColor = new Color[chars.length];
+            for (int i = 0; i < chars.length; i++) {
+                fontColor[i] = getRandomColor(minColor, maxColor);
+                frame = graphicsImage(chars, fontColor, chars, i);
+                gifEncoder.addFrame(frame);
+                frame.flush();
+            }
+            gifEncoder.finish();
+            this.imageBytes = out.toByteArray();
+        } catch (IOException e) {
+            log.error("createCode()-exp: {}", e.getMessage());
         }
-        gifEncoder.finish();
-        this.imageBytes = out.toByteArray();
     }
 
     @Override
