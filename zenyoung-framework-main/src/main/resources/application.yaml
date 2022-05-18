@@ -49,3 +49,4 @@ top:
     auth:
       white-urls:
         - /auth/captcha
+        - /auth/login
