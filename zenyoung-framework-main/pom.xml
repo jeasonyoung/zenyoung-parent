@@ -2,18 +2,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>zenyoung-parent</artifactId>
-        <groupId>top.zenyoung</groupId>
-        <version>3.0.0</version>
-    </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>zenyoung-framework-main</artifactId>
     <packaging>jar</packaging>
     <description>业务系统框架-框架测试入口</description>
 
+    <parent>
+        <artifactId>zenyoung-parent</artifactId>
+        <groupId>top.zenyoung</groupId>
+        <version>3.0.0</version>
+    </parent>
+
     <dependencies>
+        <!-- springboot start -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- springboot end -->
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+        </dependency>
+
         <!-- 框架-start -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -55,6 +69,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+<!--                <configuration>-->
+<!--                    <mainClass>top.zenyoung.framework.AppMain</mainClass>-->
+<!--                </configuration>-->
             </plugin>
         </plugins>
     </build>

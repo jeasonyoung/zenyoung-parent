@@ -57,6 +57,7 @@
         <!-- slf4j -->
         <slf4j-api.version>1.7.30</slf4j-api.version>
 
+        <!-- swagger -->
         <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
 
         <!-- apt -->
@@ -74,23 +75,18 @@
         <module>zenyoung-common</module>
         <!-- 数据模块 -->
         <module>zenyoung-data-jpa</module>
-
         <!-- 服务模块 -->
         <module>zenyoung-service</module>
-
         <!-- Web模块 -->
         <module>zenyoung-web-common</module>
         <module>zenyoung-webmvc</module>
-
         <!-- 安全模块 -->
         <module>zenyoung-security-common</module>
         <module>zenyoung-security-webmvc</module>
-
-        <!-- 代码生成器 -->
-        <module>zenyoung-generator</module>
-
         <!-- 业务框架-公共模块 -->
         <module>zenyoung-framework-common</module>
+        <!-- 业务框架-代码生成器 -->
+        <module>zenyoung-framework-generator</module>
         <!-- 业务框架-系统管理模块 -->
         <module>zenyoung-framework-system</module>
         <!-- 业务框架-运行时模块 -->
@@ -198,11 +194,6 @@
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
 
             <!-- lombok -->
             <dependency>
@@ -211,6 +202,12 @@
                 <version>${lombok.version}</version>
             </dependency>
 
+            <!-- swagger -->
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-boot-starter</artifactId>

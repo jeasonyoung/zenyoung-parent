@@ -114,7 +114,7 @@ public class AuthCaptchaServiceImpl implements AuthCaptchaService, InitializingB
                             field.set(captcha, val);
                         }
                     }
-                }, field -> excludes.contains(field.getName()));
+                }, field -> !excludes.contains(field.getName()));
                 //返回对象
                 return captcha;
             } catch (Throwable e) {

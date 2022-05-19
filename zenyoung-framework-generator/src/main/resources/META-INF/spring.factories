@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-    top.zenyoung.framework.runtime.RuntimeAutoConfiguration
+    top.zenyoung.framework.generator.GeneratorAutoConfig
