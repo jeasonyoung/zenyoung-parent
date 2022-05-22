@@ -1,6 +1,5 @@
 package top.zenyoung.framework.system.api;
 
-import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -120,7 +119,7 @@ public class DeptController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:dept:del')")
     @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptIds", value = "部门ID数组", paramType = "path", dataTypeClass = Long[].class)})
     public ResultVO<?> delById(@PathVariable final Long[] deptIds) {
-        final int ret = deptRepository.delDeptByIds(Lists.newArrayList(deptIds));
-        return ret > 0 ? success() : failed();
+        final boolean ret = deptRepository.delDeptByIds(deptIds);
+        return ret ? success() : failed();
     }
 }

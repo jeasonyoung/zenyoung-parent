@@ -33,8 +33,8 @@ public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginL
     private final JpaLoginLog jpaLoginLog;
     private final BeanMappingService mappingService;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<LoginLogDTO> query(@Nonnull final LoginLogQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -50,17 +50,13 @@ public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginL
                     add(qLoginLogEntity.createTime.between(query.getStart(), query.getEnd()));
                 }
             }
-        }), jpaLoginLog, this::convert);
+        }), jpaLoginLog, entity -> mappingService.mapping(entity, LoginLogDTO.class));
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public LoginLogDTO getById(@Nonnull final Long id) {
-        return convert(jpaLoginLog.getById(id));
-    }
-
-    private LoginLogDTO convert(final LoginLogEntity entity) {
-        return mappingService.mapping(entity, LoginLogDTO.class);
+        return mappingService.mapping(jpaLoginLog.getOne(id), LoginLogDTO.class);
     }
 
     @Transactional(rollbackFor = Throwable.class)

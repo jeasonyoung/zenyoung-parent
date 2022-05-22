@@ -31,14 +31,14 @@ import java.util.LinkedList;
 @Repository
 @RequiredArgsConstructor
 public class PostRepositoryImpl extends BaseRepositoryImpl implements PostRepository {
-    private static final Cache<Long, DeptInfoDTO> DEPT_CACHE = CacheUtils.createCache(50, Duration.ofMinutes(30));
+    private static final Cache<Long, DeptInfoDTO> DEPT_CACHE = CacheUtils.createCache(50, Duration.ofMinutes(5));
     private final JPAQueryFactory queryFactory;
     private final JpaPost jpaPost;
     private final DeptRepository deptRepository;
     private final BeanMappingService mappingService;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<PostDTO> query(@Nonnull final PostQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -73,14 +73,14 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
         return data;
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PostDTO getById(@Nonnull final Long id) {
-        return convert(jpaPost.getById(id));
+        return convert(jpaPost.getOne(id));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final PostAddDTO data) {
         final PostEntity entity = mappingService.mapping(data, PostEntity.class);
         //保存数据
@@ -95,8 +95,8 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
         return 0;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public boolean update(@Nonnull final Long id, @Nonnull final PostModifyDTO data) {
         final QPostEntity qPostEntity = QPostEntity.postEntity;
         return buildDslUpdateClause(queryFactory.update(qPostEntity))
@@ -117,8 +117,8 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
                 .execute(qPostEntity.id.eq(id));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public boolean delByIds(@Nonnull final Long[] ids) {
         if (ids.length > 0) {
             final QPostEntity qPostEntity = QPostEntity.postEntity;

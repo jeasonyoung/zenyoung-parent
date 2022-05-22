@@ -17,7 +17,7 @@ import springfox.documentation.spring.web.plugins.Docket;
  * @author young
  */
 @Configuration
-public class AppConfiguration {
+public class SwaggerConfig {
 
     @Bean
     @ConditionalOnMissingBean

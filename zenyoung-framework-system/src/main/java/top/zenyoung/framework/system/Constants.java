@@ -7,6 +7,10 @@ package top.zenyoung.framework.system;
  */
 public interface Constants {
     /**
+     * 缓存区域
+     */
+    String CACHE_AREA = "zy-fk";
+    /**
      * 缓存分割符
      */
     String CACHE_SEP = ":";

@@ -1,5 +1,8 @@
 package top.zenyoung.framework.system.dao.repository.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -11,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.exception.ServiceException;
+import top.zenyoung.framework.system.Constants;
 import top.zenyoung.framework.system.dao.entity.DictDataEntity;
 import top.zenyoung.framework.system.dao.entity.DictTypeEntity;
 import top.zenyoung.framework.system.dao.entity.QDictDataEntity;
@@ -22,7 +26,6 @@ import top.zenyoung.framework.system.dto.*;
 import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,15 +38,17 @@ import java.util.stream.Collectors;
  */
 @Repository
 @RequiredArgsConstructor
-public class DictRepositoryImpl extends BaseRepositoryImpl implements DictRepository {
+public class DictRepositoryImpl extends BaseRepositoryImpl implements DictRepository, Constants {
+    private static final String CACHE_DICT_TYPE = CACHE_PREFIX + "-dict-type";
+    private static final String CACHE_DICT_DATA = CACHE_PREFIX + "-dict-data";
     private final JPAQueryFactory queryFactory;
     private final JpaDictType jpaDictType;
     private final JpaDictData jpaDictData;
 
     private final BeanMappingService mappingService;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<DictTypeDTO> queryTypes(@Nonnull final DictTypeQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -59,24 +64,18 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                     add(qEntity.name.like(like).or(qEntity.type.like(like)));
                 }
             }
-        }), jpaDictType, this::convert);
+        }), jpaDictType, entity -> mappingService.mapping(entity, DictTypeDTO.class));
     }
 
+    @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
-    @Override
+    @Cached(area = CACHE_AREA, name = CACHE_DICT_TYPE, key = "#typeId", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public DictTypeDTO getTypeById(@Nonnull final Long typeId) {
-        return convert(jpaDictType.getById(typeId));
+        return mappingService.mapping(jpaDictType.getOne(typeId), DictTypeDTO.class);
     }
 
-    private DictTypeDTO convert(@Nullable final DictTypeEntity entity) {
-        if (entity != null) {
-            return mappingService.mapping(entity, DictTypeDTO.class);
-        }
-        return null;
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long addType(@Nonnull final DictTypeAddDTO data) {
         final QDictTypeEntity qDictTypeEntity = QDictTypeEntity.dictTypeEntity;
         //检查字典类型
@@ -88,9 +87,9 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
         return jpaDictType.save(entity).getId();
     }
 
-
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_DICT_TYPE, key = "#typeId")
     public boolean updateType(@Nonnull final Long typeId, @Nonnull final DictTypeModifyDTO data) {
         final QDictTypeEntity qDictTypeEntity = QDictTypeEntity.dictTypeEntity;
         return buildDslUpdateClause(queryFactory.update(qDictTypeEntity))
@@ -106,8 +105,9 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                 .execute(qDictTypeEntity.id.eq(typeId));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_DICT_TYPE, key = "#typeIds", multi = true)
     public boolean delTypeByIds(@Nonnull final Long[] typeIds) {
         if (typeIds.length > 0) {
             //获取字典类型
@@ -130,8 +130,9 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
         return false;
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_DICT_DATA, key = "#dictType", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public List<DictDataDTO> getDataByType(@Nonnull final String dictType) {
         if (Strings.isNullOrEmpty(dictType)) {
             return Lists.newArrayList();
@@ -145,8 +146,9 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                 .collect(Collectors.toList());
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_DICT_DATA, key = "#typeId")
     public boolean batchAddDatas(@Nonnull final Long typeId, @Nonnull final List<DictDataAddDTO> items) {
         if (typeId > 0 && !CollectionUtils.isEmpty(items)) {
             //字典类型
@@ -185,8 +187,9 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
         return 0;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_DICT_DATA, key = "#dataId")
     public boolean updateData(@Nonnull final Long dataId, @Nonnull final DictDataModifyDTO data) {
         final QDictDataEntity qDictDataEntity = QDictDataEntity.dictDataEntity;
         return buildDslUpdateClause(queryFactory.update(qDictDataEntity))
@@ -209,8 +212,9 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                 .execute(qDictDataEntity.id.eq(dataId));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_DICT_DATA, key = "#dataIds", multi = true)
     public boolean delDataByIds(@Nonnull final Long[] dataIds) {
         if (dataIds.length > 0) {
             final QDictDataEntity qDictDataEntity = QDictDataEntity.dictDataEntity;

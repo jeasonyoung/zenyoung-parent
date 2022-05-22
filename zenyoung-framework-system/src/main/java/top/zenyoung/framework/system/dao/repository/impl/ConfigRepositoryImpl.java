@@ -1,7 +1,9 @@
 package top.zenyoung.framework.system.dao.repository.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
+import top.zenyoung.framework.system.Constants;
 import top.zenyoung.framework.system.dao.entity.ConfigEntity;
 import top.zenyoung.framework.system.dao.entity.QConfigEntity;
+import top.zenyoung.framework.system.dao.entity.QDeptEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaConfig;
 import top.zenyoung.framework.system.dao.repository.ConfigRepository;
 import top.zenyoung.framework.system.dto.ConfigAddDTO;
@@ -31,7 +35,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Repository
 @RequiredArgsConstructor
-public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRepository {
+public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRepository, Constants {
+    private static final String CACHE_KEY = CACHE_PREFIX + "config";
     private final JPAQueryFactory queryFactory;
     private final BeanMappingService mappingService;
 
@@ -55,6 +60,7 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
         }), jpaConfig, entity -> mappingService.mapping(entity, ConfigDTO.class));
     }
 
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
     public ConfigDTO getById(@Nonnull final Long id) {
@@ -75,6 +81,7 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
         return jpaConfig.save(entity).getId();
     }
 
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#id")
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public boolean update(@Nonnull final Long id, @Nonnull final ConfigModifyDTO data) {
@@ -90,11 +97,15 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
                 .execute(qEntity.id.eq(id));
     }
 
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#ids", multi = true)
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public boolean delByIds(@Nonnull final Long[] ids) {
         if (ids.length > 0) {
-            jpaConfig.deleteAllById(Lists.newArrayList(ids));
+            final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
+            return queryFactory.delete(qDeptEntity)
+                    .where(qDeptEntity.id.in(ids))
+                    .execute() > 0;
         }
         return false;
     }

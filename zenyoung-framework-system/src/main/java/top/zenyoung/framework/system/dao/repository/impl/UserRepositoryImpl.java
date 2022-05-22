@@ -1,5 +1,8 @@
 package top.zenyoung.framework.system.dao.repository.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.auth.AuthUser;
+import top.zenyoung.framework.system.Constants;
 import top.zenyoung.framework.system.dao.entity.*;
 import top.zenyoung.framework.system.dao.jpa.JpaPost;
 import top.zenyoung.framework.system.dao.jpa.JpaRole;
@@ -36,7 +40,8 @@ import java.util.stream.StreamSupport;
  */
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryImpl extends BaseRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl extends BaseRepositoryImpl implements UserRepository, Constants {
+    private static final String CACHE_KEY = Constants.CACHE_PREFIX + "user";
     private final JPAQueryFactory queryFactory;
     private final BeanMappingService mappingService;
 
@@ -47,8 +52,8 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
 
     private final PasswordEncoder pwdEncoder;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<UserDTO> query(@Nonnull final UserQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -71,10 +76,11 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         }), jpaUser, this::convert);
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public UserDTO getById(@Nonnull final Long id) {
-        return convert(jpaUser.getById(id));
+        return convert(jpaUser.getOne(id));
     }
 
     private UserDTO convert(@Nullable final UserEntity entity) {
@@ -101,8 +107,8 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         return null;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final UserAddDTO data) {
         final UserEntity entity = mappingService.mapping(data, UserEntity.class);
         //密码
@@ -137,8 +143,9 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#id")
     public boolean update(@Nonnull final Long id, @Nonnull final UserModifyDTO data) {
         final QUserEntity qUserEntity = QUserEntity.userEntity;
         boolean ret = buildDslUpdateClause(queryFactory.update(qUserEntity))
@@ -186,8 +193,9 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         return 0;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#ids", multi = true)
     public boolean delByIds(@Nonnull final Long[] ids) {
         if (ids.length > 0) {
             final QUserEntity qEntity = QUserEntity.userEntity;
@@ -198,8 +206,9 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
         return false;
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#account", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public AuthUser findByAccount(@Nonnull final String account) {
         Assert.hasText(account, "'account'不能为空");
         final QUserEntity qUserEntity = QUserEntity.userEntity;

@@ -73,9 +73,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <mainClass>top.zenyoung.framework.AppMain</mainClass>-->
-<!--                </configuration>-->
+                <configuration>
+                    <mainClass>top.zenyoung.framework.AppMain</mainClass>
+                    <layout>ZIP</layout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

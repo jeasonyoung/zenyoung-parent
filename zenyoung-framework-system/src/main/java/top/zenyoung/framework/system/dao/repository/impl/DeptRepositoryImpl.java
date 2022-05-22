@@ -1,5 +1,9 @@
 package top.zenyoung.framework.system.dao.repository.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
+import com.alicp.jetcache.anno.CacheInvalidateContainer;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.querydsl.core.Tuple;
@@ -8,7 +12,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -16,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.data.querydsl.DslUpdateClause;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
+import top.zenyoung.framework.system.Constants;
 import top.zenyoung.framework.system.dao.entity.DeptEntity;
 import top.zenyoung.framework.system.dao.entity.QDeptEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaDept;
@@ -42,14 +46,18 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptRepository {
+public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptRepository, Constants {
+    private static final String CACHE_KEY = CACHE_PREFIX + "dept";
+    private static final String CACHE_CHILD_KEY = CACHE_KEY + "-child";
+    private static final String CACHE_INFO_KEY = CACHE_KEY + "-info";
     private static final String DEPT_ANCESTOR_SEP = ",";
     private final JPAQueryFactory queryFactory;
     private final JpaDept jpaDept;
     private final BeanMappingService mappingService;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_CHILD_KEY, cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public List<DeptDTO> getDeptWithChildren(@Nullable final Long parentDeptId) {
         final QDeptEntity qEntity = QDeptEntity.deptEntity;
         final JPAQuery<DeptEntity> query = queryFactory.selectFrom(qEntity);
@@ -57,7 +65,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
             query.where(Expressions.booleanTemplate("find_in_set({0}, ancestors) > 0", parentDeptId));
         }
         return query.fetch().stream()
-                .map(this::buildConvert)
+                .map(d -> mappingService.mapping(d, DeptDTO.class))
                 .sorted(Comparator.comparingLong(item -> {
                     if (item.getParentId() == null || item.getParentId() <= 0) {
                         return item.getCode();
@@ -67,25 +75,18 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public DeptDTO getDept(@Nonnull final Long id) {
         if (id > 0) {
-            return buildConvert(jpaDept.getById(id));
-        }
-        return null;
-    }
-
-    private DeptDTO buildConvert(@Nullable final DeptEntity entity) {
-        if (entity != null) {
-            final DeptDTO data = new DeptDTO();
-            BeanUtils.copyProperties(entity, data, "roles");
-            return data;
+            return mappingService.mapping(jpaDept.getOne(id), DeptDTO.class);
         }
         return null;
     }
 
     @Override
+    @Cached(area = CACHE_AREA, name = CACHE_INFO_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public DeptInfoDTO getDeptInfoById(@Nonnull final Long id) {
         if (id > 0) {
             final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
@@ -99,8 +100,9 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
         return null;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#data.parentId")
     public Long addDept(@Nonnull final DeptAddDTO data) {
         final DeptEntity entity = mappingService.mapping(data, DeptEntity.class);
         //状态
@@ -111,7 +113,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
         }
         //检查父节点
         if (data.getParentId() != null && data.getParentId() > 0) {
-            final DeptEntity parent = jpaDept.getById(data.getParentId());
+            final DeptEntity parent = jpaDept.getOne(data.getParentId());
             if (Status.Enable != parent.getStatus()) {
                 throw new RuntimeException("部门停用,不允许新增");
             }
@@ -132,6 +134,11 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     }
 
     @Override
+    @CacheInvalidateContainer({
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#id"),
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_INFO_KEY, key = "#id"),
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#id")
+    })
     public boolean modifyDept(@Nonnull final Long id, @Nonnull final DeptModifyDTO data) {
         Assert.isTrue(id > 0, "'data.id'不能为空!");
         final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;
@@ -229,13 +236,18 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     }
 
     @Override
-    public int delDeptByIds(@Nonnull final List<Long> ids) {
-        if (!CollectionUtils.isEmpty(ids)) {
+    @CacheInvalidateContainer({
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#ids", multi = true),
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_INFO_KEY, key = "#ids", multi = true),
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#ids", multi = true)
+    })
+    public boolean delDeptByIds(@Nonnull final Long[] ids) {
+        if (ids.length > 0) {
             final QDeptEntity qDept = QDeptEntity.deptEntity;
-            return (int) queryFactory.delete(qDept)
+            return queryFactory.delete(qDept)
                     .where(qDept.id.in(ids))
-                    .execute();
+                    .execute() > 0;
         }
-        return 0;
+        return false;
     }
 }

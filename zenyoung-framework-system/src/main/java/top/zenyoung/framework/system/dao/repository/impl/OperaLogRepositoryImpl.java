@@ -33,8 +33,8 @@ public class OperaLogRepositoryImpl extends BaseRepositoryImpl implements OperaL
     private final JpaOperaLog jpaOperaLog;
     private final BeanMappingService mappingService;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<OperaLogDTO> query(@Nonnull final OperaLogQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -53,26 +53,26 @@ public class OperaLogRepositoryImpl extends BaseRepositoryImpl implements OperaL
         }), jpaOperaLog, this::convert);
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public OperaLogDTO getById(@Nonnull final Long id) {
-        return convert(jpaOperaLog.getById(id));
+        return convert(jpaOperaLog.getOne(id));
     }
 
     private OperaLogDTO convert(final OperaLogEntity entity) {
         return mappingService.mapping(entity, OperaLogDTO.class);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final OperaLogAddDTO data) {
         final OperaLogEntity entity = mappingService.mapping(data, OperaLogEntity.class);
         //保存数据
         return jpaOperaLog.save(entity).getId();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Integer batchDel(@Nonnull final Date start, @Nonnull final Date end) {
         final QOperaLogEntity qOperaLogEntity = QOperaLogEntity.operaLogEntity;
         return (int) queryFactory.delete(qOperaLogEntity)

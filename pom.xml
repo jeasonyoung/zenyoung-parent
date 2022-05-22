@@ -15,13 +15,13 @@
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
     <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <java.version>8</java.version>
 
-        <spring-boot.version>2.6.6</spring-boot.version>
+        <spring-boot.version>2.4.13</spring-boot.version>
         <jackson-module-kotlin.version>2.10.2</jackson-module-kotlin.version>
 
         <!-- query dsl -->
@@ -154,6 +154,11 @@
             <!-- jetcache -->
             <dependency>
                 <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-anno-api</artifactId>
+                <version>${jetcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
                 <artifactId>jetcache-starter-redis-springdata</artifactId>
                 <version>${jetcache.version}</version>
             </dependency>
@@ -262,6 +267,14 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <parameters>true</parameters>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
@@ -281,11 +294,7 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
-                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>

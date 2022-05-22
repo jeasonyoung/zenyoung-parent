@@ -1,5 +1,9 @@
 package top.zenyoung.framework.system.dao.repository.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
+import com.alicp.jetcache.anno.CacheInvalidateContainer;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -9,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
+import top.zenyoung.framework.system.Constants;
 import top.zenyoung.framework.system.dao.entity.MenuEntity;
 import top.zenyoung.framework.system.dao.entity.QMenuEntity;
 import top.zenyoung.framework.system.dao.jpa.JpaMenu;
@@ -33,14 +38,16 @@ import java.util.stream.Collectors;
  */
 @Repository
 @RequiredArgsConstructor
-public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuRepository {
+public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuRepository, Constants {
+    private static final String CACHE_KEY = CACHE_PREFIX + "menu";
+    private static final String CACHE_CHILD_KEY = CACHE_KEY + "-child";
     private final JPAQueryFactory queryFactory;
     private final JpaMenu jpaMenu;
 
     private final BeanMappingService mappingService;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<MenuDTO> query(@Nonnull final MenuQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -61,17 +68,19 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
                     add(qMenuEntity.name.like(like).or(qMenuEntity.code.like(like)).or(qMenuEntity.perms.like(like)));
                 }
             }
-        }), jpaMenu, this::convert);
+        }), jpaMenu, entity -> mappingService.mapping(entity, MenuDTO.class));
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public MenuDTO getById(@Nonnull final Long id) {
-        return convert(jpaMenu.getById(id));
+        return mappingService.mapping(jpaMenu.getOne(id), MenuDTO.class);
     }
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#parentId", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public List<MenuDTO> getAllByParent(@Nullable final Long parentId) {
         final QMenuEntity qMenuEntity = QMenuEntity.menuEntity;
         JPAQuery<MenuEntity> query = queryFactory.selectFrom(qMenuEntity);
@@ -79,28 +88,26 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
             query = query.where(qMenuEntity.parentId.eq(parentId));
         }
         return query.fetch().stream()
-                .map(this::convert)
+                .map(m -> mappingService.mapping(m, MenuDTO.class))
                 .sorted(Comparator.comparingInt(m -> m.getCode()))
                 .collect(Collectors.toList());
     }
 
-    private MenuDTO convert(@Nullable final MenuEntity entity) {
-        if (entity != null) {
-            return mappingService.mapping(entity, MenuDTO.class);
-        }
-        return null;
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#data.parentId", condition = "#data.parentId != null")
     public Long add(@Nonnull final MenuAddDTO data) {
         final MenuEntity entity = mappingService.mapping(data, MenuEntity.class);
         //保存数据
         return jpaMenu.save(entity).getId();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidateContainer({
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#id"),
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#id")
+    })
     public boolean update(@Nonnull final Long id, @Nonnull final MenuModifyDTO data) {
         final QMenuEntity qMenuEntity = QMenuEntity.menuEntity;
         return buildDslUpdateClause(queryFactory.update(qMenuEntity))
@@ -133,8 +140,12 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
                 .execute(qMenuEntity.id.eq(id));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidateContainer({
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#ids", multi = true),
+            @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#ids", multi = true)
+    })
     public boolean delByIds(@Nonnull final Long[] ids) {
         if (ids.length > 0) {
             final QMenuEntity qMenuEntity = QMenuEntity.menuEntity;
