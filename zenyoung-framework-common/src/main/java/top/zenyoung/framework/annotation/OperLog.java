@@ -9,9 +9,9 @@ import java.lang.annotation.*;
  *
  * @author young
  */
+@Documented
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface OperLog {
     /**
      * 模块

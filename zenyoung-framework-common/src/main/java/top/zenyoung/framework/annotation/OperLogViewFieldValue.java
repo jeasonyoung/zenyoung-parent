@@ -9,9 +9,9 @@ import java.lang.annotation.*;
  *
  * @author young
  */
+@Documented
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface OperLogViewFieldValue {
     /**
      * 回显字段类型

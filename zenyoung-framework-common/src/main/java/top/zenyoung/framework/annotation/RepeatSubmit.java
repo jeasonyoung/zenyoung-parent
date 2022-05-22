@@ -1,10 +1,15 @@
 package top.zenyoung.framework.annotation;
 
+import java.lang.annotation.*;
+
 /**
  * 防止表单重复提交
  *
  * @author young
  */
+@Documented
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
 public @interface RepeatSubmit {
     /**
      * 间隔时间,小于此时间间隔视为重复提交

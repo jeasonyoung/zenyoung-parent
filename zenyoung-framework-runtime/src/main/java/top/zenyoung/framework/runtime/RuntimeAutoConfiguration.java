@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,7 +40,7 @@ public class RuntimeAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(IdSequence.class)
-    private IdSequence buildSequence() {
+    public IdSequence buildSequence() {
         final int max = 10;
         final int cpus = Math.max(Runtime.getRuntime().availableProcessors(), 1);
         return SnowFlake.getInstance(cpus & max, (cpus * 2) & max);

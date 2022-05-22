@@ -15,7 +15,7 @@
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,13 +52,10 @@
         <commons-codec.version>1.15</commons-codec.version>
         <commons-io.version>2.8.0</commons-io.version>
         <lombok.version>1.18.20</lombok.version>
-        <swagger.version>1.5.20</swagger.version>
-
-        <!-- slf4j -->
-        <slf4j-api.version>1.7.30</slf4j-api.version>
 
         <!-- swagger -->
-        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+        <swagger.version>1.5.20</swagger.version>
+        <knife4j.version>2.0.9</knife4j.version>
 
         <!-- apt -->
         <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
@@ -214,23 +211,9 @@
                 <version>${swagger.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-boot-starter</artifactId>
-                <version>${springfox-boot-starter.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.springfox</groupId>
-                        <artifactId>springfox-spring-webflux</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <!-- slf4j -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j-api.version}</version>
-                <scope>provided</scope>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -271,7 +254,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <parameters>true</parameters>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                     </configuration>
                 </plugin>
                 <plugin>

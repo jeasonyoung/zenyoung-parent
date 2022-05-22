@@ -9,9 +9,9 @@ import java.lang.annotation.*;
  *
  * @author young
  */
+@Documented
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface RateLimiter {
     /**
      * 限流键(默认为空,同一限流键共享同一限流策略)

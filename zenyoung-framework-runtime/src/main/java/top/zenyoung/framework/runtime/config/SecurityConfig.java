@@ -1,4 +1,4 @@
-package top.zenyoung.framework.config;
+package top.zenyoung.framework.runtime.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

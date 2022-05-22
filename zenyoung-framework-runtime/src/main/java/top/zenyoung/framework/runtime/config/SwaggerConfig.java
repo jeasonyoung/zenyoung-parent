@@ -1,4 +1,4 @@
-package top.zenyoung.framework.config;
+package top.zenyoung.framework.runtime.config;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -10,6 +10,7 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 /**
  * App 配置
@@ -17,12 +18,13 @@ import springfox.documentation.spring.web.plugins.Docket;
  * @author young
  */
 @Configuration
+@EnableSwagger2WebMvc
 public class SwaggerConfig {
 
     @Bean
     @ConditionalOnMissingBean
     public Docket createDocketApi() {
-        return new Docket(DocumentationType.OAS_30)
+        return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
@@ -34,7 +36,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("代码生成器接口文档")
                 .description("适用用于代码生成器前端接口文档")
-                .version("1.0")
+                .version("3.0")
                 .build();
     }
 }

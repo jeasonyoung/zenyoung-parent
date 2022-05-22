@@ -32,8 +32,9 @@ public class SystemAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public IdSequence buildSequence() {
         final int cpus = Runtime.getRuntime().availableProcessors();
-        return (IdSequence) SnowFlake.getInstance(cpus, cpus + 1, cpus / 2);
+        return SnowFlake.getInstance(cpus, cpus + 1, cpus / 2);
     }
 }

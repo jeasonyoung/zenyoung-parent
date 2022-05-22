@@ -1,4 +1,4 @@
-package top.zenyoung.framework.config;
+package top.zenyoung.framework.runtime.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.context.annotation.Bean;

@@ -9,9 +9,9 @@ import java.lang.annotation.*;
  *
  * @author young
  */
+@Documented
 @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface PrivacyPolicy {
     /**
      * 获取隐私保护字段数组(注解在方法上生效)

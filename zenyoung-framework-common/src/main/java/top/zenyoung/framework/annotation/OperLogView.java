@@ -7,9 +7,9 @@ import java.lang.annotation.*;
  *
  * @author young
  */
+@Documented
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface OperLogView {
     /**
      * 获取请求参数回显字段名
