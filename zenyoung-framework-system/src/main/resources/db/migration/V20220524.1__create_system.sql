@@ -1,7 +1,6 @@
 -- --------------------------------------------------------------------------------------------------------------------
--- 删除表
--- 12.字典数据表
-drop table if exists tbl_sys_dict_data;
+-- 删除关联表
+-- --------------------------------------------------------------------------------------------------------------------
 -- 10.角色菜单表
 drop table if exists tbl_sys_role_menus;
 -- 8.用户角色关联表
@@ -16,6 +15,7 @@ drop table if exists tbl_sys_user_posts;
 drop table if exists tbl_sys_post;
 -- 2.用户表
 drop table if exists tbl_sys_user;
+-- --------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------
 -- 1.部门表
 drop table if exists tbl_sys_dept;
@@ -40,9 +40,6 @@ create table tbl_sys_dept (
     constraint `uk_sys_dept_name` unique key(`name`)
 ) engine=InnoDB default charset=utf8mb4 comment '部门表';
 -- --------------------------------------------------------------------------------------------------------------------
--- 初始化-部门数据
-insert into tbl_sys_dept(`id`,`code`,`name`,`parent_id`) values(100, 0, '系统平台', 0);
--- --------------------------------------------------------------------------------------------------------------------
 -- 2.用户表
 drop table if exists tbl_sys_user;
 create table tbl_sys_user (
@@ -64,14 +61,6 @@ create table tbl_sys_user (
     constraint `uk_sys_user_account` unique key (`account`),
     constraint `fk_sys_user_dept` foreign key(`dept_id`) references tbl_sys_dept(`id`)
 ) engine=InnoDB default charset=utf8mb4 comment '用户表';
--- --------------------------------------------------------------------------------------------------------------------
--- 初始化账号
-set @account = 'master';
-delete from tbl_sys_user where account = @account;
-set @passwd = '123456';
-set @adminUserId = 100101;
-set @deptId = 100
-insert into tbl_sys_user(`dept_id`,`id`,`name`,`account`,`passwd`) values (@deptId, @adminUserId, '管理员', @account, md5(concat(@passwd, @account)));
 -- --------------------------------------------------------------------------------------------------------------------
 -- 3.岗位表
 drop table if exists tbl_sys_post;
@@ -126,11 +115,6 @@ create table tbl_sys_role (
     constraint `uk_sys_role_abbr` unique key(`abbr`)
 ) engine=InnoDB default charset=utf8mb4 comment '角色表';
 -- --------------------------------------------------------------------------------------------------------------------
--- 初始化角色
-set @adminRoleId = 100;
-delete from tbl_sys_role where id = @adminRoleId;
-insert into tbl_sys_role(`id`,`name`,`abbr`,`data_scope`) values (@adminRoleId, '系统管理员', 'admin', 1);
--- --------------------------------------------------------------------------------------------------------------------
 -- 6.岗位角色关联表
 drop table if exists tbl_sys_post_roles;
 create table tbl_sys_post_roles (
@@ -164,10 +148,6 @@ create table tbl_sys_user_roles (
     constraint `fk_sys_user_roles_r` foreign key(`role_id`) references tbl_sys_role(`id`)
 ) engine=InnoDB default charset=utf8mb4 comment '用户角色关联表';
 -- --------------------------------------------------------------------------------------------------------------------
--- 初始化默认数据
-delete from tbl_sys_user_roles where user_id = @adminUserId and role_id = @adminRoleId;
-insert into tbl_sys_user_roles(`user_id`,`role_id`) value (@adminUserId, @adminRoleId);
--- --------------------------------------------------------------------------------------------------------------------
 -- 9.菜单权限表
 drop table if exists tbl_sys_menu;
 create table tbl_sys_menu (
@@ -195,78 +175,6 @@ create table tbl_sys_menu (
     constraint `pk_sys_menu` primary key(`id`)
 ) engine=InnoDB default charset=utf8mb4 comment '菜单权限表';
 -- --------------------------------------------------------------------------------------------------------------------
--- 初始化菜单表数据
--- 一级菜单
-insert into tbl_sys_menu(`id`,`code`,`name`,`parent_id`,`path`,`component`,`is_link`,`is_cache`,`type`,`visible`,`perms`,`icon`) values
-(1, 1, '系统管理', null, 'sys', null, 0, 0, 1, 1, null, 'system'),
-(2, 2, '系统监控', null, 'monitor', null, 0, 0, 1, 1, null, 'monitor'),
-(3, 3, '系统工具', null, 'tool', null, 0, 0, 1, 1, null, 'tool'),
--- 二级菜单
-(100, 1, '用户管理', 1, 'user', 'sys/user/index', 0, 0, 2, 1, 'sys:user:list', 'user'),
-(101, 2, '角色管理', 1, 'role', 'sys/role/index', 0, 0, 2, 1, 'sys:role:list', 'peoples'),
-(102, 3, '菜单管理', 1, 'menu', 'sys/menu/index', 0, 0, 2, 1, 'sys:menu:list', 'tree-table'),
-(103, 4, '部门管理', 1, 'dept', 'sys/dept/index', 0, 0, 2, 1, 'sys:dept:list', 'tree'),
-(104, 5, '岗位管理', 1, 'post', 'sys/post/index', 0, 0, 2, 1, 'sys:post:list', 'post'),
-(105, 6, '字典管理', 1, 'dict', 'sys/dict/index', 0, 0, 2, 1, 'sys:dict:list', 'dict'),
-(106, 7, '参数设置', 1, 'config', 'sys/config/index', 0, 0, 2, 1, 'sys:config:list', 'edit'),
-(108, 9, '日志管理', 1, 'log', 'sys/log/index', 0, 0, 2, 1, 'sys:log:list', 'log'),
-(200, 1, '在线用户', 2, 'online', 'monitor/online/index',0, 0, 2, 1, 'monitor:online:list', 'online'),
-(201, 2, '数据监控', 2, 'druid', 'monitor/druid/index', 0, 0, 2, 1, 'monitor:druid:list', 'druid'),
-(202, 3, '服务监控', 2, 'server', 'monitor/server/index', 0, 0, 2, 1, 'monitor:server:list', 'server'),
-(203, 4, '缓存监控', 2, 'cache', 'monitor/cache/index', 0, 0, 2, 1, 'monitor:cache:list', 'redis'),
-(301, 1, '表单构建', 3, 'build', 'tool/build/index', 0, 0, 2, 1, 'tool:build:list', 'build'),
-(302, 2, '代码生成', 3, 'gen', 'tool/gen/index', 0, 0, 2, 1, 'tool:gen:list', 'code'),
-(303, 3, '系统接口', 3, 'swagger', 'tool/swagger/index', 0, 0, 2, 1, 'tool:swagger:list','swagger'),
--- 三级菜单
-(10801, 1, '操作日志', 108, 'operaLog', 'monitor/operaLog/index', 0, 0, 2, 1, 'monitor:operaLog:list', 'form'),
-(10802, 2, '登录日志', 108, 'loginLog', 'monitor/loginLog/index', 0, 0, 2, 1, 'monitor:loginLog:list', 'loginInfo'),
--- 用户管理按钮
-(10001, 1, '用户查询', 100, null, null, 0, 0, 3, 1, 'sys:user:query','#'),
-(10002, 2, '用户新增', 100, null, null, 0, 0, 3, 1, 'sys:user:add', '#'),
-(10003, 3, '用户修改', 100, null, null, 0, 0, 3, 1, 'sys:user:edit', '#'),
-(10004, 4, '用户删除', 100, null, null, 0, 0, 3, 1, 'sys:user:del', '#'),
-(10005, 5, '重置密码', 100, null, null, 0, 0, 3, 1, 'sys:user:resetPwd', '#'),
--- 角色管理按钮
-(10101, 1, '角色查询', 101, null, null, 0, 0, 3, 1, 'sys:role:query', '#'),
-(10102, 2, '角色新增', 101, null, null, 0, 0, 3, 1, 'sys:role:add', '#'),
-(10103, 3, '角色修改', 101, null, null, 0, 0, 3, 1, 'sys:role:edit', '#'),
-(10104, 4, '角色删除', 101, null, null, 0, 0, 3, 1, 'sys:role:del', '#'),
--- 菜单管理按钮
-(10201, 1, '菜单查询', 102, null, null, 0, 0, 3, 1, 'sys:menu:query', '#'),
-(10202, 2, '菜单新增', 102, null, null, 0, 0, 3, 1, 'sys:menu:add', '#'),
-(10203, 3, '菜单修改', 102, null, null, 0, 0, 3, 1, 'sys:menu:edit', '#'),
-(10204, 4, '菜单删除', 102, null, null, 0, 0, 3, 1, 'sys:menu:del', '#'),
--- 部门管理按钮
-(10301, 1, '部门查询', 103, null, null, 0, 0, 3, 1, 'sys:dept:query', '#'),
-(10302, 2, '部门新增', 103, null, null, 0, 0, 3, 1, 'sys:dept:add', '#'),
-(10303, 3, '部门修改', 103, null, null, 0, 0, 3, 1, 'sys:dept:edit', '#'),
-(10304, 4, '部门删除', 103, null, null, 0, 0, 3, 1, 'sys:dept:del','#'),
--- 岗位管理按钮
-(10401, 1, '岗位查询', 104, null, null, 0, 0, 3, 1, 'sys:post:query', '#'),
-(10402, 2, '岗位新增', 104, null, null, 0, 0, 3, 1, 'sys:post:add', '#'),
-(10403, 3, '岗位修改', 104, null, null, 0, 0, 3, 1, 'sys:post:edit', '#'),
-(10404, 4, '岗位删除', 104, null, null, 0, 0, 3, 1, 'sys:post:del', '#'),
--- 字典管理按钮
-(10501, 1, '字典查询', 105, null, null, 0, 0, 3, 1, 'sys:dict:query', '#'),
-(10502, 2, '字典新增', 105, null, null, 0, 0, 3, 1, 'sys:dict:add', '#'),
-(10503, 3, '字典修改', 105, null, null, 0, 0, 3, 1, 'sys:dict:edit','#'),
-(10504, 4, '字典删除', 105, null, null, 0, 0, 3, 1, 'sys:dict:del', '#'),
--- 参数设置按钮
-(10601, 1, '参数查询', 106, null, null, 0, 0, 3, 1, 'sys:config:query', '#'),
-(10602, 2, '参数新增', 106, null, null, 0, 0, 3, 1, 'sys:config:add', '#'),
-(10603, 3, '参数修改', 106, null, null, 0, 0, 3, 1, 'sys:config:edit', '#'),
-(10604, 4, '参数删除', 106, null, null, 0, 0, 3, 1, 'sys:config:edit', '#'),
--- 操作日志按钮
-(10811, 1, '操作查询', 10801, null, null, 0, 0, 3, 1, 'monitor:operaLog:query', '#'),
-(10821, 2, '操作删除', 10801, null, null, 0, 0, 3, 1, 'monitor:operaLog:del', '#'),
--- 登录日志按钮
-(10812, 1, '登录查询', 10802, null, null, 0, 0, 3, 1, 'monitor:loginLog:query','#'),
-(10822, 2, '登录删除', 10802, null, null, 0, 0, 3, 1, 'monitor:loginLog:del', '#'),
--- 在线用户按钮
-(20001, 1, '在线查询', 200, null, null, 0, 0, 3, 1, 'monitor:online:query', '#'),
-(20002, 2, '批量强退', 200, null, null, 0, 0, 3, 1, 'monitor:online:batchLogout', '#'),
-(20003, 3, '单条强退', 200, null, null , 0, 0, 3, 1, 'monitor:online:forceLogout', '#');
--- --------------------------------------------------------------------------------------------------------------------
 -- 10.角色菜单表
 drop table if exists tbl_sys_role_menus;
 create table tbl_sys_role_menus (
@@ -277,12 +185,6 @@ create table tbl_sys_role_menus (
     constraint `fk_sys_role_menus_r` foreign key(`role_id`) references tbl_sys_role(`id`),
     constraint `fk_sys_role_menus_m` foreign key(`menu_id`) references tbl_sys_menu(`id`)
 ) engine=InnoDB default charset=utf8mb4 comment '角色菜单表';
--- --------------------------------------------------------------------------------------------------------------------
--- 初始化角色菜单
-delete from tbl_sys_role_menus where role_id = @adminRoleId;
-insert into tbl_sys_role_menus(`role_id`, `menu_id`)
-select @adminRoleId, id
-from tbl_sys_menu;
 -- --------------------------------------------------------------------------------------------------------------------
 -- 11.字典类型表
 drop table if exists tbl_sys_dict_type;
@@ -299,17 +201,6 @@ create table tbl_sys_dict_type (
     constraint `pk_sys_dict_type` primary key (`id`),
     constraint `uk_sys_dict_type_type` unique key (`type`)
 ) engine=InnoDB default charset=utf8mb4 comment '字典类型表';
--- --------------------------------------------------------------------------------------------------------------------
--- 初始化字典类型
-delete from tbl_sys_dict_type where `type` in ('sys_gender','sys_show_hide','sys_normal_disable','sys_notice_type','sys_notice_status','sys_common_status');
---
-insert into tbl_sys_dict_type(`id`,`name`,`type`) values
-(1, '性别', 'sys_gender'),
-(2, '菜单状态', 'sys_show_hide'),
-(3, '系统开关', 'sys_normal_disable'),
-(4, '通知类型', 'sys_notice_type'),
-(5, '通知状态', 'sys_notice_status'),
-(6, '系统状态', 'sys_common_status');
 -- --------------------------------------------------------------------------------------------------------------------
 -- 12.字典数据表
 drop table if exists tbl_sys_dict_data;
@@ -337,16 +228,6 @@ create table tbl_sys_dict_data (
     constraint `fk_sys_dict_data_t` foreign key(`type`) references tbl_sys_dict_type(`type`)
 ) engine=InnoDB default charset=utf8mb4 comment '字典数据表';
 -- --------------------------------------------------------------------------------------------------------------------
--- 初始化字典数据
-insert into tbl_sys_dict_data(`id`,`code`,`label`,`value`,`is_default`,`type`,`css_class`,`list_class`) values
-(101, 1, '未知', '0', 0, 'sys_gender', '', ''),(102, 2, '男', '1', 1, 'sys_gender', '', ''),(103, 3, '女', '2', 0, 'sys_gender', '', ''),
-(201, 1, '显示', '1', 1, 'sys_show_hide', '', 'primary'),(202, 2, '隐藏', '0', 0, 'sys_show_hide', '', 'danger'),
-(301, 1, '正常', '1', 1, 'sys_normal_disable', '', 'primary'),(302, 2, '停用', '0', 0, 'sys_normal_disable', '', 'danger'),
-(401, 1, '通知', '1', 1, 'sys_notice_type', '', 'warning'),(402, 2, '公告', '2', 0, 'sys_notice_type', '', 'success'),
-(501, 1, '正常', '1', 1, 'sys_notice_status', '', 'primary'),(502, 2, '关闭', '2', 0, 'sys_notice_status', '', 'danger'),
-(601, 1, '启用', '1', 1, 'sys_common_status', '', 'primary'),(602, 2, '停用', '0', 0, 'sys_common_status', '', 'danger'),
-(603, 3, '删除', '-1', 0, 'sys_common_status', '', 'warning');
--- --------------------------------------------------------------------------------------------------------------------
 -- 13.参数配置表
 drop table if exists tbl_sys_config;
 create table tbl_sys_config (
@@ -364,14 +245,6 @@ create table tbl_sys_config (
     constraint `pk_sys_config` primary key(`id`),
     constraint `uk_sys_config_key` unique key(`key`)
 ) engine=InnoDB default charset=utf8mb4 comment '参数配置表';
--- --------------------------------------------------------------------------------------------------------------------
--- 初始化系统配置参数
-insert into tbl_sys_config(`id`,`name`,`key`,`val`,`type`) values
-(1,'主框架页-默认皮肤样式名称', 'sys.index.skinName', 'skin-blue', 1),
-(2,'主框架页-侧边栏主题', 'sys.index.sideTheme', 'theme-dark', 1),
-(3,'用户管理-账号初始密码', 'sys.user.initPassword', '123456', 1),
-(4,'账号自助-验证码开关', 'sys.account.captchaOnOff', 'true', 1),
-(5,'账号自助-是否开启用户注册功能', 'sys.account.registerUser', 'false', 1);
 -- --------------------------------------------------------------------------------------------------------------------
 -- 14.系统访问记录
 drop table if exists tbl_sys_login_log;
@@ -418,4 +291,5 @@ create table tbl_sys_opera_log (
 
     constraint `pk_sys_opera_log` primary key(`id`)
 ) engine=InnoDB default charset=utf8mb4 comment '系统操作记录';
+-- --------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------
