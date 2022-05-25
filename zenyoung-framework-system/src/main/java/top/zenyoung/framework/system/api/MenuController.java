@@ -27,8 +27,8 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @Api("1.4-菜单管理")
-@RequestMapping("/system/menu")
 @RequiredArgsConstructor
+@RequestMapping("/system/menu")
 public class MenuController extends BaseController {
     private final MenuRepository repository;
 

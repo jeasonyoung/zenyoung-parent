@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Aspect
 @Component
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class OperLogAspect extends BaseAspect {
     private static final ThreadLocal<Long> LOCAL_CACHE = ThreadLocal.withInitial(() -> 0L);
 

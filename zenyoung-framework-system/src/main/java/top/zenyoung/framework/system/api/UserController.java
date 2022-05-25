@@ -25,8 +25,8 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @Api("1.2-用户管理")
-@RequestMapping("/system/user")
 @RequiredArgsConstructor
+@RequestMapping("/system/user")
 public class UserController extends BaseController {
     private final UserRepository repository;
 

@@ -28,8 +28,8 @@ import java.util.List;
  */
 @RestController
 @Api("1.1.系统管理-部门管理")
-@RequestMapping("/system/dept")
 @RequiredArgsConstructor
+@RequestMapping("/system/dept")
 public class DeptController extends BaseController {
     private final DeptRepository deptRepository;
 

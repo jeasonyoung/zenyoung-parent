@@ -2,7 +2,6 @@ package top.zenyoung.framework.system.dao.repository.impl;
 
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,6 @@ import top.zenyoung.framework.system.dao.repository.OperaLogRepository;
 import top.zenyoung.framework.system.dto.OperaLogAddDTO;
 import top.zenyoung.framework.system.dto.OperaLogDTO;
 import top.zenyoung.framework.system.dto.OperaLogQueryDTO;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import java.util.Date;
@@ -29,9 +27,7 @@ import java.util.LinkedList;
 @Repository
 @RequiredArgsConstructor
 public class OperaLogRepositoryImpl extends BaseRepositoryImpl implements OperaLogRepository {
-    private final JPAQueryFactory queryFactory;
     private final JpaOperaLog jpaOperaLog;
-    private final BeanMappingService mappingService;
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -60,13 +56,13 @@ public class OperaLogRepositoryImpl extends BaseRepositoryImpl implements OperaL
     }
 
     private OperaLogDTO convert(final OperaLogEntity entity) {
-        return mappingService.mapping(entity, OperaLogDTO.class);
+        return mapping(entity, OperaLogDTO.class);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final OperaLogAddDTO data) {
-        final OperaLogEntity entity = mappingService.mapping(data, OperaLogEntity.class);
+        final OperaLogEntity entity = mapping(data, OperaLogEntity.class);
         //保存数据
         return jpaOperaLog.save(entity).getId();
     }

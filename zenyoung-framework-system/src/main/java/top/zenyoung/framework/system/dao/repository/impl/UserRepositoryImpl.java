@@ -5,7 +5,6 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +23,6 @@ import top.zenyoung.framework.system.dao.jpa.JpaUser;
 import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.dao.repository.UserRepository;
 import top.zenyoung.framework.system.dto.*;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,14 +40,11 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public class UserRepositoryImpl extends BaseRepositoryImpl implements UserRepository, Constants {
     private static final String CACHE_KEY = Constants.CACHE_PREFIX + "user";
-    private final JPAQueryFactory queryFactory;
-    private final BeanMappingService mappingService;
 
     private final JpaUser jpaUser;
     private final JpaPost jpaPost;
     private final JpaRole jpaRole;
     private final DeptRepository deptRepository;
-
     private final PasswordEncoder pwdEncoder;
 
     @Override
@@ -110,7 +105,7 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final UserAddDTO data) {
-        final UserEntity entity = mappingService.mapping(data, UserEntity.class);
+        final UserEntity entity = mapping(data, UserEntity.class);
         //密码
         if (!Strings.isNullOrEmpty(data.getPasswd())) {
             entity.setPasswd(pwdEncoder.encode(data.getPasswd()));

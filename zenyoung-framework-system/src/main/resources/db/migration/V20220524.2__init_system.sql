@@ -2,12 +2,12 @@
 -- 初始化部门
 insert into tbl_sys_dept(`id`,`code`,`name`,`parent_id`) values(1653383210813, 1, '系统平台', 0);
 -- --------------------------------------------------------------------------------------------------------------------
--- 初始化账号
+-- 初始化账号/密码 admin/123456
 insert into tbl_sys_user(`id`,`name`,`account`,`passwd`,`dept_id`)
-values (1653383252813, '管理员', 'master', md5(concat('123456', 'master')), 1653383210813);
+values (1653383252813, '管理员', 'admin', '$2a$10$GjjLghCK90ojFU.rh0dliuaH/dmmqRPuIShu48gv/iCrWFmVzQv7C', 1653383210813);
 -- --------------------------------------------------------------------------------------------------------------------
 -- 初始化角色
-insert into tbl_sys_role(`id`,`name`,`abbr`,`data_scope`) values (1653383273813, '系统管理员', 'admin-role', 1);
+insert into tbl_sys_role(`id`,`name`,`abbr`,`scope`) values (1653383273813, '系统管理员', 'admin-role', 1);
 -- --------------------------------------------------------------------------------------------------------------------
 -- 初始化用户角色
 insert into tbl_sys_user_roles(`user_id`,`role_id`) value (1653383252813, 1653383273813);
@@ -22,7 +22,7 @@ insert into tbl_sys_dict_type(`id`,`name`,`type`) values
 (6, '系统状态', 'sys_status');
 -- --------------------------------------------------------------------------------------------------------------------
 -- 初始化字典数据
-insert into tbl_sys_dict_data(`id`,`code`,`label`,`value`,`is_default`,`type`,`css_class`,`list_class`) values
+insert into tbl_sys_dict_data(`id`,`code`,`label`,`val`,`is_default`,`type`,`css_class`,`list_class`) values
 -- 性别
 (101, 1, '未知', '0', 0, 'sys_gender', '', ''),
 (102, 2, '男', '1', 1, 'sys_gender', '', ''),

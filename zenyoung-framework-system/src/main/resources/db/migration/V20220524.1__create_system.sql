@@ -1,6 +1,8 @@
 -- --------------------------------------------------------------------------------------------------------------------
 -- 删除关联表
 -- --------------------------------------------------------------------------------------------------------------------
+-- 12.字典数据表
+drop table if exists tbl_sys_dict_data;
 -- 10.角色菜单表
 drop table if exists tbl_sys_role_menus;
 -- 8.用户角色关联表
@@ -45,10 +47,10 @@ drop table if exists tbl_sys_user;
 create table tbl_sys_user (
     `id`        bigint unsigned not null comment '用户ID',
     `name`      varchar(32) default null comment '用户姓名',
-    `account`       varchar(32) not null comment '用户账号',
-    `passwd`    varchar(64) default null comment '登录密码',
-    `mobile`    varchar(32) default null comment '手机号码',
-    `email`    varchar(128) default null comment '邮箱地址',
+    `account`   varchar(32) not null comment '用户账号',
+    `passwd`    varchar(255) default null comment '登录密码',
+    `mobile`    varchar(32)  default null comment '手机号码',
+    `email`    varchar(128)  default null comment '邮箱地址',
 
     `dept_id`   bigint unsigned not null comment '所属部门ID',
 

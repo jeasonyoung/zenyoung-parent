@@ -30,7 +30,7 @@ import java.util.List;
 @Slf4j
 @Aspect
 @Component
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class RequestLogAspect extends BaseAspect {
     private static final ThreadLocal<Long> LOCAL = ThreadLocal.withInitial(() -> 0L);
     private static final ThreadLocal<List<String>> LOG = ThreadLocal.withInitial(Lists::newLinkedList);

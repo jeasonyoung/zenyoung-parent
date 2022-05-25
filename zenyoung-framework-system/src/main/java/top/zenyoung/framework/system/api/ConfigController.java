@@ -25,8 +25,8 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @Api("1.7-参数管理")
-@RequestMapping("/system/config")
 @RequiredArgsConstructor
+@RequestMapping("/system/config")
 public class ConfigController extends BaseController {
     private final ConfigRepository repository;
 

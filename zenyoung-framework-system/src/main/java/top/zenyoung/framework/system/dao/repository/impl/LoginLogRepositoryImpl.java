@@ -2,7 +2,6 @@ package top.zenyoung.framework.system.dao.repository.impl;
 
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,6 @@ import top.zenyoung.framework.system.dao.repository.LoginLogRepository;
 import top.zenyoung.framework.system.dto.LoginLogAddDTO;
 import top.zenyoung.framework.system.dto.LoginLogDTO;
 import top.zenyoung.framework.system.dto.LoginLogQueryDTO;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import java.util.Date;
@@ -29,9 +27,7 @@ import java.util.LinkedList;
 @Repository
 @RequiredArgsConstructor
 public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginLogRepository {
-    private final JPAQueryFactory queryFactory;
     private final JpaLoginLog jpaLoginLog;
-    private final BeanMappingService mappingService;
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -50,19 +46,19 @@ public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginL
                     add(qLoginLogEntity.createTime.between(query.getStart(), query.getEnd()));
                 }
             }
-        }), jpaLoginLog, entity -> mappingService.mapping(entity, LoginLogDTO.class));
+        }), jpaLoginLog, entity -> mapping(entity, LoginLogDTO.class));
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public LoginLogDTO getById(@Nonnull final Long id) {
-        return mappingService.mapping(jpaLoginLog.getOne(id), LoginLogDTO.class);
+        return mapping(jpaLoginLog.getOne(id), LoginLogDTO.class);
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public Long add(@Nonnull final LoginLogAddDTO data) {
-        final LoginLogEntity entity = mappingService.mapping(data, LoginLogEntity.class);
+        final LoginLogEntity entity = mapping(data, LoginLogEntity.class);
         //保存数据
         return jpaLoginLog.save(entity).getId();
     }

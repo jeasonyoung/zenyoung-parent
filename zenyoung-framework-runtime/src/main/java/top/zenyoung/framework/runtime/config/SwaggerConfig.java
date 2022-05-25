@@ -22,7 +22,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 public class SwaggerConfig {
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(Docket.class)
     public Docket createDocketApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())

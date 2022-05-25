@@ -25,8 +25,8 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @Api("1.3-岗位管理")
-@RequestMapping("/system/post")
 @RequiredArgsConstructor
+@RequestMapping("/system/post")
 public class PostController extends BaseController {
     private final PostRepository repository;
 

@@ -3,7 +3,6 @@ package top.zenyoung.framework.system.dao.repository.impl;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +15,6 @@ import top.zenyoung.framework.system.dao.jpa.JpaPost;
 import top.zenyoung.framework.system.dao.repository.DeptRepository;
 import top.zenyoung.framework.system.dao.repository.PostRepository;
 import top.zenyoung.framework.system.dto.*;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,10 +30,8 @@ import java.util.LinkedList;
 @RequiredArgsConstructor
 public class PostRepositoryImpl extends BaseRepositoryImpl implements PostRepository {
     private static final Cache<Long, DeptInfoDTO> DEPT_CACHE = CacheUtils.createCache(50, Duration.ofMinutes(5));
-    private final JPAQueryFactory queryFactory;
     private final JpaPost jpaPost;
     private final DeptRepository deptRepository;
-    private final BeanMappingService mappingService;
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -65,7 +61,7 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
         if (entity == null) {
             return null;
         }
-        final PostDTO data = mappingService.mapping(entity, PostDTO.class);
+        final PostDTO data = mapping(entity, PostDTO.class);
         final Long deptId;
         if ((deptId = entity.getDeptId()) != null && deptId > 0) {
             data.setDept(CacheUtils.getCacheValue(DEPT_CACHE, deptId, () -> deptRepository.getDeptInfoById(deptId)));
@@ -82,7 +78,7 @@ public class PostRepositoryImpl extends BaseRepositoryImpl implements PostReposi
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final PostAddDTO data) {
-        final PostEntity entity = mappingService.mapping(data, PostEntity.class);
+        final PostEntity entity = mapping(data, PostEntity.class);
         //保存数据
         return jpaPost.save(entity).getId();
     }

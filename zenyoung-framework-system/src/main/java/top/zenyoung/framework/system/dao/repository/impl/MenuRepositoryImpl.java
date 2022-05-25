@@ -7,7 +7,6 @@ import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,6 @@ import top.zenyoung.framework.system.dto.MenuAddDTO;
 import top.zenyoung.framework.system.dto.MenuDTO;
 import top.zenyoung.framework.system.dto.MenuModifyDTO;
 import top.zenyoung.framework.system.dto.MenuQueryDTO;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,10 +39,7 @@ import java.util.stream.Collectors;
 public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuRepository, Constants {
     private static final String CACHE_KEY = CACHE_PREFIX + "menu";
     private static final String CACHE_CHILD_KEY = CACHE_KEY + "-child";
-    private final JPAQueryFactory queryFactory;
     private final JpaMenu jpaMenu;
-
-    private final BeanMappingService mappingService;
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -68,14 +63,14 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
                     add(qMenuEntity.name.like(like).or(qMenuEntity.code.like(like)).or(qMenuEntity.perms.like(like)));
                 }
             }
-        }), jpaMenu, entity -> mappingService.mapping(entity, MenuDTO.class));
+        }), jpaMenu, entity -> mapping(entity, MenuDTO.class));
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public MenuDTO getById(@Nonnull final Long id) {
-        return mappingService.mapping(jpaMenu.getOne(id), MenuDTO.class);
+        return mapping(jpaMenu.getOne(id), MenuDTO.class);
     }
 
     @Override
@@ -88,7 +83,7 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
             query = query.where(qMenuEntity.parentId.eq(parentId));
         }
         return query.fetch().stream()
-                .map(m -> mappingService.mapping(m, MenuDTO.class))
+                .map(m -> mapping(m, MenuDTO.class))
                 .sorted(Comparator.comparingInt(m -> m.getCode()))
                 .collect(Collectors.toList());
     }
@@ -97,7 +92,7 @@ public class MenuRepositoryImpl extends BaseRepositoryImpl implements MenuReposi
     @Transactional(rollbackFor = Throwable.class)
     @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#data.parentId", condition = "#data.parentId != null")
     public Long add(@Nonnull final MenuAddDTO data) {
-        final MenuEntity entity = mappingService.mapping(data, MenuEntity.class);
+        final MenuEntity entity = mapping(data, MenuEntity.class);
         //保存数据
         return jpaMenu.save(entity).getId();
     }

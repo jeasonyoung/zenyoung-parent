@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @Aspect
 @Component
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class RateLimiterAspect extends BaseAspect {
     private static final String SEP = "-";
     private static final String RATE_LIMIT_PEFIX = "rate_limit:";

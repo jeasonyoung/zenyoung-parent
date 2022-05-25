@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  **/
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class RedisQueueServiceImpl implements QueueService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final long QUEUE_READ_TIMEOUT = 10000;

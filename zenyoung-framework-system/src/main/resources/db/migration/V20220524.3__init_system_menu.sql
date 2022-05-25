@@ -76,7 +76,7 @@ insert into tbl_sys_menu(`id`,`code`,`name`,`parent_id`,`path`,`component`,`type
 -- 在线用户-按钮
 (20000301, 1, '在线查询', 200003, null, null, 3, 'monitor:online:query', '#'),
 (20000302, 2, '批量强退', 200003, null, null, 3, 'monitor:online:batch', '#'),
-(20000303, 3, '单条强退', 200003, null, null, 3, 'monitor:online:force', '#');
+(20000303, 3, '单条强退', 200003, null, null, 3, 'monitor:online:force', '#'),
 -- 数据监控-菜单
 (200004, 4, '数据监控', 200, 'druid', 'monitor/druid/index', 2, 'monitor:druid:list', 'druid'),
 -- 服务监控-菜单
@@ -84,11 +84,11 @@ insert into tbl_sys_menu(`id`,`code`,`name`,`parent_id`,`path`,`component`,`type
 -- 缓存监控-菜单
 (200006, 6, '缓存监控', 200, 'cache', 'monitor/cache/index', 2, 'monitor:cache:list', 'redis'),
 -- 3.系统工具-目录
-(300, 3, '系统工具', 0, 'tool', null, 1, null, 'tool');
+(300, 3, '系统工具', 0, 'tool', null, 1, null, 'tool'),
 -- 代码生成-菜单
 (300001, 1, '代码生成', 300, 'gen', 'tool/gen/index', 2, 'tool:gen:list', 'code'),
 -- 系统接口-菜单
-(300002, 2, '系统接口', 300, 'swagger', 'tool/swagger/index', 2, 'tool:swagger:list','swagger'),
+(300002, 2, '系统接口', 300, 'swagger', 'tool/swagger/index', 2, 'tool:swagger:list','swagger');
 -- --------------------------------------------------------------------------------------------------------------------
 -- --------------------------------------------------------------------------------------------------------------------
 -- 初始化角色菜单

@@ -9,9 +9,9 @@ import com.google.common.base.Strings;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -28,7 +28,6 @@ import top.zenyoung.framework.system.dto.DeptAddDTO;
 import top.zenyoung.framework.system.dto.DeptDTO;
 import top.zenyoung.framework.system.dto.DeptInfoDTO;
 import top.zenyoung.framework.system.dto.DeptModifyDTO;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,9 +50,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     private static final String CACHE_CHILD_KEY = CACHE_KEY + "-child";
     private static final String CACHE_INFO_KEY = CACHE_KEY + "-info";
     private static final String DEPT_ANCESTOR_SEP = ",";
-    private final JPAQueryFactory queryFactory;
     private final JpaDept jpaDept;
-    private final BeanMappingService mappingService;
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -65,7 +62,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
             query.where(Expressions.booleanTemplate("find_in_set({0}, ancestors) > 0", parentDeptId));
         }
         return query.fetch().stream()
-                .map(d -> mappingService.mapping(d, DeptDTO.class))
+                .map(d -> mapping(d, DeptDTO.class))
                 .sorted(Comparator.comparingLong(item -> {
                     if (item.getParentId() == null || item.getParentId() <= 0) {
                         return item.getCode();
@@ -80,7 +77,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public DeptDTO getDept(@Nonnull final Long id) {
         if (id > 0) {
-            return mappingService.mapping(jpaDept.getOne(id), DeptDTO.class);
+            return mapping(jpaDept.getOne(id), DeptDTO.class);
         }
         return null;
     }
@@ -104,7 +101,7 @@ public class DeptRepositoryImpl extends BaseRepositoryImpl implements DeptReposi
     @Transactional(rollbackFor = Throwable.class)
     @CacheInvalidate(area = CACHE_AREA, name = CACHE_CHILD_KEY, key = "#data.parentId")
     public Long addDept(@Nonnull final DeptAddDTO data) {
-        final DeptEntity entity = mappingService.mapping(data, DeptEntity.class);
+        final DeptEntity entity = mapping(data, DeptEntity.class);
         //状态
         entity.setStatus(Status.Enable);
         //排序号处理

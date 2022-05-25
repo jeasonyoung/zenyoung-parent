@@ -3,6 +3,7 @@ package top.zenyoung.framework.runtime.service.impl;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -30,7 +31,7 @@ public class TokenLimitServiceImpl implements TokenLimitService {
     private final static Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private final static String KEY_PREFIX = "auth-token-limit" + Constants.SEP_REDIS;
     private final StringRedisTemplate redisTemplate;
-    private final TokenService tokenService;
+    private final ApplicationContext context;
 
     @Async
     @Override
@@ -75,6 +76,7 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         });
         //检查对头令牌
         if (!Strings.isNullOrEmpty(oldToken)) {
+            final TokenService tokenService = context.getBean(TokenService.class);
             //检查令牌是否无效
             final Ticket t = tokenService.validToken(oldToken);
             //删除令牌

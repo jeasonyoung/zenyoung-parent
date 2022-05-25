@@ -6,7 +6,6 @@ import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ import top.zenyoung.framework.system.dao.jpa.JpaDictData;
 import top.zenyoung.framework.system.dao.jpa.JpaDictType;
 import top.zenyoung.framework.system.dao.repository.DictRepository;
 import top.zenyoung.framework.system.dto.*;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -41,11 +39,8 @@ import java.util.stream.Collectors;
 public class DictRepositoryImpl extends BaseRepositoryImpl implements DictRepository, Constants {
     private static final String CACHE_DICT_TYPE = CACHE_PREFIX + "-dict-type";
     private static final String CACHE_DICT_DATA = CACHE_PREFIX + "-dict-data";
-    private final JPAQueryFactory queryFactory;
     private final JpaDictType jpaDictType;
     private final JpaDictData jpaDictData;
-
-    private final BeanMappingService mappingService;
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -64,14 +59,14 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                     add(qEntity.name.like(like).or(qEntity.type.like(like)));
                 }
             }
-        }), jpaDictType, entity -> mappingService.mapping(entity, DictTypeDTO.class));
+        }), jpaDictType, entity -> mapping(entity, DictTypeDTO.class));
     }
 
     @Override
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Cached(area = CACHE_AREA, name = CACHE_DICT_TYPE, key = "#typeId", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public DictTypeDTO getTypeById(@Nonnull final Long typeId) {
-        return mappingService.mapping(jpaDictType.getOne(typeId), DictTypeDTO.class);
+        return mapping(jpaDictType.getOne(typeId), DictTypeDTO.class);
     }
 
     @Override
@@ -82,7 +77,7 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
         if (!Strings.isNullOrEmpty(data.getType()) && jpaDictType.exists(qDictTypeEntity.type.eq(data.getType()))) {
             throw new ServiceException("[" + data.getType() + "]已存在");
         }
-        final DictTypeEntity entity = mappingService.mapping(data, DictTypeEntity.class);
+        final DictTypeEntity entity = mapping(data, DictTypeEntity.class);
         //保存数据
         return jpaDictType.save(entity).getId();
     }
@@ -142,7 +137,7 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                 .where(qDictDataEntity.type.eq(dictType))
                 .fetch()
                 .stream()
-                .map(entity -> mappingService.mapping(entity, DictDataDTO.class))
+                .map(entity -> mapping(entity, DictDataDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -159,7 +154,7 @@ public class DictRepositoryImpl extends BaseRepositoryImpl implements DictReposi
                 final AtomicInteger ref = new AtomicInteger(getDataMaxByType(type));
                 jpaDictData.saveAll(items.stream()
                         .map(item -> {
-                            final DictDataEntity entity = mappingService.mapping(item, DictDataEntity.class);
+                            final DictDataEntity entity = mapping(item, DictDataEntity.class);
                             //字典代码
                             if (entity.getCode() == null || entity.getCode() <= 0) {
                                 entity.setCode(ref.incrementAndGet());

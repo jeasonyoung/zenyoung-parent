@@ -5,8 +5,11 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +20,7 @@ import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.jpa.JpaBase;
 import top.zenyoung.data.querydsl.DslUpdateClause;
+import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,6 +42,62 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class BaseRepositoryImpl {
     private static final int DEF_PAGING_IDX = 0, DEF_PAGING_ROWS = 10;
+
+    @Autowired
+    private ApplicationContext context;
+    /**
+     * 注入JPAQueryFactory
+     */
+    @Autowired(required = false)
+    protected JPAQueryFactory queryFactory;
+
+    /**
+     * 获取类型转换服务接口
+     *
+     * @return 转换服务接口
+     */
+    protected BeanMappingService getMappingService() {
+        return context.getBean(BeanMappingService.class);
+    }
+
+    /**
+     * 数据类型转换
+     *
+     * @param data   源数据
+     * @param tClass 目标类型
+     * @param <T>    源数据类型
+     * @param <MT>   目标数据类型
+     * @return 目标数据
+     */
+    protected <T, MT> MT mapping(@Nullable final T data, @Nonnull final Class<MT> tClass) {
+        return getMappingService().mapping(data, tClass);
+    }
+
+    /**
+     * 数据类型转换
+     *
+     * @param ts     源数据
+     * @param tClass 目标类型
+     * @param <T>    源数据类型
+     * @param <MT>   目标数据类型
+     * @return 目标数据集合
+     */
+    protected <T, MT> List<MT> mapping(@Nullable final List<T> ts, @Nonnull final Class<MT> tClass) {
+        return getMappingService().mapping(ts, tClass);
+    }
+
+    /**
+     * 数据类型转换
+     *
+     * @param pageList 源数据
+     * @param tClass   目标类型
+     * @param <T>      源数据类型
+     * @param <MT>     目标数据类型
+     * @return 目标数据集合
+     */
+    protected <T extends Serializable, MT extends Serializable> PagingResult<MT> mapping(@Nullable final PagingResult<T> pageList, @Nonnull final Class<MT> tClass) {
+        return getMappingService().mapping(pageList, tClass);
+    }
 
     /**
      * 构建分页查询

@@ -5,8 +5,8 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import top.zenyoung.common.model.Status;
@@ -22,7 +22,6 @@ import top.zenyoung.framework.system.dto.ConfigAddDTO;
 import top.zenyoung.framework.system.dto.ConfigDTO;
 import top.zenyoung.framework.system.dto.ConfigModifyDTO;
 import top.zenyoung.framework.system.dto.ConfigQueryDTO;
-import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -37,9 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRepository, Constants {
     private static final String CACHE_KEY = CACHE_PREFIX + "config";
-    private final JPAQueryFactory queryFactory;
-    private final BeanMappingService mappingService;
-
     private final JpaConfig jpaConfig;
 
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
@@ -57,7 +53,7 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
                     add(qConfigEntity.status.eq(query.getStatus()));
                 }
             }
-        }), jpaConfig, entity -> mappingService.mapping(entity, ConfigDTO.class));
+        }), jpaConfig, entity -> mapping(entity, ConfigDTO.class));
     }
 
     @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
@@ -67,7 +63,7 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
         final AtomicReference<ConfigDTO> ref = new AtomicReference<>(null);
         jpaConfig.findById(id)
                 .ifPresent(entity -> {
-                    final ConfigDTO data = mappingService.mapping(entity, ConfigDTO.class);
+                    final ConfigDTO data = mapping(entity, ConfigDTO.class);
                     ref.set(data);
                 });
         return ref.get();
@@ -76,7 +72,7 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public Long add(@Nonnull final ConfigAddDTO add) {
-        final ConfigEntity entity = mappingService.mapping(add, ConfigEntity.class);
+        final ConfigEntity entity = mapping(add, ConfigEntity.class);
         entity.setStatus(Status.Enable);
         return jpaConfig.save(entity).getId();
     }

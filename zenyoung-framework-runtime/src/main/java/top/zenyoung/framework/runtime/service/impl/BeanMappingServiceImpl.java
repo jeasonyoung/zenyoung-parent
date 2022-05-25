@@ -3,6 +3,7 @@ package top.zenyoung.framework.runtime.service.impl;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Service
+@ConditionalOnMissingBean(BeanMappingService.class)
 public class BeanMappingServiceImpl implements BeanMappingService {
     private final ModelMapper modelMapper = new ModelMapper();
 

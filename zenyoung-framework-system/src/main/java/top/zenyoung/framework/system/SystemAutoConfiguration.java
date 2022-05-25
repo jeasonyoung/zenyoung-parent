@@ -26,13 +26,13 @@ import javax.persistence.EntityManager;
 public class SystemAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(JPAQueryFactory.class)
     public JPAQueryFactory buildJpaQueryFactory(@Autowired final EntityManager entityManager) {
         return new JPAQueryFactory(entityManager);
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(IdSequence.class)
     public IdSequence buildSequence() {
         final int cpus = Runtime.getRuntime().availableProcessors();
         return SnowFlake.getInstance(cpus, cpus + 1, cpus / 2);

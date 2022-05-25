@@ -33,7 +33,7 @@
         <!-- 框架模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-common</artifactId>
+            <artifactId>zenyoung-service</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

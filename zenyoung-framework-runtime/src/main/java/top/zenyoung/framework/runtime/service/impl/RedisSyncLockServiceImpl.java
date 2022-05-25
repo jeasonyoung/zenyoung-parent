@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  **/
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class RedisSyncLockServiceImpl implements SyncLockService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final Duration TIMEOUT = Duration.ofSeconds(10);

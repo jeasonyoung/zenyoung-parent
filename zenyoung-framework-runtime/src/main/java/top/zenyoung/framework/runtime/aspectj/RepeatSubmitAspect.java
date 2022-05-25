@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Aspect
 @Component
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class RepeatSubmitAspect extends BaseAspect {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final String REPEAT_SUBMIT_PEFIX = "repeat_submit:";

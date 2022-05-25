@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Aspect
 @Component
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class OperLogViewAspect extends BaseAspect {
     private static final Cache<String, LogReqParamVal> VAL_CACHE = CacheUtils.createCache(500, Duration.ofMinutes(5));
     private static final String METHOD_KEY = "method";
