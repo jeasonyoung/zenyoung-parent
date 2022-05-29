@@ -24,6 +24,11 @@ import javax.persistence.Table;
 @SQLDelete(sql = "update tbl_sys_login_log set status = -1 where id = ?")
 public class LoginLogEntity extends BaseStatusEntity {
     /**
+     * 用户ID
+     */
+    @Column(nullable = false)
+    private Long userId;
+    /**
      * 用户账号
      */
     @Column(nullable = false)

@@ -251,14 +251,15 @@ create table tbl_sys_config (
 -- 14.系统访问记录
 drop table if exists tbl_sys_login_log;
 create table tbl_sys_login_log (
-    `id`            bigint unsigned  not null    comment '访问ID',
-    `account`       varchar(128) not null        comment '用户账号',
-    `ip_addr`       varchar(32)  default null    comment '登录IP地址',
-    `ip_location`   varchar(128) default null    comment '登录地点',
-    `browser`       varchar(128) default null    comment '浏览器类型',
-    `os`            varchar(128) default null    comment '操作系统',
-    `device`        varchar(128) default null    comment '客户端设备',
-    `msg`           varchar(255) default null    comment '提示消息',
+    `id`            bigint unsigned not null    comment '访问ID',
+    `user_id`       bigint unsigned not null    comment '用户ID',
+    `account`       varchar(128) not null       comment '用户账号',
+    `ip_addr`       varchar(32)  default null   comment '登录IP地址',
+    `ip_location`   varchar(128) default null   comment '登录地点',
+    `browser`       varchar(128) default null   comment '浏览器类型',
+    `os`            varchar(128) default null   comment '操作系统',
+    `device`        varchar(128) default null   comment '客户端设备',
+    `msg`           varchar(255) default null   comment '提示消息',
 
     `status` tinyint default 1  comment '状态(-1:删除,0:失败,1:成功)',
 

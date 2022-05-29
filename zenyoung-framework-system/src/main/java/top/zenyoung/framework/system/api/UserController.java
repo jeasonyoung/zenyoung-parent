@@ -11,10 +11,7 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.valid.Insert;
 import top.zenyoung.common.valid.Modify;
 import top.zenyoung.framework.system.dao.repository.UserRepository;
-import top.zenyoung.framework.system.dto.UserAddDTO;
-import top.zenyoung.framework.system.dto.UserDTO;
-import top.zenyoung.framework.system.dto.UserModifyDTO;
-import top.zenyoung.framework.system.dto.UserQueryDTO;
+import top.zenyoung.framework.system.dto.*;
 import top.zenyoung.web.controller.BaseController;
 import top.zenyoung.web.vo.ResultVO;
 
@@ -24,9 +21,9 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
-@Api("1.2-用户管理")
 @RequiredArgsConstructor
-@RequestMapping("/system/user")
+@RequestMapping("/sys/user")
+@Api(value = "1.5-用户管理", tags = "1.系统管理")
 public class UserController extends BaseController {
     private final UserRepository repository;
 
@@ -37,8 +34,8 @@ public class UserController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
-    @ApiOperation("1.2.1.用户管理-查询")
-    @PreAuthorize("@ss.hasPermi('system:user:query')")
+    @ApiOperation("1.5.1.用户管理-查询")
+    @PreAuthorize("@ss.hasPermi('sys:user:query')")
     public ResultVO<DataResult<UserDTO>> query(final UserQueryDTO query) {
         return success(repository.query(query));
     }
@@ -50,8 +47,8 @@ public class UserController extends BaseController {
      * @return 用户数据
      */
     @GetMapping("/{id}")
-    @ApiOperation("1.2.2.用户管理-加载")
-    @PreAuthorize("@ss.hasPermi('system:user:load')")
+    @ApiOperation("1.5.2.用户管理-加载")
+    @ApiImplicitParam(name = "id", value = "用户ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<UserDTO> getById(@PathVariable final Long id) {
         return success(repository.getById(id));
     }
@@ -63,8 +60,8 @@ public class UserController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
-    @ApiOperation("1.2.3.用户管理-新增")
-    @PreAuthorize("@ss.hasPermi('system:user:add')")
+    @ApiOperation("1.5.3.用户管理-新增")
+    @PreAuthorize("@ss.hasPermi('sys:user:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final UserAddDTO data) {
         return success(repository.add(data));
     }
@@ -77,9 +74,9 @@ public class UserController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
-    @ApiOperation("1.2.4.用户管理-修改")
+    @ApiOperation("1.5.4.用户管理-修改")
+    @PreAuthorize("@ss.hasPermi('sys:user:edit')")
     @ApiImplicitParam(name = "id", value = "用户ID", paramType = "path", dataTypeClass = Long.class)
-    @PreAuthorize("@ss.hasPermi('system:user:modify')")
     public ResultVO<Void> modify(@PathVariable final Long id, @RequestBody @Validated({Modify.class}) final UserModifyDTO data) {
         final boolean ret = repository.update(id, data);
         return ret ? success() : failed();
@@ -91,12 +88,28 @@ public class UserController extends BaseController {
      * @param ids 用户ID集合
      * @return 删除结果
      */
-    @PutMapping("/{ids}")
-    @ApiOperation("1.2.5.用户管理-删除")
+    @DeleteMapping("/{ids}")
+    @ApiOperation("1.5.5.用户管理-删除")
+    @PreAuthorize("@ss.hasPermi('sys:user:del')")
     @ApiImplicitParam(name = "ids", value = "用户ID集合", paramType = "path", dataTypeClass = Long[].class)
-    @PreAuthorize("@ss.hasPermi('system:user:del')")
     public ResultVO<Void> del(@PathVariable final Long[] ids) {
         final boolean ret = repository.delByIds(ids);
+        return ret ? success() : failed();
+    }
+
+    /**
+     * 用户管理-重置密码
+     *
+     * @param id   用户ID
+     * @param data 重置密码数据
+     * @return 重置结果
+     */
+    @PutMapping("/{id}/rest")
+    @ApiOperation("1.5.6.用户管理-重置密码")
+    @PreAuthorize("@ss.hasPermi('sys:user:reset-pwd')")
+    @ApiImplicitParam(name = "id", value = "用户ID", paramType = "path", dataTypeClass = Long.class)
+    public ResultVO<Void> restPwd(@PathVariable final Long id, @RequestBody @Validated({Modify.class}) final UserRestPasswordDTO data) {
+        final boolean ret = repository.restPassword(id, data);
         return ret ? success() : failed();
     }
 }

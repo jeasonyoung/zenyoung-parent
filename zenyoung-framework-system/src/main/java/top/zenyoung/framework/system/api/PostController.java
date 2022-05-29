@@ -24,9 +24,9 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
-@Api("1.3-岗位管理")
 @RequiredArgsConstructor
-@RequestMapping("/system/post")
+@RequestMapping("/sys/post")
+@Api(value = "1.2-岗位管理", tags = "1.系统管理")
 public class PostController extends BaseController {
     private final PostRepository repository;
 
@@ -37,8 +37,8 @@ public class PostController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
-    @ApiOperation("1.3.1.岗位管理-查询")
-    @PreAuthorize("@ss.hasPermi('system:post:query')")
+    @ApiOperation("1.2.1.岗位管理-查询")
+    @PreAuthorize("@ss.hasPermi('sys:post:query')")
     public ResultVO<DataResult<PostDTO>> query(final PostQueryDTO query) {
         return success(repository.query(query));
     }
@@ -50,8 +50,8 @@ public class PostController extends BaseController {
      * @return 岗位数据
      */
     @GetMapping("/{id}")
-    @ApiOperation("1.3.2.岗位管理-加载")
-    @PreAuthorize("@ss.hasPermi('system:post:load')")
+    @ApiOperation("1.2.2.岗位管理-加载")
+    @ApiImplicitParam(name = "id", value = "岗位ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<PostDTO> getById(@PathVariable final Long id) {
         return success(repository.getById(id));
     }
@@ -63,8 +63,8 @@ public class PostController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
-    @ApiOperation("1.3.3.岗位管理-新增")
-    @PreAuthorize("@ss.hasPermi('system:post:add')")
+    @ApiOperation("1.2.3.岗位管理-新增")
+    @PreAuthorize("@ss.hasPermi('sys:post:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final PostAddDTO data) {
         return success(repository.add(data));
     }
@@ -77,10 +77,11 @@ public class PostController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
-    @ApiOperation("1.3.4.岗位管理-修改")
+    @ApiOperation("1.2.4.岗位管理-修改")
+    @PreAuthorize("@ss.hasPermi('sys:post:edit')")
     @ApiImplicitParam(name = "id", value = "岗位ID", paramType = "path", dataTypeClass = Long.class)
-    @PreAuthorize("@ss.hasPermi('system:post:modify')")
-    public ResultVO<Void> modify(@PathVariable final Long id, @RequestBody @Validated({Modify.class}) final PostModifyDTO data) {
+    public ResultVO<Void> modify(@PathVariable final Long id,
+                                 @RequestBody @Validated({Modify.class}) final PostModifyDTO data) {
         final boolean ret = repository.update(id, data);
         return ret ? success() : failed();
     }
@@ -91,10 +92,10 @@ public class PostController extends BaseController {
      * @param ids 岗位ID集合
      * @return 删除结果
      */
-    @PutMapping("/{ids}")
-    @ApiOperation("1.3.5.岗位管理-删除")
+    @DeleteMapping("/{ids}")
+    @ApiOperation("1.2.5.岗位管理-删除")
+    @PreAuthorize("@ss.hasPermi('sys:post:del')")
     @ApiImplicitParam(name = "ids", value = "岗位ID集合", paramType = "path", dataTypeClass = Long[].class)
-    @PreAuthorize("@ss.hasPermi('system:post:del')")
     public ResultVO<Void> del(@PathVariable final Long[] ids) {
         final boolean ret = repository.delByIds(ids);
         return ret ? success() : failed();

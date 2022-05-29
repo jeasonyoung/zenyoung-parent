@@ -27,42 +27,41 @@ import java.util.List;
  * @author young
  */
 @RestController
-@Api("1.1.系统管理-部门管理")
 @RequiredArgsConstructor
-@RequestMapping("/system/dept")
+@RequestMapping("/sys/dept")
+@Api(value = "1.1.部门管理", tags = "1.系统管理")
 public class DeptController extends BaseController {
     private final DeptRepository deptRepository;
 
     /**
      * 部门-全部数据
      *
-     * @param parentDeptId 上级部门ID
+     * @param pid 上级部门ID
      * @return 部门数据集合
      */
     @GetMapping("/all")
     @ApiOperation("1.1.1.部门-全部")
-    @PreAuthorize("@ss.hasPermi('system:dept:all')")
-    @ApiImplicitParams(value = {@ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class)})
-    public ResultVO<List<DeptTreeVO>> getAllDepts(@RequestParam(required = false) final Long parentDeptId) {
-        return success(DeptTreeUtils.build(deptRepository.getDeptWithChildren(parentDeptId), null));
+    @ApiImplicitParam(name = "pid", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class)
+    public ResultVO<List<DeptTreeVO>> getAllDepts(final Long pid) {
+        return success(DeptTreeUtils.build(deptRepository.getDeptWithChildren(pid), null));
     }
 
     /**
      * 部门-树数据
      *
-     * @param parentDeptId 上级部门ID
+     * @param pid      上级部门ID
+     * @param excludes 须排除的部门ID集合
      * @return 部门数据集合
      */
     @GetMapping("/tree")
     @ApiOperation("1.1.2.部门-树")
-    @PreAuthorize("@ss.hasPermi('system:dept:tree')")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "parentDeptId", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class),
+            @ApiImplicitParam(name = "pid", value = "上级部门ID", paramType = "query", dataTypeClass = Long.class),
             @ApiImplicitParam(name = "excludes", value = "排除部门及子部门ID集合", paramType = "query", dataTypeClass = Long[].class),
     })
-    public ResultVO<List<DeptTreeVO>> getDeptTrees(@RequestParam(required = false) final Long parentDeptId,
+    public ResultVO<List<DeptTreeVO>> getDeptTrees(@RequestParam(required = false) final Long pid,
                                                    @RequestParam(required = false) final List<Long> excludes) {
-        return success(DeptTreeUtils.build(deptRepository.getDeptWithChildren(parentDeptId), excludes));
+        return success(DeptTreeUtils.build(deptRepository.getDeptWithChildren(pid), excludes));
     }
 
     /**
@@ -73,8 +72,7 @@ public class DeptController extends BaseController {
      */
     @GetMapping("/{deptId}")
     @ApiOperation("1.1.3.部门-加载")
-    @PreAuthorize("@ss.hasPermi('system:dept:load')")
-    @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptId", value = "部门ID", paramType = "path", dataTypeClass = Long.class)})
+    @ApiImplicitParam(name = "deptId", value = "部门ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<DeptDTO> getById(@PathVariable final Long deptId) {
         return success(deptRepository.getDept(deptId));
     }
@@ -87,7 +85,7 @@ public class DeptController extends BaseController {
      */
     @PostMapping("/")
     @ApiOperation("1.1.4.部门-新增")
-    @PreAuthorize("@ss.hasPermi('system:dept:add')")
+    @PreAuthorize("@ss.hasPermi('sys:dept:add')")
     public ResultVO<Long> add(@Validated({Insert.class}) @RequestBody final DeptAddDTO dto) {
         return success(deptRepository.addDept(dto));
     }
@@ -101,8 +99,8 @@ public class DeptController extends BaseController {
      */
     @PutMapping("/{deptId}")
     @ApiOperation("1.1.5.部门-修改")
-    @PreAuthorize("@ss.hasPermi('system:dept:edit')")
-    @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptId", value = "部门ID", paramType = "path", dataTypeClass = Long.class)})
+    @PreAuthorize("@ss.hasPermi('sys:dept:edit')")
+    @ApiImplicitParam(name = "deptId", value = "部门ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<Void> edit(@PathVariable final Long deptId, @Validated({Modify.class}) @RequestBody final DeptModifyDTO dto) {
         final boolean ret = deptRepository.modifyDept(deptId, dto);
         return ret ? success() : failed();
@@ -116,8 +114,8 @@ public class DeptController extends BaseController {
      */
     @DeleteMapping("/{deptIds}")
     @ApiOperation("1.1.6.部门-删除")
-    @PreAuthorize("@ss.hasPermi('system:dept:del')")
-    @ApiImplicitParams(value = {@ApiImplicitParam(name = "deptIds", value = "部门ID数组", paramType = "path", dataTypeClass = Long[].class)})
+    @PreAuthorize("@ss.hasPermi('sys:dept:del')")
+    @ApiImplicitParam(name = "deptIds", value = "部门ID数组", paramType = "path", dataTypeClass = Long[].class)
     public ResultVO<?> delById(@PathVariable final Long[] deptIds) {
         final boolean ret = deptRepository.delDeptByIds(deptIds);
         return ret ? success() : failed();

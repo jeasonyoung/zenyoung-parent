@@ -13,11 +13,12 @@ import top.zenyoung.framework.system.dao.jpa.JpaLoginLog;
 import top.zenyoung.framework.system.dao.repository.LoginLogRepository;
 import top.zenyoung.framework.system.dto.LoginLogAddDTO;
 import top.zenyoung.framework.system.dto.LoginLogDTO;
+import top.zenyoung.framework.system.dto.LoginLogDelDTO;
 import top.zenyoung.framework.system.dto.LoginLogQueryDTO;
 
 import javax.annotation.Nonnull;
-import java.util.Date;
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * 登录日志-数据操作接口实现
@@ -65,10 +66,13 @@ public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginL
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public Integer batchDels(@Nonnull final Date start, @Nonnull final Date end) {
-        final QLoginLogEntity qLoginLogEntity = QLoginLogEntity.loginLogEntity;
-        return (int) queryFactory.delete(qLoginLogEntity)
-                .where(qLoginLogEntity.createTime.between(start, end))
+    public boolean batchDels(@Nonnull final LoginLogDelDTO dto) {
+        final QLoginLogEntity qEntity = QLoginLogEntity.loginLogEntity;
+        return buildDslDeleteClause(queryFactory.delete(qEntity))
+                //用户ID
+                .add(Objects.nonNull(dto.getUserId()), qEntity.userId.eq(dto.getUserId()))
+                //时间
+                .add(Objects.nonNull(dto.getStart()) && Objects.nonNull(dto.getEnd()), qEntity.createTime.between(dto.getStart(), dto.getEnd()))
                 .execute();
     }
 }

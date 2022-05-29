@@ -44,7 +44,7 @@ insert into tbl_sys_menu(`id`,`code`,`name`,`parent_id`,`path`,`component`,`type
 (10000502, 2, '用户新增', 100005, null, null, 3, 'sys:user:add', '#'),
 (10000503, 3, '用户修改', 100005, null, null, 3, 'sys:user:edit', '#'),
 (10000504, 4, '用户删除', 100005, null, null, 3, 'sys:user:del', '#'),
-(10000505, 5, '重置密码', 100005, null, null, 3, 'sys:user:resetPwd', '#'),
+(10000505, 5, '重置密码', 100005, null, null, 3, 'sys:user:reset-pwd', '#'),
 -- 字典管理-菜单
 (100006, 6, '字典管理', 100, 'dict', 'sys/dict/index', 2, 'sys:dict:list', 'dict'),
 -- 字典管理-按钮
@@ -62,15 +62,15 @@ insert into tbl_sys_menu(`id`,`code`,`name`,`parent_id`,`path`,`component`,`type
 -- 2.系统监控
 (200, 2, '系统监控', 0, 'monitor', null, 1, null, 'monitor'),
 -- 登录日志-菜单
-(200001, 1, '登录日志', 200, 'login', 'monitor/login/index', 2, 'monitor:login:list', 'loginInfo'),
+(200001, 1, '登录日志', 200, 'login', 'monitor/log-login/index', 2, 'monitor:log-login:list', 'loginInfo'),
 -- 登录日志-按钮
-(20000101, 1, '登录查询', 200001, null, null, 3, 'monitor:login:query','#'),
-(20000102, 2, '登录删除', 200001, null, null, 3, 'monitor:login:del', '#'),
+(20000101, 1, '登录查询', 200001, null, null, 3, 'monitor:log-login:query','#'),
+(20000102, 2, '登录删除', 200001, null, null, 3, 'monitor:log-login:del', '#'),
 -- 操作日志-菜单
-(200002, 2, '操作日志', 200, 'log', 'monitor/opera/index', 2, 'monitor:opera:list', 'log'),
+(200002, 2, '操作日志', 200, 'log', 'monitor/log-opera/index', 2, 'monitor:log-opera:list', 'log'),
 -- 操作日志-按钮
-(20000201, 1, '操作查询', 200002, null, null, 3, 'monitor:opera:query', '#'),
-(20000202, 2, '操作删除', 200002, null, null, 3, 'monitor:opera:del', '#'),
+(20000201, 1, '操作查询', 200002, null, null, 3, 'monitor:log-opera:query', '#'),
+(20000202, 2, '操作删除', 200002, null, null, 3, 'monitor:log-opera:del', '#'),
 -- 在线用户-菜单
 (200003, 3, '在线用户', 200, 'online', 'monitor/online/index',2, 'monitor:online:list', 'online'),
 -- 在线用户-按钮

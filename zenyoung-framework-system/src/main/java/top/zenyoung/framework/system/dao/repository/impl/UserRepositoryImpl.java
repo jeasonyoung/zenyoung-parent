@@ -15,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.repository.impl.BaseRepositoryImpl;
 import top.zenyoung.framework.auth.AuthUser;
+import top.zenyoung.framework.exception.ServiceException;
 import top.zenyoung.framework.system.Constants;
 import top.zenyoung.framework.system.dao.entity.*;
 import top.zenyoung.framework.system.dao.jpa.JpaPost;
@@ -222,5 +223,26 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
                     .build();
         }
         return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#userId")
+    public boolean restPassword(@Nonnull final Long userId, @Nonnull final UserRestPasswordDTO data) {
+        final QUserEntity qEntity = QUserEntity.userEntity;
+        //获取旧密码
+        final String oldPwd = queryFactory.select(qEntity.passwd)
+                .from(qEntity)
+                .where(qEntity.id.eq(userId))
+                .fetchFirst();
+        //检查旧密码
+        if (!pwdEncoder.matches(data.getOldPwd(), oldPwd)) {
+            throw new ServiceException("旧密码错误!");
+        }
+        //更新新密码
+        return queryFactory.update(qEntity)
+                .set(qEntity.passwd, pwdEncoder.encode(data.getNewPwd()))
+                .where(qEntity.id.eq(userId))
+                .execute() > 0;
     }
 }

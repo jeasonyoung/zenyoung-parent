@@ -3,10 +3,10 @@ package top.zenyoung.framework.system.dao.repository;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.framework.system.dto.LoginLogAddDTO;
 import top.zenyoung.framework.system.dto.LoginLogDTO;
+import top.zenyoung.framework.system.dto.LoginLogDelDTO;
 import top.zenyoung.framework.system.dto.LoginLogQueryDTO;
 
 import javax.annotation.Nonnull;
-import java.util.Date;
 
 /**
  * 登录日志-数据操作接口
@@ -41,9 +41,8 @@ public interface LoginLogRepository {
     /**
      * 登录日志-批量删除
      *
-     * @param start 开始时间
-     * @param end   结束时间
-     * @return 删除数据
+     * @param dto 删除条件
+     * @return 删除数据量
      */
-    Integer batchDels(@Nonnull final Date start, @Nonnull final Date end);
+    boolean batchDels(@Nonnull final LoginLogDelDTO dto);
 }

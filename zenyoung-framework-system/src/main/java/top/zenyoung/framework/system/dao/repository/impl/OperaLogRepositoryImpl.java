@@ -13,11 +13,12 @@ import top.zenyoung.framework.system.dao.jpa.JpaOperaLog;
 import top.zenyoung.framework.system.dao.repository.OperaLogRepository;
 import top.zenyoung.framework.system.dto.OperaLogAddDTO;
 import top.zenyoung.framework.system.dto.OperaLogDTO;
+import top.zenyoung.framework.system.dto.OperaLogDelDTO;
 import top.zenyoung.framework.system.dto.OperaLogQueryDTO;
 
 import javax.annotation.Nonnull;
-import java.util.Date;
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  * 操作记录-数据服务接口实现
@@ -69,10 +70,11 @@ public class OperaLogRepositoryImpl extends BaseRepositoryImpl implements OperaL
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Integer batchDel(@Nonnull final Date start, @Nonnull final Date end) {
-        final QOperaLogEntity qOperaLogEntity = QOperaLogEntity.operaLogEntity;
-        return (int) queryFactory.delete(qOperaLogEntity)
-                .where(qOperaLogEntity.createTime.between(start, end))
+    public boolean batchDel(@Nonnull final OperaLogDelDTO dto) {
+        final QOperaLogEntity qEntity = QOperaLogEntity.operaLogEntity;
+        return buildDslDeleteClause(queryFactory.delete(qEntity))
+                .add(!Strings.isNullOrEmpty(dto.getMethod()), qEntity.method.eq(dto.getMethod()))
+                .add(Objects.nonNull(dto.getStart()) && Objects.nonNull(dto.getEnd()), qEntity.createTime.between(dto.getStart(), dto.getEnd()))
                 .execute();
     }
 }

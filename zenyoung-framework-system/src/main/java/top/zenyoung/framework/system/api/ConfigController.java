@@ -24,9 +24,9 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
-@Api("1.7-参数管理")
 @RequiredArgsConstructor
-@RequestMapping("/system/config")
+@RequestMapping("/sys/config")
+@Api(value = "1.7-参数管理", tags = "1.系统管理")
 public class ConfigController extends BaseController {
     private final ConfigRepository repository;
 
@@ -38,7 +38,7 @@ public class ConfigController extends BaseController {
      */
     @GetMapping("/query")
     @ApiOperation("1.7.1.参数管理-查询")
-    @PreAuthorize("@ss.hasPermi('system:config:query')")
+    @PreAuthorize("@ss.hasPermi('sys:config:query')")
     public ResultVO<DataResult<ConfigDTO>> query(final ConfigQueryDTO query) {
         return success(repository.query(query));
     }
@@ -52,7 +52,6 @@ public class ConfigController extends BaseController {
     @GetMapping("/{id}")
     @ApiOperation("1.7.2.参数管理-加载")
     @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long.class)
-    @PreAuthorize("@ss.hasPermi('system:config:load')")
     public ResultVO<ConfigDTO> getById(@PathVariable final Long id) {
         return success(repository.getById(id));
     }
@@ -65,7 +64,7 @@ public class ConfigController extends BaseController {
      */
     @PostMapping
     @ApiOperation("1.7.3.参数管理-新增")
-    @PreAuthorize("@ss.hasPermi('system:config:add')")
+    @PreAuthorize("@ss.hasPermi('sys:config:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final ConfigAddDTO data) {
         return success(repository.add(data));
     }
@@ -79,8 +78,8 @@ public class ConfigController extends BaseController {
      */
     @PutMapping("/{id}")
     @ApiOperation("1.7.4.参数管理-修改")
+    @PreAuthorize("@ss.hasPermi('sys:config:edit')")
     @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long.class)
-    @PreAuthorize("@ss.hasPermi('system:config:modify')")
     public ResultVO<Void> modify(@PathVariable final Long id, @RequestBody @Validated({Modify.class}) final ConfigModifyDTO data) {
         final boolean ret = repository.update(id, data);
         return ret ? success() : failed();
@@ -92,13 +91,12 @@ public class ConfigController extends BaseController {
      * @param ids 参数配置ID集合
      * @return 删除结果
      */
-    @PutMapping("/{ids}")
+    @DeleteMapping("/{ids}")
     @ApiOperation("1.7.5.参数管理-删除")
+    @PreAuthorize("@ss.hasPermi('sys:config:del')")
     @ApiImplicitParam(name = "ids", value = "参数配置ID集合", paramType = "path", dataTypeClass = Long[].class)
-    @PreAuthorize("@ss.hasPermi('system:config:del')")
     public ResultVO<Void> del(@PathVariable final Long[] ids) {
         final boolean ret = repository.delByIds(ids);
         return ret ? success() : failed();
     }
-
 }

@@ -5,6 +5,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.data.jpa.JpaBase;
+import top.zenyoung.data.querydsl.DslDeleteClause;
 import top.zenyoung.data.querydsl.DslUpdateClause;
 import top.zenyoung.service.BeanMappingService;
 
@@ -44,7 +46,7 @@ public abstract class BaseRepositoryImpl {
     private static final int DEF_PAGING_IDX = 0, DEF_PAGING_ROWS = 10;
 
     @Autowired
-    private ApplicationContext context;
+    protected ApplicationContext context;
     /**
      * 注入JPAQueryFactory
      */
@@ -366,6 +368,16 @@ public abstract class BaseRepositoryImpl {
      */
     protected static DslUpdateClause buildDslUpdateClause(@Nonnull final JPAUpdateClause clause) {
         return DslUpdateClause.of(clause);
+    }
+
+    /**
+     * 构建JPADSLQuery删除数据
+     *
+     * @param clause JPADSLQuery删除对象
+     * @return 删除处理器
+     */
+    protected static DslDeleteClause buildDslDeleteClause(@Nonnull final JPADeleteClause clause) {
+        return DslDeleteClause.of(clause);
     }
 
     /**

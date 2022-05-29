@@ -1,15 +1,15 @@
 package top.zenyoung.framework.system.api;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.framework.system.dao.repository.LoginLogRepository;
 import top.zenyoung.framework.system.dto.LoginLogDTO;
+import top.zenyoung.framework.system.dto.LoginLogDelDTO;
 import top.zenyoung.framework.system.dto.LoginLogQueryDTO;
 import top.zenyoung.web.controller.BaseController;
 import top.zenyoung.web.vo.ResultVO;
@@ -20,9 +20,9 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
-@Api("1.6-登录日志管理")
 @RequiredArgsConstructor
-@RequestMapping("/system/log/login")
+@RequestMapping("/monitor/log-login")
+@Api(value = "1.8-登录日志管理", tags = "1.系统管理")
 public class LoginLogController extends BaseController {
     private final LoginLogRepository repository;
 
@@ -33,8 +33,8 @@ public class LoginLogController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
-    @ApiOperation("1.6.1.字典类型管理-查询")
-    @PreAuthorize("@ss.hasPermi('system:log-login:query')")
+    @ApiOperation("1.8.1.登录日志管理-查询")
+    @PreAuthorize("@ss.hasPermi('monitor:log-login:query')")
     public ResultVO<DataResult<LoginLogDTO>> query(final LoginLogQueryDTO query) {
         return success(repository.query(query));
     }
@@ -45,10 +45,24 @@ public class LoginLogController extends BaseController {
      * @param id 登录日志ID
      * @return 加载数据
      */
-    @GetMapping("/query")
-    @ApiOperation("1.6.2.字典类型管理-加载")
-    @PreAuthorize("@ss.hasPermi('system:log-login:Load')")
-    public ResultVO<LoginLogDTO> getById(final Long id) {
+    @GetMapping("/{id}")
+    @ApiOperation("1.8.2.登录日志管理-加载")
+    @ApiImplicitParam(name = "id", value = "登录日志ID", paramType = "path", dataTypeClass = Long.class)
+    public ResultVO<LoginLogDTO> getById(@PathVariable final Long id) {
         return success(repository.getById(id));
+    }
+
+    /**
+     * 登录日志-批量删除
+     *
+     * @param dto 删除条件
+     * @return 删除结果
+     */
+    @DeleteMapping
+    @ApiOperation("1.8.3.登录日志管理-批量删除")
+    @PreAuthorize("@ss.hasPermi('monitor:log-login:del')")
+    public ResultVO<Void> batchDel(final LoginLogDelDTO dto) {
+        final boolean ret = repository.batchDels(dto);
+        return ret ? success() : failed();
     }
 }

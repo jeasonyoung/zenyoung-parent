@@ -2,10 +2,7 @@ package top.zenyoung.framework.system.dao.repository;
 
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.framework.auth.AuthUser;
-import top.zenyoung.framework.system.dto.UserAddDTO;
-import top.zenyoung.framework.system.dto.UserDTO;
-import top.zenyoung.framework.system.dto.UserModifyDTO;
-import top.zenyoung.framework.system.dto.UserQueryDTO;
+import top.zenyoung.framework.system.dto.*;
 
 import javax.annotation.Nonnull;
 
@@ -64,4 +61,13 @@ public interface UserRepository {
      * @return 认证用户信息
      */
     AuthUser findByAccount(@Nonnull final String account);
+
+    /**
+     * 用户-重置密码
+     *
+     * @param userId 用户ID
+     * @param data   重置密码数据
+     * @return 重置结果
+     */
+    boolean restPassword(@Nonnull final Long userId, @Nonnull final UserRestPasswordDTO data);
 }

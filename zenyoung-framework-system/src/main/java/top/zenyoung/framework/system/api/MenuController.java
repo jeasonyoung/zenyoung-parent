@@ -26,9 +26,9 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
-@Api("1.4-菜单管理")
 @RequiredArgsConstructor
-@RequestMapping("/system/menu")
+@RequestMapping("/sys/menu")
+@Api(value = "1.3-菜单管理", tags = "1.系统管理")
 public class MenuController extends BaseController {
     private final MenuRepository repository;
 
@@ -39,8 +39,8 @@ public class MenuController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
-    @ApiOperation("1.4.1.菜单管理-查询")
-    @PreAuthorize("@ss.hasPermi('system:menu:query')")
+    @ApiOperation("1.3.1.菜单管理-查询")
+    @PreAuthorize("@ss.hasPermi('sys:menu:query')")
     public ResultVO<DataResult<MenuDTO>> query(final MenuQueryDTO query) {
         return success(repository.query(query));
     }
@@ -52,8 +52,8 @@ public class MenuController extends BaseController {
      * @return 岗位数据
      */
     @GetMapping("/{id}")
-    @ApiOperation("1.4.2.岗位管理-加载")
-    @PreAuthorize("@ss.hasPermi('system:menu:load')")
+    @ApiOperation("1.3.2.岗位管理-加载")
+    @ApiImplicitParam(name = "id", value = "菜单ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<MenuDTO> getById(@PathVariable final Long id) {
         return success(repository.getById(id));
     }
@@ -65,9 +65,9 @@ public class MenuController extends BaseController {
      * @return 菜单树集合
      */
     @GetMapping("/tree")
-    @ApiOperation("1.4.3.岗位管理-菜单树")
-    @PreAuthorize("@ss.hasPermi('system:menu:tree')")
-    public ResultVO<DataResult<MenuTreeVO>> getAll(@RequestParam(required = false) final Long parentId) {
+    @ApiOperation("1.3.3.岗位管理-菜单树")
+    @ApiImplicitParam(name = "parentId", value = "父菜单ID", paramType = "query", dataTypeClass = Long.class)
+    public ResultVO<DataResult<MenuTreeVO>> getAll(final Long parentId) {
         return success(DataResult.of(MenuTreeUtils.build(repository.getAllByParent(parentId))));
     }
 
@@ -78,8 +78,8 @@ public class MenuController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
-    @ApiOperation("1.4.4.菜单管理-新增")
-    @PreAuthorize("@ss.hasPermi('system:menu:add')")
+    @ApiOperation("1.3.4.菜单管理-新增")
+    @PreAuthorize("@ss.hasPermi('sys:menu:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final MenuAddDTO data) {
         return success(repository.add(data));
     }
@@ -92,9 +92,9 @@ public class MenuController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
-    @ApiOperation("1.4.5.菜单管理-修改")
+    @ApiOperation("1.3.5.菜单管理-修改")
+    @PreAuthorize("@ss.hasPermi('sys:menu:edit')")
     @ApiImplicitParam(name = "id", value = "菜单ID", paramType = "path", dataTypeClass = Long.class)
-    @PreAuthorize("@ss.hasPermi('system:menu:modify')")
     public ResultVO<Void> modify(@PathVariable final Long id, @RequestBody @Validated({Modify.class}) final MenuModifyDTO data) {
         final boolean ret = repository.update(id, data);
         return ret ? success() : failed();
@@ -106,10 +106,10 @@ public class MenuController extends BaseController {
      * @param ids 菜单ID集合
      * @return 删除结果
      */
-    @PutMapping("/{ids}")
-    @ApiOperation("1.4.6.菜单管理-删除")
+    @DeleteMapping("/{ids}")
+    @ApiOperation("1.3.6.菜单管理-删除")
+    @PreAuthorize("@ss.hasPermi('sys:menu:del')")
     @ApiImplicitParam(name = "ids", value = "菜单ID集合", paramType = "path", dataTypeClass = Long[].class)
-    @PreAuthorize("@ss.hasPermi('system:menu:del')")
     public ResultVO<Void> del(@PathVariable final Long[] ids) {
         final boolean ret = repository.delByIds(ids);
         return ret ? success() : failed();

@@ -5,7 +5,6 @@ import lombok.Data;
 import top.zenyoung.common.valid.Insert;
 import top.zenyoung.common.valid.Modify;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -15,6 +14,12 @@ import java.io.Serializable;
  */
 @Data
 class LoginLogBaseDTO implements Serializable {
+    /**
+     * 用户ID
+     */
+    @ApiModelProperty("用户ID")
+    @NotBlank(groups = {Insert.class}, message = "用户ID不能为空")
+    private Long userId;
     /**
      * 用户账号
      */

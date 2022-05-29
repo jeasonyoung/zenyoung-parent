@@ -1,6 +1,5 @@
-package top.zenyoung.framework.runtime.config;
+package top.zenyoung.framework.config;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -15,9 +14,7 @@ import javax.annotation.Nonnull;
  */
 @EnableWebMvc
 @Configuration
-@ConditionalOnMissingBean(WebMvcConfigurer.class)
 public class WebConfig implements WebMvcConfigurer {
-
     @Override
     public void addCorsMappings(@Nonnull final CorsRegistry registry) {
         registry.addMapping("/**")
