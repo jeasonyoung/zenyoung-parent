@@ -1,9 +1,7 @@
 package top.zenyoung.framework.auth;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.Data;
-import org.springframework.util.CollectionUtils;
 import top.zenyoung.framework.captcha.CaptchaProperties;
 
 import java.io.Serializable;
@@ -26,9 +24,9 @@ public class AuthProperties implements Serializable {
      */
     private List<String> whiteUrls = Lists.newArrayList();
     /**
-     * 令牌有效期
+     * 访问令牌有效期
      */
-    private Duration tokenExpire = Duration.ofMinutes(10);
+    private Duration accessTokenExpire = Duration.ofMinutes(10);
     /**
      * 刷新令牌有效期
      */

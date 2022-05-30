@@ -10,8 +10,8 @@ import top.zenyoung.common.paging.PagingQuery;
  */
 @Data
 public abstract class BasePageDTO implements PagingQuery {
-    private static final int DEF_PAGE_INDEX = 1;
-    private static final int DEF_PAGE_SIZE = 20;
+    public static final int DEF_PAGE_INDEX = 1;
+    public static final int DEF_PAGE_SIZE = 20;
     /**
      * 页码
      */

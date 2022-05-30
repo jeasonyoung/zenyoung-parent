@@ -75,8 +75,8 @@ insert into tbl_sys_menu(`id`,`code`,`name`,`parent_id`,`path`,`component`,`type
 (200003, 3, '在线用户', 200, 'online', 'monitor/online/index',2, 'monitor:online:list', 'online'),
 -- 在线用户-按钮
 (20000301, 1, '在线查询', 200003, null, null, 3, 'monitor:online:query', '#'),
-(20000302, 2, '批量强退', 200003, null, null, 3, 'monitor:online:batch', '#'),
-(20000303, 3, '单条强退', 200003, null, null, 3, 'monitor:online:force', '#'),
+(20000302, 2, '单条强退', 200003, null, null, 3, 'monitor:online:force', '#'),
+(20000303, 3, '批量强退', 200003, null, null, 3, 'monitor:online:batch', '#'),
 -- 数据监控-菜单
 (200004, 4, '数据监控', 200, 'druid', 'monitor/druid/index', 2, 'monitor:druid:list', 'druid'),
 -- 服务监控-菜单

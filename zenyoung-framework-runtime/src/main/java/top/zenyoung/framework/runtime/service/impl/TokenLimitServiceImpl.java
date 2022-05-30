@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.util.LocalSyncUtils;
 import top.zenyoung.framework.Constants;
+import top.zenyoung.framework.service.RedisEnhancedService;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenLimitService;
 import top.zenyoung.security.token.TokenService;
@@ -29,9 +30,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class TokenLimitServiceImpl implements TokenLimitService {
     private final static Map<String, Object> LOCKS = Maps.newConcurrentMap();
-    private final static String KEY_PREFIX = "auth-token-limit" + Constants.SEP_REDIS;
     private final StringRedisTemplate redisTemplate;
     private final ApplicationContext context;
+
+    private final RedisEnhancedService enhancedService;
 
     @Async
     @Override
@@ -41,19 +43,17 @@ public class TokenLimitServiceImpl implements TokenLimitService {
     }
 
     private String getLimitKey(@Nonnull final Ticket ticket) {
-        return LocalSyncUtils.syncHandler(LOCKS, ticket.getId(),
-                () -> Constants.PREFIX + Constants.join(KEY_PREFIX, "key", ticket.getId())
-        );
+        return Constants.PREFIX + Constants.join("auth-token-limit-key", ticket.getId());
     }
 
     @Async
     @Override
     public void limitIn(@Nonnull final Ticket ticket, @Nonnull final String accessToken) {
         if (!Strings.isNullOrEmpty(accessToken)) {
-            //入队
-            final String limitKey = getLimitKey(ticket);
-            LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
-                redisTemplate.opsForList().rightPush(limitKey, accessToken);
+            enhancedService.redisHandler(() -> {
+                //入队
+                final String limitKey = getLimitKey(ticket);
+                LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> redisTemplate.opsForList().rightPush(limitKey, accessToken));
             });
         }
     }
@@ -64,29 +64,31 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         if (maxTokenCount <= 0) {
             return;
         }
-        final String limitKey = getLimitKey(ticket);
-        //获取对头令牌
-        final String oldToken = LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
-            final ListOperations<String, String> queue = redisTemplate.opsForList();
-            final Long size = queue.size(limitKey);
-            if (Objects.isNull(size) || size <= maxTokenCount) {
-                return null;
+        enhancedService.redisHandler(() -> {
+            final String limitKey = getLimitKey(ticket);
+            //获取对头令牌
+            final String oldToken = LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
+                final ListOperations<String, String> queue = redisTemplate.opsForList();
+                final Long size = queue.size(limitKey);
+                if (Objects.isNull(size) || size <= maxTokenCount) {
+                    return null;
+                }
+                return queue.leftPop(limitKey);
+            });
+            //检查对头令牌
+            if (!Strings.isNullOrEmpty(oldToken)) {
+                final TokenService tokenService = context.getBean(TokenService.class);
+                //检查令牌是否无效
+                final Ticket t = tokenService.validToken(oldToken);
+                //删除令牌
+                tokenService.delToken(oldToken);
+                //检查令牌是否已无效
+                if (Objects.isNull(t)) {
+                    //令牌已无效则递归弹出
+                    limitOut(ticket, maxTokenCount);
+                }
             }
-            return queue.leftPop(limitKey);
         });
-        //检查对头令牌
-        if (!Strings.isNullOrEmpty(oldToken)) {
-            final TokenService tokenService = context.getBean(TokenService.class);
-            //检查令牌是否无效
-            final Ticket t = tokenService.validToken(oldToken);
-            //删除令牌
-            tokenService.delToken(oldToken);
-            //检查令牌是否已无效
-            if (Objects.isNull(t)) {
-                //令牌已无效则递归弹出
-                limitOut(ticket, maxTokenCount);
-            }
-        }
     }
 
     @Async
@@ -95,9 +97,9 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         if (Strings.isNullOrEmpty(accessToken)) {
             return;
         }
-        final String limitKey = getLimitKey(ticket);
-        LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
-            redisTemplate.opsForList().remove(limitKey, 1, accessToken);
+        enhancedService.redisHandler(() -> {
+            final String limitKey = getLimitKey(ticket);
+            LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> redisTemplate.opsForList().remove(limitKey, 1, accessToken));
         });
     }
 
@@ -106,10 +108,12 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         if (Strings.isNullOrEmpty(accessToken)) {
             return false;
         }
-        final String limitKey = getLimitKey(ticket);
-        return LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
-            final List<String> tokens = redisTemplate.opsForList().range(limitKey, 0, -1);
-            return !CollectionUtils.isEmpty(tokens) && tokens.contains(accessToken);
+        return enhancedService.redisHandler(() -> {
+            final String limitKey = getLimitKey(ticket);
+            return LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
+                final List<String> tokens = redisTemplate.opsForList().range(limitKey, 0, -1);
+                return !CollectionUtils.isEmpty(tokens) && tokens.contains(accessToken);
+            });
         });
     }
 }
