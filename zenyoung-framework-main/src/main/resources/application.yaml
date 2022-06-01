@@ -48,5 +48,10 @@ top:
   zenyoung:
     auth:
       white-urls:
+        - /favicon.ico
+        - /doc.html
+        - /v2/**
+        - /webjars/**
+        - /swagger-resources
         - /auth/captcha
         - /auth/login

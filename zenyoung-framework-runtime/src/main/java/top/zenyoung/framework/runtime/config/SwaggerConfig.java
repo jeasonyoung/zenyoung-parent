@@ -1,5 +1,6 @@
 package top.zenyoung.framework.runtime.config;
 
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -18,11 +19,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
  * @author young
  */
 @Configuration
+@EnableKnife4j
 @EnableSwagger2WebMvc
 public class SwaggerConfig {
 
-    @Bean
-    @ConditionalOnMissingBean(Docket.class)
+    @Bean("defaultApi2")
     public Docket createDocketApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
