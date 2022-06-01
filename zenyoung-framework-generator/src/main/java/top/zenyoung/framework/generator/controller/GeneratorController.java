@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @Api("代码生成接口")
+@RequestMapping("/gen")
 @RequiredArgsConstructor
-@RequestMapping("/generator")
 public class GeneratorController extends BaseController {
     private final DatabaseConnectService connectService;
     private final GeneratorCodeService codeService;
