@@ -22,10 +22,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <spring-boot.version>2.4.13</spring-boot.version>
-        <jackson-module-kotlin.version>2.10.2</jackson-module-kotlin.version>
-
-        <!-- query dsl -->
-        <query-dsl.version>5.0.0</query-dsl.version>
 
         <!-- jwt -->
         <jwt.version>0.9.1</jwt.version>
@@ -99,25 +95,6 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!-- jackson-module-kotlin -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-kotlin</artifactId>
-                <version>${jackson-module-kotlin.version}</version>
-            </dependency>
-
-            <!-- query dsl -->
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jpa</artifactId>
-                <version>${query-dsl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-apt</artifactId>
-                <version>${query-dsl.version}</version>
             </dependency>
 
             <!-- jwt -->
@@ -201,6 +178,11 @@
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
                 <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-annotations</artifactId>
+                <version>${knife4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>

@@ -32,16 +32,24 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
         </dependency>
+
         <!-- jetcache -->
         <dependency>
             <groupId>com.alicp.jetcache</groupId>
             <artifactId>jetcache-anno-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- swagger -->
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- 框架模块 start -->

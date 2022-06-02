@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -24,9 +26,10 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
+@ApiSupport(order = 17)
 @RequiredArgsConstructor
 @RequestMapping("/sys/config")
-@Api(value = "1.7-参数管理", tags = "1.系统管理")
+@Api(value = "1.7-参数管理", tags = "1.系统管理-参数管理")
 public class ConfigController extends BaseController {
     private final ConfigRepository repository;
 
@@ -37,6 +40,7 @@ public class ConfigController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.7.1.参数管理-查询")
     @PreAuthorize("@ss.hasPermi('sys:config:query')")
     public ResultVO<DataResult<ConfigDTO>> query(final ConfigQueryDTO query) {
@@ -50,6 +54,7 @@ public class ConfigController extends BaseController {
      * @return 参数配置
      */
     @GetMapping("/{id}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.7.2.参数管理-加载")
     @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<ConfigDTO> getById(@PathVariable final Long id) {
@@ -63,6 +68,7 @@ public class ConfigController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.7.3.参数管理-新增")
     @PreAuthorize("@ss.hasPermi('sys:config:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final ConfigAddDTO data) {
@@ -77,6 +83,7 @@ public class ConfigController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
+    @ApiOperationSupport(order = 4)
     @ApiOperation("1.7.4.参数管理-修改")
     @PreAuthorize("@ss.hasPermi('sys:config:edit')")
     @ApiImplicitParam(name = "id", value = "参数配置ID", paramType = "path", dataTypeClass = Long.class)
@@ -92,6 +99,7 @@ public class ConfigController extends BaseController {
      * @return 删除结果
      */
     @DeleteMapping("/{ids}")
+    @ApiOperationSupport(order = 5)
     @ApiOperation("1.7.5.参数管理-删除")
     @PreAuthorize("@ss.hasPermi('sys:config:del')")
     @ApiImplicitParam(name = "ids", value = "参数配置ID集合", paramType = "path", dataTypeClass = Long[].class)

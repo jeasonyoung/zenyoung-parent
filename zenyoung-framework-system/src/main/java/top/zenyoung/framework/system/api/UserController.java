@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +24,7 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
+@ApiSupport(order = 15)
 @RequestMapping("/sys/user")
 @Api(value = "1.5-用户管理", tags = "1.系统管理")
 public class UserController extends BaseController {
@@ -34,6 +37,7 @@ public class UserController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.5.1.用户管理-查询")
     @PreAuthorize("@ss.hasPermi('sys:user:query')")
     public ResultVO<DataResult<UserDTO>> query(final UserQueryDTO query) {
@@ -47,6 +51,7 @@ public class UserController extends BaseController {
      * @return 用户数据
      */
     @GetMapping("/{id}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.5.2.用户管理-加载")
     @ApiImplicitParam(name = "id", value = "用户ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<UserDTO> getById(@PathVariable final Long id) {
@@ -60,6 +65,7 @@ public class UserController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.5.3.用户管理-新增")
     @PreAuthorize("@ss.hasPermi('sys:user:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final UserAddDTO data) {
@@ -74,6 +80,7 @@ public class UserController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
+    @ApiOperationSupport(order = 4)
     @ApiOperation("1.5.4.用户管理-修改")
     @PreAuthorize("@ss.hasPermi('sys:user:edit')")
     @ApiImplicitParam(name = "id", value = "用户ID", paramType = "path", dataTypeClass = Long.class)
@@ -89,6 +96,7 @@ public class UserController extends BaseController {
      * @return 删除结果
      */
     @DeleteMapping("/{ids}")
+    @ApiOperationSupport(order = 5)
     @ApiOperation("1.5.5.用户管理-删除")
     @PreAuthorize("@ss.hasPermi('sys:user:del')")
     @ApiImplicitParam(name = "ids", value = "用户ID集合", paramType = "path", dataTypeClass = Long[].class)
@@ -105,6 +113,7 @@ public class UserController extends BaseController {
      * @return 重置结果
      */
     @PutMapping("/{id}/rest")
+    @ApiOperationSupport(order = 6)
     @ApiOperation("1.5.6.用户管理-重置密码")
     @PreAuthorize("@ss.hasPermi('sys:user:reset-pwd')")
     @ApiImplicitParam(name = "id", value = "用户ID", paramType = "path", dataTypeClass = Long.class)

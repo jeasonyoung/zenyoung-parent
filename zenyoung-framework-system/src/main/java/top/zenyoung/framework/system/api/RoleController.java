@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +27,7 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
+@ApiSupport(order = 14)
 @RequestMapping("/sys/role")
 @Api(value = "1.4-角色管理", tags = "1.系统管理")
 public class RoleController extends BaseController {
@@ -37,6 +40,7 @@ public class RoleController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.4.1.角色管理-查询")
     @PreAuthorize("@ss.hasPermi('sys:role:query')")
     public ResultVO<DataResult<RoleDTO>> query(final RoleQueryDTO query) {
@@ -50,6 +54,7 @@ public class RoleController extends BaseController {
      * @return 角色数据
      */
     @GetMapping("/{id}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.4.2.角色管理-加载")
     @ApiImplicitParam(name = "id", value = "角色ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<RoleDTO> getById(@PathVariable final Long id) {
@@ -63,6 +68,7 @@ public class RoleController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.4.3.角色管理-新增")
     @PreAuthorize("@ss.hasPermi('sys:role:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final RoleAddDTO data) {
@@ -77,6 +83,7 @@ public class RoleController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
+    @ApiOperationSupport(order = 4)
     @ApiOperation("1.4.4.角色管理-修改")
     @PreAuthorize("@ss.hasPermi('sys:role:edit')")
     @ApiImplicitParam(name = "id", value = "角色ID", paramType = "path", dataTypeClass = Long.class)
@@ -93,6 +100,7 @@ public class RoleController extends BaseController {
      * @return 删除结果
      */
     @DeleteMapping("/{ids}")
+    @ApiOperationSupport(order = 5)
     @ApiOperation("1.4.5.角色管理-删除")
     @PreAuthorize("@ss.hasPermi('sys:role:del')")
     @ApiImplicitParam(name = "ids", value = "角色ID集合", paramType = "path", dataTypeClass = Long[].class)

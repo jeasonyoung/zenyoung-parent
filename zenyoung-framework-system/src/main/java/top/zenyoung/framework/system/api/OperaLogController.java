@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +23,7 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
+@ApiSupport(order = 19)
 @RequestMapping("/monitor/opera")
 @Api(value = "1.9-操作日志管理", tags = "1.系统管理")
 public class OperaLogController extends BaseController {
@@ -33,6 +36,7 @@ public class OperaLogController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.9.1.操作日志-查询")
     @PreAuthorize("@ss.hasPermi('monitor:log-opera:query')")
     public ResultVO<DataResult<OperaLogDTO>> query(final OperaLogQueryDTO query) {
@@ -46,6 +50,7 @@ public class OperaLogController extends BaseController {
      * @return 加载数据
      */
     @GetMapping("/{id}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.9.2.操作日志-加载")
     @ApiImplicitParam(name = "id", value = "操作日志ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<OperaLogDTO> getById(@PathVariable final Long id) {
@@ -59,6 +64,7 @@ public class OperaLogController extends BaseController {
      * @return 删除结果
      */
     @DeleteMapping
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.9.3.操作日志-批量删除")
     @PreAuthorize("@ss.hasPermi('monitor:log-opera:del')")
     public ResultVO<Void> batchDel(final OperaLogDelDTO dto) {

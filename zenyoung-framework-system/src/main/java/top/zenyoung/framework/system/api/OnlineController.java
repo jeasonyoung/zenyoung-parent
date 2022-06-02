@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -20,8 +22,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
+@ApiSupport(order = 110)
 @RequestMapping("/monitor/online")
-@Api(value = "1.10-用户在线管理", tags = "1.系统管理")
+@Api(value = "1.10-用户在线管理", tags = "1.系统管理-用户在线管理")
 public class OnlineController extends BaseController {
     private final OnlineService service;
 
@@ -32,6 +35,7 @@ public class OnlineController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.10.1.用户在线管理-查询")
     @PreAuthorize("@ss.hasPermi('monitor:online:query')")
     public ResultVO<DataResult<OnlineDTO>> query(final OnlineQueryDTO query) {
@@ -45,6 +49,7 @@ public class OnlineController extends BaseController {
      * @return 在线用户数据
      */
     @GetMapping("/{key}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.10.2.用户在线管理-加载")
     @ApiImplicitParam(name = "key", value = "用户Key", paramType = "path", dataTypeClass = String.class)
     public ResultVO<OnlineDTO> getByKey(@PathVariable final String key) {
@@ -58,6 +63,7 @@ public class OnlineController extends BaseController {
      * @return 退出结果
      */
     @DeleteMapping("/force/{key}")
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.10.3.用户在线管理-单条强退")
     @PreAuthorize("@ss.hasPermi('monitor:online:force')")
     @ApiImplicitParam(name = "key", value = "用户Key", paramType = "path", dataTypeClass = String.class)
@@ -74,6 +80,7 @@ public class OnlineController extends BaseController {
      * @return 退出结果
      */
     @DeleteMapping("/batch/{keys}")
+    @ApiOperationSupport(order = 4)
     @ApiOperation("1.10.4.用户在线管理-批量强退")
     @PreAuthorize("@ss.hasPermi('monitor:online:batch')")
     @ApiImplicitParam(name = "keys", value = "用户Key集合", paramType = "path", dataTypeClass = String.class)

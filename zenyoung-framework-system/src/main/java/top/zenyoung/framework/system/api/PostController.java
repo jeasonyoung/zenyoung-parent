@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +27,7 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
+@ApiSupport(order = 12)
 @RequestMapping("/sys/post")
 @Api(value = "1.2-岗位管理", tags = "1.系统管理")
 public class PostController extends BaseController {
@@ -37,6 +40,7 @@ public class PostController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.2.1.岗位管理-查询")
     @PreAuthorize("@ss.hasPermi('sys:post:query')")
     public ResultVO<DataResult<PostDTO>> query(final PostQueryDTO query) {
@@ -50,6 +54,7 @@ public class PostController extends BaseController {
      * @return 岗位数据
      */
     @GetMapping("/{id}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.2.2.岗位管理-加载")
     @ApiImplicitParam(name = "id", value = "岗位ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<PostDTO> getById(@PathVariable final Long id) {
@@ -63,6 +68,7 @@ public class PostController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.2.3.岗位管理-新增")
     @PreAuthorize("@ss.hasPermi('sys:post:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final PostAddDTO data) {
@@ -77,6 +83,7 @@ public class PostController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
+    @ApiOperationSupport(order = 4)
     @ApiOperation("1.2.4.岗位管理-修改")
     @PreAuthorize("@ss.hasPermi('sys:post:edit')")
     @ApiImplicitParam(name = "id", value = "岗位ID", paramType = "path", dataTypeClass = Long.class)
@@ -93,6 +100,7 @@ public class PostController extends BaseController {
      * @return 删除结果
      */
     @DeleteMapping("/{ids}")
+    @ApiOperationSupport(order = 5)
     @ApiOperation("1.2.5.岗位管理-删除")
     @PreAuthorize("@ss.hasPermi('sys:post:del')")
     @ApiImplicitParam(name = "ids", value = "岗位ID集合", paramType = "path", dataTypeClass = Long[].class)

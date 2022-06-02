@@ -1,5 +1,7 @@
 package top.zenyoung.framework.system.api;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -27,8 +29,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
+@ApiSupport(order = 13)
 @RequestMapping("/sys/menu")
-@Api(value = "1.3-菜单管理", tags = "1.系统管理")
+@Api(value = "1.3-菜单管理", tags = "1.系统管理-菜单管理")
 public class MenuController extends BaseController {
     private final MenuRepository repository;
 
@@ -39,6 +42,7 @@ public class MenuController extends BaseController {
      * @return 查询结果
      */
     @GetMapping("/query")
+    @ApiOperationSupport(order = 1)
     @ApiOperation("1.3.1.菜单管理-查询")
     @PreAuthorize("@ss.hasPermi('sys:menu:query')")
     public ResultVO<DataResult<MenuDTO>> query(final MenuQueryDTO query) {
@@ -52,6 +56,7 @@ public class MenuController extends BaseController {
      * @return 岗位数据
      */
     @GetMapping("/{id}")
+    @ApiOperationSupport(order = 2)
     @ApiOperation("1.3.2.岗位管理-加载")
     @ApiImplicitParam(name = "id", value = "菜单ID", paramType = "path", dataTypeClass = Long.class)
     public ResultVO<MenuDTO> getById(@PathVariable final Long id) {
@@ -65,6 +70,7 @@ public class MenuController extends BaseController {
      * @return 菜单树集合
      */
     @GetMapping("/tree")
+    @ApiOperationSupport(order = 3)
     @ApiOperation("1.3.3.岗位管理-菜单树")
     @ApiImplicitParam(name = "parentId", value = "父菜单ID", paramType = "query", dataTypeClass = Long.class)
     public ResultVO<DataResult<MenuTreeVO>> getAll(final Long parentId) {
@@ -78,6 +84,7 @@ public class MenuController extends BaseController {
      * @return 新增结果
      */
     @PostMapping
+    @ApiOperationSupport(order = 4)
     @ApiOperation("1.3.4.菜单管理-新增")
     @PreAuthorize("@ss.hasPermi('sys:menu:add')")
     public ResultVO<Long> add(@RequestBody @Validated({Insert.class}) final MenuAddDTO data) {
@@ -92,6 +99,7 @@ public class MenuController extends BaseController {
      * @return 修改结果
      */
     @PutMapping("/{id}")
+    @ApiOperationSupport(order = 5)
     @ApiOperation("1.3.5.菜单管理-修改")
     @PreAuthorize("@ss.hasPermi('sys:menu:edit')")
     @ApiImplicitParam(name = "id", value = "菜单ID", paramType = "path", dataTypeClass = Long.class)
@@ -107,6 +115,7 @@ public class MenuController extends BaseController {
      * @return 删除结果
      */
     @DeleteMapping("/{ids}")
+    @ApiOperationSupport(order = 6)
     @ApiOperation("1.3.6.菜单管理-删除")
     @PreAuthorize("@ss.hasPermi('sys:menu:del')")
     @ApiImplicitParam(name = "ids", value = "菜单ID集合", paramType = "path", dataTypeClass = Long[].class)
