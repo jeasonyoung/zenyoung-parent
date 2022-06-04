@@ -1,9 +1,8 @@
-package top.zenyoung.web.model;
+package top.zenyoung.common.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import top.zenyoung.common.model.EnumValue;
 
 /**
  * 结果状态-枚举

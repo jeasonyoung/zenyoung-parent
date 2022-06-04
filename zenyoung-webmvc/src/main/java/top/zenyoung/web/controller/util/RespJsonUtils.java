@@ -1,15 +1,14 @@
 package top.zenyoung.web.controller.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -17,6 +16,7 @@ import java.io.Serializable;
  *
  * @author young
  */
+@Slf4j
 public class RespJsonUtils {
 
     /**
@@ -26,13 +26,16 @@ public class RespJsonUtils {
      * @param response     响应对象
      * @param respResult   响应数据
      */
-    @SneakyThrows({IOException.class})
     public static void buildResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nonnull final ResultVO<?> respResult) {
-        final Integer code = respResult.getCode();
-        response.setStatus(code == null || code != 0 ? HttpStatus.OK.value() : code);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), respResult);
-        response.flushBuffer();
+        try {
+            final Integer code = respResult.getCode();
+            response.setStatus(Math.max(HttpStatus.OK.value(), code));
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objectMapper.writeValue(response.getOutputStream(), respResult);
+            response.flushBuffer();
+        } catch (Throwable e) {
+            log.error("buildResp(respResult: {})-exp: {}", respResult, e.getMessage());
+        }
     }
 
     /**

@@ -13,7 +13,7 @@ import top.zenyoung.framework.system.dto.OnlineDTO;
 import top.zenyoung.framework.system.dto.OnlineQueryDTO;
 import top.zenyoung.framework.system.service.OnlineService;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 用户在线-控制器
@@ -24,7 +24,7 @@ import top.zenyoung.web.vo.ResultVO;
 @RequiredArgsConstructor
 @ApiSupport(order = 110)
 @RequestMapping("/monitor/online")
-@Api(value = "1.10-用户在线管理", tags = "1.系统管理-用户在线管理")
+@Api(value = "1.10-用户在线管理", tags = "1.10系统管理-用户在线管理")
 public class OnlineController extends BaseController {
     private final OnlineService service;
 

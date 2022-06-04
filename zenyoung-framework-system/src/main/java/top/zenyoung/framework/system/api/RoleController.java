@@ -18,7 +18,7 @@ import top.zenyoung.framework.system.dto.RoleDTO;
 import top.zenyoung.framework.system.dto.RoleModifyDTO;
 import top.zenyoung.framework.system.dto.RoleQueryDTO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 角色-控制器
@@ -27,9 +27,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 14)
+@ApiSupport(order = 104)
 @RequestMapping("/sys/role")
-@Api(value = "1.4-角色管理", tags = "1.系统管理")
+@Api(value = "1.4-角色管理", tags = "1.4系统管理-角色管理")
 public class RoleController extends BaseController {
     private final RoleRepository repository;
 

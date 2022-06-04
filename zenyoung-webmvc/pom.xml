@@ -24,10 +24,10 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- 模块 -->
+        <!-- 公共模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-web-common</artifactId>
+            <artifactId>zenyoung-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 

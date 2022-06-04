@@ -1,4 +1,4 @@
-package top.zenyoung.web.vo;
+package top.zenyoung.common.vo;
 
 import lombok.Data;
 import top.zenyoung.common.paging.PagingQuery;

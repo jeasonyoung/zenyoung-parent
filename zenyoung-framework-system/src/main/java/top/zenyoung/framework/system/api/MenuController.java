@@ -20,7 +20,7 @@ import top.zenyoung.framework.system.dto.MenuQueryDTO;
 import top.zenyoung.framework.system.util.MenuTreeUtils;
 import top.zenyoung.framework.system.vo.MenuTreeVO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 菜单-控制器
@@ -29,9 +29,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 13)
+@ApiSupport(order = 103)
 @RequestMapping("/sys/menu")
-@Api(value = "1.3-菜单管理", tags = "1.系统管理-菜单管理")
+@Api(value = "1.3-菜单管理", tags = "1.3系统管理-菜单管理")
 public class MenuController extends BaseController {
     private final MenuRepository repository;
 

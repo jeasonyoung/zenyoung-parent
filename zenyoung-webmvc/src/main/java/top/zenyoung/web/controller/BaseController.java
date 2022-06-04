@@ -4,10 +4,11 @@ import com.google.common.base.Strings;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 控制器-基类
@@ -186,5 +187,22 @@ public class BaseController {
             }
         }
         return ret;
+    }
+
+    /**
+     * 响应失败
+     *
+     * @param e   失败异常
+     * @param <T> 数据类型
+     * @return 响应数据
+     */
+    protected <T> ResultVO<T> failed(@Nullable final Throwable e) {
+        if (Objects.isNull(e)) {
+            return failed();
+        }
+        if (e instanceof EnumValue) {
+            return failed(((EnumValue) e));
+        }
+        return failed(e.getMessage());
     }
 }

@@ -18,7 +18,7 @@ import top.zenyoung.framework.system.dto.PostDTO;
 import top.zenyoung.framework.system.dto.PostModifyDTO;
 import top.zenyoung.framework.system.dto.PostQueryDTO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 岗位管理-控制器
@@ -27,9 +27,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 12)
+@ApiSupport(order = 102)
 @RequestMapping("/sys/post")
-@Api(value = "1.2-岗位管理", tags = "1.系统管理")
+@Api(value = "1.2-岗位管理", tags = "1.2系统管理-岗位管理")
 public class PostController extends BaseController {
     private final PostRepository repository;
 

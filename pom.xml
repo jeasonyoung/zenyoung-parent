@@ -69,7 +69,6 @@
         <!-- 服务模块 -->
         <module>zenyoung-service</module>
         <!-- Web模块 -->
-        <module>zenyoung-web-common</module>
         <module>zenyoung-webmvc</module>
         <!-- 安全模块 -->
         <module>zenyoung-security-common</module>

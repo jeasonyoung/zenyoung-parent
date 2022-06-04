@@ -29,6 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -76,13 +77,18 @@ public class UserRepositoryImpl extends BaseRepositoryImpl implements UserReposi
     @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public UserDTO getById(@Nonnull final Long id) {
-        return convert(jpaUser.getOne(id));
+        final AtomicReference<UserDTO> ref = new AtomicReference<>(null);
+        jpaUser.findById(id).ifPresent(entity -> {
+            final UserDTO data = convert(entity);
+            ref.set(data);
+        });
+        return ref.get();
     }
 
     private UserDTO convert(@Nullable final UserEntity entity) {
         if (entity != null) {
             final UserDTO data = new UserDTO();
-            BeanUtils.copyProperties(entity, data, "posts", "roles");
+            BeanUtils.copyProperties(entity, data, "dept", "posts", "roles");
             //所属部门
             final Long deptId;
             if ((deptId = entity.getDeptId()) != null && deptId > 0) {

@@ -5,14 +5,15 @@ import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Service;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.auth.AuthProperties;
 import top.zenyoung.framework.service.RedisEnhancedService;
+import top.zenyoung.framework.utils.BeanCacheUtils;
 import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.exception.TokenExpireException;
 import top.zenyoung.security.token.Ticket;
@@ -27,6 +28,7 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 /**
  * 令牌服务接口实现
@@ -34,16 +36,33 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author young
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
     private final StringRedisTemplate redisTemplate;
     private final IdSequence sequence;
     private final ObjectMapper objMapper;
     private final AuthProperties authProperties;
-    private final RedisEnhancedService enhancedService;
-    private final SyncLockService lockService;
-    private final TokenLimitService limitService;
+    private final ApplicationContext context;
+
+    private void redisHandler(@Nonnull final Runnable handler) {
+        BeanCacheUtils.consumer(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
+
+    private <T> T redisHandler(@Nonnull final Supplier<T> handler) {
+        return BeanCacheUtils.function(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
+
+    private void syncLock(@Nonnull final String key, @Nonnull final Runnable handler) {
+        if (!Strings.isNullOrEmpty(key)) {
+            BeanCacheUtils.consumer(context, SyncLockService.class, bean -> bean.syncLock(key, handler));
+        }
+    }
+
+    private void syncLockSingle(@Nonnull final String key, @Nonnull final Runnable handler) {
+        if (!Strings.isNullOrEmpty(key)) {
+            BeanCacheUtils.consumer(context, SyncLockService.class, bean -> bean.syncLockSingle(key, handler));
+        }
+    }
 
     private static String getDelayAccessKeyWithRefresh(@Nonnull final String refreshToken) {
         return Constants.AUTH_REFRESH_TOKEN_PREFIX + Constants.join("delay-access-token", refreshToken);
@@ -61,7 +80,7 @@ public class TokenServiceImpl implements TokenService {
             final String refreshWithTokenKey = Constants.getAuthRefreshWithAccessKey(accessToken);
             //访问令牌有效期/刷新令牌有效期
             final Duration accessTokenExpire = authProperties.getAccessTokenExpire(), refreshTokenExpire = authProperties.getRefreshTokenExpire();
-            enhancedService.redisHandler(() -> {
+            redisHandler(() -> {
                 //获取刷新令牌过期剩余ttl
                 final Long expire = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
                 //获取redis
@@ -78,6 +97,14 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
+    private void limit(@Nonnull final Ticket ticket, @Nonnull final Integer maxTokenCount, @Nonnull final String accessToken) {
+        BeanCacheUtils.consumer(context, TokenLimitService.class, bean -> bean.limit(ticket, maxTokenCount, accessToken));
+    }
+
+    private void limitIn(@Nonnull final Ticket ticket, @Nonnull final String accessToken) {
+        BeanCacheUtils.consumer(context, TokenLimitService.class, bean -> bean.limitIn(ticket, accessToken));
+    }
+
     @Override
     public Token createToken(@Nonnull final Ticket ticket) {
         final Long tokenId = sequence.nextId();
@@ -91,11 +118,11 @@ public class TokenServiceImpl implements TokenService {
         }
         final Token token = Token.of(accessToken, refreshToken);
         //写入redis
-        lockService.syncLockSingle(ticket.getId(), () -> {
+        syncLockSingle(ticket.getId(), () -> {
             //写入缓存
             writeCacheHandler(ticket, token.getAccessToken(), token.getRefershToken());
             //令牌限制处理
-            limitService.limit(ticket, authProperties.getMaxLoginTotals(), token.getAccessToken());
+            limit(ticket, authProperties.getMaxLoginTotals(), token.getAccessToken());
         });
         return token;
     }
@@ -104,7 +131,7 @@ public class TokenServiceImpl implements TokenService {
         if (Strings.isNullOrEmpty(refreshToken)) {
             return null;
         }
-        return enhancedService.redisHandler(() -> {
+        return redisHandler(() -> {
             final String delayAccessTokenKey = getDelayAccessKeyWithRefresh(refreshToken);
             return redisTemplate.opsForValue().get(delayAccessTokenKey);
         });
@@ -112,7 +139,7 @@ public class TokenServiceImpl implements TokenService {
 
     private void setDelayAccessToken(@Nonnull final String refreshToken, @Nonnull final String accessToken) {
         if (!Strings.isNullOrEmpty(refreshToken) && !Strings.isNullOrEmpty(accessToken)) {
-            enhancedService.redisHandler(() -> {
+            redisHandler(() -> {
                 final String delayAccessTokenKey = getDelayAccessKeyWithRefresh(refreshToken);
                 redisTemplate.opsForValue().set(delayAccessTokenKey, accessToken, Duration.ofSeconds(30));
             });
@@ -126,7 +153,7 @@ public class TokenServiceImpl implements TokenService {
             throw new TokenExpireException("刷新令牌已过期");
         }
         final AtomicReference<String> ref = new AtomicReference<>(null);
-        lockService.syncLock(refreshToken, () -> {
+        syncLock(refreshToken, () -> {
             //获取最新访问令牌
             String accessToken = getToken(refreshToken);
             if (!Strings.isNullOrEmpty(accessToken)) {
@@ -144,7 +171,7 @@ public class TokenServiceImpl implements TokenService {
             //延时令牌处理
             setDelayAccessToken(refreshToken, accessToken);
             //新令牌入队处理
-            limitService.limitIn(ticket, accessToken);
+            limitIn(ticket, accessToken);
             //新的访问令牌
             ref.set(accessToken);
         });
@@ -158,7 +185,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public Ticket parseRefreshToken(@Nonnull final String refreshToken) {
-        return enhancedService.redisHandler(() -> {
+        return redisHandler(() -> {
             //存储票据数据
             final String ticketWithRefreshTokenKey = Constants.getAuthTicketWithRefreshKey(refreshToken);
             final String json = redisTemplate.opsForValue().get(ticketWithRefreshTokenKey);
@@ -184,7 +211,7 @@ public class TokenServiceImpl implements TokenService {
         if (Strings.isNullOrEmpty(accessToken)) {
             return;
         }
-        enhancedService.redisHandler(() -> {
+        redisHandler(() -> {
             //存储refresh-token关系
             final String refreshWithTokenKey = Constants.getAuthRefreshWithAccessKey(accessToken);
             redisTemplate.delete(refreshWithTokenKey);
@@ -193,14 +220,14 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getRefreshToken(@Nonnull final String accessToken) {
-        return enhancedService.redisHandler(() -> {
+        return redisHandler(() -> {
             final String key = Constants.getAuthRefreshWithAccessKey(accessToken);
             return redisTemplate.opsForValue().get(key);
         });
     }
 
     private String getRefreshToken(@Nonnull final Ticket ticket) {
-        return enhancedService.redisHandler(() -> {
+        return redisHandler(() -> {
             final String key = Constants.getAuthRefreshWithTicketKey(ticket);
             return redisTemplate.opsForValue().get(key);
         });
@@ -208,7 +235,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getToken(@Nonnull final String refreshToken) {
-        return enhancedService.redisHandler(() -> {
+        return redisHandler(() -> {
             final String key = Constants.getAuthAccessWithRefreshKey(refreshToken);
             return redisTemplate.opsForValue().get(key);
         });

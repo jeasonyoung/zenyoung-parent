@@ -1,4 +1,4 @@
-package top.zenyoung.web.vo;
+package top.zenyoung.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.common.paging.DataResult;
-import top.zenyoung.web.model.ResultCode;
+import top.zenyoung.common.model.ResultCode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

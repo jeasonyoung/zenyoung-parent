@@ -14,7 +14,7 @@ import top.zenyoung.framework.system.dto.OperaLogDTO;
 import top.zenyoung.framework.system.dto.OperaLogDelDTO;
 import top.zenyoung.framework.system.dto.OperaLogQueryDTO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 操作日志-控制器
@@ -23,9 +23,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 19)
+@ApiSupport(order = 109)
 @RequestMapping("/monitor/opera")
-@Api(value = "1.9-操作日志管理", tags = "1.系统管理")
+@Api(value = "1.9-操作日志管理", tags = "1.9系统管理-操作日志管理")
 public class OperaLogController extends BaseController {
     private final OperaLogRepository repository;
 

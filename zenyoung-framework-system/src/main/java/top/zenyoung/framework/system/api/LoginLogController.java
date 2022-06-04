@@ -14,7 +14,7 @@ import top.zenyoung.framework.system.dto.LoginLogDTO;
 import top.zenyoung.framework.system.dto.LoginLogDelDTO;
 import top.zenyoung.framework.system.dto.LoginLogQueryDTO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 登录日志-控制器
@@ -23,9 +23,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 18)
+@ApiSupport(order = 108)
 @RequestMapping("/monitor/log-login")
-@Api(value = "1.8-登录日志管理", tags = "1.系统管理-登录日志管理")
+@Api(value = "1.8-登录日志管理", tags = "1.8系统管理-登录日志管理")
 public class LoginLogController extends BaseController {
     private final LoginLogRepository repository;
 

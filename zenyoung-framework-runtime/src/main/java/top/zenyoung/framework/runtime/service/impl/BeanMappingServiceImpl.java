@@ -3,15 +3,12 @@ package top.zenyoung.framework.runtime.service.impl;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.paging.PagingResult;
 import top.zenyoung.service.BeanMappingService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -22,14 +19,11 @@ import java.util.stream.Collectors;
  *
  * @author young
  */
-@Service
-@ConditionalOnMissingBean(BeanMappingService.class)
 public class BeanMappingServiceImpl implements BeanMappingService {
-    private final ModelMapper modelMapper = new ModelMapper();
+    private static final ModelMapper MODEL_MAPPER = new ModelMapper();
 
-    @PostConstruct
-    private void init() {
-        final Configuration configuration = this.modelMapper.getConfiguration();
+    static {
+        final Configuration configuration = MODEL_MAPPER.getConfiguration();
         configuration.setMatchingStrategy(MatchingStrategies.STRICT)
                 .setFieldMatchingEnabled(true)
                 .setDeepCopyEnabled(true)
@@ -41,7 +35,7 @@ public class BeanMappingServiceImpl implements BeanMappingService {
         if (Objects.isNull(data)) {
             return null;
         }
-        return this.modelMapper.map(data, tClass);
+        return MODEL_MAPPER.map(data, tClass);
     }
 
     @Override
@@ -51,6 +45,7 @@ public class BeanMappingServiceImpl implements BeanMappingService {
         }
         return ts.stream()
                 .map(item -> this.mapping(item, tClass))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

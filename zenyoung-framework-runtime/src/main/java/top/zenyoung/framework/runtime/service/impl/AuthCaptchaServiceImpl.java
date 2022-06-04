@@ -6,8 +6,8 @@ import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.common.captcha.BaseCaptcha;
@@ -15,6 +15,7 @@ import top.zenyoung.common.captcha.Captcha;
 import top.zenyoung.common.captcha.generator.CodeGenerator;
 import top.zenyoung.common.image.ImageUtils;
 import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.auth.AuthProperties;
 import top.zenyoung.framework.captcha.CaptchaCategory;
@@ -22,6 +23,7 @@ import top.zenyoung.framework.captcha.CaptchaProperties;
 import top.zenyoung.framework.captcha.CaptchaType;
 import top.zenyoung.framework.service.AuthCaptchaService;
 import top.zenyoung.framework.service.RedisEnhancedService;
+import top.zenyoung.framework.utils.BeanCacheUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 /**
  * 认证验证码-服务接口实现
@@ -39,16 +42,26 @@ import java.util.Properties;
  * @author young
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class AuthCaptchaServiceImpl implements AuthCaptchaService, InitializingBean {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private final AuthProperties authProperties;
-    private final IdSequence idSequence;
     private final StringRedisTemplate redisTemplate;
-    private final RedisEnhancedService enhancedService;
+    private final ApplicationContext context;
 
     private Captcha captcha;
+
+    private Long nextId() {
+        return BeanCacheUtils.function(context, IdSequence.class, Sequence::nextId);
+    }
+
+    private void redisHandler(@Nonnull final Runnable handler) {
+        BeanCacheUtils.consumer(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
+
+    private <T> T redisHandler(@Nonnull final Supplier<T> handler) {
+        return BeanCacheUtils.function(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
 
     @Override
     public void afterPropertiesSet() {
@@ -59,8 +72,7 @@ public class AuthCaptchaServiceImpl implements AuthCaptchaService, InitializingB
             //验证码文字生成器
             final CodeGenerator codeGenerator = createCodeGenerator(captchaProperties.getType(), props);
             //验证码类型
-            this.captcha = createCaptcha(captchaProperties.getCategory(), codeGenerator,
-                    captchaProperties.getWidth(), captchaProperties.getHeight(), props);
+            this.captcha = createCaptcha(captchaProperties.getCategory(), codeGenerator, captchaProperties.getWidth(), captchaProperties.getHeight(), props);
         }
     }
 
@@ -133,7 +145,7 @@ public class AuthCaptchaServiceImpl implements AuthCaptchaService, InitializingB
             final String key = getCaptchaCodeKey(captchaId);
             synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
                 try {
-                    enhancedService.redisHandler(() -> redisTemplate.opsForValue().set(key, captchaCode, Duration.ofSeconds(120)));
+                    redisHandler(() -> redisTemplate.opsForValue().set(key, captchaCode, Duration.ofSeconds(120)));
                 } finally {
                     LOCKS.remove(key);
                 }
@@ -146,7 +158,7 @@ public class AuthCaptchaServiceImpl implements AuthCaptchaService, InitializingB
             final String key = getCaptchaCodeKey(captchaId);
             synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
                 try {
-                    return enhancedService.redisHandler(() -> redisTemplate.opsForValue().get(key));
+                    return redisHandler(() -> redisTemplate.opsForValue().get(key));
                 } finally {
                     LOCKS.remove(key);
                 }
@@ -159,7 +171,7 @@ public class AuthCaptchaServiceImpl implements AuthCaptchaService, InitializingB
     public AuthCaptcha createCaptcha() {
         Assert.notNull(this.captcha, "Captcha初始化失败!");
         synchronized (this) {
-            final long captchaId = idSequence.nextId();
+            final long captchaId = nextId();
             this.captcha.createCode();
             final String captchaCode = this.captcha.getCode();
             final String base64Data = this.captcha.getImageBase64Data();

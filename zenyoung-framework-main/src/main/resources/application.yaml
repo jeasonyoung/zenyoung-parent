@@ -43,6 +43,9 @@ logging:
   level:
     org.springframework.scheduling: 'INFO'
     org.apache.http: 'debug'
+#swagger knife4j
+knife4j:
+  enable: true
 #框架配置
 top:
   zenyoung:

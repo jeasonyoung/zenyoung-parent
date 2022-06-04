@@ -18,7 +18,7 @@ import top.zenyoung.framework.generator.domain.Table;
 import top.zenyoung.framework.generator.service.DatabaseConnectService;
 import top.zenyoung.framework.generator.service.GeneratorCodeService;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;

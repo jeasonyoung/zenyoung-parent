@@ -3,9 +3,10 @@ package top.zenyoung.framework.runtime.service.impl;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationContext;
 import top.zenyoung.framework.enums.ExceptionEnum;
 import top.zenyoung.framework.exception.ServiceException;
+import top.zenyoung.framework.utils.BeanCacheUtils;
 import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.exception.TokenExpireException;
 import top.zenyoung.security.token.Ticket;
@@ -22,21 +23,31 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class TokenVerifyServiceImpl implements TokenVerifyService {
-    private final TokenService tokenService;
-    private final TokenLimitService limitService;
+    private final ApplicationContext context;
+
+    private Ticket parseToken(@Nonnull final String accessToken) throws TokenException {
+        return BeanCacheUtils.function(context, TokenService.class, bean -> bean.parseToken(accessToken));
+    }
+
+    private Ticket parseRefreshToken(@Nonnull final String refreshToken) {
+        return BeanCacheUtils.function(context, TokenService.class, bean -> bean.parseRefreshToken(refreshToken));
+    }
+
+    private String getRefreshToken(@Nonnull final String accessToken) {
+        return BeanCacheUtils.function(context, TokenService.class, bean -> bean.getRefreshToken(accessToken));
+    }
 
     @Override
     public Ticket checkToken(@Nonnull final String token) {
         Ticket ticket;
         try {
-            ticket = tokenService.parseToken(token);
+            ticket = parseToken(token);
         } catch (TokenExpireException e) {
             log.warn("checkToken(token: {})-exp: {}", token, e.getMessage());
             //令牌过期,获取刷新令牌
-            final String refreshToken = tokenService.getRefreshToken(token);
+            final String refreshToken = getRefreshToken(token);
             if (Strings.isNullOrEmpty(refreshToken)) {
                 throw new ServiceException(ExceptionEnum.REFRESH_EXPIRE);
             }
@@ -58,7 +69,7 @@ public class TokenVerifyServiceImpl implements TokenVerifyService {
     @Override
     public Ticket checkRefreshToken(@Nonnull final String refreshToken) {
         try {
-            return tokenService.parseRefreshToken(refreshToken);
+            return parseRefreshToken(refreshToken);
         } catch (Throwable e) {
             log.warn("checkRefreshToken(refreshToken: {})-exp: {}", refreshToken, e.getMessage());
             throw new ServiceException(ExceptionEnum.REFRESH_EXPIRE);
@@ -69,9 +80,11 @@ public class TokenVerifyServiceImpl implements TokenVerifyService {
      * 判断limit是否存在
      */
     private void judgeLimitExists(@Nonnull final Ticket ticket, @Nonnull final String token) {
-        //检查是否已被挤出来
-        if (!limitService.isExists(ticket, token)) {
-            throw new ServiceException(ExceptionEnum.LOGIN_OTHER);
-        }
+        BeanCacheUtils.consumer(context, TokenLimitService.class, bean -> {
+            //检查是否已被挤出来
+            if (!bean.isExists(ticket, token)) {
+                throw new ServiceException(ExceptionEnum.LOGIN_OTHER);
+            }
+        });
     }
 }

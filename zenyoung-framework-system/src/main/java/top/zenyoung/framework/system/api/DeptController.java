@@ -19,7 +19,7 @@ import top.zenyoung.framework.system.dto.DeptModifyDTO;
 import top.zenyoung.framework.system.util.DeptTreeUtils;
 import top.zenyoung.framework.system.vo.DeptTreeVO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 import java.util.List;
 
@@ -29,10 +29,10 @@ import java.util.List;
  * @author young
  */
 @RestController
-@ApiSupport(order = 11)
+@ApiSupport(order = 101)
 @RequiredArgsConstructor
 @RequestMapping("/sys/dept")
-@Api(value = "1.1.部门管理", tags = "1.系统管理-部门管理")
+@Api(value = "1.1.部门管理", tags = "1.1系统管理-部门管理")
 public class DeptController extends BaseController {
     private final DeptRepository deptRepository;
 

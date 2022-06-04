@@ -18,7 +18,7 @@ import top.zenyoung.framework.system.dto.ConfigDTO;
 import top.zenyoung.framework.system.dto.ConfigModifyDTO;
 import top.zenyoung.framework.system.dto.ConfigQueryDTO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 参数配置-控制器
@@ -26,10 +26,10 @@ import top.zenyoung.web.vo.ResultVO;
  * @author young
  */
 @RestController
-@ApiSupport(order = 17)
+@ApiSupport(order = 107)
 @RequiredArgsConstructor
 @RequestMapping("/sys/config")
-@Api(value = "1.7-参数管理", tags = "1.系统管理-参数管理")
+@Api(value = "1.7-参数管理", tags = "1.7系统管理-参数管理")
 public class ConfigController extends BaseController {
     private final ConfigRepository repository;
 

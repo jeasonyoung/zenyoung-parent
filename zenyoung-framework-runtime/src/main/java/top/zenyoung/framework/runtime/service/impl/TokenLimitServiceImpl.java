@@ -7,11 +7,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.util.LocalSyncUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.service.RedisEnhancedService;
+import top.zenyoung.framework.utils.BeanCacheUtils;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenLimitService;
 import top.zenyoung.security.token.TokenService;
@@ -20,20 +20,26 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * 令牌限制-服务接口实现
  *
  * @author young
  */
-@Service
 @RequiredArgsConstructor
 public class TokenLimitServiceImpl implements TokenLimitService {
     private final static Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private final StringRedisTemplate redisTemplate;
     private final ApplicationContext context;
 
-    private final RedisEnhancedService enhancedService;
+    private void redisHandler(@Nonnull final Runnable handler) {
+        BeanCacheUtils.consumer(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
+
+    private <T> T redisHandler(@Nonnull final Supplier<T> handler) {
+        return BeanCacheUtils.function(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
 
     @Async
     @Override
@@ -50,7 +56,7 @@ public class TokenLimitServiceImpl implements TokenLimitService {
     @Override
     public void limitIn(@Nonnull final Ticket ticket, @Nonnull final String accessToken) {
         if (!Strings.isNullOrEmpty(accessToken)) {
-            enhancedService.redisHandler(() -> {
+            redisHandler(() -> {
                 //入队
                 final String limitKey = getLimitKey(ticket);
                 LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> redisTemplate.opsForList().rightPush(limitKey, accessToken));
@@ -64,7 +70,7 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         if (maxTokenCount <= 0) {
             return;
         }
-        enhancedService.redisHandler(() -> {
+        redisHandler(() -> {
             final String limitKey = getLimitKey(ticket);
             //获取对头令牌
             final String oldToken = LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
@@ -97,7 +103,7 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         if (Strings.isNullOrEmpty(accessToken)) {
             return;
         }
-        enhancedService.redisHandler(() -> {
+        redisHandler(() -> {
             final String limitKey = getLimitKey(ticket);
             LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> redisTemplate.opsForList().remove(limitKey, 1, accessToken));
         });
@@ -108,7 +114,7 @@ public class TokenLimitServiceImpl implements TokenLimitService {
         if (Strings.isNullOrEmpty(accessToken)) {
             return false;
         }
-        return enhancedService.redisHandler(() -> {
+        return redisHandler(() -> {
             final String limitKey = getLimitKey(ticket);
             return LocalSyncUtils.syncHandler(LOCKS, limitKey, () -> {
                 final List<String> tokens = redisTemplate.opsForList().range(limitKey, 0, -1);

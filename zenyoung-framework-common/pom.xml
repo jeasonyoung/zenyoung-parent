@@ -30,7 +30,7 @@
         <!-- 通用模块 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>zenyoung-web-common</artifactId>
+            <artifactId>zenyoung-webmvc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

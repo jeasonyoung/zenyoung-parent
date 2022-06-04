@@ -15,7 +15,7 @@ import top.zenyoung.common.valid.Modify;
 import top.zenyoung.framework.system.dao.repository.UserRepository;
 import top.zenyoung.framework.system.dto.*;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 用户管理-控制器
@@ -24,9 +24,9 @@ import top.zenyoung.web.vo.ResultVO;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 15)
+@ApiSupport(order = 105)
 @RequestMapping("/sys/user")
-@Api(value = "1.5-用户管理", tags = "1.系统管理")
+@Api(value = "1.5-用户管理", tags = "1.5系统管理-用户管理")
 public class UserController extends BaseController {
     private final UserRepository repository;
 

@@ -5,11 +5,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.framework.Constants;
@@ -29,7 +27,6 @@ import java.util.function.Consumer;
  * @version 1.0
  **/
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class RedisQueueServiceImpl implements QueueService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();

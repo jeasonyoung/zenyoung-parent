@@ -13,11 +13,21 @@ import javax.annotation.Nonnull;
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseException extends RuntimeException {
+public abstract class BaseException extends RuntimeException implements EnumValue {
     /**
      * 错误代码
      */
     private final Integer code;
+
+    @Override
+    public int getVal() {
+        return this.code;
+    }
+
+    @Override
+    public String getTitle() {
+        return super.getMessage();
+    }
 
     /**
      * 构造函数

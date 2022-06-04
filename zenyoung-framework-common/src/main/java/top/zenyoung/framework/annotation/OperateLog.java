@@ -1,4 +1,4 @@
-package top.zenyoung.web;
+package top.zenyoung.framework.annotation;
 
 import java.lang.annotation.*;
 

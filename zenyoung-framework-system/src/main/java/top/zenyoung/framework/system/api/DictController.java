@@ -12,7 +12,7 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.framework.system.dao.repository.DictRepository;
 import top.zenyoung.framework.system.dto.*;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.web.vo.ResultVO;
+import top.zenyoung.common.vo.ResultVO;
 
 import java.util.List;
 
@@ -23,9 +23,9 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
-@ApiSupport(order = 16)
+@ApiSupport(order = 106)
 @RequestMapping("/sys/dict")
-@Api(value = "1.6-字典管理", tags = "1.系统管理-字典管理")
+@Api(value = "1.6-字典管理", tags = "1.6系统管理-字典管理")
 public class DictController extends BaseController {
     private final DictRepository repository;
 

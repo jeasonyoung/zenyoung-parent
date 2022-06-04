@@ -5,11 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import top.zenyoung.common.util.LocalSyncUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.service.RedisEnhancedService;
+import top.zenyoung.framework.utils.BeanCacheUtils;
 import top.zenyoung.service.SyncLockService;
 
 import javax.annotation.Nonnull;
@@ -24,14 +25,16 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  **/
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class RedisSyncLockServiceImpl implements SyncLockService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
     private final RedissonClient client;
+    private final ApplicationContext context;
 
-    private final RedisEnhancedService enhancedService;
+    private void redisHandler(@Nonnull final Runnable handler) {
+        BeanCacheUtils.consumer(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
+    }
 
     /**
      * 获取同步锁键
@@ -48,7 +51,7 @@ public class RedisSyncLockServiceImpl implements SyncLockService {
         log.debug("syncLock(key: {},handler: {})...", key, handler);
         Assert.hasText(key, "'key'不能为空!");
         final String lockKey = getSyncLockKey(key);
-        LocalSyncUtils.syncHandler(LOCKS, lockKey, () -> enhancedService.redisHandler(() -> {
+        LocalSyncUtils.syncHandler(LOCKS, lockKey, () -> redisHandler(() -> {
             final RLock lock = client.getLock(lockKey);
             try {
                 handler.run();
@@ -65,25 +68,23 @@ public class RedisSyncLockServiceImpl implements SyncLockService {
         log.debug("syncLockSingle(key: {},handler: {})...", key, handler);
         Assert.hasText(key, "'key'不能为空!");
         final String lockKey = getSyncLockKey(key);
-        LocalSyncUtils.syncHandler(LOCKS, lockKey, () -> {
-            enhancedService.redisHandler(() -> {
-                final RLock lock = client.getLock(lockKey);
-                try {
-                    //获取锁
-                    if (lock.tryLock(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
-                        try {
-                            //执行业务
-                            handler.run();
-                        } finally {
-                            if (lock.isLocked()) {
-                                lock.unlock();
-                            }
+        LocalSyncUtils.syncHandler(LOCKS, lockKey, () -> redisHandler(() -> {
+            final RLock lock = client.getLock(lockKey);
+            try {
+                //获取锁
+                if (lock.tryLock(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+                    try {
+                        //执行业务
+                        handler.run();
+                    } finally {
+                        if (lock.isLocked()) {
+                            lock.unlock();
                         }
                     }
-                } catch (InterruptedException e) {
-                    log.warn("syncLockSingle(key: {},handler: {})-exp: {}", key, handler, e.getMessage());
                 }
-            });
-        });
+            } catch (InterruptedException e) {
+                log.warn("syncLockSingle(key: {},handler: {})-exp: {}", key, handler, e.getMessage());
+            }
+        }));
     }
 }
