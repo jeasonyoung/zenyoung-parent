@@ -83,6 +83,8 @@
         <module>zenyoung-framework-runtime</module>
         <!-- 业务框架-主函数入口 -->
         <module>zenyoung-framework-main</module>
+        <!-- 业务框架-UI模块 -->
+        <module>zenyoung-framework-ui</module>
     </modules>
 
     <dependencyManagement>
