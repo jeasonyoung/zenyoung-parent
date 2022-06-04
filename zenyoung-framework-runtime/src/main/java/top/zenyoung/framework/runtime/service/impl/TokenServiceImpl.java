@@ -13,7 +13,7 @@ import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.auth.AuthProperties;
 import top.zenyoung.framework.service.RedisEnhancedService;
-import top.zenyoung.framework.utils.BeanCacheUtils;
+import top.zenyoung.common.util.BeanCacheUtils;
 import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.exception.TokenExpireException;
 import top.zenyoung.security.token.Ticket;

@@ -1,4 +1,4 @@
-package top.zenyoung.framework.utils;
+package top.zenyoung.common.util;
 
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;

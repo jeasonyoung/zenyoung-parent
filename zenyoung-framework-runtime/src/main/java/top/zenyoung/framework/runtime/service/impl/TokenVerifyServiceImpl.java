@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import top.zenyoung.framework.enums.ExceptionEnum;
 import top.zenyoung.framework.exception.ServiceException;
-import top.zenyoung.framework.utils.BeanCacheUtils;
+import top.zenyoung.common.util.BeanCacheUtils;
 import top.zenyoung.security.exception.TokenException;
 import top.zenyoung.security.exception.TokenExpireException;
 import top.zenyoung.security.token.Ticket;

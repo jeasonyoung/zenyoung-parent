@@ -12,7 +12,7 @@ import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.framework.auth.AuthUser;
 import top.zenyoung.framework.auth.AuthenService;
 import top.zenyoung.framework.auth.BaseAuthenticationManagerService;
-import top.zenyoung.framework.utils.BeanCacheUtils;
+import top.zenyoung.common.util.BeanCacheUtils;
 import top.zenyoung.security.model.LoginRespBody;
 import top.zenyoung.security.model.TokenUserDetails;
 import top.zenyoung.security.token.Ticket;

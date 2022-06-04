@@ -15,7 +15,6 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ import top.zenyoung.framework.annotation.OperLog;
 import top.zenyoung.framework.common.BusinessType;
 import top.zenyoung.framework.dao.dto.OperLogDTO;
 import top.zenyoung.framework.runtime.model.LogReqParamVal;
-import top.zenyoung.framework.utils.SecurityUtils;
+import top.zenyoung.framework.util.SecurityUtils;
 import top.zenyoung.web.controller.util.HttpUtils;
 
 import javax.annotation.Nonnull;

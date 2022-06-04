@@ -11,7 +11,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.util.LocalSyncUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.service.RedisEnhancedService;
-import top.zenyoung.framework.utils.BeanCacheUtils;
+import top.zenyoung.common.util.BeanCacheUtils;
 import top.zenyoung.security.token.Ticket;
 import top.zenyoung.security.token.TokenLimitService;
 import top.zenyoung.security.token.TokenService;

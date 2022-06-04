@@ -23,7 +23,7 @@ import top.zenyoung.framework.captcha.CaptchaProperties;
 import top.zenyoung.framework.captcha.CaptchaType;
 import top.zenyoung.framework.service.AuthCaptchaService;
 import top.zenyoung.framework.service.RedisEnhancedService;
-import top.zenyoung.framework.utils.BeanCacheUtils;
+import top.zenyoung.common.util.BeanCacheUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

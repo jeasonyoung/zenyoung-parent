@@ -27,13 +27,13 @@ public interface BaseService {
     /**
      * 数据类型转换
      *
-     * @param ts     源数据
+     * @param items  源数据集合
      * @param tClass 目标类型
      * @param <T>    源数据类型
      * @param <MT>   目标数据类型
      * @return 目标数据集合
      */
-    <T, MT> List<MT> mapping(@Nullable final List<T> ts, @Nonnull final Class<MT> tClass);
+    <T, MT> List<MT> mapping(@Nullable final List<T> items, @Nonnull final Class<MT> tClass);
 
     /**
      * 数据类型转换

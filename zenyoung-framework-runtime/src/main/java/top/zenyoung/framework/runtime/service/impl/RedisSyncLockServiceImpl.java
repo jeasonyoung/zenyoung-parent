@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 import top.zenyoung.common.util.LocalSyncUtils;
 import top.zenyoung.framework.Constants;
 import top.zenyoung.framework.service.RedisEnhancedService;
-import top.zenyoung.framework.utils.BeanCacheUtils;
+import top.zenyoung.common.util.BeanCacheUtils;
 import top.zenyoung.service.SyncLockService;
 
 import javax.annotation.Nonnull;
