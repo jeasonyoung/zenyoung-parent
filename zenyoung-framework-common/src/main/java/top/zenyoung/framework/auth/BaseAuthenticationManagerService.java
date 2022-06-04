@@ -62,7 +62,7 @@ public abstract class BaseAuthenticationManagerService extends BaseMvcAuthentica
 
     @Nonnull
     @Override
-    protected ObjectMapper getObjMapper() {
+    public ObjectMapper getObjMapper() {
         return context.getBean(ObjectMapper.class);
     }
 

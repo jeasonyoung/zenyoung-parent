@@ -21,6 +21,7 @@ import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.model.TokenAuthentication;
 import top.zenyoung.security.webmvc.BaseMvcAuthenticationManager;
+import top.zenyoung.web.controller.util.RespJsonUtils;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -96,7 +97,7 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
                 throw ex;
             } catch (Throwable ex) {
                 log.error("attemptAuthentication-exp: {}", ex.getMessage());
-                throw new RuntimeException(ex);
+                throw new AuthenticationServiceException(ex.getMessage(), ex);
             }
         } else {
             reqBody = manager.parseFromData(servletRequest.getParameterMap(), manager.getLoginReqBodyClass());
@@ -104,8 +105,16 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
         if (reqBody == null) {
             throw new UsernameNotFoundException("用户名或密码为空!");
         }
-        final TokenAuthentication<ReqBody> authentication = manager.buildBeforeAuthenticate(httpRequest, reqBody);
-        return manager.authenticate(authentication);
+        try {
+            final TokenAuthentication<ReqBody> authentication = manager.buildBeforeAuthenticate(httpRequest, reqBody);
+            return manager.authenticate(authentication);
+        } catch (AuthenticationException ex) {
+            log.error("attemptAuthentication-exp: {}", ex.getMessage());
+            throw ex;
+        } catch (Throwable ex) {
+            log.error("attemptAuthentication-exp: {}", ex.getMessage());
+            throw new AuthenticationServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
@@ -119,8 +128,11 @@ public class JwtLoginFilter<ReqBody extends LoginReqBody> extends UsernamePasswo
             //登录成功处理
             manager.successfulAuthenticationHandler(response, (UserPrincipal) authResult.getPrincipal());
         } catch (AuthenticationException ex) {
-            log.error("successfulAuthentication(chain: {},authResult: {})-exp: {}", chain, authResult, ex.getMessage());
             unsuccessfulAuthentication(request, response, ex);
+            log.error("successfulAuthentication(chain: {},authResult: {})-exp: {}", chain, authResult, ex.getMessage());
+        } catch (Throwable ex) {
+            RespJsonUtils.buildFailResp(manager.getObjMapper(), response, HttpStatus.UNAUTHORIZED, ex);
+            log.error("successfulAuthentication(chain: {},authResult: {})-exp: {}", chain, authResult, ex.getMessage());
         }
     }
 

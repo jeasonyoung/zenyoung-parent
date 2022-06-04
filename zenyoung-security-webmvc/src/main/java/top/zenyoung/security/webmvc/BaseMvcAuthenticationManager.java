@@ -39,7 +39,7 @@ public abstract class BaseMvcAuthenticationManager<ReqBody extends LoginReqBody>
      * @return ObjectMapper对象
      */
     @Nonnull
-    protected abstract ObjectMapper getObjMapper();
+    public abstract ObjectMapper getObjMapper();
 
     /**
      * 解析请求报文

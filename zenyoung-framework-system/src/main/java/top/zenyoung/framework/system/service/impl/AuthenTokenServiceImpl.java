@@ -3,7 +3,6 @@ package top.zenyoung.framework.system.service.impl;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.zenyoung.framework.auth.AuthUser;
 import top.zenyoung.framework.auth.UserInfo;

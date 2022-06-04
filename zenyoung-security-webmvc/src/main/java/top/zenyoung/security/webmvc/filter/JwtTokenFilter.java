@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.zenyoung.security.model.LoginReqBody;
 import top.zenyoung.security.webmvc.BaseMvcAuthenticationManager;
+import top.zenyoung.web.controller.util.RespJsonUtils;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -88,11 +89,16 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 //将Authentication存入ThreadLocal,方便后续获取用户信息
                 SecurityContextHolder.getContext().setAuthentication(authen);
             }
-            //链路调用
-            chain.doFilter(request, response);
         } catch (AuthenticationException ex) {
-            log.warn("doFilterInternal-exp: {}", ex.getMessage());
             manager.unsuccessfulAuthentication(response, HttpStatus.UNAUTHORIZED, ex);
+            log.warn("doFilterInternal-exp: {}", ex.getMessage());
+            return;
+        } catch (Throwable ex) {
+            RespJsonUtils.buildFailResp(manager.getObjMapper(), response, HttpStatus.BAD_REQUEST, ex);
+            log.warn("doFilterInternal-exp: {}", ex.getMessage());
+            return;
         }
+        //链路调用
+        chain.doFilter(request, response);
     }
 }
