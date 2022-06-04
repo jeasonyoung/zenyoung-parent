@@ -109,7 +109,7 @@ public class TokenServiceImpl implements TokenService {
     public Token createToken(@Nonnull final Ticket ticket) {
         final Long tokenId = sequence.nextId();
         //创建访问令牌
-        final String accessToken = JwtUtils.create(tokenId + "", ticket, authProperties.getAccessTokenExpire());
+        final String accessToken = JwtUtils.create(objMapper, tokenId + "", ticket, authProperties.getAccessTokenExpire());
         //检查刷新令牌
         String refreshToken = getRefreshToken(ticket);
         if (Strings.isNullOrEmpty(refreshToken)) {
@@ -165,7 +165,7 @@ public class TokenServiceImpl implements TokenService {
                 }
             }
             //创建访问令牌
-            accessToken = JwtUtils.create(sequence.nextId() + "", ticket, authProperties.getAccessTokenExpire());
+            accessToken = JwtUtils.create(objMapper, sequence.nextId() + "", ticket, authProperties.getAccessTokenExpire());
             //写入缓存
             writeCacheHandler(ticket, accessToken, refreshToken);
             //延时令牌处理
@@ -180,7 +180,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public Ticket parseToken(@Nonnull final String accessToken) throws TokenException {
-        return JwtUtils.parse(accessToken, Ticket.class);
+        return JwtUtils.parse(objMapper, accessToken, Ticket.class);
     }
 
     @Override
