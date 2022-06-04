@@ -1,5 +1,6 @@
 package top.zenyoung.security.token;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -26,6 +27,7 @@ import java.util.function.Function;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true, value = {"name"})
 public class Ticket extends UserPrincipal {
     private static final String KEY_ID = "id";
     private static final String KEY_ACCOUNT = "account";

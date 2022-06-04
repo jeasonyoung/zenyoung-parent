@@ -2,6 +2,7 @@ package top.zenyoung.security.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.security.exception.TokenException;
@@ -20,6 +21,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@Slf4j
 public class JwtUtils {
     private static final String JWT_ISS = "zenyoung";
     private static final String JWT_SECRECT = "zh-CN#hncs#young@zenyoung.top$(615616)&mxmf![&12345678901&]!#^*^";
@@ -86,8 +88,10 @@ public class JwtUtils {
             }
             throw new TokenException("token无效");
         } catch (ExpiredJwtException e) {
+            log.error("parse(token: {},dataClass: {})-exp: {}", token, dataClass, e.getMessage());
             throw new TokenExpireException("token已过期");
         } catch (Exception e) {
+            log.error("parse(token: {},dataClass: {})-exp: {}", token, dataClass, e.getMessage());
             throw new TokenException("token无效");
         }
     }
