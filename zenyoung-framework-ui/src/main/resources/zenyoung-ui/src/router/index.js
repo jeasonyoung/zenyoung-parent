@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue"
+import Router from "vue-router"
 import Layout from "@/layout";
 
 Vue.use(Router)
@@ -26,12 +26,34 @@ Vue.use(Router)
 
 //公共路由
 export const constantRoutes = [{
-  path:"/redirect",
+  path: '/redirect',
   component: Layout,
   hidden: true,
   children: [{
-    path: "/redirect/:path(.*)",
-
+    path: '/redirect/:path(.*)',
+    component: () => import('@/views/redirect')
+  }]
+}, {
+  path: '/login',
+  component: () => import('@/views/login'),
+  hidden: true
+}, {
+  path: '/404',
+  component: () => import('@/views/error/404'),
+  hidden: true
+}, {
+  path: '/401',
+  component: () => import('@/views/error/401'),
+  hidden: true
+}, {
+  path: '',
+  component: Layout,
+  redirect: 'index',
+  children: [{
+    path: 'index',
+    component: () => import('@/views/index'),
+    name: 'Index',
+    meta: {title: '首页', icon: 'dashboard', affix: true}
   }]
 }]
 

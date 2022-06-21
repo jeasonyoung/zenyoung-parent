@@ -56,16 +56,16 @@ public class LoginLogRepositoryImpl extends BaseRepositoryImpl implements LoginL
         return mapping(jpaLoginLog.getOne(id), LoginLogDTO.class);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final LoginLogAddDTO data) {
         final LoginLogEntity entity = mapping(data, LoginLogEntity.class);
         //保存数据
         return jpaLoginLog.save(entity).getId();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public boolean batchDels(@Nonnull final LoginLogDelDTO dto) {
         final QLoginLogEntity qEntity = QLoginLogEntity.loginLogEntity;
         return buildDslDeleteClause(queryFactory.delete(qEntity))

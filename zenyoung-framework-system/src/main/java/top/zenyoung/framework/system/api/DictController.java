@@ -35,10 +35,9 @@ public class DictController extends BaseController {
      * @param query 查询条件
      * @return 查询结果
      */
-    @GetMapping("/query")
+    @GetMapping("/type/query")
     @ApiOperationSupport(order = 1)
     @ApiOperation("1.6.1.字典类型管理-查询")
-    @PreAuthorize("@ss.hasPermi('sys:dict:query')")
     public ResultVO<DataResult<DictTypeDTO>> queryTypes(final DictTypeQueryDTO query) {
         return success(repository.queryTypes(query));
     }

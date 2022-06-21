@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Notification,MessageBox,Message,Loading} from "element-ui";
+import {MessageBox,Message,Loading} from "element-ui";
 import store from "@/store";
 import {getAccessToken} from "@/util/auth";
 import errorCode from "@/util/errorCode";

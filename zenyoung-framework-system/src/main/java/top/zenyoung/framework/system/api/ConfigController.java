@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.valid.Insert;
 import top.zenyoung.common.valid.Modify;
+import top.zenyoung.common.vo.ResultVO;
 import top.zenyoung.framework.system.dao.repository.ConfigRepository;
 import top.zenyoung.framework.system.dto.ConfigAddDTO;
 import top.zenyoung.framework.system.dto.ConfigDTO;
 import top.zenyoung.framework.system.dto.ConfigModifyDTO;
 import top.zenyoung.framework.system.dto.ConfigQueryDTO;
 import top.zenyoung.web.controller.BaseController;
-import top.zenyoung.common.vo.ResultVO;
 
 /**
  * 参数配置-控制器
@@ -106,5 +106,19 @@ public class ConfigController extends BaseController {
     public ResultVO<Void> del(@PathVariable final Long[] ids) {
         final boolean ret = repository.delByIds(ids);
         return ret ? success() : failed();
+    }
+
+    /**
+     * 参数配置-加载
+     *
+     * @param key 参数键
+     * @return 参数配置
+     */
+    @GetMapping("/key/{key}")
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("1.7.6.参数管理-加载")
+    @ApiImplicitParam(name = "key", value = "参数配置键", paramType = "path", dataTypeClass = Long.class)
+    public ResultVO<ConfigDTO> getByKey(@PathVariable final String key) {
+        return success(repository.getByKey(key));
     }
 }

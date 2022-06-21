@@ -32,6 +32,14 @@ public interface ConfigRepository {
     ConfigDTO getById(@Nonnull final Long id);
 
     /**
+     * 参数-加载
+     *
+     * @param key 参数键
+     * @return 参数数据
+     */
+    ConfigDTO getByKey(@Nonnull final String key);
+
+    /**
      * 参数-新增
      *
      * @param add 新增数据

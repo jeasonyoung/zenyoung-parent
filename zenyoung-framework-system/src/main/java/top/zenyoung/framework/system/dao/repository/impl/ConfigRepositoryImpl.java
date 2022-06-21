@@ -6,7 +6,6 @@ import com.alicp.jetcache.anno.Cached;
 import com.google.common.base.Strings;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import top.zenyoung.common.model.Status;
@@ -38,8 +37,8 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
     private static final String CACHE_KEY = CACHE_PREFIX + "config";
     private final JpaConfig jpaConfig;
 
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     public PagingResult<ConfigDTO> query(@Nonnull final ConfigQueryDTO query) {
         return buildPagingQuery(query, q -> buildDslWhere(new LinkedList<BooleanExpression>() {
             {
@@ -56,9 +55,9 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
         }), jpaConfig, entity -> mapping(entity, ConfigDTO.class));
     }
 
-    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
-    @Transactional(readOnly = true, rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#id", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
     public ConfigDTO getById(@Nonnull final Long id) {
         final AtomicReference<ConfigDTO> ref = new AtomicReference<>(null);
         jpaConfig.findById(id)
@@ -69,17 +68,27 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
         return ref.get();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(readOnly = true, rollbackFor = Throwable.class)
+    @Cached(area = CACHE_AREA, name = CACHE_KEY, key = "#key", cacheType = CacheType.BOTH, expire = CACHE_EXPIRE)
+    public ConfigDTO getByKey(@Nonnull final String key) {
+        final QConfigEntity qConfigEntity = QConfigEntity.configEntity;
+        return mapping(queryFactory.selectFrom(qConfigEntity)
+                .where(qConfigEntity.key.eq(key))
+                .fetchFirst(), ConfigDTO.class);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long add(@Nonnull final ConfigAddDTO add) {
         final ConfigEntity entity = mapping(add, ConfigEntity.class);
         entity.setStatus(Status.Enable);
         return jpaConfig.save(entity).getId();
     }
 
-    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#id")
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#id")
     public boolean update(@Nonnull final Long id, @Nonnull final ConfigModifyDTO data) {
         final QConfigEntity qEntity = QConfigEntity.configEntity;
         return buildDslUpdateClause(queryFactory.update(qEntity))
@@ -93,9 +102,9 @@ public class ConfigRepositoryImpl extends BaseRepositoryImpl implements ConfigRe
                 .execute(qEntity.id.eq(id));
     }
 
-    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#ids", multi = true)
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    @CacheInvalidate(area = CACHE_AREA, name = CACHE_KEY, key = "#ids", multi = true)
     public boolean delByIds(@Nonnull final Long[] ids) {
         if (ids.length > 0) {
             final QDeptEntity qDeptEntity = QDeptEntity.deptEntity;

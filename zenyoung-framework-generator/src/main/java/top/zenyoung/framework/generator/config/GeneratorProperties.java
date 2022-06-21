@@ -1,38 +1,43 @@
 package top.zenyoung.framework.generator.config;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * 代码生成器配置
+ * 代码生成配置
  *
  * @author young
  */
 @Data
-@ConfigurationProperties(prefix = "top.zenyoung.generator")
-public class GeneratorProperties {
+@ApiModel("代码生成配置")
+public class GeneratorProperties implements Serializable {
     /**
-     * 是否启用
+     * 数据库名
      */
-    private boolean enable = true;
+    @ApiModelProperty("数据库名")
+    private String dbName;
     /**
-     * 作者
+     * 包含表名集合
      */
-    private String author = "zenyoung";
+    @ApiModelProperty("表名集合")
+    private List<String> includeTableNames;
     /**
-     * 默认生成包路径
+     * 模块名称
      */
-    private String packageName = "top.zenyoung";
+    @ApiModelProperty("模块名称")
+    private String moduleName;
     /**
-     * 自动去除表前缀,默认是false
+     * 基础包名
      */
-    private Boolean autoRemovePrefix = true;
+    @ApiModelProperty("基础包名")
+    private String basePackageName;
     /**
-     * 表前缀(生成类名不会包含表前缀,多个用逗号分隔)
+     * 服务名称
      */
-    private String tablePrefix = "tbl_";
-    /**
-     * 页面忽略表字段名称(多个用逗号分隔)
-     */
-    private String pageIgnoreColumns = "create_date,create_by,update_date,update_by";
+    @ApiModelProperty("服务名称")
+    private String serverName;
 }
