@@ -1,4 +1,4 @@
-package top.zenyoung.framework.generator;
+package top.zenyoung.framework.generator.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

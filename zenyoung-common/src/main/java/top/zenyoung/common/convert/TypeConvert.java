@@ -7,12 +7,12 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
-public interface TypeConvert {
+public interface TypeConvert<T> {
     /**
      * 执行类型转换
      *
      * @param fieldType 字段类型
      * @return 转换结果类型
      */
-    <T> T processTypeConvert(@Nonnull final String fieldType);
+    T processTypeConvert(@Nonnull final String fieldType);
 }

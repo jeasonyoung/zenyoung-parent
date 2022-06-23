@@ -8,14 +8,14 @@ import top.zenyoung.common.selector.Selector;
  *
  * @author young
  */
-public class TypeConvertRunner {
+public class TypeConvertRunner<T> {
     /**
      * 使用指定参数构建一个选择器
      *
      * @param param 参数
      * @return 返回选择器
      */
-    public static <T> Selector<String, T> use(final String param) {
+    public Selector<String, T> use(final String param) {
         return new Selector<>(param.toLowerCase());
     }
 
@@ -26,7 +26,7 @@ public class TypeConvertRunner {
      * @return 事项构建者
      * @see #containsAny(CharSequence...)
      */
-    public static <T> ItemBuilder<String, T> contains(final CharSequence value) {
+    public ItemBuilder<String, T> contains(final CharSequence value) {
         return ItemBuilder.of(s -> s.contains(value));
     }
 
@@ -35,7 +35,7 @@ public class TypeConvertRunner {
      *
      * @see #contains(CharSequence)
      */
-    public static <T> ItemBuilder<String, T> containsAny(final CharSequence... values) {
+    public ItemBuilder<String, T> containsAny(final CharSequence... values) {
         return ItemBuilder.of(s -> {
             for (CharSequence value : values) {
                 if (s.contains(value)) {

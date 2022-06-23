@@ -35,7 +35,7 @@ public class Selector<P, T> {
      * @return 选择器自身
      */
     public Selector<P, T> test(final Item<P, T> item) {
-        if (!this.selected) {
+        if (!this.isSelected()) {
             final boolean pass = item.execute().test(this.param);
             if (pass) {
                 this.selected = true;
