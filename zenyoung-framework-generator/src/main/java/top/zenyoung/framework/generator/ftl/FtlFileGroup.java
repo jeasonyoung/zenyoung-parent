@@ -36,7 +36,12 @@ public enum FtlFileGroup {
     /**
      * 业务模块
      */
-    BIZ("${serverName}-service");
+    BIZ("${serverName}-service"),
+
+    /**
+     * 是否单列模板
+     */
+    HasSingle(null);
 
     /**
      * 分组目录

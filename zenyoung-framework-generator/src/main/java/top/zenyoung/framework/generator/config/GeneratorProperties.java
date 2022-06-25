@@ -31,6 +31,11 @@ public class GeneratorProperties implements Serializable {
     @ApiModelProperty("模块名称")
     private String moduleName;
     /**
+     * 模块名称忽略字符(多个用,分隔)
+     */
+    @ApiModelProperty("模块名称忽略字符(多个用,分隔)")
+    private String moduleNameIgnores = "-";
+    /**
      * 基础包名
      */
     @ApiModelProperty("基础包名")

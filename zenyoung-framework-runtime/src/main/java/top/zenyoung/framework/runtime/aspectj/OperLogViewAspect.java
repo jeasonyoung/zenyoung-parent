@@ -88,7 +88,7 @@ public class OperLogViewAspect extends BaseAspect {
         }
     }
 
-    @SneakyThrows
+    @SneakyThrows({})
     private Object dataConvertHandler(@Nonnull final String method, @Nonnull final Map<String, LogReqParamVal> dataMap) {
         final String sep = ".";
         final int lastIdx = method.lastIndexOf(sep);

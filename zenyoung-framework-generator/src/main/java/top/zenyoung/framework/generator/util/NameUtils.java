@@ -138,7 +138,7 @@ public class NameUtils {
         return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 
-    private static List<String> splitter(final String sep, final String val) {
+    public static List<String> splitter(final String sep, final String val) {
         if (!Strings.isNullOrEmpty(sep) && !Strings.isNullOrEmpty(val)) {
             return Splitter.on(sep)
                     .omitEmptyStrings()

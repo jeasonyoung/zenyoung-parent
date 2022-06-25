@@ -21,6 +21,7 @@ import java.util.stream.Stream;
  */
 @Getter
 public enum FtlFileType {
+
     ;
 
     private final EnumSet<FtlFileGroup> groups;
