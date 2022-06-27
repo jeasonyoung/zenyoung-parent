@@ -15,6 +15,11 @@ public interface Constants {
     String FILE_SUFFIX_XML = ".xml";
 
     /**
+     * POM文件
+     */
+    String TYPE_POM = "pom" + FILE_SUFFIX_XML;
+
+    /**
      * 参数-服务名
      */
     String PARAM_SERVER_NAME = "serverName";
@@ -87,4 +92,21 @@ public interface Constants {
      * 参数-日期
      */
     String PARAM_DATE = "date";
+
+    /**
+     * 参数-提供服务
+     */
+    String PARAM_IS_PROVIDE_SERVER = "isProvideServer";
+    /**
+     * 参数-BaseAPi
+     */
+    String PARAM_HASH_BASE_API = "hasBaseApi";
+    /**
+     * 参数-是否包含 orm
+     */
+    String PARAM_HAS_ORM = "hasOrm";
+    /**
+     * 参数-是否包含微服务
+     */
+    String PARAM_HAS_MICRO = "hasMicro";
 }

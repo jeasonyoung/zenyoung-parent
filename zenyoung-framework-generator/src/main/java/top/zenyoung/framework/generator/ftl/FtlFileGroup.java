@@ -24,24 +24,32 @@ public enum FtlFileGroup {
     /**
      * 根模块
      */
-    ROOT("${serverName}"),
+    Root("${serverName}"),
     /**
      * API模块
      */
-    API("${serverName}-api"),
+    Api("${serverName}-api"),
     /**
      * 公共模块
      */
-    COMMON("${serverName}-common"),
+    Common("${serverName}-common"),
     /**
      * 业务模块
      */
-    BIZ("${serverName}-service"),
+    Service("${serverName}-service"),
 
     /**
      * 是否单列模板
      */
-    HasSingle(null);
+    HasSingle(null),
+    /**
+     * 是否ORM
+     */
+    HasOrm(null),
+    /**
+     * 是否Micro
+     */
+    HasMicro(null);
 
     /**
      * 分组目录
@@ -65,7 +73,7 @@ public enum FtlFileGroup {
      * @param args 参数集合
      * @return 目录名称
      */
-    public String getDirName(@Nonnull final FtlUtils ftl, @Nonnull final Map<String, Object> args) {
+    public String buildDirName(@Nonnull final FtlUtils ftl, @Nonnull final Map<String, Object> args) {
         if (!CollectionUtils.isEmpty(args) && !Strings.isNullOrEmpty(this.dir)) {
             return ftl.dynamicProcess(this.dir, args);
         }

@@ -96,7 +96,7 @@ public class MetaMapUtils {
     }
 
     public static Map<String, Object> getBasic(@Nonnull final GeneratorProperties properties) {
-        return new HashMap<String, Object>(4) {
+        return new HashMap<String, Object>(7) {
             {
                 //1.服务名称
                 put(Constants.PARAM_SERVER_NAME, properties.getServerName());
@@ -104,7 +104,13 @@ public class MetaMapUtils {
                 put(Constants.PARAM_BASE_PACKAGE, properties.getBasePackageName());
                 //3.id类型
                 put(Constants.PARAM_ID_TYPE, String.class.getSimpleName());
-                //4.日期
+                //4.是否生成 api 以提供服务
+                put(Constants.PARAM_IS_PROVIDE_SERVER, properties.getIsProvideService());
+                //5.是否生成 含有BaseAPi
+                put(Constants.PARAM_HASH_BASE_API, properties.getHasBaseApi());
+                //6.是否包含 orm
+                put(Constants.PARAM_HAS_ORM, properties.getHasOrm());
+                //7.日期
                 put(Constants.PARAM_DATE, new Date());
             }
         };
@@ -112,11 +118,11 @@ public class MetaMapUtils {
 
     public static Map<String, Object> getTables(@Nonnull final GeneratorProperties properties,
                                                    @Nonnull final Table table) {
-        return new HashMap<String, Object>(20){
+        return new HashMap<String, Object>(22){
             {
                 //基础参数数据
                 putAll(getBasic(properties));
-                //5.模块名称
+                //8.模块名称
                 put(Constants.PARAM_MODULE_NAME, buildModuleName(properties, table.getName()));
                 //字符串下划线转驼峰格式
                 final String camel = NameUtils.underlineToCamel(table.getName());
@@ -124,31 +130,31 @@ public class MetaMapUtils {
                 final String upperCase = NameUtils.firstToUpperCase(camel);
                 //首字母小写
                 final String lowerCase = NameUtils.firstToLowerCase(camel);
-                //6.api名称
+                //9.api名称
                 put(Constants.PARAM_API_NAME, upperCase);
-                //7.controller名称
+                //10.controller名称
                 put(Constants.PARAM_CONTROLLER_NAME, upperCase);
-                //8.业务资源名称
+                //11.业务资源名称
                 put(Constants.PARAM_SOURCE_NAME, lowerCase);
-                //9.service名称
+                //12.service名称
                 put(Constants.PARAM_SERVICE_NAME, upperCase);
-                //10.service名称 首字母小写
+                //13.service名称 首字母小写
                 put(Constants.PARAM_SERVICE_NAME_FIRST_LOWER, lowerCase);
-                //11.serviceImpl名称
+                //14.serviceImpl名称
                 put(Constants.PARAM_SERVICE_IMPL_NAME, upperCase);
-                //12.mapper名称
+                //15.mapper名称
                 put(Constants.PARAM_MAPPER_NAME, upperCase);
-                //13.mapper名称 首字母小写
+                //16.mapper名称 首字母小写
                 put(Constants.PARAM_MAPPER_NAME_FIRST_LOWER, lowerCase);
-                //14.mapper xml
+                //17.mapper xml
                 put(Constants.PARAM_MAPPER_XML_NAME, upperCase);
-                //15.vo名称
+                //18.vo名称
                 put(Constants.PARAM_VO_NAME, upperCase);
-                //16.po名称
+                //19.po名称
                 put(Constants.PARAM_PO_NAME, upperCase);
-                //17.dto名称
+                //20.dto名称
                 put(Constants.PARAM_DTO_NAME, upperCase);
-                //18.表信息
+                //21.表信息
                 put(Constants.PARAM_TABLE, table);
             }
         };

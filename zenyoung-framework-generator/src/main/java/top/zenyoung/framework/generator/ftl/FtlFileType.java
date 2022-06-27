@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.util.FtlUtils;
+import top.zenyoung.framework.generator.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,8 +22,116 @@ import java.util.stream.Stream;
  */
 @Getter
 public enum FtlFileType {
+    /**
+     * BaseAPI
+     */
+    BaseApi(EnumSet.of(FtlFileGroup.Api, FtlFileGroup.HasSingle),
+            "BaseApi.java.ftl", "BaseApi" + Constants.FILE_SUFFIX_JAVA,
+            Pkg.of(FtlFileGroup.Api, "${basePackage}.api.base")),
+    /**
+     * API
+     */
+    Api(EnumSet.of(FtlFileGroup.Api), "Api.java.ftl",
+            String.format("${%1$s}Api%2$s", Constants.PARAM_API_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Api, "${basePackage}.api.api.${moduleName}")),
+    /**
+     * DTO
+     */
+    DTO(EnumSet.of(FtlFileGroup.Api, FtlFileGroup.Common), "DTO.java.ftl",
+            String.format("${%1$s}DTO%2$s", Constants.PARAM_DTO_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Api, "${basePackage}.api.dto.${moduleName}"),
+            Pkg.of(FtlFileGroup.Common, "${basePackage}.common.dto.${moduleName}")),
+    /**
+     * VO
+     */
+    VO(EnumSet.of(FtlFileGroup.Api, FtlFileGroup.Common), "VO.java.ftl",
+            String.format("${%1$s}VO%2$s", Constants.PARAM_VO_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Api, "${basePackage}.api.vo.${moduleName}"),
+            Pkg.of(FtlFileGroup.Common, "${basePackage}.common.vo.${moduleName}")),
+    /**
+     * PO-Model
+     */
+    PO(EnumSet.of(FtlFileGroup.Common, FtlFileGroup.HasOrm), "Model.java.ftl",
+            String.format("${%1$s}%2$s", Constants.PARAM_PO_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Common, "${basePackage}.common.model.${moduleName}")),
+    /**
+     * Mapper
+     */
+    Mapper(EnumSet.of(FtlFileGroup.Service), "Mapper.java.ftl",
+            String.format("${%1$s}Mapper%2$s", Constants.PARAM_MAPPER_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Service, "${basePackage}.${moduleName}.mapper")),
+    /**
+     * Mapper Xml
+     */
+    MapperXml(EnumSet.of(FtlFileGroup.Service), "Mapper.xml.ftl",
+            String.format("${%1$s}Mapper%2$s", Constants.PARAM_MAPPER_XML_NAME, Constants.FILE_SUFFIX_XML),
+            Pkg.of(FtlFileGroup.Service, "${basePackage}.${moduleName}.mapper")),
+    /**
+     * 控制器
+     */
+    Controller(EnumSet.of(FtlFileGroup.Service), "Controller.java.ftl",
+            String.format("${%1$s}Controller%2$s", Constants.PARAM_CONTROLLER_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Service, "${basePackage}.${moduleName}.controller")),
+    /**
+     * 服务接口
+     */
+    Service(EnumSet.of(FtlFileGroup.Service), "Service.java.ftl",
+            String.format("${%1$s}Service%2$s", Constants.PARAM_SERVICE_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Service, "${basePackage}.${moduleName}.service")),
+    /**
+     * 服务接口实现
+     */
+    ServiceImpl(EnumSet.of(FtlFileGroup.Service), "ServiceImpl.java.ftl",
+            String.format("${%1$s}ServiceImpl%2$s", Constants.PARAM_SERVICE_IMPL_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Service, "${basePackage}.${moduleName}.service.impl")),
+    /**
+     * AppMain
+     */
+    AppMain(EnumSet.of(FtlFileGroup.Service, FtlFileGroup.HasSingle), "AppMain.java.ftl",
+            "AppMain" + Constants.FILE_SUFFIX_JAVA,
+            Pkg.of(FtlFileGroup.Service, "${basePackage}")),
+    /**
+     * GIT忽略文件
+     */
+    GitIgnore(EnumSet.of(FtlFileGroup.Root, FtlFileGroup.HasSingle), ".gitignore.ftl", ".gitignore"),
 
-    ;
+    /**
+     * 项目POM
+     */
+    PomRoot(EnumSet.of(FtlFileGroup.Root, FtlFileGroup.HasSingle), "PomRoot.xml.ftl", Constants.TYPE_POM),
+    /**
+     * API模块POM
+     */
+    PomApi(EnumSet.of(FtlFileGroup.Api, FtlFileGroup.HasSingle), "PomApi.xml.ftl", Constants.TYPE_POM),
+    /**
+     * 公共模块POM
+     */
+    PomCommon(EnumSet.of(FtlFileGroup.Common, FtlFileGroup.HasSingle), "PomCommon.xml.ftl", Constants.TYPE_POM),
+    /**
+     * 业务模块POM
+     */
+    PomService(EnumSet.of(FtlFileGroup.Service, FtlFileGroup.HasSingle), "PomService.xml.ftl", Constants.TYPE_POM),
+
+    /**
+     * Logback日志配置文件
+     */
+    LogbackSpring(EnumSet.of(FtlFileGroup.Service, FtlFileGroup.HasSingle), "Logback-spring.xml.ftl",
+            "logback-spring" + Constants.FILE_SUFFIX_XML,
+            Pkg.of(FtlFileGroup.Service, "src/main/resources")),
+    /**
+     * Bootstrap配置yaml
+     */
+    Bootstrap(EnumSet.of(FtlFileGroup.Service, FtlFileGroup.HasSingle), "bootstrap.yaml.ftl",
+            "bootstrap.yaml",
+            Pkg.of(FtlFileGroup.Service, "src/main/resources")),
+    /**
+     * Entrypoint Shell
+     */
+    Entrypoint(EnumSet.of(FtlFileGroup.Service, FtlFileGroup.HasSingle), "entrypoint.sh.ftl", "entrypoint.sh"),
+    /**
+     * Dockerfile
+     */
+    Dockerfile(EnumSet.of(FtlFileGroup.Service, FtlFileGroup.HasSingle), "Dockerfile.ftl", "Dockerfile");
 
     private final EnumSet<FtlFileGroup> groups;
     private final String template;
@@ -71,6 +180,19 @@ public enum FtlFileType {
             return ftl.dynamicProcess(this.fileName, args);
         }
         return null;
+    }
+
+    /**
+     * 检查文件后缀
+     *
+     * @param suffix 文件后缀
+     * @return 检查结果
+     */
+    public boolean checkFileSuffix(@Nonnull final String suffix) {
+        if (!Strings.isNullOrEmpty(this.fileName) && !Strings.isNullOrEmpty(suffix)) {
+            return this.fileName.endsWith(suffix);
+        }
+        return false;
     }
 
     @RequiredArgsConstructor(staticName = "of")

@@ -45,4 +45,25 @@ public class GeneratorProperties implements Serializable {
      */
     @ApiModelProperty("服务名称")
     private String serverName;
+
+    /**
+     * 是否提供服务
+     */
+    @ApiModelProperty("是否提供服务")
+    private Boolean isProvideService = true;
+    /**
+     * 是否含有BaseApi
+     */
+    @ApiModelProperty("是否含有BaseApi")
+    private Boolean hasBaseApi = true;
+    /**
+     * 是否包含 orm 默认true
+     */
+    @ApiModelProperty("是否包含ORM")
+    private Boolean hasOrm = true;
+    /**
+     * 是否微服务,默认true
+     */
+    @ApiModelProperty("是否微服务")
+    private Boolean hasMicro = false;
 }

@@ -4,10 +4,7 @@ import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import top.zenyoung.common.util.FtlUtils;
-import top.zenyoung.framework.generator.util.NameUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -15,57 +12,30 @@ import java.util.Map;
  *
  * @author young
  */
-@Getter
 @RequiredArgsConstructor(staticName = "of")
 public class FtlFileInfo {
-    private static final FtlUtils FTL = FtlUtils.getInstance(FtlFileInfo.class);
-
+    /**
+     * 模板工具类
+     */
+    private final FtlUtils ftl;
     /**
      * 模板文件
      */
-    private final FtlFileType fileType;
+    private final String ftlName;
     /**
-     * 模板数据参数
+     * 模板参数
      */
     private final Map<String, Object> args;
     /**
      * 文件路径
      */
-    private String path;
+    @Getter
+    private final String fileDir;
     /**
      * 文件名
      */
-    private String name;
-    /**
-     * 文件分组
-     */
-    private FtlFileGroup group;
-
-    /**
-     * 初始化模板
-     *
-     * @param root  根目录
-     * @param dir   资源目录
-     * @param group 模板分组
-     */
-    public void initTemplate(@Nonnull final String root, @Nullable final String dir, @Nonnull final FtlFileGroup group) {
-        this.group = group;
-        final String pkg = this.fileType.buildPackage(FTL, group, this.args);
-        final String groupDir = group.getDirName(FTL, args);
-        this.path = NameUtils.pathJoiner(root, groupDir, dir, pkg);
-        //文件名
-        this.name = this.fileType.buidFileName(FTL, args);
-    }
-
-    /**
-     * 初始化模板
-     *
-     * @param root  根目录
-     * @param group 模板分组
-     */
-    public void initTemplate(@Nonnull final String root, @Nonnull final FtlFileGroup group) {
-        this.initTemplate(root, null, group);
-    }
+    @Getter
+    private final String fileName;
 
     /**
      * 构建模板文件内容
@@ -73,9 +43,9 @@ public class FtlFileInfo {
      * @return 模板文件内容
      */
     public String buildFtlContent() {
-        final String ftlName = this.fileType.getTemplate();
-        if (!Strings.isNullOrEmpty(ftlName)) {
-            return FTL.process(ftlName, this.args);
+        final String name;
+        if (!Strings.isNullOrEmpty(name = this.ftlName)) {
+            return ftl.process(name, this.args);
         }
         return null;
     }

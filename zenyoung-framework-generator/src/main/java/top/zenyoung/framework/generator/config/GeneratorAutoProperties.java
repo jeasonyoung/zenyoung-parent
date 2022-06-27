@@ -25,4 +25,8 @@ public class GeneratorAutoProperties extends GeneratorProperties {
      * 是否独立部署
      */
     private boolean alone = false;
+    /**
+     * 是否启动跨域
+     */
+    private boolean cors = true;
 }
