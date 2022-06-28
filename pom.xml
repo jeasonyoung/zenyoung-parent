@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.zenyoung</groupId>
-    <artifactId>zenyoung-parent</artifactId>
+    <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <version>3.0.0</version>
 
-    <name>zenyoung</name>
+    <name>parent</name>
     <description>zenyoung tools for Springboot2</description>
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
@@ -63,28 +63,31 @@
 
     <modules>
         <!-- 公共模块 -->
-        <module>zenyoung-common</module>
-        <!-- 数据模块 -->
-        <module>zenyoung-data-jpa</module>
-        <!-- 服务模块 -->
-        <module>zenyoung-service</module>
-        <!-- Web模块 -->
-        <module>zenyoung-webmvc</module>
-        <!-- 安全模块 -->
-        <module>zenyoung-security-common</module>
-        <module>zenyoung-security-webmvc</module>
-        <!-- 业务框架-公共模块 -->
-        <module>zenyoung-framework-common</module>
-        <!-- 业务框架-代码生成器 -->
-        <module>zenyoung-framework-generator</module>
-        <!-- 业务框架-系统管理模块 -->
-        <module>zenyoung-framework-system</module>
-        <!-- 业务框架-运行时模块 -->
-        <module>zenyoung-framework-runtime</module>
-        <!-- 业务框架-主函数入口 -->
-        <module>zenyoung-framework-main</module>
-        <!-- 业务框架-UI模块 -->
-        <module>zenyoung-framework-ui</module>
+        <module>common</module>
+        <!-- spring boot -->
+        <module>boot</module>
+
+<!--        &lt;!&ndash; 数据模块 &ndash;&gt;-->
+<!--        <module>zenyoung-data-jpa</module>-->
+<!--        &lt;!&ndash; 服务模块 &ndash;&gt;-->
+<!--        <module>zenyoung-service</module>-->
+<!--        &lt;!&ndash; Web模块 &ndash;&gt;-->
+<!--        <module>zenyoung-webmvc</module>-->
+<!--        &lt;!&ndash; 安全模块 &ndash;&gt;-->
+<!--        <module>zenyoung-security-common</module>-->
+<!--        <module>zenyoung-security-webmvc</module>-->
+<!--        &lt;!&ndash; 业务框架-公共模块 &ndash;&gt;-->
+<!--        <module>zenyoung-framework-common</module>-->
+<!--        &lt;!&ndash; 业务框架-代码生成器 &ndash;&gt;-->
+<!--        <module>zenyoung-framework-generator</module>-->
+<!--        &lt;!&ndash; 业务框架-系统管理模块 &ndash;&gt;-->
+<!--        <module>zenyoung-framework-system</module>-->
+<!--        &lt;!&ndash; 业务框架-运行时模块 &ndash;&gt;-->
+<!--        <module>zenyoung-framework-runtime</module>-->
+<!--        &lt;!&ndash; 业务框架-主函数入口 &ndash;&gt;-->
+<!--        <module>zenyoung-framework-main</module>-->
+<!--        &lt;!&ndash; 业务框架-UI模块 &ndash;&gt;-->
+<!--        <module>zenyoung-framework-ui</module>-->
     </modules>
 
     <dependencyManagement>
@@ -190,6 +193,14 @@
                 <artifactId>knife4j-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
             </dependency>
+
+            <!-- 模块 -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
