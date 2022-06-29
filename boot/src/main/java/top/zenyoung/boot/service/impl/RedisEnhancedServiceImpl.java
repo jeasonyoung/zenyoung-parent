@@ -2,7 +2,6 @@ package top.zenyoung.boot.service.impl;
 
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import top.zenyoung.boot.service.RedisEnhancedService;
 
 import javax.annotation.Nonnull;
@@ -16,7 +15,6 @@ import java.util.function.Supplier;
  * @author young
  */
 @Slf4j
-@Service
 public class RedisEnhancedServiceImpl implements RedisEnhancedService {
     private final static String INCLUDE_PREFIX = "top.zenyoung.";
 

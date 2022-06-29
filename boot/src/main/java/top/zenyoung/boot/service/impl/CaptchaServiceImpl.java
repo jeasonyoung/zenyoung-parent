@@ -6,10 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.config.CaptchaProperties;
@@ -43,9 +41,8 @@ import java.util.function.Supplier;
  * @author young
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
-public class CaptchaServiceImpl implements CaptchaService, InitializingBean {
+public class CaptchaServiceImpl implements CaptchaService {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private final CaptchaProperties captchaProperties;
     private final StringRedisTemplate redisTemplate;
@@ -66,8 +63,7 @@ public class CaptchaServiceImpl implements CaptchaService, InitializingBean {
         return BeanCacheUtils.function(context, RedisEnhancedService.class, bean -> bean.redisHandler(handler));
     }
 
-    @Override
-    public void afterPropertiesSet() {
+    public void init() {
         if (Objects.nonNull(captchaProperties)) {
             //参数配置
             final Properties props = captchaProperties.getProperties();

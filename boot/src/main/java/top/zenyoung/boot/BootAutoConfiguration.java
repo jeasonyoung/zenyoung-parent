@@ -4,17 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import top.zenyoung.boot.advice.ExceptionController;
 import top.zenyoung.boot.config.*;
+import top.zenyoung.boot.service.BeanMappingService;
+import top.zenyoung.boot.service.CaptchaService;
+import top.zenyoung.boot.service.RedisEnhancedService;
+import top.zenyoung.boot.service.impl.BeanMappingServiceImpl;
+import top.zenyoung.boot.service.impl.CaptchaServiceImpl;
+import top.zenyoung.boot.service.impl.RedisEnhancedServiceImpl;
+import top.zenyoung.boot.util.IdSequenceUtils;
 import top.zenyoung.common.sequence.IdSequence;
-import top.zenyoung.common.sequence.SnowFlake;
-import top.zenyoung.common.util.RandomUtils;
-
-import java.util.Objects;
 
 /**
  * Boot-自动配置
@@ -23,7 +28,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Configuration
-@ComponentScan({"top.zenyoung.boot.aop", "top.zenyoung.boot.service"})
+@ComponentScan({"top.zenyoung.boot.aop"})
 @Import({AsyncConfig.class, SwaggerConfig.class, ExceptionController.class})
 @EnableConfigurationProperties({RepeatSubmitProperties.class, CaptchaProperties.class, IdSequenceProperties.class})
 public class BootAutoConfiguration {
@@ -31,19 +36,29 @@ public class BootAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(IdSequence.class)
     public IdSequence buildSequence(final ObjectProvider<IdSequenceProperties> provider) {
-        final int max = 10;
-        final int cpus = Math.max(Runtime.getRuntime().availableProcessors(), 1);
-        final IdSequenceProperties properties;
-        if (Objects.nonNull(provider) && Objects.nonNull(properties = provider.getIfAvailable())) {
-            final int workerId = (Objects.isNull(properties.getWorkerId()) || properties.getWorkerId() < 0) ? (cpus & max) :
-                    Math.min((int) SnowFlake.MAX_WORKER_ID, properties.getWorkerId());
-            final int dataCenterId = (Objects.isNull(properties.getDataCenterId()) || properties.getDataCenterId() < 0) ? ((cpus * 2) & max) :
-                    Math.min((int) SnowFlake.MAX_DATA_CENTER_ID, properties.getDataCenterId());
-            final int sequence = (Objects.isNull(properties.getSequence()) || properties.getSequence() < 0) ? RandomUtils.randomInt(0, (int) SnowFlake.MAX_SEQUENCE) :
-                    Math.min((int) SnowFlake.MAX_SEQUENCE, properties.getSequence());
-            return SnowFlake.getInstance(workerId, dataCenterId, sequence);
-        }
-        return SnowFlake.getInstance(cpus & max, (cpus * 2) & max);
+        return IdSequenceUtils.create(provider.getIfAvailable());
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public BeanMappingService beanMappingService() {
+        return new BeanMappingServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CaptchaService captchaService(final ObjectProvider<CaptchaProperties> properties,
+                                         final ObjectProvider<StringRedisTemplate> redisTemplates,
+                                         final ObjectProvider<ApplicationContext> contexts) {
+        final CaptchaProperties cp = properties.getIfAvailable();
+        final StringRedisTemplate srt = redisTemplates.getIfAvailable();
+        final ApplicationContext ctx = contexts.getIfAvailable();
+        return new CaptchaServiceImpl(cp, srt, ctx);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RedisEnhancedService enhancedService() {
+        return new RedisEnhancedServiceImpl();
+    }
 }

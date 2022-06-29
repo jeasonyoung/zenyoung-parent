@@ -21,10 +21,6 @@ import java.util.stream.Stream;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Status implements EnumValue {
     /**
-     * 删除
-     */
-    Del(-1, "删除"),
-    /**
      * 停用
      */
     Disable(0, "停用"),
@@ -33,6 +29,7 @@ public enum Status implements EnumValue {
      */
     Enable(1, "启用");
 
+    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 

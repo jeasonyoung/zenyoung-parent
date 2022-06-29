@@ -9,7 +9,6 @@ import org.modelmapper.internal.Errors;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.boot.service.BeanMappingService;
 import top.zenyoung.common.paging.PageList;
@@ -29,7 +28,6 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-@Service
 public class BeanMappingServiceImpl implements BeanMappingService {
     private static final ModelMapper MODEL = new ModelMapper();
 

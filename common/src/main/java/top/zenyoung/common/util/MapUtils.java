@@ -1,6 +1,8 @@
 package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -45,5 +47,22 @@ public class MapUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * 将对象转换为Map集合
+     *
+     * @param obj 对象
+     * @param <T> 对象类型
+     * @return Map集合
+     */
+    public static <T> Map<String, Object> from(@Nonnull final T obj) {
+        final Map<String, Object> map = Maps.newHashMap();
+        ReflectionUtils.doWithFields(obj.getClass(), f -> {
+            f.setAccessible(true);
+            final Object val = f.get(obj);
+            map.put(f.getName(), val);
+        });
+        return map;
     }
 }
