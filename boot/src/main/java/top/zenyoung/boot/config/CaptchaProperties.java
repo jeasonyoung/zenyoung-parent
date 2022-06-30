@@ -19,7 +19,7 @@ public class CaptchaProperties implements Serializable {
     /**
      * 是否启用图像验证
      */
-    private Boolean enable = true;
+    private Boolean enable = false;
     /**
      * 验证码类别
      */

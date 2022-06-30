@@ -1,4 +1,4 @@
-package top.zenyoung.data.repository.impl;
+package top.zenyoung.jpa.repository;
 
 import com.google.common.base.Strings;
 import com.querydsl.core.types.OrderSpecifier;
@@ -10,19 +10,20 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
+import top.zenyoung.boot.service.BeanMappingService;
+import top.zenyoung.common.mapping.BeanMapping;
+import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.paging.PagingResult;
-import top.zenyoung.data.jpa.JpaBase;
-import top.zenyoung.data.querydsl.DslDeleteClause;
-import top.zenyoung.data.querydsl.DslUpdateClause;
-import top.zenyoung.service.BeanMappingService;
+import top.zenyoung.jpa.JpaBase;
+import top.zenyoung.jpa.querydsl.DslDeleteClause;
+import top.zenyoung.jpa.querydsl.DslUpdateClause;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,63 +43,30 @@ import java.util.stream.Collectors;
  * 2020/2/6 4:34 下午
  **/
 @Slf4j
-public abstract class BaseRepositoryImpl {
+public abstract class BaseRepositoryImpl implements BeanMapping {
     private static final int DEF_PAGING_IDX = 0, DEF_PAGING_ROWS = 10;
-
-    @Autowired
-    protected ApplicationContext context;
     /**
      * 注入JPAQueryFactory
      */
     @Autowired(required = false)
     protected JPAQueryFactory queryFactory;
 
-    /**
-     * 获取类型转换服务接口
-     *
-     * @return 转换服务接口
-     */
-    protected BeanMappingService getMappingService() {
-        return context.getBean(BeanMappingService.class);
+    @Autowired
+    private BeanMappingService mappingService;
+
+    @Override
+    public <T, MT> MT mapping(@Nullable final T data, @Nonnull final Class<MT> mtClass) {
+        return this.mappingService.mapping(data, mtClass);
     }
 
-    /**
-     * 数据类型转换
-     *
-     * @param data   源数据
-     * @param tClass 目标类型
-     * @param <T>    源数据类型
-     * @param <MT>   目标数据类型
-     * @return 目标数据
-     */
-    protected <T, MT> MT mapping(@Nullable final T data, @Nonnull final Class<MT> tClass) {
-        return getMappingService().mapping(data, tClass);
+    @Override
+    public <T, MT> List<MT> mapping(@Nullable final List<T> items, @Nonnull final Class<MT> mtClass) {
+        return this.mappingService.mapping(items, mtClass);
     }
 
-    /**
-     * 数据类型转换
-     *
-     * @param ts     源数据
-     * @param tClass 目标类型
-     * @param <T>    源数据类型
-     * @param <MT>   目标数据类型
-     * @return 目标数据集合
-     */
-    protected <T, MT> List<MT> mapping(@Nullable final List<T> ts, @Nonnull final Class<MT> tClass) {
-        return getMappingService().mapping(ts, tClass);
-    }
-
-    /**
-     * 数据类型转换
-     *
-     * @param pageList 源数据
-     * @param tClass   目标类型
-     * @param <T>      源数据类型
-     * @param <MT>     目标数据类型
-     * @return 目标数据集合
-     */
-    protected <T extends Serializable, MT extends Serializable> PagingResult<MT> mapping(@Nullable final PagingResult<T> pageList, @Nonnull final Class<MT> tClass) {
-        return getMappingService().mapping(pageList, tClass);
+    @Override
+    public <T, MT> PageList<MT> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<MT> mtClass) {
+        return this.mappingService.mapping(pageList, mtClass);
     }
 
     /**

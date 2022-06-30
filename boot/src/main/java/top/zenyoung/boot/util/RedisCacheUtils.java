@@ -1,4 +1,4 @@
-package top.zenyoung.common.util;
+package top.zenyoung.boot.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.QueryTimeoutException;
@@ -21,8 +21,12 @@ public class RedisCacheUtils {
         log.debug("saveCacheValue(key: {},val: {})...", key, val);
         Assert.hasText(key, "'key'不能为空!");
         Assert.hasText(val, "'val'不能为空!");
-        //缓存数据
-        saveCacheValue(redisTemplate, key, val, Duration.ofHours(2));
+        try {
+            //保存缓存
+            redisTemplate.opsForValue().set(key, val);
+        } catch (QueryTimeoutException ex) {
+            log.debug("saveCacheValue(key: {},val: {})-exp: {}", key, val, ex.getMessage());
+        }
     }
 
     public static void saveCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key, @Nonnull final String val, @Nonnull final Duration timeout) {

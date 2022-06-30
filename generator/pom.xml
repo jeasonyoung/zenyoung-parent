@@ -30,7 +30,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>boot</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -47,7 +46,6 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <resources>
             <resource>
                 <directory>${project.basedir}/src/main/resources/generator-ui/dist</directory>

@@ -2,6 +2,8 @@ package top.zenyoung.common.mapping;
 
 import top.zenyoung.common.paging.PageList;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ public interface BeanMapping {
      * @param <MT>    目标数据类型
      * @return 目标数据
      */
-    <T, MT> MT mapping(final T data, final Class<MT> mtClass);
+    <T, MT> MT mapping(@Nullable final T data, @Nonnull final Class<MT> mtClass);
 
     /**
      * 集合转换
@@ -30,7 +32,7 @@ public interface BeanMapping {
      * @param <MT>    目标数据类型
      * @return 目标数据集合
      */
-    <T, MT> List<MT> mapping(final List<T> items, final Class<MT> mtClass);
+    <T, MT> List<MT> mapping(@Nullable final List<T> items, @Nonnull final Class<MT> mtClass);
 
     /**
      * 分页数据转换
@@ -41,5 +43,5 @@ public interface BeanMapping {
      * @param <MT>     目标数据类型
      * @return 转换后的分页数集合
      */
-    <T, MT> PageList<MT> mapping(final PageList<T> pageList, final Class<MT> mtClass);
+    <T, MT> PageList<MT> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<MT> mtClass);
 }

@@ -1,8 +1,11 @@
 package top.zenyoung.boot;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -12,12 +15,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import top.zenyoung.boot.advice.ExceptionController;
 import top.zenyoung.boot.config.*;
-import top.zenyoung.boot.service.BeanMappingService;
-import top.zenyoung.boot.service.CaptchaService;
-import top.zenyoung.boot.service.RedisEnhancedService;
-import top.zenyoung.boot.service.impl.BeanMappingServiceImpl;
-import top.zenyoung.boot.service.impl.CaptchaServiceImpl;
-import top.zenyoung.boot.service.impl.RedisEnhancedServiceImpl;
+import top.zenyoung.boot.service.*;
+import top.zenyoung.boot.service.impl.*;
 import top.zenyoung.boot.util.IdSequenceUtils;
 import top.zenyoung.common.sequence.IdSequence;
 
@@ -32,9 +31,8 @@ import top.zenyoung.common.sequence.IdSequence;
 @Import({AsyncConfig.class, SwaggerConfig.class, ExceptionController.class})
 @EnableConfigurationProperties({RepeatSubmitProperties.class, CaptchaProperties.class, IdSequenceProperties.class})
 public class BootAutoConfiguration {
-
     @Bean
-    @ConditionalOnMissingBean(IdSequence.class)
+    @ConditionalOnMissingBean
     public IdSequence buildSequence(final ObjectProvider<IdSequenceProperties> provider) {
         return IdSequenceUtils.create(provider.getIfAvailable());
     }
@@ -47,6 +45,13 @@ public class BootAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    public RedisEnhancedService enhancedService() {
+        return new RedisEnhancedServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "top.zenyoung.captcha.enable", havingValue = "true")
     public CaptchaService captchaService(final ObjectProvider<CaptchaProperties> properties,
                                          final ObjectProvider<StringRedisTemplate> redisTemplates,
                                          final ObjectProvider<ApplicationContext> contexts) {
@@ -58,7 +63,19 @@ public class BootAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RedisEnhancedService enhancedService() {
-        return new RedisEnhancedServiceImpl();
+    @ConditionalOnProperty(prefix = "top.zenyoung.queue.enable", havingValue = "true")
+    public QueueService redisQueueService(final ObjectProvider<ObjectMapper> objectMappers,
+                                          final ObjectProvider<StringRedisTemplate> redisTemplates) {
+        final ObjectMapper objectMapper = objectMappers.getIfAvailable();
+        final StringRedisTemplate redisTemplate = redisTemplates.getIfAvailable();
+        return new RedisQueueServiceImpl(objectMapper, redisTemplate);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "top.zenyoung.lock.enable", havingValue = "true")
+    public LockService redisLockService(final ObjectProvider<RedissonClient> redissonClients) {
+        final RedissonClient client = redissonClients.getIfAvailable();
+        return new RedisLockServiceImpl(client);
     }
 }

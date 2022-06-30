@@ -1,4 +1,4 @@
-package top.zenyoung.data.querydsl;
+package top.zenyoung.jpa.querydsl;
 
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.Predicate;

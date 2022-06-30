@@ -1,4 +1,4 @@
-package top.zenyoung.data.generator;
+package top.zenyoung.jpa.generator;
 
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;

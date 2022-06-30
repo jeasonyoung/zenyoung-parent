@@ -1,4 +1,4 @@
-package top.zenyoung.service;
+package top.zenyoung.boot.service;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;

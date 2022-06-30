@@ -1,4 +1,4 @@
-package top.zenyoung.service;
+package top.zenyoung.boot.service;
 
 import javax.annotation.Nonnull;
 
@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
  * @author yangyong
  * @version 1.0
  **/
-public interface SyncLockService {
+public interface LockService {
 
     /**
      * 同步锁业务处理

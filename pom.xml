@@ -71,6 +71,8 @@
         <module>boot</module>
         <!-- mybatis-plus orm -->
         <module>orm</module>
+        <!-- jpa -->
+        <module>jpa</module>
         <!-- 代码生成器 -->
         <module>generator</module>
 

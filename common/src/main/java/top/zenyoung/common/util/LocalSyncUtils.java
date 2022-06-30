@@ -10,7 +10,6 @@ import java.util.function.Supplier;
  * @author young
  */
 public class LocalSyncUtils {
-
     /**
      * 同步处理
      *
@@ -38,9 +37,12 @@ public class LocalSyncUtils {
      * @param handler 同步业务处理
      */
     public static void syncHandler(@Nonnull final Map<String, Object> locks, @Nonnull final String key, @Nonnull final Runnable handler) {
-        syncHandler(locks, key, () -> {
-            handler.run();
-            return null;
-        });
+        synchronized (locks.computeIfAbsent(key, k -> new Object())) {
+            try {
+                handler.run();
+            } finally {
+                locks.remove(key);
+            }
+        }
     }
 }

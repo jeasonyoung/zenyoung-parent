@@ -1,4 +1,4 @@
-package top.zenyoung.data.converter;
+package top.zenyoung.jpa.converter;
 
 import top.zenyoung.common.model.Status;
 

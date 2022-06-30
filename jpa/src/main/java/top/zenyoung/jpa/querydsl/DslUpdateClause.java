@@ -1,4 +1,4 @@
-package top.zenyoung.data.querydsl;
+package top.zenyoung.jpa.querydsl;
 
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;

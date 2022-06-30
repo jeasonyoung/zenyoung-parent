@@ -1,4 +1,4 @@
-package top.zenyoung.framework.runtime.service.impl;
+package top.zenyoung.boot.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -9,9 +9,8 @@ import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
+import top.zenyoung.boot.service.QueueService;
 import top.zenyoung.common.util.JsonUtils;
-import top.zenyoung.framework.Constants;
-import top.zenyoung.service.QueueService;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -44,7 +43,7 @@ public class RedisQueueServiceImpl implements QueueService {
      */
     @Nonnull
     protected String getRedisQueueKey(@Nonnull final String key) {
-        return Constants.PREFIX + "queue" + Constants.SEP_REDIS + key;
+        return "zy-queue:" + key;
     }
 
     @Override
