@@ -73,30 +73,10 @@
         <module>orm</module>
         <!-- jpa -->
         <module>jpa</module>
+        <!-- netty -->
+        <module>netty</module>
         <!-- 代码生成器 -->
         <module>generator</module>
-
-<!--        &lt;!&ndash; 数据模块 &ndash;&gt;-->
-<!--        <module>zenyoung-data-jpa</module>-->
-<!--        &lt;!&ndash; 服务模块 &ndash;&gt;-->
-<!--        <module>zenyoung-service</module>-->
-<!--        &lt;!&ndash; Web模块 &ndash;&gt;-->
-<!--        <module>zenyoung-webmvc</module>-->
-<!--        &lt;!&ndash; 安全模块 &ndash;&gt;-->
-<!--        <module>zenyoung-security-common</module>-->
-<!--        <module>zenyoung-security-webmvc</module>-->
-<!--        &lt;!&ndash; 业务框架-公共模块 &ndash;&gt;-->
-<!--        <module>zenyoung-framework-common</module>-->
-<!--        &lt;!&ndash; 业务框架-代码生成器 &ndash;&gt;-->
-<!--        <module>zenyoung-framework-generator</module>-->
-<!--        &lt;!&ndash; 业务框架-系统管理模块 &ndash;&gt;-->
-<!--        <module>zenyoung-framework-system</module>-->
-<!--        &lt;!&ndash; 业务框架-运行时模块 &ndash;&gt;-->
-<!--        <module>zenyoung-framework-runtime</module>-->
-<!--        &lt;!&ndash; 业务框架-主函数入口 &ndash;&gt;-->
-<!--        <module>zenyoung-framework-main</module>-->
-<!--        &lt;!&ndash; 业务框架-UI模块 &ndash;&gt;-->
-<!--        <module>zenyoung-framework-ui</module>-->
     </modules>
 
     <dependencyManagement>
