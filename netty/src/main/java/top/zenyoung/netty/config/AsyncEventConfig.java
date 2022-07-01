@@ -1,6 +1,7 @@
 package top.zenyoung.netty.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
@@ -19,6 +20,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class AsyncEventConfig {
 
+    @ConditionalOnMissingBean
     @Bean(AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
     public SimpleApplicationEventMulticaster asyncMulticaster() {
         log.info("asyncMulticaster....");
@@ -28,6 +30,7 @@ public class AsyncEventConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public TaskExecutor taskExecutor() {
         final int cpus = Runtime.getRuntime().availableProcessors();
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
