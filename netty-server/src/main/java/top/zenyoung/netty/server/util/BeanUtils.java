@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.codec.MessageCodec;
-import top.zenyoung.netty.server.config.NettyProperites;
+import top.zenyoung.netty.server.config.NettyServerProperites;
 import top.zenyoung.netty.server.handler.BaseSocketHandler;
 import top.zenyoung.netty.server.handler.SocketHandler;
 
@@ -44,7 +44,7 @@ public class BeanUtils {
     }
 
     public static Map<String, ChannelHandler> getCodecMap(@Nonnull final ApplicationContext context,
-                                                          @Nonnull final NettyProperites properites) {
+                                                          @Nonnull final NettyServerProperites properites) {
         //1.从配置获取编解码配置
         final Map<String, ChannelHandler> propChannelHandlers = getChannelHandlers(properites, context);
         if (!CollectionUtils.isEmpty(propChannelHandlers)) {
@@ -59,7 +59,7 @@ public class BeanUtils {
         return Maps.newHashMap();
     }
 
-    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final NettyProperites properites,
+    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final NettyServerProperites properites,
                                                                   @Nonnull final ApplicationContext context) {
         final Map<String, String> codecMap = properites.getCodec();
         if (!CollectionUtils.isEmpty(codecMap)) {

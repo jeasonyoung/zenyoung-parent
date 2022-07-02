@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.server.config.AsyncEventConfig;
-import top.zenyoung.netty.server.config.NettyProperites;
+import top.zenyoung.netty.server.config.NettyServerProperites;
 import top.zenyoung.netty.server.handler.StrategyHandler;
 import top.zenyoung.netty.server.server.NettyServer;
 import top.zenyoung.netty.server.server.StrategyFactory;
@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Configuration
 @Import({AsyncEventConfig.class})
-@EnableConfigurationProperties({NettyProperites.class})
+@EnableConfigurationProperties({NettyServerProperites.class})
 public class NettyAutoConfiguration {
 
     @Bean
@@ -38,8 +38,8 @@ public class NettyAutoConfiguration {
 
     @Bean(initMethod = "run", destroyMethod = "close")
     @ConditionalOnMissingBean
-    public NettyServer nettyServer(final ObjectProvider<NettyProperites> properites, final ObjectProvider<ApplicationContext> contexts) {
-        final NettyProperites nettyProperites = properites.getIfAvailable();
+    public NettyServer nettyServer(final ObjectProvider<NettyServerProperites> properites, final ObjectProvider<ApplicationContext> contexts) {
+        final NettyServerProperites nettyProperites = properites.getIfAvailable();
         final ApplicationContext context = contexts.getIfAvailable();
         log.info("开始启动netty-server: {}", nettyProperites);
         return NettyServerImpl.of(nettyProperites, context);

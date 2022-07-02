@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.netty.server.config.NettyProperites;
+import top.zenyoung.netty.server.config.NettyServerProperites;
 import top.zenyoung.netty.server.handler.HeartbeatHandler;
 import top.zenyoung.netty.server.handler.IpAddrFilter;
 import top.zenyoung.netty.server.handler.RequestLimitFilter;
@@ -36,7 +36,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
 public class NettyServerImpl implements NettyServer {
-    private final NettyProperites properites;
+    private final NettyServerProperites properites;
     private final ApplicationContext context;
 
     private static final boolean IS_EPOLL;

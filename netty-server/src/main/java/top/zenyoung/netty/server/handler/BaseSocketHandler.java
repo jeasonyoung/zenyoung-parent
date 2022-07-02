@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.ClosedEvent;
-import top.zenyoung.netty.server.config.NettyProperites;
+import top.zenyoung.netty.server.config.NettyServerProperites;
 import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
 import top.zenyoung.netty.server.server.StrategyFactory;
 import top.zenyoung.netty.server.session.ChannelSessionMap;
@@ -34,7 +34,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     private final AtomicLong heartbeatTotals = new AtomicLong(0L);
 
     @Autowired
-    private NettyProperites properites;
+    private NettyServerProperites properites;
 
     @Autowired
     private StrategyFactory strategyFactory;

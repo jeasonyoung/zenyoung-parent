@@ -4,7 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.netty.server.config.NettyProperites;
+import top.zenyoung.netty.server.config.NettyServerProperites;
 import top.zenyoung.netty.server.config.RequestLimit;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,7 @@ public class RequestLimitFilter extends ChannelInboundHandlerAdapter {
      *
      * @param properites 配置属性
      */
-    public RequestLimitFilter(@Nonnull final NettyProperites properites) {
+    public RequestLimitFilter(@Nonnull final NettyServerProperites properites) {
         this.limit = properites.getLimit();
     }
 
