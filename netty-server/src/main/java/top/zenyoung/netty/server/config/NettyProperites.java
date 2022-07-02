@@ -13,7 +13,7 @@ import java.util.Map;
  * @author young
  */
 @Data
-@ConfigurationProperties("top.zenyoung.netty")
+@ConfigurationProperties("top.zenyoung.netty.server")
 public class NettyProperites {
     /**
      * 服务器端口
