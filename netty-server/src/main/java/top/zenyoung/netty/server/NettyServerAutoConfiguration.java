@@ -20,7 +20,7 @@ import top.zenyoung.netty.server.server.impl.StrategyFactoryImpl;
 import java.util.List;
 
 /**
- * Netty-自动配置
+ * NettyServer-自动配置
  *
  * @author young
  */
@@ -28,7 +28,7 @@ import java.util.List;
 @Configuration
 @Import({AsyncEventConfig.class})
 @EnableConfigurationProperties({NettyServerProperites.class})
-public class NettyAutoConfiguration {
+public class NettyServerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean

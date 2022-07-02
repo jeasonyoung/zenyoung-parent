@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-top.zenyoung.netty.server.NettyServerAutoConfiguration
+top.zenyoung.netty.client.NettyClientAutoConfiguration

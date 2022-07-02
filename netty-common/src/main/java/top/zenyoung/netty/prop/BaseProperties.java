@@ -18,10 +18,6 @@ public abstract class BaseProperties implements Serializable {
      */
     private Integer port = 9000;
     /**
-     * 保持连接数(默认1024)
-     */
-    private Integer backlog = 1024;
-    /**
      * Netty日志级别
      */
     private String logLevel = "DEBUG";

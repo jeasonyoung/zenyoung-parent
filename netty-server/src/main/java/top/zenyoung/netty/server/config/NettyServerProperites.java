@@ -8,7 +8,7 @@ import top.zenyoung.netty.prop.BaseProperties;
 import java.util.List;
 
 /**
- * Netty-配置
+ * NettyServer-配置
  *
  * @author young
  */
@@ -16,6 +16,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ConfigurationProperties("top.zenyoung.netty.server")
 public class NettyServerProperites extends BaseProperties {
+    /**
+     * 保持连接数(默认1024)
+     */
+    private Integer backlog = 1024;
     /**
      * IP地址黑名单
      */

@@ -76,6 +76,7 @@
         <!-- netty -->
         <module>netty-common</module>
         <module>netty-server</module>
+        <module>netty-client</module>
         <!-- 代码生成器 -->
         <module>generator</module>
     </modules>
@@ -224,10 +225,14 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>netty-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>generator</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
