@@ -74,7 +74,8 @@
         <!-- jpa -->
         <module>jpa</module>
         <!-- netty -->
-        <module>netty</module>
+        <module>netty-common</module>
+        <module>netty-server</module>
         <!-- 代码生成器 -->
         <module>generator</module>
     </modules>
@@ -209,6 +210,16 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>orm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>netty-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
