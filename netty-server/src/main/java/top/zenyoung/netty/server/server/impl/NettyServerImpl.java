@@ -16,12 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.server.config.NettyServerProperites;
+import top.zenyoung.netty.server.handler.BaseServerSocketHandler;
 import top.zenyoung.netty.server.handler.HeartbeatHandler;
 import top.zenyoung.netty.server.handler.IpAddrFilter;
 import top.zenyoung.netty.server.handler.RequestLimitFilter;
-import top.zenyoung.netty.server.handler.SocketHandler;
 import top.zenyoung.netty.server.server.NettyServer;
-import top.zenyoung.netty.server.util.BeanUtils;
+import top.zenyoung.netty.util.CodecUtils;
+import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
@@ -135,12 +136,12 @@ public class NettyServerImpl implements NettyServer {
                                 log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
                             }
                             //4.挂载编解码器
-                            final Map<String, ChannelHandler> codecMaps = BeanUtils.getCodecMap(context, properites);
+                            final Map<String, ChannelHandler> codecMaps = CodecUtils.getCodecMap(context, properites, true);
                             if (!CollectionUtils.isEmpty(codecMaps)) {
                                 codecMaps.forEach(pipeline::addLast);
                             }
                             //5.挂载业务处理器
-                            final SocketHandler handler = BeanUtils.getBizHandler(context);
+                            final ChannelHandler handler = SocketUtils.getHandler(context, BaseServerSocketHandler.class);
                             if (Objects.nonNull(handler)) {
                                 pipeline.addLast("biz", handler);
                                 log.info("Netty-挂载业务处理器:" + handler);

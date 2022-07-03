@@ -1,4 +1,4 @@
-package top.zenyoung.netty.server.handler;
+package top.zenyoung.netty.handler;
 
 import com.google.common.base.Strings;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,48 +8,59 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Scope;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.ClosedEvent;
-import top.zenyoung.netty.server.config.NettyServerProperites;
-import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
-import top.zenyoung.netty.server.server.StrategyFactory;
-import top.zenyoung.netty.server.session.ChannelSessionMap;
-import top.zenyoung.netty.server.util.BeanUtils;
 import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.session.SessionFactory;
+import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Socket业务处理接口实现
+ * Socket处理器基类
  *
  * @author young
  */
 @Slf4j
-@Scope(SocketHandler.SCOPE_PROTOTYPE)
-public abstract class BaseSocketHandler<T extends Message> extends ChannelInboundHandlerAdapter implements SocketHandler {
+public abstract class BaseSocketHandler<T extends Message> extends ChannelInboundHandlerAdapter {
     private final AtomicLong heartbeatTotals = new AtomicLong(0L);
-
-    @Autowired
-    private NettyServerProperites properites;
-
-    @Autowired
-    private StrategyFactory strategyFactory;
-
     @Autowired
     private ApplicationContext context;
-
     private Session session;
 
-    public BaseSocketHandler() {
-        this.ensureHasScope();
+    /**
+     * 获取心跳超时次数
+     *
+     * @return 心跳超时次数
+     */
+    protected abstract Integer getHeartbeatTimeoutTotal();
+
+    /**
+     * 获取策略工厂
+     *
+     * @return 策略工厂
+     */
+    protected abstract StrategyFactory getStrategyFactory();
+
+    /**
+     * 发布Spring事件
+     *
+     * @param event 事件数据
+     * @param <E>   事件类型
+     */
+    protected <E> void publishContextEvent(@Nonnull final E event) {
+        if (Objects.nonNull(this.context)) {
+            this.context.publishEvent(event);
+        }
     }
 
+    /**
+     * 检查是否需要支持Scope prototype
+     */
     protected final void ensureHasScope() {
-        BeanUtils.checkScopePrototype(this.getClass());
+        ScopeUtils.checkPrototype(this.getClass());
     }
 
     @Override
@@ -64,7 +75,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                         this.heartbeatTotals.set(0);
                         return;
                     }
-                    final Integer max = this.properites.getHeartbeatTimeoutTotal();
+                    final Integer max = this.getHeartbeatTimeoutTotal();
                     if (Objects.nonNull(max) && total > max) {
                         //检查Session
                         if (Objects.nonNull(this.session)) {
@@ -78,35 +89,22 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                     }
                 }
                 //心跳处理
-                this.heartbeatIdleHandle(ctx, state);
+                if (Objects.nonNull(this.session)) {
+                    this.heartbeatIdleHandle(this.session, state);
+                }
             }
         }
         super.userEventTriggered(ctx, evt);
     }
 
-    private void close() {
-        if (Objects.nonNull(this.session)) {
-            final String deviceId = this.session.getDeviceId(), clientIp = this.session.getClientIp();
-            //移除会话
-            ChannelSessionMap.remove(this.session);
-            this.session = null;
-            //发送设备通道关闭消息
-            context.publishEvent(ClosedEvent.of(deviceId, clientIp));
-        }
-    }
-
     /**
      * 心跳处理
      *
-     * @param ctx   ChannelHandlerContext
-     * @param state IdleState
+     * @param session Session
+     * @param state   IdleState
      */
-    protected final void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final IdleState state) {
-        log.debug("heartbeatIdleHandle(ctx: {},state: {})...", ctx, state);
-        final ChannelIdleStateEvent e = new ChannelIdleStateEvent();
-        e.setSession(this.session);
-        e.setState(state);
-        this.context.publishEvent(e);
+    protected void heartbeatIdleHandle(@Nonnull final Session session, @Nonnull final IdleState state) {
+        log.debug("heartbeatIdleHandle(session: {},state: {})...", session, state);
     }
 
     @Override
@@ -121,7 +119,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 //创建会话
                 this.session = SessionFactory.create(ctx.channel(), deviceId);
                 //存储会话
-                ChannelSessionMap.put(this.session);
+                this.buildSessionAfter(this.session);
             }
             try {
                 //调用业务处理
@@ -133,6 +131,14 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     }
 
     /**
+     * 构建Session之后
+     *
+     * @param session 通道会话
+     */
+    protected void buildSessionAfter(@Nonnull final Session session) {
+    }
+
+    /**
      * 消息接收处理
      *
      * @param ctx 上下文
@@ -140,9 +146,10 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      */
     protected final void messageReceived(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T msg) {
         //根据消息执行策略命令
-        if (Objects.nonNull(this.strategyFactory)) {
+        final StrategyFactory factory;
+        if (Objects.nonNull(factory = this.getStrategyFactory())) {
             //策略处理器处理
-            final T res = this.strategyFactory.process(session, msg);
+            final T res = factory.process(session, msg);
             if (Objects.nonNull(res)) {
                 ctx.writeAndFlush(res);
             }
@@ -150,7 +157,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     }
 
     @Override
-    public final void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+    public final void channelInactive(final ChannelHandlerContext ctx) {
         log.warn("channelInactive:通道失效: {}", ctx);
         this.close();
     }
@@ -159,5 +166,28 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     public final void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         log.warn("exceptionCaught-发生异常({})-exp: {}", this.session, cause.getMessage());
         this.close();
+    }
+
+    /**
+     * 关闭通道
+     */
+    private void close() {
+        if (Objects.nonNull(this.session)) {
+            final String deviceId = this.session.getDeviceId(), clientIp = this.session.getClientIp();
+            //移除会话
+            this.close(this.session);
+            this.session = null;
+            //发送设备通道关闭消息
+            context.publishEvent(ClosedEvent.of(deviceId, clientIp));
+        }
+    }
+
+    /**
+     * 关闭通道
+     *
+     * @param session 通道会话
+     */
+    protected void close(@Nonnull final Session session) {
+
     }
 }

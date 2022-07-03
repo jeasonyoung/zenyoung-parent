@@ -1,4 +1,4 @@
-package top.zenyoung.netty.server.util;
+package top.zenyoung.netty.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -6,52 +6,35 @@ import io.netty.channel.ChannelHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Scope;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.codec.MessageCodec;
-import top.zenyoung.netty.server.config.NettyServerProperites;
-import top.zenyoung.netty.server.handler.BaseSocketHandler;
-import top.zenyoung.netty.server.handler.SocketHandler;
+import top.zenyoung.netty.prop.BaseProperties;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * 编解码工具类
+ * 编解码器工具类
  *
  * @author young
  */
 @Slf4j
-public class BeanUtils {
-    private static final ThreadLocal<Map<Class<?>, String>> LOCAL = ThreadLocal.withInitial(Maps::newConcurrentMap);
-
-    public static void checkScopePrototype(@Nonnull final Class<?> cls) {
-        String val = LOCAL.get().get(cls);
-        if (Strings.isNullOrEmpty(val) && cls.isAnnotationPresent(Scope.class)) {
-            final Scope scope = cls.getAnnotation(Scope.class);
-            if (Objects.nonNull(scope)) {
-                val = scope.value();
-                LOCAL.get().put(cls, Strings.isNullOrEmpty(val) ? "singleton" : val);
-            }
-        }
-        //检查值
-        if (!SocketHandler.SCOPE_PROTOTYPE.equalsIgnoreCase(val)) {
-            throw new IllegalStateException(cls.getName() + "类必须注解 @Scope(\"prototype\")");
-        }
-    }
+public class CodecUtils {
 
     public static Map<String, ChannelHandler> getCodecMap(@Nonnull final ApplicationContext context,
-                                                          @Nonnull final NettyServerProperites properites) {
+                                                          @Nonnull final BaseProperties properties,
+                                                          @Nullable final Boolean checkScopePrototype) {
         //1.从配置获取编解码配置
-        final Map<String, ChannelHandler> propChannelHandlers = getChannelHandlers(properites, context);
+        final Map<String, ChannelHandler> propChannelHandlers = getChannelHandlers(context, properties, checkScopePrototype);
         if (!CollectionUtils.isEmpty(propChannelHandlers)) {
             return propChannelHandlers;
         }
         //2.从上下文中加载编解码器
-        final Map<String, ChannelHandler> ctxChannelHandlers = getChannelHandlers(context);
+        final Map<String, ChannelHandler> ctxChannelHandlers = getChannelHandlers(context, checkScopePrototype);
         if (!CollectionUtils.isEmpty(ctxChannelHandlers)) {
             return ctxChannelHandlers;
         }
@@ -59,9 +42,10 @@ public class BeanUtils {
         return Maps.newHashMap();
     }
 
-    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final NettyServerProperites properites,
-                                                                  @Nonnull final ApplicationContext context) {
-        final Map<String, String> codecMap = properites.getCodec();
+    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context,
+                                                                  @Nonnull final BaseProperties properties,
+                                                                  @Nullable final Boolean checkScopePrototype) {
+        final Map<String, String> codecMap = properties.getCodec();
         if (!CollectionUtils.isEmpty(codecMap)) {
             return codecMap.entrySet().stream()
                     .map(entry -> {
@@ -73,7 +57,9 @@ public class BeanUtils {
                             Object handler = context.getBean(val);
                             if (handler instanceof ChannelHandler) {
                                 //检查编解码器注解
-                                checkScopePrototype(handler.getClass());
+                                if (Objects.nonNull(checkScopePrototype) && checkScopePrototype) {
+                                    ScopeUtils.checkPrototype(handler.getClass());
+                                }
                                 return Pair.of(key, (ChannelHandler) handler);
                             }
                             final Class<?> cls = Class.forName(val);
@@ -92,7 +78,8 @@ public class BeanUtils {
         return null;
     }
 
-    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context) {
+    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context,
+                                                                  @Nullable final Boolean checkScopePrototype) {
         try {
             final Map<String, ?> codecMap = context.getBeansOfType(MessageCodec.class);
             if (!CollectionUtils.isEmpty(codecMap)) {
@@ -104,7 +91,9 @@ public class BeanUtils {
                                 final Class<?> cls = val.getClass();
                                 if (ChannelHandler.class.isAssignableFrom(cls)) {
                                     //检查编解码器注解
-                                    checkScopePrototype(cls);
+                                    if (Objects.nonNull(checkScopePrototype) && checkScopePrototype) {
+                                        ScopeUtils.checkPrototype(cls);
+                                    }
                                     return Pair.of(key, (ChannelHandler) val);
                                 }
                             }
@@ -116,18 +105,6 @@ public class BeanUtils {
             }
         } catch (Throwable e) {
             log.warn("getChannelHandlers-exp: {}", e.getMessage());
-        }
-        return null;
-    }
-
-    public static SocketHandler getBizHandler(@Nonnull final ApplicationContext context) {
-        try {
-            final SocketHandler handler = context.getBean(SocketHandler.class);
-            if (BaseSocketHandler.class.isAssignableFrom(handler.getClass())) {
-                return handler;
-            }
-        } catch (Throwable e) {
-            log.error("getBizHandler-exp: {}", e.getMessage());
         }
         return null;
     }

@@ -1,4 +1,4 @@
-package top.zenyoung.netty.server.server;
+package top.zenyoung.netty.handler;
 
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
@@ -6,7 +6,7 @@ import top.zenyoung.netty.session.Session;
 import javax.annotation.Nonnull;
 
 /**
- * 命令策略工厂接口
+ * 策略工厂接口
  *
  * @author young
  */

@@ -1,4 +1,4 @@
-package top.zenyoung.netty.server.server.impl;
+package top.zenyoung.netty.handler;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -6,10 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.codec.Message;
-import top.zenyoung.netty.server.handler.StrategyHandler;
-import top.zenyoung.netty.server.server.StrategyFactory;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
@@ -18,36 +15,35 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 命令策略工厂接口实现
+ * 策略工厂实现基类
  *
  * @author young
  */
 @Slf4j
-public class StrategyFactoryImpl implements StrategyFactory {
-    private final Map<String, List<StrategyHandler<? extends Message>>> strategyMap;
+public class StrategyFactoryInstance implements StrategyFactory {
+    private static final String SEP = ",";
+    private final Map<String, List<BaseStrategyHandler<? extends Message>>> strategyMap;
 
-    /**
-     * 构造函数
-     *
-     * @param strategies 命令策略处理器集合
-     */
-    public StrategyFactoryImpl(@Nullable final List<StrategyHandler<? extends Message>> strategies) {
-        final String sep = ",";
-        this.strategyMap = CollectionUtils.isEmpty(strategies) ? Maps.newHashMap() :
-                strategies.stream()
-                        .map(s -> {
+    public static StrategyFactory instance(@Nullable final List<? extends BaseStrategyHandler<? extends Message>> handlers) {
+        return new StrategyFactoryInstance(handlers);
+    }
+
+    private StrategyFactoryInstance(@Nullable final List<? extends BaseStrategyHandler<? extends Message>> handlers) {
+        this.strategyMap = Objects.isNull(handlers) ? Maps.newHashMap() :
+                handlers.stream()
+                        .map(handler -> {
                             final String cmd;
-                            if (!Strings.isNullOrEmpty(cmd = s.getCommand())) {
-                                if (cmd.contains(sep)) {
-                                    return Splitter.on(sep).omitEmptyStrings().trimResults()
+                            if (!Strings.isNullOrEmpty(cmd = handler.getCommand())) {
+                                if (cmd.contains(SEP)) {
+                                    return Splitter.on(SEP).omitEmptyStrings().trimResults()
                                             .splitToList(cmd)
                                             .stream()
                                             .filter(c -> !Strings.isNullOrEmpty(c))
                                             .distinct()
-                                            .map(c -> Pair.of(c, s))
+                                            .map(c -> Pair.of(c, handler))
                                             .collect(Collectors.toList());
                                 }
-                                return Lists.newArrayList(Pair.of(cmd, s));
+                                return Lists.newArrayList(Pair.of(cmd, handler));
                             }
                             return null;
                         })
@@ -67,13 +63,13 @@ public class StrategyFactoryImpl implements StrategyFactory {
     public <T extends Message> T process(@Nonnull final Session session, @Nonnull final T req) {
         log.debug("process(session: {},req: {})", session, req);
         final String command;
-        if (!Strings.isNullOrEmpty(command = req.getCommand()) && !CollectionUtils.isEmpty(this.strategyMap)) {
-            final List<StrategyHandler<? extends Message>> items = this.strategyMap.getOrDefault(command, Lists.newArrayList());
-            if (!CollectionUtils.isEmpty(items)) {
-                final StrategyHandler<T> strategy = items.stream()
-                        .sorted(Comparator.comparing(StrategyHandler::priority, Comparator.reverseOrder()))
+        if (!Strings.isNullOrEmpty(command = req.getCommand()) && Objects.nonNull(this.strategyMap) && !this.strategyMap.isEmpty()) {
+            final List<BaseStrategyHandler<? extends Message>> items = this.strategyMap.getOrDefault(command, Lists.newArrayList());
+            if (Objects.nonNull(items) && !items.isEmpty()) {
+                final BaseStrategyHandler<T> strategy = items.stream()
+                        .sorted(Comparator.comparing(BaseStrategyHandler::priority, Comparator.reverseOrder()))
                         .map(item -> {
-                            final StrategyHandler<T> handler = (StrategyHandler<T>) item;
+                            final BaseStrategyHandler<T> handler = (BaseStrategyHandler<T>) item;
                             if (handler.supported(req)) {
                                 return handler;
                             }

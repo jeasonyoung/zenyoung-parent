@@ -1,11 +1,22 @@
 package top.zenyoung.netty.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import top.zenyoung.netty.client.client.NettyClient;
 import top.zenyoung.netty.client.config.AsyncEventConfig;
 import top.zenyoung.netty.client.config.NettyClientProperites;
+import top.zenyoung.netty.client.handler.ClientStrategyHandler;
+import top.zenyoung.netty.codec.Message;
+import top.zenyoung.netty.handler.StrategyFactory;
+import top.zenyoung.netty.handler.StrategyFactoryInstance;
+
+import java.util.List;
 
 /**
  * NettyClient-自动配置
@@ -17,5 +28,20 @@ import top.zenyoung.netty.client.config.NettyClientProperites;
 @Import({AsyncEventConfig.class})
 @EnableConfigurationProperties({NettyClientProperites.class})
 public class NettyClientAutoConfiguration {
-    
+    @Bean("serverStrategyFactory")
+    @ConditionalOnMissingBean
+    public StrategyFactory strategyFactory(final List<ClientStrategyHandler<? extends Message>> strategies) {
+        return StrategyFactoryInstance.instance(strategies);
+    }
+
+    @Bean(initMethod = "run", destroyMethod = "close")
+    @ConditionalOnMissingBean
+    public NettyClient nettyClient(final ObjectProvider<NettyClientProperites> properites, final ObjectProvider<ApplicationContext> contexts) {
+        final NettyClientProperites nettyProperites = properites.getIfAvailable();
+        final ApplicationContext context = contexts.getIfAvailable();
+        log.info("开始启动netty-client: {}", nettyProperites);
+        ///TODO:
+        return null;
+    }
+
 }

@@ -9,13 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import top.zenyoung.netty.codec.Message;
+import top.zenyoung.netty.handler.StrategyFactory;
+import top.zenyoung.netty.handler.StrategyFactoryInstance;
 import top.zenyoung.netty.server.config.AsyncEventConfig;
 import top.zenyoung.netty.server.config.NettyServerProperites;
 import top.zenyoung.netty.server.handler.StrategyHandler;
 import top.zenyoung.netty.server.server.NettyServer;
-import top.zenyoung.netty.server.server.StrategyFactory;
 import top.zenyoung.netty.server.server.impl.NettyServerImpl;
-import top.zenyoung.netty.server.server.impl.StrategyFactoryImpl;
 
 import java.util.List;
 
@@ -30,10 +30,10 @@ import java.util.List;
 @EnableConfigurationProperties({NettyServerProperites.class})
 public class NettyServerAutoConfiguration {
 
-    @Bean
+    @Bean("serverStrategyFactory")
     @ConditionalOnMissingBean
     public StrategyFactory strategyFactory(final List<StrategyHandler<? extends Message>> strategies) {
-        return new StrategyFactoryImpl(strategies);
+        return StrategyFactoryInstance.instance(strategies);
     }
 
     @Bean(initMethod = "run", destroyMethod = "close")
