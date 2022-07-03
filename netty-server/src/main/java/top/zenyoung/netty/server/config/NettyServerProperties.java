@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ConfigurationProperties("top.zenyoung.netty.server")
-public class NettyServerProperites extends BaseProperties {
+public class NettyServerProperties extends BaseProperties {
     /**
      * 保持连接数(默认1024)
      */

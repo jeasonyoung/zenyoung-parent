@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.handler.BaseSocketHandler;
 import top.zenyoung.netty.handler.StrategyFactory;
-import top.zenyoung.netty.server.config.NettyServerProperites;
+import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
 import top.zenyoung.netty.server.session.ChannelSessionMap;
 import top.zenyoung.netty.session.Session;
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> {
 
     @Autowired
-    private NettyServerProperites properites;
+    private NettyServerProperties properties;
 
     @Autowired
     @Qualifier("serverStrategyFactory")
@@ -31,7 +31,7 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
-        return this.properites.getHeartbeatTimeoutTotal();
+        return this.properties.getHeartbeatTimeoutTotal();
     }
 
     @Override

@@ -4,7 +4,7 @@ import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import top.zenyoung.netty.client.config.NettyClientProperites;
+import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.IdleStateEvent;
 import top.zenyoung.netty.handler.BaseSocketHandler;
@@ -24,7 +24,7 @@ public class BaseClientSocketHandler<T extends Message> extends BaseSocketHandle
      * 注入客户端配置
      */
     @Autowired
-    private NettyClientProperites properites;
+    private NettyClientProperties properites;
 
     @Autowired
     @Qualifier("clientStrategyFactory")

@@ -12,7 +12,7 @@ import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.handler.StrategyFactory;
 import top.zenyoung.netty.handler.StrategyFactoryInstance;
 import top.zenyoung.netty.server.config.AsyncEventConfig;
-import top.zenyoung.netty.server.config.NettyServerProperites;
+import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.handler.StrategyHandler;
 import top.zenyoung.netty.server.server.NettyServer;
 import top.zenyoung.netty.server.server.impl.NettyServerImpl;
@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Configuration
 @Import({AsyncEventConfig.class})
-@EnableConfigurationProperties({NettyServerProperites.class})
+@EnableConfigurationProperties({NettyServerProperties.class})
 public class NettyServerAutoConfiguration {
 
     @Bean("serverStrategyFactory")
@@ -38,8 +38,8 @@ public class NettyServerAutoConfiguration {
 
     @Bean(initMethod = "run", destroyMethod = "close")
     @ConditionalOnMissingBean
-    public NettyServer nettyServer(final ObjectProvider<NettyServerProperites> properites, final ObjectProvider<ApplicationContext> contexts) {
-        final NettyServerProperites nettyProperites = properites.getIfAvailable();
+    public NettyServer nettyServer(final ObjectProvider<NettyServerProperties> properites, final ObjectProvider<ApplicationContext> contexts) {
+        final NettyServerProperties nettyProperites = properites.getIfAvailable();
         final ApplicationContext context = contexts.getIfAvailable();
         log.info("开始启动netty-server: {}", nettyProperites);
         return NettyServerImpl.of(nettyProperites, context);

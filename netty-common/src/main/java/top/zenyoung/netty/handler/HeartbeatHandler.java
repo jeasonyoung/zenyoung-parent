@@ -1,4 +1,4 @@
-package top.zenyoung.netty.server.handler;
+package top.zenyoung.netty.handler;
 
 import io.netty.handler.timeout.IdleStateHandler;
 

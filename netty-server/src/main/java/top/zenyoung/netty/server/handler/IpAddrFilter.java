@@ -10,7 +10,7 @@ import io.netty.handler.ipfilter.IpFilterRuleType;
 import io.netty.handler.ipfilter.IpSubnetFilterRule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.netty.server.config.NettyServerProperites;
+import top.zenyoung.netty.server.config.NettyServerProperties;
 
 import javax.annotation.Nonnull;
 import java.net.InetSocketAddress;
@@ -29,9 +29,9 @@ public class IpAddrFilter extends ChannelInboundHandlerAdapter {
     private final List<IpFilterRule> backRules;
     private final List<IpFilterRule> whiteRules;
 
-    public IpAddrFilter(@Nonnull final NettyServerProperites properites) {
-        this.backRules = splitToRules(properites.getIpAddrBlackList(), IpFilterRuleType.REJECT);
-        this.whiteRules = splitToRules(properites.getIpAddrWhiteList(), IpFilterRuleType.ACCEPT);
+    public IpAddrFilter(@Nonnull final NettyServerProperties properties) {
+        this.backRules = splitToRules(properties.getIpAddrBlackList(), IpFilterRuleType.REJECT);
+        this.whiteRules = splitToRules(properties.getIpAddrWhiteList(), IpFilterRuleType.ACCEPT);
     }
 
     @Override

@@ -9,8 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import top.zenyoung.netty.client.client.NettyClient;
+import top.zenyoung.netty.client.client.impl.NettyClientImpl;
 import top.zenyoung.netty.client.config.AsyncEventConfig;
-import top.zenyoung.netty.client.config.NettyClientProperites;
+import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.client.handler.ClientStrategyHandler;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.handler.StrategyFactory;
@@ -26,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Configuration
 @Import({AsyncEventConfig.class})
-@EnableConfigurationProperties({NettyClientProperites.class})
+@EnableConfigurationProperties({NettyClientProperties.class})
 public class NettyClientAutoConfiguration {
     @Bean("serverStrategyFactory")
     @ConditionalOnMissingBean
@@ -36,12 +37,11 @@ public class NettyClientAutoConfiguration {
 
     @Bean(initMethod = "run", destroyMethod = "close")
     @ConditionalOnMissingBean
-    public NettyClient nettyClient(final ObjectProvider<NettyClientProperites> properites, final ObjectProvider<ApplicationContext> contexts) {
-        final NettyClientProperites nettyProperites = properites.getIfAvailable();
+    public NettyClient nettyClient(final ObjectProvider<NettyClientProperties> properites, final ObjectProvider<ApplicationContext> contexts) {
+        final NettyClientProperties nettyProperites = properites.getIfAvailable();
         final ApplicationContext context = contexts.getIfAvailable();
         log.info("开始启动netty-client: {}", nettyProperites);
-        ///TODO:
-        return null;
+        return NettyClientImpl.of(nettyProperites, context);
     }
 
 }
