@@ -1,6 +1,5 @@
 package top.zenyoung.boot.exception;
 
-import top.zenyoung.common.exception.BaseException;
 import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;

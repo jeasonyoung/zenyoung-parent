@@ -73,6 +73,8 @@
         <module>orm</module>
         <!-- jpa -->
         <module>jpa</module>
+        <!-- security -->
+        <module>security</module>
         <!-- netty -->
         <module>netty-common</module>
         <module>netty-server</module>

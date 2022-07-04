@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import top.zenyoung.boot.controller.BaseController;
-import top.zenyoung.common.exception.BaseException;
+import top.zenyoung.boot.exception.BaseException;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.common.vo.ResultVO;
 
