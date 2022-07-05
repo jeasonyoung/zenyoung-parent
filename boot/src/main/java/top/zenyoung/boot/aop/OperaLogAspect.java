@@ -50,7 +50,7 @@ import java.util.stream.Stream;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class OperLogAspect extends BaseAspect {
+public class OperaLogAspect extends BaseAspect {
     private static final ThreadLocal<Long> LOCAL_CACHE = ThreadLocal.withInitial(() -> 0L);
 
     private final ObjectMapper objMapper;
@@ -289,7 +289,7 @@ public class OperLogAspect extends BaseAspect {
                                     buildParamArgValHandler(field.getName(), null, val, field.getAnnotations(), log, operLog, argParamValMaps);
                                 }
                             } catch (Throwable ex) {
-                                OperLogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
+                                OperaLogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
                             }
                         });
             }

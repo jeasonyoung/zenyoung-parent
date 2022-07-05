@@ -1,4 +1,4 @@
-package top.zenyoung.boot.service;
+package top.zenyoung.redis.service;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;

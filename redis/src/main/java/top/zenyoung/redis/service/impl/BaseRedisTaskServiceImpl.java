@@ -1,9 +1,9 @@
-package top.zenyoung.boot.service.impl;
+package top.zenyoung.redis.service.impl;
 
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
-import top.zenyoung.boot.service.TaskService;
+import top.zenyoung.redis.service.TaskService;
 
 import javax.annotation.Nonnull;
 
@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
-public class BaseDistributedTaskServiceImpl extends BaseTaskServiceImpl implements TaskService {
+public class BaseRedisTaskServiceImpl extends BaseTaskServiceImpl implements TaskService {
 
     @Autowired
     private RedissonClient client;

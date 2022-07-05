@@ -1,8 +1,8 @@
-package top.zenyoung.boot.service.impl;
+package top.zenyoung.redis.service.impl;
 
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.boot.service.TaskService;
+import top.zenyoung.redis.service.TaskService;
 
 import javax.annotation.Nonnull;
 import java.util.Map;

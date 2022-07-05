@@ -14,6 +14,10 @@ import org.springframework.context.annotation.Import;
 import top.zenyoung.redis.jetcache.JetCacheRedissonConfig;
 import top.zenyoung.redis.lock.LockService;
 import top.zenyoung.redis.lock.impl.RedisLockServiceImpl;
+import top.zenyoung.redis.service.QueueService;
+import top.zenyoung.redis.service.RedisEnhancedService;
+import top.zenyoung.redis.service.impl.RedisEnhancedServiceImpl;
+import top.zenyoung.redis.service.impl.RedisQueueServiceImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +43,18 @@ public class RedisAutoConfiguration {
             }
         };
         return new RedissonSpringCacheManager(client, config);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RedisEnhancedService enhancedService(){
+        return new RedisEnhancedServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public QueueService queueService(final ObjectProvider<RedissonClient> clients) {
+        return new RedisQueueServiceImpl(clients.getIfAvailable());
     }
 
     @Bean

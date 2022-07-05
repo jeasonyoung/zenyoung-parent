@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class OperLogViewAspect extends BaseAspect {
+public class OperaLogViewAspect extends BaseAspect {
     private static final Cache<String, LogReqParamVal> VAL_CACHE = CacheUtils.createCache(500, Duration.ofMinutes(5));
     private static final String METHOD_KEY = "method";
     private final ObjectMapper objMapper;

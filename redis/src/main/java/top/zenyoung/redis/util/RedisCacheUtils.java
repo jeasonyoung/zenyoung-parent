@@ -1,4 +1,4 @@
-package top.zenyoung.boot.util;
+package top.zenyoung.redis.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.QueryTimeoutException;

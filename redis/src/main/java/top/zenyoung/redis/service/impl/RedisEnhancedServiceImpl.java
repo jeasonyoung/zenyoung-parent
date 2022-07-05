@@ -1,8 +1,8 @@
-package top.zenyoung.boot.service.impl;
+package top.zenyoung.redis.service.impl;
 
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.boot.service.RedisEnhancedService;
+import top.zenyoung.redis.service.RedisEnhancedService;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
