@@ -23,6 +23,11 @@
 
         <spring-boot.version>2.4.13</spring-boot.version>
 
+        <!-- jetcache -->
+        <jetcache.version>2.6.5</jetcache.version>
+        <!-- redisson -->
+        <redisson.version>3.17.4</redisson.version>
+
         <!-- mybatis-plus -->
         <mybatis-plus.version>3.5.2</mybatis-plus.version>
 
@@ -34,12 +39,6 @@
 
         <!-- modelmapper -->
         <modelmapper.version>3.1.0</modelmapper.version>
-
-        <!-- jetcache -->
-        <jetcache.version>2.6.4</jetcache.version>
-
-        <!-- redisson -->
-        <redisson-spring-boot-starter.version>3.16.0</redisson-spring-boot-starter.version>
 
         <!-- p6spy -->
         <p6spy.version>3.9.1</p6spy.version>
@@ -67,6 +66,8 @@
     <modules>
         <!-- 公共模块 -->
         <module>common</module>
+        <!-- redis -->
+        <module>redis</module>
         <!-- spring boot -->
         <module>boot</module>
         <!-- mybatis-plus orm -->
@@ -92,6 +93,24 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- jetcache -->
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-core</artifactId>
+                <version>${jetcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-autoconfigure</artifactId>
+                <version>${jetcache.version}</version>
+            </dependency>
+            <!-- redisson -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
 
             <!-- mybatis-plus -->
@@ -130,25 +149,6 @@
                 <groupId>org.modelmapper</groupId>
                 <artifactId>modelmapper</artifactId>
                 <version>${modelmapper.version}</version>
-            </dependency>
-
-            <!-- jetcache -->
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-anno-api</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-starter-redis-springdata</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-
-            <!-- redisson -->
-            <dependency>
-                <groupId>org.redisson</groupId>
-                <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>${redisson-spring-boot-starter.version}</version>
             </dependency>
 
             <!-- p6spy -->
@@ -207,7 +207,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>boot</artifactId>
+                <artifactId>redis</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -228,6 +228,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>netty-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>boot</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
