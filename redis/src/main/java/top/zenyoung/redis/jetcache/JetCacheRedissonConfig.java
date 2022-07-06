@@ -25,10 +25,11 @@ import javax.annotation.Nonnull;
 @Configuration
 @Conditional(JetCacheRedissonConfig.RedissonCondition.class)
 public class JetCacheRedissonConfig {
+    private static final String CACHE_TYPE = "redisson";
 
     public static class RedissonCondition extends JetCacheCondition {
         public RedissonCondition() {
-            super("redis.redisson");
+            super(CACHE_TYPE);
         }
     }
 
@@ -39,6 +40,10 @@ public class JetCacheRedissonConfig {
 
     public static class RedissonAutoInit extends ExternalCacheAutoInit implements ApplicationContextAware {
         private ApplicationContext context;
+
+        public RedissonAutoInit(){
+            super(CACHE_TYPE);
+        }
 
         @Override
         protected CacheBuilder initCache(final ConfigTree ct, final String cacheAreaWithPrefix) {
