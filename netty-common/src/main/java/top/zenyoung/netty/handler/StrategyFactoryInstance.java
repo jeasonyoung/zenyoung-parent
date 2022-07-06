@@ -1,10 +1,10 @@
 package top.zenyoung.netty.handler;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 策略工厂实现基类
@@ -21,7 +22,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class StrategyFactoryInstance implements StrategyFactory {
-    private static final String SEP = ",";
     private final Map<String, List<BaseStrategyHandler<? extends Message>>> strategyMap;
 
     public static StrategyFactory instance(@Nullable final List<? extends BaseStrategyHandler<? extends Message>> handlers) {
@@ -32,18 +32,13 @@ public class StrategyFactoryInstance implements StrategyFactory {
         this.strategyMap = Objects.isNull(handlers) ? Maps.newHashMap() :
                 handlers.stream()
                         .map(handler -> {
-                            final String cmd;
-                            if (!Strings.isNullOrEmpty(cmd = handler.getCommand())) {
-                                if (cmd.contains(SEP)) {
-                                    return Splitter.on(SEP).omitEmptyStrings().trimResults()
-                                            .splitToList(cmd)
-                                            .stream()
-                                            .filter(c -> !Strings.isNullOrEmpty(c))
-                                            .distinct()
-                                            .map(c -> Pair.of(c, handler))
-                                            .collect(Collectors.toList());
-                                }
-                                return Lists.newArrayList(Pair.of(cmd, handler));
+                            final String[] cmds;
+                            if (ArrayUtils.isNotEmpty(cmds = handler.getCommands())) {
+                                return Stream.of(cmds)
+                                        .filter(cmd -> !Strings.isNullOrEmpty(cmd))
+                                        .distinct()
+                                        .map(cmd -> Pair.of(cmd, handler))
+                                        .collect(Collectors.toList());
                             }
                             return null;
                         })

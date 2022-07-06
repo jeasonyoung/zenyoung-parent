@@ -16,7 +16,7 @@ public interface BaseStrategyHandler<T extends Message> {
      *
      * @return 命令名称
      */
-    String getCommand();
+    String[] getCommands();
 
     /**
      * 是否支持处理消息
