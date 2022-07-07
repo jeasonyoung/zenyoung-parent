@@ -19,8 +19,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 @Configuration
 public class AsyncEventConfig {
-
-    @ConditionalOnMissingBean
     @Bean(AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME)
     public SimpleApplicationEventMulticaster asyncMulticaster() {
         log.info("asyncMulticaster....");
