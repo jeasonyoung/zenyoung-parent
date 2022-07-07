@@ -21,15 +21,15 @@ import java.util.Map;
 @AllArgsConstructor
 public class LoginBodyVO implements Serializable {
     /**
-     * 登录令牌
+     * 访问令牌
      */
-    private String token;
+    private String accessToken;
     /**
      * 刷新令牌
      */
-    private String refreshToken;
+    private String refershToken;
     /**
      * 用户信息
      */
-    private Map<String, Serializable> user;
+    private Map<String, Object> user;
 }

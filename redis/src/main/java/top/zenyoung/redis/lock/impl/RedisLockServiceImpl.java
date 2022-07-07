@@ -9,8 +9,10 @@ import org.springframework.util.Assert;
 import top.zenyoung.redis.lock.LockService;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,20 +27,25 @@ public class RedisLockServiceImpl implements LockService {
     private final RedissonClient client;
 
     @Override
-    public void sync(@Nonnull final String key, @Nonnull final Duration expire, @Nonnull final Runnable handler) {
+    public void sync(@Nonnull final String key, @Nonnull final Duration expire,
+                     @Nonnull final Runnable lockHandler, @Nullable final Runnable unlockHandler) {
         Assert.hasText(key, "'key'不能为空!");
         final String syncKey = "lock-" + key;
         synchronized (LOCKS.computeIfAbsent(syncKey, k -> new Object())) {
             try {
+                //获取锁
                 final RLock lock = this.client.getLock(key);
                 if (lock.tryLock(expire.toMillis(), TimeUnit.MILLISECONDS)) {
                     try {
                         //业务处理
-                        handler.run();
+                        lockHandler.run();
                     } finally {
                         //执行完毕,解锁
                         lock.unlock();
                     }
+                } else if (Objects.nonNull(unlockHandler)) {
+                    //没有获得锁处理
+                    unlockHandler.run();
                 }
             } catch (InterruptedException e) {
                 log.warn("获取同步锁失败[key:{}]-exp: {}", key, e.getMessage());

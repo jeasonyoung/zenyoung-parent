@@ -25,4 +25,12 @@ public class LoginBodyDTO implements Serializable {
      * 用户设备标识
      */
     private String device;
+    /**
+     * 验证码ID
+     */
+    private Long verifyId;
+    /**
+     * 验证码
+     */
+    private String verifyCode;
 }
