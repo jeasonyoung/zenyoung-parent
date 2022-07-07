@@ -3,9 +3,10 @@ package top.zenyoung.netty.server.config;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import top.zenyoung.netty.prop.BaseProperties;
+import top.zenyoung.netty.config.BaseProperties;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * NettyServer-配置
@@ -32,4 +33,9 @@ public class NettyServerProperties extends BaseProperties {
      * 请求访问限制
      */
     private RequestLimit limit = new RequestLimit();
+    /**
+     * 配置编解码器(支持多端口,多协议监听)
+     * 端口号: (编解码器名称,编解码器类或Bean名)
+     */
+    private Map<Integer, Map<String, String>> codec;
 }

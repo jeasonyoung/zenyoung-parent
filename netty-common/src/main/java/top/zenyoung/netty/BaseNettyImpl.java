@@ -1,18 +1,15 @@
 package top.zenyoung.netty;
 
 import com.google.common.base.Strings;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.logging.LogLevel;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.netty.prop.BaseProperties;
+import top.zenyoung.netty.config.BaseProperties;
 
-import javax.annotation.Nonnull;
 import java.io.Closeable;
-import java.util.Objects;
 
 /**
  * Netty实现基类
@@ -59,25 +56,13 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     }
 
     @Override
-    public final void run() {
+    public void close() {
         try {
-            log.info("Netty启动...");
-            final Integer port = this.getProperties().getPort();
-            if (Objects.isNull(port) || port <= 0) {
-                log.error("Netty-未配置服务器监听端口!");
-                return;
-            }
-            //启动
-            this.start(port);
+            BOSS_GROUP.shutdownGracefully();
+            WORKER_GROUP.shutdownGracefully();
+            log.info("Netty关闭成功!");
         } catch (Throwable e) {
-            log.error("Netty运行失败: {}", e.getMessage());
+            log.error("Netty关闭异常: {}", e.getMessage());
         }
     }
-
-    /**
-     * 启动netty
-     *
-     * @param port 端口
-     */
-    protected abstract void start(@Nonnull final Integer port);
 }

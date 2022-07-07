@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.codec.MessageCodec;
-import top.zenyoung.netty.prop.BaseProperties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,10 +25,10 @@ import java.util.stream.Collectors;
 public class CodecUtils {
 
     public static Map<String, ChannelHandler> getCodecMap(@Nonnull final ApplicationContext context,
-                                                          @Nonnull final BaseProperties properties,
+                                                          @Nullable final Map<String, String> codecMap,
                                                           @Nullable final Boolean checkScopePrototype) {
         //1.从配置获取编解码配置
-        final Map<String, ChannelHandler> propChannelHandlers = getChannelHandlers(context, properties, checkScopePrototype);
+        final Map<String, ChannelHandler> propChannelHandlers = getChannelHandlers(context, codecMap, checkScopePrototype);
         if (!CollectionUtils.isEmpty(propChannelHandlers)) {
             return propChannelHandlers;
         }
@@ -42,10 +41,9 @@ public class CodecUtils {
         return Maps.newHashMap();
     }
 
-    private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context,
-                                                                  @Nonnull final BaseProperties properties,
-                                                                  @Nullable final Boolean checkScopePrototype) {
-        final Map<String, String> codecMap = properties.getCodec();
+    public static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context,
+                                                                 @Nullable final Map<String, String> codecMap,
+                                                                 @Nullable final Boolean checkScopePrototype) {
         if (!CollectionUtils.isEmpty(codecMap)) {
             return codecMap.entrySet().stream()
                     .map(entry -> {

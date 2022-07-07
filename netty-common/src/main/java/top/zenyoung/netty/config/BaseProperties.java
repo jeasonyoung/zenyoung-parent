@@ -1,10 +1,9 @@
-package top.zenyoung.netty.prop;
+package top.zenyoung.netty.config;
 
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.Map;
 
 /**
  * 配置基类
@@ -13,10 +12,6 @@ import java.util.Map;
  */
 @Data
 public abstract class BaseProperties implements Serializable {
-    /**
-     * 服务器端口
-     */
-    private Integer port = 9000;
     /**
      * Netty日志级别
      */
@@ -29,8 +24,4 @@ public abstract class BaseProperties implements Serializable {
      * 心跳超时次数
      */
     private Integer heartbeatTimeoutTotal = 3;
-    /**
-     * 配置编解码器(编解码器名称,编解码器类或Bean名)
-     */
-    private Map<String, String> codec;
 }

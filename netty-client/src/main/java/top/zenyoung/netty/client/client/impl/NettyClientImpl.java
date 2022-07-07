@@ -28,7 +28,9 @@ import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * NettyClient-客户端实现
@@ -38,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
 public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implements NettyClient {
+    private final AtomicReference<Future<?>> refReconnect = new AtomicReference<>(null);
     private final NettyClientProperties properites;
     private final ApplicationContext context;
     private Bootstrap bootstrap;
@@ -48,6 +51,21 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     }
 
     @Override
+    public final void run() {
+        try {
+            log.info("Netty启动...");
+            final Integer port = this.getProperties().getPort();
+            if (Objects.isNull(port) || port <= 0) {
+                log.error("Netty-未配置服务器监听端口!");
+                return;
+            }
+            //启动
+            this.start(port);
+        } catch (Throwable e) {
+            log.error("Netty运行失败: {}", e.getMessage());
+        }
+    }
+
     protected void start(@Nonnull final Integer port) {
         log.info("Netty启动[port: {}]...", port);
         //心跳间隔
@@ -79,7 +97,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                                 log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
                             }
                             //2.挂载编解码器
-                            final Map<String, ChannelHandler> codecMaps = CodecUtils.getCodecMap(context, properites, true);
+                            final Map<String, ChannelHandler> codecMaps = CodecUtils.getCodecMap(context, properites.getCodec(), true);
                             if (!CollectionUtils.isEmpty(codecMaps)) {
                                 codecMaps.forEach(pipeline::addLast);
                             }
@@ -97,6 +115,16 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         if (IS_EPOLL) {
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
         }
+        //jvm钩子
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                log.info("Netty开始关闭服务...");
+                this.closeReconnectTask();
+                this.close();
+            } catch (Throwable ex) {
+                log.error("Netty关闭异常: {}", ex.getMessage());
+            }
+        }));
         //启动连接
         this.connect();
     }
@@ -117,40 +145,30 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         cf.addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
                 log.info("连接服务器[{}:{}]-连接成功", host, port);
+                this.closeReconnectTask();
                 return;
             }
             //重连交给后端线程执行
-            f.channel().eventLoop().schedule(() -> {
-                try {
-                    connect();
-                } catch (Throwable e) {
-                    log.error("重连服务器[{}:{}]-连接失败: {}", host, port, e.getMessage());
-                }
-            }, interval.toMillis(), TimeUnit.MILLISECONDS);
+            if (Objects.isNull(refReconnect.get())) {
+                final Future<?> reconnect = f.channel().eventLoop().schedule(() -> {
+                    try {
+                        connect();
+                    } catch (Throwable e) {
+                        log.error("重连服务器[{}:{}]-连接失败: {}", host, port, e.getMessage());
+                    }
+                }, interval.toMillis(), TimeUnit.MILLISECONDS);
+                refReconnect.set(reconnect);
+            }
         });
         cf.syncUninterruptibly();
-        //jvm钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                log.info("Netty开始关闭服务...");
-                this.close();
-            } catch (Throwable ex) {
-                log.error("Netty关闭异常: {}", ex.getMessage());
-            }
-        }));
-        //同步阻塞
-        log.info("Netty启动成功...");
         cf.channel().closeFuture().syncUninterruptibly();
     }
 
-
-    @Override
-    public void close() {
-        try {
-            WORKER_GROUP.shutdownGracefully();
-            log.info("Netty关闭成功!");
-        } catch (Throwable e) {
-            log.error("Netty关闭异常: {}", e.getMessage());
+    private void closeReconnectTask() {
+        final Future<?> reconnect;
+        if (Objects.nonNull(reconnect = refReconnect.get())) {
+            reconnect.cancel(false);
+            refReconnect.set(null);
         }
     }
 }
