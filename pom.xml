@@ -22,6 +22,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <spring-boot.version>2.4.13</spring-boot.version>
+        <spring-cloud.version>2020.0.5</spring-cloud.version>
+        <alibaba-cloud.version>2021.1</alibaba-cloud.version>
 
         <!-- jetcache -->
         <jetcache.version>2.6.5</jetcache.version>
@@ -76,21 +78,40 @@
         <module>jpa</module>
         <!-- security -->
         <module>security</module>
+        <!-- 存储 -->
+        <module>storage</module>
         <!-- netty -->
         <module>netty-common</module>
         <module>netty-server</module>
         <module>netty-client</module>
         <!-- 代码生成器 -->
         <module>generator</module>
+        <!-- micro -->
+        <module>micro</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-            <!-- springboot -->
+            <!-- spring boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- spring cloud alibaba -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${alibaba-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -217,6 +238,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>storage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>netty-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -238,6 +264,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>generator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>micro</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -322,6 +353,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${maven-compiler-plugin.version}</version>
                         <configuration>
                             <source>${java.version}</source>
                             <target>${java.version}</target>
@@ -332,6 +364,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -345,6 +378,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
                         <configuration>
                             <show>private</show>
                             <nohelp>true</nohelp>
@@ -365,6 +399,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>verify</phase>

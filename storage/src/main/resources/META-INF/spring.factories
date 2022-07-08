@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-top.zenyoung.security.SecurityAutoConfiguration
+top.zenyoung.storage.StorageAutoConfiguration
