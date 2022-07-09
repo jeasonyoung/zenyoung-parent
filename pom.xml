@@ -25,6 +25,9 @@
         <spring-cloud.version>2020.0.5</spring-cloud.version>
         <alibaba-cloud.version>2021.1</alibaba-cloud.version>
 
+        <!-- zenyoung -->
+        <zenyoung.version>3.0.0</zenyoung.version>
+
         <!-- jetcache -->
         <jetcache.version>2.6.5</jetcache.version>
         <!-- redisson -->
@@ -222,54 +225,54 @@
 
             <!-- 模块 -->
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>common</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>redis</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>orm</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>storage</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>netty-common</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>netty-server</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>netty-client</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>boot</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>generator</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>micro</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
