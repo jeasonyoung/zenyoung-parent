@@ -12,6 +12,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.RepeatSubmit;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@ConditionalOnClass(RedissonClient.class)
 public class RepeatSubmitAspect extends BaseAspect {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final String REPEAT_SUBMIT_PEFIX = "zy:repeat-submit:";

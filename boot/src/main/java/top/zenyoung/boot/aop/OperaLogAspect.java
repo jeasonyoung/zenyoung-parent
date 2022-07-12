@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -16,7 +17,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
@@ -209,7 +209,7 @@ public class OperaLogAspect extends BaseAspect {
                             return null;
                         })
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond, (n, o) -> n));
+                        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight, (n, o) -> n));
             }
         }
         return null;

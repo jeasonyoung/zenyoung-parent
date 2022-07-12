@@ -44,7 +44,7 @@ public class BootAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "top.zenyoung.captcha.enable", havingValue = "true")
+    @ConditionalOnProperty(prefix = "top.zenyoung.captcha", name = "enable", havingValue = "true")
     public CaptchaService captchaService(final ObjectProvider<CaptchaProperties> properties,
                                          final ObjectProvider<ApplicationContext> contexts) {
         final CaptchaProperties cp = properties.getIfAvailable();

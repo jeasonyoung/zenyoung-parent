@@ -44,7 +44,7 @@ public @interface Micro {
      * @return 基础包名
      */
     @AliasFor(annotation = ComponentScan.class, attribute = "basePackages")
-    String[] scanBasePackages() default {};
+    String[] basePackages() default {};
 
     /**
      * 扫描基础包类
@@ -52,7 +52,7 @@ public @interface Micro {
      * @return 基础包类
      */
     @AliasFor(annotation = ComponentScan.class, attribute = "basePackageClasses")
-    Class<?>[] scanBasePackageClasses() default {};
+    Class<?>[] basePackageClasses() default {};
 
     /**
      * 扫描FeignClient包名

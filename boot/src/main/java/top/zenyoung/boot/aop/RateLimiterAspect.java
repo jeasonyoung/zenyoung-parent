@@ -12,6 +12,7 @@ import org.redisson.api.RRateLimiter;
 import org.redisson.api.RateIntervalUnit;
 import org.redisson.api.RateType;
 import org.redisson.api.RedissonClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.RateLimiter;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@ConditionalOnClass(RedissonClient.class)
 public class RateLimiterAspect extends BaseAspect {
     private static final String SEP = "-";
     private static final String RATE_LIMIT_PEFIX = "rate_limit:";
