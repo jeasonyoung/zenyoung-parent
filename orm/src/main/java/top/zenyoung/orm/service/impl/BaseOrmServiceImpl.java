@@ -15,7 +15,6 @@ import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
@@ -48,8 +47,7 @@ import java.util.stream.Collectors;
 public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID> {
     protected static final int BATCH_SIZE = 500;
 
-    @Autowired
-    @Qualifier("ormIdSequence")
+    @Autowired(required = false)
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
