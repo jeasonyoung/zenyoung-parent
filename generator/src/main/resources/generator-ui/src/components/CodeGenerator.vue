@@ -2,7 +2,7 @@
   <el-container>
     <el-header>
       <div style="float: left">
-        <img src="~@/assets/logo.png" alt="logo"/>
+        <img src="~@/assets/logo.svg" alt="logo"/>
         <span style="margin-left: 20px;color: #fff;">代码生成器</span>
       </div>
     </el-header>
