@@ -10,6 +10,6 @@ import org.springframework.cloud.openfeign.FeignClient;
  * date ${date?string("yyyy-MM-dd")}
  */
 @FeignClient(value = "zy-${serverName}-server", path = "/${sourceName}s")
-public interface ${feignName}Feign extends ${apiName}Api {
+public interface ${apiName}Feign extends ${apiName}Api {
 
 }

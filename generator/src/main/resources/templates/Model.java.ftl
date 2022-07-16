@@ -3,7 +3,7 @@ package ${basePackage}.common.model.${moduleName};
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import top.zenyoung.framework.model.BasePO;
+import top.zenyoung.orm.model.BasePO;
 <#list table.importPackages as pkg>
 import ${pkg};
 </#list>
