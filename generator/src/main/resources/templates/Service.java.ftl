@@ -1,10 +1,10 @@
 package ${basePackage}.${moduleName}.service;
 
 <#if hasOrm=true>
-import top.zenyoung.framework.service.BaseOrmService;
+import top.zenyoung.orm.service.BaseOrmService;
 import ${basePackage}.common.model.${moduleName}.${poName};
 <#else>
-import top.zenyoung.framework.service.BaseService;
+import top.zenyoung.boot.service.BaseService;
 </#if>
 
 /**

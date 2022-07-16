@@ -1,7 +1,7 @@
 package ${basePackage}.${moduleName}.mapper;
 
 import ${basePackage}.common.model.${moduleName}.${poName};
-import top.zenyoung.framework.mapper.BaseMapper;
+import top.zenyoung.orm.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
