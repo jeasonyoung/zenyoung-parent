@@ -37,7 +37,7 @@ public enum FtlFileType {
     /**
      * Feign
      */
-    Feign(EnumSet.of(FtlFileGroup.HasMicro), "Feign.java.ftl",
+    Feign(EnumSet.of(FtlFileGroup.Api, FtlFileGroup.HasMicro), "Feign.java.ftl",
             String.format("${%1$s}Feign%2$s", Constants.PARAM_API_NAME, Constants.FILE_SUFFIX_JAVA),
             Pkg.of(FtlFileGroup.Api, "${basePackage}.api.feign.${moduleName}")),
     /**
