@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.*;
 /**
  * API基类
  *
- * @author cunw generator
+ * @author generator
  * date ${date?string("yyyy-MM-dd")}
- * 湖南新云网科技有限公司版权所有.
  */
 public interface BaseApi<DTO, VO> {
     /**
@@ -34,13 +33,13 @@ public interface BaseApi<DTO, VO> {
      * @return 修改结果
      */
     @PostMapping("/{id}")
-    ResultVO<VO> update(@PathVariable final ${idType} id, @RequestBody final DTO dto);
+    ResultVO<?> update(@PathVariable final ${idType} id, @RequestBody final DTO dto);
 
     /**
      * 公共删除
-     * @param id 主键ID
+     * @param ids 主键ID
      * @return 删除结果
      */
-    @DeleteMapping("/{id}")
-    ResultVO<?> delete(@PathVariable final ${idType} id);
+    @DeleteMapping("/{ids}")
+    ResultVO<?> delete(@PathVariable final ${idType}[] ids);
 }

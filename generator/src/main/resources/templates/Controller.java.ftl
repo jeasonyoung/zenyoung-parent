@@ -1,5 +1,6 @@
 package ${basePackage}.${moduleName}.controller;
 
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 <#if hasProvideServer=true>
 import ${basePackage}.api.api.${moduleName}.${apiName}Api;
@@ -11,7 +12,6 @@ import ${basePackage}.common.vo.${moduleName}.${voName}VO;
 </#if>
 <#if hasOrm=true>
 import ${basePackage}.common.model.${moduleName}.${poName};
-import java.util.Arrays;
 </#if>
 import ${basePackage}.${moduleName}.service.${serviceName}Service;
 import import top.zenyoung.boot.controller.BaseController;
@@ -70,7 +70,7 @@ public class ${controllerName}Controller extends BaseController {
     <#if hasProvideServer=true && hasBaseApi=true>
     @Override
     </#if>
-    public ResultVO<Void> update(final ${idType} id, final ${dtoName}DTO dto){
+    public ResultVO<?> update(final ${idType} id, final ${dtoName}DTO dto){
         <#if hasOrm=true>
         final ${poName} po = service.mapping(dto, ${poName}.class);
         service.modify(id, po);
@@ -84,12 +84,12 @@ public class ${controllerName}Controller extends BaseController {
     <#if hasProvideServer=true && hasBaseApi=true>
     @Override
     </#if>
-    public ResultVO<Void> delete(final ${idType}[] ids){
-        if(Objects.isNull(id)){
+    public ResultVO<?> delete(final ${idType}[] ids){
+        if(Objects.isNull(ids)){
            return failed();
         }
         <#if hasOrm=true>
-        service.delete(ids);
+        service.delete(Lists.newArrayList(ids));
         <#else>
         ///TODO:
         </#if>
