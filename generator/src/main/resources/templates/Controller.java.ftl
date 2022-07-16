@@ -1,5 +1,6 @@
 package ${basePackage}.${moduleName}.controller;
 
+import lombok.RequiredArgsConstructor;
 <#if hasProvideServer=true>
 import ${basePackage}.api.api.${moduleName}.${apiName}Api;
 import ${basePackage}.api.dto.${moduleName}.${dtoName}DTO;
@@ -13,9 +14,8 @@ import ${basePackage}.common.model.${moduleName}.${poName};
 import java.util.Arrays;
 </#if>
 import ${basePackage}.${moduleName}.service.${serviceName}Service;
-import top.zenyoung.web.controller.BaseController;
+import import top.zenyoung.boot.controller.BaseController;
 import top.zenyoung.common.vo.ResultVO;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +38,7 @@ public class ${controllerName}Controller extends BaseController {
     <#if hasProvideServer=true && hasBaseApi=true>
     @Override
     </#if>
-    @ApiOperation(value="创建", notes="根据${dtoName}DTO对象创建")
-    public ResultVO<${voName}VO> add(@RequestBody final ${dtoName}DTO dto){
+    public ResultVO<${voName}VO> add(final ${dtoName}DTO dto){
         <#if hasOrm=true>
         ${poName} po = service.mapping(dto, ${poName}.class);
         po = service.add(po);
@@ -54,8 +53,7 @@ public class ${controllerName}Controller extends BaseController {
     <#if hasProvideServer=true && hasBaseApi=true>
     @Override
     </#if>
-    @ApiOperation(value="获取详细信息", notes="根据url的id来获取详细信息")
-    public ResultVO<${voName}VO> get(@PathVariable final ${idType} id){
+    public ResultVO<${voName}VO> get(final ${idType} id){
         if(StringUtils.isBlank(id)){
            return failed();
         }
@@ -72,8 +70,7 @@ public class ${controllerName}Controller extends BaseController {
     <#if hasProvideServer=true && hasBaseApi=true>
     @Override
     </#if>
-    @ApiOperation(value="更新详细信息", notes="根据url的id来指定更新对象，并根据传过来的${dtoName}DTO信息来更新详细信息")
-    public ResultVO<Void> update(@PathVariable final ${idType} id, @RequestBody final ${dtoName}DTO dto){
+    public ResultVO<Void> update(final ${idType} id, final ${dtoName}DTO dto){
         <#if hasOrm=true>
         final ${poName} po = service.mapping(dto, ${poName}.class);
         service.modify(id, po);
@@ -87,8 +84,7 @@ public class ${controllerName}Controller extends BaseController {
     <#if hasProvideServer=true && hasBaseApi=true>
     @Override
     </#if>
-    @ApiOperation(value="删除", notes="根据url的id来指定删除对象")
-    public ResultVO<Void> delete(@PathVariable final ${idType}[] ids){
+    public ResultVO<Void> delete(final ${idType}[] ids){
         if(Objects.isNull(id)){
            return failed();
         }
