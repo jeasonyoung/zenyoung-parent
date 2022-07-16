@@ -144,7 +144,7 @@ export default {
         moduleName: "^([a-z]+)",
         basePackageName: "",
         dbName: "",
-        tableNameRuleRegex: "",
+        tableNameRuleRegex: "([a-z]+)$",
         includeTableNames: [],
         includeGroup: 'Api,Common,Service',
         includeFileTypes: [],
