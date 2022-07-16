@@ -46,6 +46,28 @@ public class MetaMapUtils {
         return Lists.newArrayList();
     }
 
+    public static String buildTableName(@Nonnull final GeneratorProperties properties, @Nonnull final String tableName) {
+        final String rule;
+        if (!Strings.isNullOrEmpty(rule = properties.getTableNameRuleRegex())) {
+            final Pattern pattern = getPattern(rule);
+            if (Objects.nonNull(pattern)) {
+                final Matcher matcher = pattern.matcher(tableName);
+                while (matcher.find()) {
+                    String val = matcher.group().toLowerCase();
+                    if (!Strings.isNullOrEmpty(val)) {
+                        if (checkPrimaryKey(val)) {
+                            continue;
+                        }
+                        if (!Strings.isNullOrEmpty(val) && !checkPrimaryKey(val)) {
+                            return val;
+                        }
+                    }
+                }
+            }
+        }
+        return tableName;
+    }
+
     public static String buildModuleName(@Nonnull final GeneratorProperties properties, @Nonnull final String tableName) {
         final String moduleName;
         if (!Strings.isNullOrEmpty(moduleName = properties.getModuleName())) {
@@ -96,21 +118,24 @@ public class MetaMapUtils {
     }
 
     public static Map<String, Object> getBasic(@Nonnull final GeneratorProperties properties) {
-        return new HashMap<String, Object>(7) {
+        return new HashMap<String, Object>(1 << 4) {
             {
                 //1.服务名称
                 put(Constants.PARAM_SERVER_NAME, properties.getServerName());
                 //2.基础包名
                 put(Constants.PARAM_BASE_PACKAGE, properties.getBasePackageName());
                 //3.id类型
-                put(Constants.PARAM_ID_TYPE, String.class.getSimpleName());
-                //4.是否生成 api 以提供服务
-                put(Constants.PARAM_IS_PROVIDE_SERVER, properties.getIsProvideService());
-                //5.是否生成 含有BaseAPi
+                final String idTypeName = properties.getIdType();
+                put(Constants.PARAM_ID_TYPE, Strings.isNullOrEmpty(idTypeName) ? String.class.getSimpleName() : idTypeName);
+                //4.是否为微服务
+                put(Constants.PARAM_HAS_MICRO, properties.getHasMicro());
+                //5.是否生成 api 以提供服务
+                put(Constants.PARAM_HAS_PROVIDE_SERVER, properties.getHasProvideService());
+                //6.是否生成 含有BaseAPi
                 put(Constants.PARAM_HASH_BASE_API, properties.getHasBaseApi());
-                //6.是否包含 orm
+                //7.是否包含 orm
                 put(Constants.PARAM_HAS_ORM, properties.getHasOrm());
-                //7.日期
+                //8.日期
                 put(Constants.PARAM_DATE, new Date());
             }
         };
@@ -122,10 +147,12 @@ public class MetaMapUtils {
             {
                 //基础参数数据
                 putAll(getBasic(properties));
+                //表名
+                final String tableName = buildTableName(properties, table.getName());
                 //8.模块名称
-                put(Constants.PARAM_MODULE_NAME, buildModuleName(properties, table.getName()));
+                put(Constants.PARAM_MODULE_NAME, buildModuleName(properties, tableName));
                 //字符串下划线转驼峰格式
-                final String camel = NameUtils.underlineToCamel(table.getName());
+                final String camel = NameUtils.underlineToCamel(tableName);
                 //首字母大写
                 final String upperCase = NameUtils.firstToUpperCase(camel);
                 //首字母小写

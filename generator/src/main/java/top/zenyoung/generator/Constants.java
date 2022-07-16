@@ -96,7 +96,7 @@ public interface Constants {
     /**
      * 参数-提供服务
      */
-    String PARAM_IS_PROVIDE_SERVER = "isProvideServer";
+    String PARAM_HAS_PROVIDE_SERVER = "hasProvideServer";
     /**
      * 参数-BaseAPi
      */

@@ -29,21 +29,27 @@ public class FtlFileUtils {
     private static final FtlUtils FTL = FtlUtils.getInstance(FtlFileUtils.class);
 
     private static boolean checkIncludeGroup(@Nonnull final FtlFileType type, @Nonnull final GeneratorDTO dto) {
-        final List<String> groups;
-        if (!CollectionUtils.isEmpty(groups = dto.getIncludeGroups())) {
-            for (final String g : groups) {
-                if (!Strings.isNullOrEmpty(g) && g.matches("^[A-Z]+$")) {
-                    try {
-                        final FtlFileGroup fileGroup = Enum.valueOf(FtlFileGroup.class, g);
-                        if (fileGroup.isEnable(type.getGroups())) {
-                            return true;
+        final String includeGroup;
+        if (!Strings.isNullOrEmpty(includeGroup = dto.getIncludeGroup())) {
+            final String comma = ",", regex = "^[A-Z][a-z]+$";
+            final List<String> groups = NameUtils.splitter(comma, includeGroup).stream()
+                    .filter(g -> !Strings.isNullOrEmpty(g))
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(groups)) {
+                for(String group : groups){
+                    if (!Strings.isNullOrEmpty(group) && group.matches(regex)) {
+                        try {
+                            final FtlFileGroup g = Enum.valueOf(FtlFileGroup.class, group);
+                            if(g.isEnable(type.getGroups())){
+                                return true;
+                            }
+                        } catch (Throwable e) {
+                            log.warn("checkIncludeGroup: {} -exp: {}", group, e.getMessage());
                         }
-                    } catch (Throwable e) {
-                        log.warn("checkIncludeGroup(type: {},g: {})-exp: {}", type, g, e.getMessage());
                     }
                 }
+                return false;
             }
-            return false;
         }
         return true;
     }
@@ -55,7 +61,7 @@ public class FtlFileUtils {
 
     public static List<FtlFileInfo> build(@Nonnull final GeneratorDTO dto) {
         final Map<String, Object> metaMap = MetaMapUtils.getBasic(dto);
-        final Boolean isProvideServer = (Boolean) metaMap.get(Constants.PARAM_IS_PROVIDE_SERVER);
+        final Boolean hasProvideServer = (Boolean) metaMap.get(Constants.PARAM_HAS_PROVIDE_SERVER);
         final Boolean baseBaseApi = (Boolean) metaMap.get(Constants.PARAM_HASH_BASE_API);
         final String baseDir = File.separator;
         return Stream.of(FtlFileType.values())
@@ -71,7 +77,7 @@ public class FtlFileUtils {
                 .filter(f -> checkIncludeGroup(f, dto))
                 .filter(f -> checkIncludeFileTypes(f, dto))
                 .map(f -> {
-                    final FtlFileGroup group = isProvideServer ? FtlFileGroup.Api : FtlFileGroup.Common;
+                    final FtlFileGroup group = hasProvideServer ? FtlFileGroup.Api : FtlFileGroup.Common;
                     FtlFileGroup g = FtlFileGroup.parse(f.getGroups(), group);
                     if (Objects.isNull(g)) {
                         g = FtlFileGroup.parse(f.getGroups(), FtlFileGroup.Common, FtlFileGroup.Service, FtlFileGroup.Root);
@@ -91,7 +97,7 @@ public class FtlFileUtils {
 
     public static List<FtlFileInfo> build(@Nonnull final GeneratorDTO dto, @Nonnull final Table table) {
         final Map<String, Object> metaMap = MetaMapUtils.getTables(dto, table);
-        final Boolean isProvideServer = (Boolean) metaMap.get(Constants.PARAM_IS_PROVIDE_SERVER);
+        final Boolean hasProvideServer = (Boolean) metaMap.get(Constants.PARAM_HAS_PROVIDE_SERVER);
         final Boolean hasMicro = (Boolean) metaMap.get(Constants.PARAM_HAS_MICRO);
         final Boolean hasOrm = (Boolean) metaMap.get(Constants.PARAM_HAS_ORM);
         final String baseDir = File.separator;
@@ -112,7 +118,7 @@ public class FtlFileUtils {
                 .filter(f -> checkIncludeFileTypes(f, dto))
                 .map(f -> {
                     String dir;
-                    FtlFileGroup group = isProvideServer ? FtlFileGroup.Api : FtlFileGroup.Common;
+                    FtlFileGroup group = hasProvideServer ? FtlFileGroup.Api : FtlFileGroup.Common;
                     if (group.isEnable(f.getGroups())) {
                         final String pkg = f.buildPackage(FTL, group, metaMap);
                         dir = NameUtils.pathJoiner(baseDir, group.buildDirName(FTL, metaMap), "src/main/java", pkg);

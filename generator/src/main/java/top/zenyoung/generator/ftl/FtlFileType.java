@@ -35,6 +35,12 @@ public enum FtlFileType {
             String.format("${%1$s}Api%2$s", Constants.PARAM_API_NAME, Constants.FILE_SUFFIX_JAVA),
             Pkg.of(FtlFileGroup.Api, "${basePackage}.api.api.${moduleName}")),
     /**
+     * Feign
+     */
+    Feign(EnumSet.of(FtlFileGroup.HasMicro), "Feign.java.ftl",
+            String.format("${%1$s}Feign%2$s", Constants.PARAM_API_NAME, Constants.FILE_SUFFIX_JAVA),
+            Pkg.of(FtlFileGroup.Api, "${basePackage}.api.feign.${moduleName}")),
+    /**
      * DTO
      */
     DTO(EnumSet.of(FtlFileGroup.Api, FtlFileGroup.Common), "DTO.java.ftl",

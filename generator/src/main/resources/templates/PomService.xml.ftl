@@ -16,7 +16,7 @@
 
     <dependencies>
         <!-- 模块依赖 -->
-        <#if isProvideServer=true>
+        <#if hasProvideServer=true>
         <dependency>
             <groupId>top.zenyoung</groupId>
             <artifactId>zy-${serverName}-api</artifactId>

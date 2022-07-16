@@ -18,13 +18,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class GeneratorDTO extends GeneratorProperties {
     /**
+     * 模板分组
+     */
+    @ApiModelProperty("模板分组")
+    private String includeGroup;
+    /**
      * 生成文件类型集合
      */
     @ApiModelProperty("生成文件类型集合")
     private List<String> includeFileTypes;
-    /**
-     * 模板分组
-     */
-    @ApiModelProperty("模板分组")
-    private List<String> includeGroups;
 }

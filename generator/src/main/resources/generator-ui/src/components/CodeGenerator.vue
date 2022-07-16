@@ -17,8 +17,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="18">
-            <el-form-item label="数据表" prop="tableNames">
-              <el-select v-model="form.tableNames" placeholder="请选择数据表(为空则全选)" multiple filterable style="float: left;width: 100%;">
+            <el-form-item label="数据表" prop="includeTableNames">
+              <el-select v-model="form.includeTableNames" placeholder="请选择数据表(为空则全选)" multiple filterable style="float: left;width: 100%;">
                 <el-option v-for="(item,idx) in tableNames" :key="idx" :value="item.name">
                   {{ item.name }}{{ item.comment }}
                 </el-option>
@@ -27,17 +27,24 @@
           </el-col>
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="服务名" prop="serverName">
               <el-tooltip content="默认为数据库名,如果自定义则只需填写关键单词即可,系统会默认添加前缀cunw和后缀server">
                 <el-input v-model="form.serverName" placeholder="请输入服务名"/>
               </el-tooltip>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="模块名" prop="moduleName">
               <el-tooltip content="默认实现为正则表达式去取表名第一个符合的单词,如遇到Java关键字则按下划线拆解符合的下个单词;如修改为固定单词则去修改的为模块名">
                 <el-input v-model="form.moduleName" placeholder="请输入模块名"/>
+              </el-tooltip>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="表名规则" prop="tableNameRuleRegex">
+              <el-tooltip content="通过正则表达式获取表名的规则,为空则表示直接使用表名">
+                <el-input v-model="form.tableNameRuleRegex"/>
               </el-tooltip>
             </el-form-item>
           </el-col>
@@ -48,8 +55,8 @@
         <!-- 分组 -->
         <el-row :gutter="20">
           <el-col :span="6">
-            <el-form-item label="生成分类" prop="group">
-              <el-radio-group v-model="form.group" @change="handGroupChange">
+            <el-form-item label="生成分类" prop="includeGroup">
+              <el-radio-group v-model="form.includeGroup" @change="handGroupChange">
                 <el-radio-button v-for="(item,idx) in exportFileGroups" :key="idx" :label="item.val">{{item.title}}</el-radio-button>
               </el-radio-group>
             </el-form-item>
@@ -57,8 +64,8 @@
         </el-row>
         <el-row :gutter="20" v-if="fileCustomSelected">
           <el-col :span="24">
-            <el-form-item label="生成文件" prop="fileTypes">
-              <el-select v-model="form.fileTypes" placeholder="请选择生成文件类型(为空则全选)" multiple filterable style="float: left;width: 100%;">
+            <el-form-item label="生成文件" prop="includeFileTypes">
+              <el-select v-model="form.includeFileTypes" placeholder="请选择生成文件类型(为空则全选)" multiple filterable style="float: left;width: 100%;">
                 <el-option v-for="(item,idx) in exportFileTypes" :key="idx" :value="item" :label="item"/>
               </el-select>
             </el-form-item>
@@ -66,8 +73,8 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="3">
-            <el-form-item label="是否服务化" prop="isProvideService">
-              <el-switch v-model="form.isProvideService"/>
+            <el-form-item label="是否服务化" prop="hasProvideService">
+              <el-switch v-model="form.hasProvideService"/>
             </el-form-item>
           </el-col>
           <el-col :span="3">
@@ -122,7 +129,7 @@ export default {
       tableNames: [],
       exportFileTypes: [],
       exportFileGroups: [{
-        val: "API,COMMON,BIZ",
+        val: "Api,Common,Service",
         title: "模块"
       },{
         val: "",
@@ -137,10 +144,11 @@ export default {
         moduleName: "^([a-z]+)",
         basePackageName: "",
         dbName: "",
-        tableNames: [],
-        group: "API,COMMON,BIZ",
-        fileTypes: [],
-        isProvideService: true,
+        tableNameRuleRegex: "",
+        includeTableNames: [],
+        includeGroup: 'Api,Common,Service',
+        includeFileTypes: [],
+        hasProvideService: true,
         hasBaseApi: true,
         hasOrm: true,
         hasMicro: true
@@ -179,7 +187,7 @@ export default {
           this.form.moduleName = val
         }
         if (this.form.basePackageName === "") {
-          this.form.basePackageName = `com.cunw.cloud.${val}`
+          this.form.basePackageName = `top.zenyoung.cloud.${val}`
         }
         getAllTables(val).then(res => {
           this.tableNames = res || []
@@ -188,13 +196,12 @@ export default {
     },
     //分组选中事件
     handGroupChange(val) {
-      if(val === "" || /^[A-Z|,]+$/.test(val)){
+      if(val === "" || /^[A-Z|a-z|,]+$/.test(val)){
         this.fileCustomSelected = false
-        this.form.fileTypes= []
+        this.form.includeFileTypes = []
       }else {
         this.fileCustomSelected = true
       }
-      console.log(val)
     },
     //代码预览
     codePreview() {
@@ -211,7 +218,7 @@ export default {
     //代码下载
     codeDownload() {
       this.submitForm(() => {
-        download(this.form, `cunw-${this.form.serverName}.zip`)
+        download(this.form, `zy-${this.form.serverName}.zip`)
       })
     },
     //验证表单

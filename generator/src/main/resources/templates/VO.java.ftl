@@ -1,4 +1,4 @@
-<#if isProvideServer=true>
+<#if hasProvideServer=true>
 package ${basePackage}.api.vo.${moduleName};
 <#else>
 package ${basePackage}.common.vo.${moduleName};

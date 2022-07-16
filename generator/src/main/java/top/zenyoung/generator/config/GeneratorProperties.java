@@ -16,15 +16,10 @@ import java.util.List;
 @ApiModel("代码生成配置")
 public class GeneratorProperties implements Serializable {
     /**
-     * 数据库名
+     * 服务名称
      */
-    @ApiModelProperty("数据库名")
-    private String dbName;
-    /**
-     * 包含表名集合
-     */
-    @ApiModelProperty("表名集合")
-    private List<String> includeTableNames;
+    @ApiModelProperty("服务名称")
+    private String serverName;
     /**
      * 模块名称
      */
@@ -41,16 +36,30 @@ public class GeneratorProperties implements Serializable {
     @ApiModelProperty("基础包名")
     private String basePackageName;
     /**
-     * 服务名称
+     * 数据库名
      */
-    @ApiModelProperty("服务名称")
-    private String serverName;
-
+    @ApiModelProperty("数据库名")
+    private String dbName;
+    /**
+     * 包含表名集合
+     */
+    @ApiModelProperty("表名集合")
+    private List<String> includeTableNames;
+    /**
+     * 表名规则表达式
+     */
+    @ApiModelProperty("表名规则表达式")
+    private String tableNameRuleRegex;
+    /**
+     * id类型
+     */
+    @ApiModelProperty("id类型")
+    private String idType = Long.class.getSimpleName();
     /**
      * 是否提供服务
      */
     @ApiModelProperty("是否提供服务")
-    private Boolean isProvideService = true;
+    private Boolean hasProvideService = true;
     /**
      * 是否含有BaseApi
      */

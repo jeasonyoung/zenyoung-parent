@@ -1,4 +1,4 @@
-<#if isProvideServer=true>
+<#if hasProvideServer=true>
 package ${basePackage}.api.dto.${moduleName};
 <#else>
 package ${basePackage}.common.dto.${moduleName};

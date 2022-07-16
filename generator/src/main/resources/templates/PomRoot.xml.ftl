@@ -15,7 +15,7 @@
     </parent>
 
     <modules>
-        <#if isProvideServer=true>
+        <#if hasProvideServer=true>
         <module>zy-${serverName}-api</module>
         </#if>
         <module>zy-${serverName}-common</module>
@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <#if isProvideServer=true>
+        <#if hasProvideServer=true>
         <${serverName}-api.version>1.0.0-SNAPSHOT</${serverName}-api.version>
         </#if>
         <${serverName}-common.version>1.0.0-SNAPSHOT</${serverName}-common.version>
@@ -35,7 +35,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <#if isProvideServer=true>
+            <#if hasProvideServer=true>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>zy-${serverName}-api</artifactId>

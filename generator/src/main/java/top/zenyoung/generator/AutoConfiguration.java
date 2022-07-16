@@ -26,7 +26,7 @@ import java.util.Objects;
 @Configuration
 @ConditionalOnClass(DataSource.class)
 @EnableConfigurationProperties(GeneratorAutoProperties.class)
-@ComponentScan("top.zenyoung.framework.generator.api")
+@ComponentScan("top.zenyoung.generator.api")
 public class AutoConfiguration {
 
     @Bean
@@ -38,17 +38,17 @@ public class AutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CorsFilter.class)
-    @ConditionalOnProperty(name = "zenyoung.generator.cors", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "zenyoung.generator", name = "cors", havingValue = "true", matchIfMissing = true)
     public CorsFilter corsFilter() {
         log.info("init CorsFilter...");
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedOrigin("*");
+        corsConfiguration.addAllowedOriginPattern("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.setMaxAge(10000L);
         //匹配所有API
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(source);
     }
