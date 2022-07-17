@@ -14,7 +14,7 @@ import top.zenyoung.boot.config.CaptchaProperties;
 import top.zenyoung.boot.model.CaptchaCategory;
 import top.zenyoung.boot.model.CaptchaType;
 import top.zenyoung.boot.service.CaptchaService;
-import top.zenyoung.boot.vo.CaptchaVO;
+import top.zenyoung.common.vo.CaptchaVO;
 import top.zenyoung.common.captcha.BaseCaptcha;
 import top.zenyoung.common.captcha.Captcha;
 import top.zenyoung.common.captcha.generator.CodeGenerator;

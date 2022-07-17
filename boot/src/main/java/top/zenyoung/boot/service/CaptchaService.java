@@ -1,6 +1,6 @@
 package top.zenyoung.boot.service;
 
-import top.zenyoung.boot.vo.CaptchaVO;
+import top.zenyoung.common.vo.CaptchaVO;
 
 import javax.annotation.Nonnull;
 

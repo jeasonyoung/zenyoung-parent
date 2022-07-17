@@ -1,6 +1,6 @@
 package top.zenyoung.boot.annotation;
 
-import top.zenyoung.boot.model.OperaType;
+import top.zenyoung.common.model.OperaType;
 
 import java.lang.annotation.*;
 

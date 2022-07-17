@@ -1,10 +1,9 @@
-package top.zenyoung.boot.model;
+package top.zenyoung.common.model;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nullable;
 

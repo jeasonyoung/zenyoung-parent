@@ -1,10 +1,10 @@
-package top.zenyoung.boot.dto;
+package top.zenyoung.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import top.zenyoung.boot.model.OperaType;
+import top.zenyoung.common.model.OperaType;
 import top.zenyoung.common.model.Status;
 
 import java.io.Serializable;

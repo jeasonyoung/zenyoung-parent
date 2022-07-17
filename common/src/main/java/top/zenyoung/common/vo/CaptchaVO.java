@@ -1,4 +1,4 @@
-package top.zenyoung.boot.vo;
+package top.zenyoung.common.vo;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

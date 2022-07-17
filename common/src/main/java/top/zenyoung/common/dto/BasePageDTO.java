@@ -1,4 +1,4 @@
-package top.zenyoung.boot.dto;
+package top.zenyoung.common.dto;
 
 import lombok.Data;
 import top.zenyoung.common.paging.PagingQuery;

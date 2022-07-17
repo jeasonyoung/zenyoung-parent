@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import top.zenyoung.boot.dto.BasePageDTO;
+import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.boot.service.impl.BaseServiceImpl;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.Status;
