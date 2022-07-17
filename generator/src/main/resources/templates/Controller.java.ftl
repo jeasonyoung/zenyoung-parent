@@ -42,8 +42,7 @@ public class ${controllerName}Controller extends BaseController {
         <#if hasOrm=true>
         ${poName} po = service.mapping(dto, ${poName}.class);
         po = service.add(po);
-        final ${voName}VO vo = service.mapping(po, ${voName}VO.class);
-        return success(vo);
+        return success(service.mapping(po, ${voName}VO.class));
         <#else>
         ///TODO:
         return success();
@@ -54,13 +53,12 @@ public class ${controllerName}Controller extends BaseController {
     @Override
     </#if>
     public ResultVO<${voName}VO> get(final ${idType} id){
-        if(StringUtils.isBlank(id)){
+        if(Objects.isNull(id)){
            return failed();
         }
         <#if hasOrm=true>
         final ${poName} po = service.getById(id);
-        final ${voName}VO vo = service.mapping(po, ${voName}VO.class);
-        return success(vo);
+        return success(service.mapping(po, ${voName}VO.class));
         <#else>
         ///TODO:
         return success();
