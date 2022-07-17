@@ -32,7 +32,7 @@ public interface BaseApi<DTO, VO> {
      * @param dto 修改数据
      * @return 修改结果
      */
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     ResultVO<?> update(@PathVariable final ${idType} id, @RequestBody final DTO dto);
 
     /**
