@@ -18,12 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.boot.service.impl.BaseServiceImpl;
 import top.zenyoung.boot.util.SecurityUtils;
+import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
+import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.orm.constant.PoConstants;
 import top.zenyoung.orm.mapper.BaseMapper;
@@ -101,12 +102,12 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     }
 
     @Override
-    public PageList<PO> queryForPage(@Nullable final Integer pageNum, @Nullable final Integer pageSize, @Nullable final Wrapper<PO> query) {
-        final int idx = (Objects.isNull(pageNum) || pageNum <= 0) ? BasePageDTO.DEF_PAGE_INDEX : pageNum;
-        final int size = (Objects.isNull(pageSize) || pageSize <= 0) ? BasePageDTO.DEF_PAGE_SIZE : pageSize;
-        IPage<PO> page = new Page<>(idx, size);
-        page = getMapper().selectPage(page, query);
-        return DataResult.of(page.getTotal(), page.getRecords());
+    public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query) {
+        final int idx = (Objects.isNull(page) || page.getPageIndex() <= 0) ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
+        final int size = (Objects.isNull(page) || page.getPageSize() <= 0) ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
+        IPage<PO> p = new Page<>(idx, size);
+        p = getMapper().selectPage(p, query);
+        return DataResult.of(p.getTotal(), p.getRecords());
     }
 
     /**

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import top.zenyoung.boot.service.BaseService;
 import top.zenyoung.common.paging.PageList;
+import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.orm.model.BasePO;
 
 import javax.annotation.Nonnull;
@@ -53,12 +54,11 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
     /**
      * 分页查询数据
      *
-     * @param pageNum  页码
-     * @param pageSize 页数据量
-     * @param query    查询条件
+     * @param page  分页条件
+     * @param query 查询条件
      * @return 查询结果
      */
-    PageList<PO> queryForPage(@Nullable final Integer pageNum, @Nullable final Integer pageSize, @Nullable final Wrapper<PO> query);
+    PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query);
 
     /**
      * 新增
