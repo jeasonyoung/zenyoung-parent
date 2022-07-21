@@ -6,6 +6,7 @@ import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -61,7 +62,9 @@ public class MapUtils {
         ReflectionUtils.doWithFields(obj.getClass(), f -> {
             f.setAccessible(true);
             final Object val = f.get(obj);
-            map.put(f.getName(), val);
+            if (Objects.nonNull(val)) {
+                map.put(f.getName(), val);
+            }
         });
         return map;
     }

@@ -1,6 +1,7 @@
 package top.zenyoung.orm.util;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.google.common.base.Strings;
@@ -26,7 +27,7 @@ import java.util.function.BiConsumer;
 @Slf4j
 public class MybatisPlusUtils {
 
-    public static <R> SFunction<R, ?> buildFunction(@Nonnull final Field field) {
+    private static <R> SFunction<R, ?> buildFunction(@Nonnull final Field field) {
         field.setAccessible(true);
         final AtomicBoolean has = new AtomicBoolean(true);
         final SFunction<R, ?> sf = d -> {
@@ -41,16 +42,20 @@ public class MybatisPlusUtils {
         return has.get() ? sf : null;
     }
 
-    public static <R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> clazz,
-                                                              @Nonnull final BiConsumer<String, Triple<LambdaQueryWrapper<R>, SFunction<R, ?>, Object>> fieldQueryHandler) {
-        final LambdaQueryWrapper<R> queryWrapper = Wrappers.lambdaQuery(clazz);
+    private static <R> Map<String, SFunction<R, ?>> buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls) {
+        final Map<String, SFunction<R, ?>> fieldMap = Maps.newHashMap();
         if (!CollectionUtils.isEmpty(params)) {
-            final Map<String, SFunction<R, ?>> fieldMap = Maps.newHashMap();
-            ReflectionUtils.doWithFields(clazz, f -> {
+            ReflectionUtils.doWithFields(cls, f -> {
                 final String name = f.getName();
                 if (!Strings.isNullOrEmpty(name) && params.containsKey(name)) {
-                    final Object v = params.get(name);
+                    final Object v = params.getOrDefault(name, null);
                     if (Objects.nonNull(v)) {
+                        if (v instanceof String) {
+                            final String val = (String) v;
+                            if (Strings.isNullOrEmpty(val)) {
+                                return;
+                            }
+                        }
                         final SFunction<R, ?> sf = buildFunction(f);
                         if (Objects.nonNull(sf)) {
                             fieldMap.put(name, sf);
@@ -58,6 +63,15 @@ public class MybatisPlusUtils {
                     }
                 }
             });
+        }
+        return fieldMap;
+    }
+
+    public static <R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                                              @Nonnull final BiConsumer<String, Triple<LambdaQueryWrapper<R>, SFunction<R, ?>, Object>> fieldQueryHandler) {
+        final LambdaQueryWrapper<R> queryWrapper = Wrappers.lambdaQuery(cls);
+        if (!CollectionUtils.isEmpty(params)) {
+            final Map<String, SFunction<R, ?>> fieldMap = buildFieldMap(params, cls);
             if (!CollectionUtils.isEmpty(fieldMap)) {
                 fieldMap.forEach((col, fn) -> {
                     final Object val = params.get(col);
@@ -90,4 +104,22 @@ public class MybatisPlusUtils {
         final Object val = triple.getRight();
         queryWrapper.eq(column, val);
     }
+
+    public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls) {
+        final LambdaUpdateWrapper<R> updateWrapper = Wrappers.lambdaUpdate(cls);
+        final Map<String, Object> args = MapUtils.from(dto);
+        if (!CollectionUtils.isEmpty(args)) {
+            final Map<String, SFunction<R, ?>> fieldMap = buildFieldMap(args, cls);
+            if (!CollectionUtils.isEmpty(fieldMap)) {
+                fieldMap.forEach((col, fn) -> {
+                    final Object val = args.get(col);
+                    if (Objects.nonNull(val) && Objects.nonNull(fn)) {
+                        updateWrapper.set(fn, val);
+                    }
+                });
+            }
+        }
+        return updateWrapper;
+    }
+
 }
