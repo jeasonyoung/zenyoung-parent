@@ -13,7 +13,9 @@ import org.springframework.util.ReflectionUtils;
 import top.zenyoung.common.util.MapUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -106,12 +108,19 @@ public class MybatisPlusUtils {
     }
 
     public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls) {
+        return buildUpdateWrapper(dto, cls, null);
+    }
+
+    public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {
         final LambdaUpdateWrapper<R> updateWrapper = Wrappers.lambdaUpdate(cls);
         final Map<String, Object> args = MapUtils.from(dto);
         if (!CollectionUtils.isEmpty(args)) {
             final Map<String, SFunction<R, ?>> fieldMap = buildFieldMap(args, cls);
             if (!CollectionUtils.isEmpty(fieldMap)) {
                 fieldMap.forEach((col, fn) -> {
+                    if (!CollectionUtils.isEmpty(excludes) && excludes.contains(col)) {
+                        return;
+                    }
                     final Object val = args.get(col);
                     if (Objects.nonNull(val) && Objects.nonNull(fn)) {
                         updateWrapper.set(fn, val);
