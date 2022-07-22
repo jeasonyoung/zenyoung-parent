@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
@@ -14,12 +15,13 @@ import top.zenyoung.common.util.MapUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * MybatisPlus工具类
@@ -29,42 +31,58 @@ import java.util.function.BiConsumer;
 @Slf4j
 public class MybatisPlusUtils {
 
-    private static <R> SFunction<R, ?> buildFunction(@Nonnull final Field field) {
-        field.setAccessible(true);
-        final AtomicBoolean has = new AtomicBoolean(true);
-        final SFunction<R, ?> sf = d -> {
-            try {
-                return field.get(d);
-            } catch (Throwable e) {
-                has.set(false);
-                log.warn("buildQueryWrapper-[name:{}]-exp: {}", field.getName(), e.getMessage());
-            }
-            return null;
-        };
-        return has.get() ? sf : null;
-    }
-
-    private static <R> Map<String, SFunction<R, ?>> buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls) {
-        final Map<String, SFunction<R, ?>> fieldMap = Maps.newHashMap();
-        if (!CollectionUtils.isEmpty(params)) {
-            ReflectionUtils.doWithFields(cls, f -> {
-                final String name = f.getName();
-                if (!Strings.isNullOrEmpty(name) && params.containsKey(name)) {
-                    final Object v = params.getOrDefault(name, null);
-                    if (Objects.nonNull(v)) {
-                        if (v instanceof String) {
-                            final String val = (String) v;
-                            if (Strings.isNullOrEmpty(val)) {
-                                return;
+    private static <T> Map<String, Object> from(@Nonnull final T dto) {
+        return MapUtils.from(dto).entrySet().stream()
+                .map(entry -> {
+                    final String key = entry.getKey();
+                    final Object val = entry.getValue();
+                    if (!Strings.isNullOrEmpty(key) && Objects.nonNull(val)) {
+                        if (val instanceof String) {
+                            if (Strings.isNullOrEmpty((String) val)) {
+                                return null;
                             }
                         }
-                        final SFunction<R, ?> sf = buildFunction(f);
-                        if (Objects.nonNull(sf)) {
-                            fieldMap.put(name, sf);
-                        }
+                        return Pair.of(key, val);
                     }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight, (o, n) -> n));
+
+    }
+
+    private static <R> Map<String, SFunction<R, Object>> buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls) {
+        final Map<String, SFunction<R, Object>> fieldMap = Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(params)) {
+            final String prefix = "get";
+            final Map<String, Method> methodMap = Maps.newHashMap();
+            ReflectionUtils.doWithMethods(cls, method -> {
+                final String methodName = method.getName();
+                if (methodName.startsWith(prefix)) {
+                    methodMap.put(methodName.toLowerCase(), method);
                 }
             });
+            if (!CollectionUtils.isEmpty(methodMap)) {
+                params.forEach((name, val) -> {
+                    final String m = (prefix + name).toLowerCase();
+                    final Method method = methodMap.getOrDefault(m, null);
+                    if (Objects.nonNull(val) && Objects.nonNull(method)) {
+                        final AtomicBoolean ref = new AtomicBoolean(true);
+                        final SFunction<R, Object> fn = d -> {
+                            try {
+                                return method.invoke(d);
+                            } catch (Throwable e) {
+                                ref.set(false);
+                                log.warn("buildFieldMap-SFunction: {}-exp: {}", name, e.getMessage());
+                            }
+                            return null;
+                        };
+                        if (ref.get()) {
+                            fieldMap.put(name, fn);
+                        }
+                    }
+                });
+            }
         }
         return fieldMap;
     }
@@ -73,7 +91,7 @@ public class MybatisPlusUtils {
                                                               @Nonnull final BiConsumer<String, Triple<LambdaQueryWrapper<R>, SFunction<R, ?>, Object>> fieldQueryHandler) {
         final LambdaQueryWrapper<R> queryWrapper = Wrappers.lambdaQuery(cls);
         if (!CollectionUtils.isEmpty(params)) {
-            final Map<String, SFunction<R, ?>> fieldMap = buildFieldMap(params, cls);
+            final Map<String, SFunction<R, Object>> fieldMap = buildFieldMap(params, cls);
             if (!CollectionUtils.isEmpty(fieldMap)) {
                 fieldMap.forEach((col, fn) -> {
                     final Object val = params.get(col);
@@ -88,7 +106,7 @@ public class MybatisPlusUtils {
 
     public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> clazz,
                                                                  @Nonnull final BiConsumer<String, Triple<LambdaQueryWrapper<R>, SFunction<R, ?>, Object>> fieldQueryHandler) {
-        final Map<String, Object> args = MapUtils.from(dto);
+        final Map<String, Object> args = from(dto);
         return buildQueryWrapper(args, clazz, fieldQueryHandler);
     }
 
@@ -113,9 +131,9 @@ public class MybatisPlusUtils {
 
     public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {
         final LambdaUpdateWrapper<R> updateWrapper = Wrappers.lambdaUpdate(cls);
-        final Map<String, Object> args = MapUtils.from(dto);
+        final Map<String, Object> args = from(dto);
         if (!CollectionUtils.isEmpty(args)) {
-            final Map<String, SFunction<R, ?>> fieldMap = buildFieldMap(args, cls);
+            final Map<String, SFunction<R, Object>> fieldMap = buildFieldMap(args, cls);
             if (!CollectionUtils.isEmpty(fieldMap)) {
                 fieldMap.forEach((col, fn) -> {
                     if (!CollectionUtils.isEmpty(excludes) && excludes.contains(col)) {
