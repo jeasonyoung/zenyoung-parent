@@ -1,5 +1,7 @@
 package top.zenyoung.common.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,6 +31,7 @@ public enum Status implements EnumValue {
      */
     Enable(1, "启用");
 
+    @JsonValue
     @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
@@ -39,6 +42,7 @@ public enum Status implements EnumValue {
      * @param val 状态值
      * @return 状态对象
      */
+    @JsonCreator
     public static Status parse(final Integer val) {
         if (val != null) {
             for (Status s : Status.values()) {

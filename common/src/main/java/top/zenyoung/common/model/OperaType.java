@@ -1,5 +1,7 @@
 package top.zenyoung.common.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,9 +39,12 @@ public enum OperaType implements EnumValue {
      */
     Other(4, "其它");
 
+    @JsonValue
+    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 
+    @JsonCreator
     public static OperaType parse(@Nullable final Integer val) {
         if (val != null) {
             for (OperaType t : OperaType.values()) {

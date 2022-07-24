@@ -1,5 +1,7 @@
 package top.zenyoung.common.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,10 +31,12 @@ public enum Gender implements EnumValue {
      */
     Female(2, "女");
 
+    @JsonValue
     @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 
+    @JsonCreator
     public static Gender parse(@Nullable final Integer val) {
         if (val != null) {
             for (Gender g : Gender.values()) {
