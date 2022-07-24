@@ -27,7 +27,7 @@ public @interface Boot {
      *
      * @return 排除集合
      */
-    @AliasFor(annotation = EnableAutoConfiguration.class)
+    @AliasFor(annotation = EnableAutoConfiguration.class, attribute = "exclude")
     Class<?>[] exclude() default {};
 
     /**
@@ -35,7 +35,7 @@ public @interface Boot {
      *
      * @return 排除结合
      */
-    @AliasFor(annotation = EnableAutoConfiguration.class)
+    @AliasFor(annotation = EnableAutoConfiguration.class, attribute = "excludeName")
     String[] excludeName() default {};
 
     /**
