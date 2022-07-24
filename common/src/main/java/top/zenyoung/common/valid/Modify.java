@@ -1,4 +1,4 @@
-package top.zenyoung.boot.valid;
+package top.zenyoung.common.valid;
 
 /**
  * 数据校验-修改

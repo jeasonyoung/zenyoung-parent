@@ -1,4 +1,4 @@
-package top.zenyoung.common.validate;
+package top.zenyoung.common.valid;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -10,18 +10,19 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 日期格式验证(yyyy-MM-dd)
+ * 身份证验证
  *
  * @author young
  */
 @Documented
 @Retention(RUNTIME)
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
-@Constraint(validatedBy = DateValidator.class)
-public @interface DateValid {
+@Constraint(validatedBy = IdCardValidator.class)
+public @interface IdCard {
+
     boolean checkEmpty() default false;
 
-    String message() default "日期格式不正确";
+    String message() default "身份证格式不正确";
 
     Class<?>[] groups() default {};
 

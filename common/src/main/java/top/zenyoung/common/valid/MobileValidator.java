@@ -1,4 +1,4 @@
-package top.zenyoung.common.validate;
+package top.zenyoung.common.valid;
 
 import com.google.common.base.Strings;
 import top.zenyoung.common.util.TextValidUtils;
@@ -7,23 +7,22 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * 手机号校验类
+ * 手机号校验
  *
  * @author young
  */
-public class TimeValidator implements ConstraintValidator<TimeValid, String> {
-    private boolean checkEmpty;
+public class MobileValidator implements ConstraintValidator<Mobile, String> {
 
     @Override
-    public void initialize(final TimeValid valid) {
-        checkEmpty = valid.checkEmpty();
+    public void initialize(final Mobile mobile) {
+
     }
 
     @Override
     public boolean isValid(final String value, final ConstraintValidatorContext context) {
         if (Strings.isNullOrEmpty(value)) {
-            return !checkEmpty;
+            return false;
         }
-        return TextValidUtils.isTime(value);
+        return TextValidUtils.isMobile(value);
     }
 }

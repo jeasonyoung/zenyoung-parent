@@ -1,4 +1,4 @@
-package top.zenyoung.common.validate;
+package top.zenyoung.common.valid;
 
 import com.google.common.base.Strings;
 import top.zenyoung.common.util.TextValidUtils;
@@ -7,22 +7,24 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * 手机号校验
+ * 身份证验证
  *
  * @author young
  */
-public class MobileValidator implements ConstraintValidator<Mobile, String> {
+public class IdCardValidator implements ConstraintValidator<IdCard, String> {
+
+    private boolean checkEmpty;
 
     @Override
-    public void initialize(final Mobile mobile) {
-
+    public void initialize(final IdCard valid) {
+        this.checkEmpty = valid.checkEmpty();
     }
 
     @Override
     public boolean isValid(final String value, final ConstraintValidatorContext context) {
         if (Strings.isNullOrEmpty(value)) {
-            return false;
+            return !this.checkEmpty;
         }
-        return TextValidUtils.isMobile(value);
+        return TextValidUtils.isIdCard(value);
     }
 }

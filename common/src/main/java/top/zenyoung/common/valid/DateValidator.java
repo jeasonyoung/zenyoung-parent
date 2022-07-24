@@ -1,4 +1,4 @@
-package top.zenyoung.common.validate;
+package top.zenyoung.common.valid;
 
 import com.google.common.base.Strings;
 import top.zenyoung.common.util.TextValidUtils;

@@ -1,4 +1,4 @@
-package top.zenyoung.common.validate;
+package top.zenyoung.common.valid;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -10,18 +10,18 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * 时间校验
+ * 日期格式验证(yyyy-MM-dd)
  *
  * @author young
  */
 @Documented
 @Retention(RUNTIME)
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
-@Constraint(validatedBy = TimeValidator.class)
-public @interface TimeValid {
+@Constraint(validatedBy = DateValidator.class)
+public @interface DateValid {
     boolean checkEmpty() default false;
 
-    String message() default "时间格式不正确";
+    String message() default "日期格式不正确";
 
     Class<?>[] groups() default {};
 
