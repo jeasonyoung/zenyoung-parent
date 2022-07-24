@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import top.zenyoung.annotation.DbEnumValue;
 
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +33,7 @@ public enum Status implements EnumValue {
     Enable(1, "启用");
 
     @JsonValue
-    @com.baomidou.mybatisplus.annotation.EnumValue
+    @DbEnumValue
     private final int val;
     private final String title;
 

@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import top.zenyoung.annotation.DbEnumValue;
 
 import javax.annotation.Nullable;
 
@@ -32,7 +33,7 @@ public enum Gender implements EnumValue {
     Female(2, "女");
 
     @JsonValue
-    @com.baomidou.mybatisplus.annotation.EnumValue
+    @DbEnumValue
     private final int val;
     private final String title;
 
