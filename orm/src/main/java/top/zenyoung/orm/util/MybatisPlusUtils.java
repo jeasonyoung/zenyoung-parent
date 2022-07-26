@@ -171,4 +171,13 @@ public class MybatisPlusUtils {
     public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls) {
         return buildUpdateWrapper(dto, cls, null);
     }
+
+    public static <T, R> LambdaQueryWrapper<R> buildDeleteWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {
+        final Map<String, Object> args = from(dto);
+        return buildQueryWrapper(args, cls, excludes);
+    }
+
+    public static <T, R> LambdaQueryWrapper<R> buildDeleteWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls) {
+        return buildDeleteWrapper(dto, cls, null);
+    }
 }
