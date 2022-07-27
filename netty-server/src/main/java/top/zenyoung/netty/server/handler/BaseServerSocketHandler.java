@@ -60,4 +60,34 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     protected void close(@Nonnull final Session session) {
         ChannelSessionMap.remove(session);
     }
+
+    /**
+     * 检查是否在黑名单中
+     *
+     * @param session Session会话
+     * @return 是否存在
+     */
+    protected boolean checkBlackList(@Nonnull final Session session) {
+        return this.properties.checkBlackList(session.getClientIp());
+    }
+
+    /**
+     * 添加到黑名单
+     *
+     * @param session Session会话
+     * @return 添加结果
+     */
+    protected boolean addBlackList(@Nonnull final Session session) {
+        return this.properties.addBlackList(session.getClientIp());
+    }
+
+    /**
+     * 从黑名单中移除
+     *
+     * @param session Session会话
+     * @return 移除结果
+     */
+    protected boolean removeBlackList(@Nonnull final Session session) {
+        return this.properties.removeBlackList(session.getClientIp());
+    }
 }

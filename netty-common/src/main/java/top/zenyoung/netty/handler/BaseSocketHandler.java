@@ -117,7 +117,10 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             final String deviceId;
             if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(deviceId = data.getDeviceId())) {
                 //创建会话
-                this.session = SessionFactory.create(ctx.channel(), deviceId);
+                this.session = SessionFactory.create(ctx.channel(), deviceId, info -> {
+                    //发送设备通道关闭消息
+                    context.publishEvent(ClosedEvent.of(info.getDeviceId(), info.getClientIp()));
+                });
                 //存储会话
                 this.buildSessionAfter(this.session);
             }
@@ -145,15 +148,32 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param msg 消息数据
      */
     protected final void messageReceived(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T msg) {
+        //全局策略处理器
+        final T callback = globalStrategyProcess(session, msg);
+        if (Objects.nonNull(callback)) {
+            ctx.writeAndFlush(callback);
+            return;
+        }
         //根据消息执行策略命令
         final StrategyFactory factory;
-        if (Objects.nonNull(factory = this.getStrategyFactory())) {
+        if (Objects.nonNull(factory = this.getStrategyFactory()) && Objects.nonNull(this.session) && this.session.getStatus()) {
             //策略处理器处理
             final T res = factory.process(session, msg);
             if (Objects.nonNull(res)) {
                 ctx.writeAndFlush(res);
             }
         }
+    }
+
+    /**
+     * 全局业务策略处理器
+     *
+     * @param session Session会话
+     * @param req     请求数据
+     * @return 响应数据(为空则后续业务处理)
+     */
+    protected T globalStrategyProcess(@Nonnull final Session session, @Nonnull final T req) {
+        return null;
     }
 
     @Override
@@ -171,14 +191,11 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     /**
      * 关闭通道
      */
-    private void close() {
+    protected void close() {
         if (Objects.nonNull(this.session)) {
-            final String deviceId = this.session.getDeviceId(), clientIp = this.session.getClientIp();
             //移除会话
             this.close(this.session);
             this.session = null;
-            //发送设备通道关闭消息
-            context.publishEvent(ClosedEvent.of(deviceId, clientIp));
         }
     }
 
@@ -187,7 +204,5 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      *
      * @param session 通道会话
      */
-    protected void close(@Nonnull final Session session) {
-
-    }
+    protected abstract void close(@Nonnull final Session session);
 }

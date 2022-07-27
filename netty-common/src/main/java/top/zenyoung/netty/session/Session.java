@@ -33,12 +33,23 @@ public interface Session extends Serializable, Closeable {
     boolean getStatus();
 
     /**
-     * 发送消息。
+     * 发送消息
      *
      * @param content  消息内容。
      * @param listener 发送结果监听。
+     * @param <T>      消息数据类型
      */
     <T> void send(@Nonnull final T content, @Nullable final SendMessageResultListener listener);
+
+    /**
+     * 发送消息
+     *
+     * @param content 消息内容
+     * @param <T>     消息数据类型
+     */
+    default <T> void send(@Nonnull final T content) {
+        this.send(content, null);
+    }
 
     /**
      * 发送消息结果监听器。

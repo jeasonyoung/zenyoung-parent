@@ -46,4 +46,13 @@ public class BaseClientSocketHandler<T extends Message> extends BaseSocketHandle
         event.setState(state);
         this.publishContextEvent(event);
     }
+
+    @Override
+    protected void close(@Nonnull final Session session) {
+        try {
+            session.close();
+        } catch (Throwable e) {
+            log.warn("close(session: {})-exp: {}", session, e.getMessage());
+        }
+    }
 }
