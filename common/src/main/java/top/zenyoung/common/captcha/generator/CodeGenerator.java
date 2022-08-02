@@ -9,9 +9,10 @@ public interface CodeGenerator {
     /**
      * 生成验证码
      *
+     * @param len 验证码长度
      * @return 验证码
      */
-    String generate();
+    String generate(final Integer len);
 
     /**
      * 验证用户输入的字符串是否与生成的验证码匹配<br>

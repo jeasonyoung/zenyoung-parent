@@ -3,6 +3,8 @@ package top.zenyoung.common.captcha.generator;
 import com.google.common.base.Strings;
 import top.zenyoung.common.util.RandomUtils;
 
+import java.util.Objects;
+
 /**
  * 随机字符验证码生成器<br>
  * 可以通过传入的基础集合和长度随机生成验证码字符
@@ -14,10 +16,10 @@ public class RandomGenerator extends BaseGenerator {
     /**
      * 构造，使用字母+数字做为基础
      *
-     * @param count 生成验证码长度
+     * @param len 生成验证码长度
      */
-    public RandomGenerator(final int count) {
-        super(count);
+    public RandomGenerator(final int len) {
+        super(len);
     }
 
     /**
@@ -31,8 +33,11 @@ public class RandomGenerator extends BaseGenerator {
     }
 
     @Override
-    public String generate() {
-        return RandomUtils.randomString(this.baseStr, this.length);
+    public String generate(final Integer len) {
+        if (Objects.nonNull(len) && len > 0) {
+            this.setLen(len);
+        }
+        return RandomUtils.randomString(this.getBaseStr(), this.getLen());
     }
 
     @Override

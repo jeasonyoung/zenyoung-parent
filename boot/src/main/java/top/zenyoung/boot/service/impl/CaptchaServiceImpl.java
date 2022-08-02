@@ -14,7 +14,6 @@ import top.zenyoung.boot.config.CaptchaProperties;
 import top.zenyoung.boot.model.CaptchaCategory;
 import top.zenyoung.boot.model.CaptchaType;
 import top.zenyoung.boot.service.CaptchaService;
-import top.zenyoung.common.vo.CaptchaVO;
 import top.zenyoung.common.captcha.BaseCaptcha;
 import top.zenyoung.common.captcha.Captcha;
 import top.zenyoung.common.captcha.generator.CodeGenerator;
@@ -22,6 +21,7 @@ import top.zenyoung.common.image.ImageUtils;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.common.util.BeanCacheUtils;
+import top.zenyoung.common.vo.CaptchaVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -134,12 +134,13 @@ public class CaptchaServiceImpl implements CaptchaService {
     }
 
 
-    private void addCaptchaCodeCache(final long captchaId, final String captchaCode) {
+    private void addCaptchaCodeCache(final long captchaId, final String captchaCode, final Duration expire) {
         if (captchaId > 0 && !Strings.isNullOrEmpty(captchaCode)) {
             final String key = getCaptchaCodeKey(captchaId);
             synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
                 try {
-                    redisTemplate.opsForValue().set(key, captchaCode, Duration.ofSeconds(120));
+                    final Duration e = Objects.isNull(expire) ? Duration.ofSeconds(120) : expire;
+                    redisTemplate.opsForValue().set(key, captchaCode, e);
                 } finally {
                     LOCKS.remove(key);
                 }
@@ -175,15 +176,15 @@ public class CaptchaServiceImpl implements CaptchaService {
     }
 
     @Override
-    public CaptchaVO createCaptcha() {
+    public CaptchaVO createCaptcha(final Integer len, final Duration expire) {
         Assert.notNull(this.captcha, "Captcha初始化失败!");
         synchronized (this) {
             final long captchaId = nextId();
-            this.captcha.createCode();
+            this.captcha.createCode(len);
             final String captchaCode = this.captcha.getCode();
             final String base64Data = this.captcha.getImageBase64Data();
             //缓存数据
-            addCaptchaCodeCache(captchaId, captchaCode);
+            addCaptchaCodeCache(captchaId, captchaCode, expire);
             //返回数据
             return CaptchaVO.of(captchaId, base64Data);
         }

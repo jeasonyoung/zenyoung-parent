@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import top.zenyoung.common.captcha.Calculator;
 import top.zenyoung.common.util.RandomUtils;
 
+import java.util.Objects;
+
 /**
  * 数字计算验证码生成器
  *
@@ -15,7 +17,7 @@ public class MathGenerator extends BaseGenerator {
     /**
      * 参与计算数字最大长度
      */
-    private final int numberLength;
+    private int numberLength;
 
     /**
      * 构造
@@ -35,7 +37,10 @@ public class MathGenerator extends BaseGenerator {
     }
 
     @Override
-    public String generate() {
+    public String generate(final Integer len) {
+        if (Objects.nonNull(len) && len > 0) {
+            this.numberLength = len;
+        }
         final int limit = getLimit();
         String number1 = Integer.toString(RandomUtils.randomInt(limit));
         String number2 = Integer.toString(RandomUtils.randomInt(limit));
@@ -63,7 +68,7 @@ public class MathGenerator extends BaseGenerator {
      * @return 验证码长度
      */
     @Override
-    public int getLength() {
+    public int getLen() {
         return this.numberLength * 2 + 2;
     }
 

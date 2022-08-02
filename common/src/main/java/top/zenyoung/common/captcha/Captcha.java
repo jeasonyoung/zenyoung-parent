@@ -12,8 +12,10 @@ public interface Captcha {
 
     /**
      * 创建验证码，实现类需同时生成随机验证码字符串和验证码图片
+     *
+     * @param len 验证码长度
      */
-    void createCode();
+    void createCode(final Integer len);
 
     /**
      * 获取验证码的文字内容

@@ -105,8 +105,8 @@ public class GifCaptcha extends BaseCaptcha {
     }
 
     @Override
-    public void createCode() {
-        generateCode();
+    public void createCode(final Integer len) {
+        generateCode(len);
         try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             // gif编码类
             final AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();

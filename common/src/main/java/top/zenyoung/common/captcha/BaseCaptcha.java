@@ -94,8 +94,8 @@ public abstract class BaseCaptcha implements Captcha {
     }
 
     @Override
-    public void createCode() {
-        generateCode();
+    public void createCode(final Integer len) {
+        generateCode(len);
         try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             ImageUtils.writePng(createImage(this.code), out);
             this.imageBytes = out.toByteArray();
@@ -107,8 +107,8 @@ public abstract class BaseCaptcha implements Captcha {
     /**
      * 生成验证码字符串
      */
-    protected void generateCode() {
-        this.code = generator.generate();
+    protected void generateCode(final Integer len) {
+        this.code = generator.generate(len);
     }
 
     /**
@@ -122,7 +122,7 @@ public abstract class BaseCaptcha implements Captcha {
     @Override
     public String getCode() {
         if (null == this.code) {
-            createCode();
+            createCode(null);
         }
         return this.code;
     }
@@ -139,7 +139,7 @@ public abstract class BaseCaptcha implements Captcha {
      */
     public byte[] getImageBytes() {
         if (null == this.imageBytes) {
-            createCode();
+            createCode(null);
         }
         return this.imageBytes;
     }

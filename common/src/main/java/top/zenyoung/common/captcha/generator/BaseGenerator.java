@@ -1,5 +1,6 @@
 package top.zenyoung.common.captcha.generator;
 
+import lombok.Data;
 import top.zenyoung.common.util.RandomUtils;
 
 /**
@@ -8,23 +9,24 @@ import top.zenyoung.common.util.RandomUtils;
  *
  * @author young
  */
+@Data
 public abstract class BaseGenerator implements CodeGenerator {
     /**
      * 基础字符集合，用于随机获取字符串的字符集合
      */
-    protected final String baseStr;
+    private final String baseStr;
     /**
      * 验证码长度
      */
-    protected final int length;
+    private int len;
 
     /**
      * 构造，使用字母+数字做为基础
      *
-     * @param count 生成验证码长度
+     * @param len 生成验证码长度
      */
-    public BaseGenerator(final int count) {
-        this(RandomUtils.BASE_CHAR_NUMBER, count);
+    public BaseGenerator(final int len) {
+        this(RandomUtils.BASE_CHAR_NUMBER, len);
     }
 
     /**
@@ -35,15 +37,6 @@ public abstract class BaseGenerator implements CodeGenerator {
      */
     public BaseGenerator(final String baseStr, final int length) {
         this.baseStr = baseStr;
-        this.length = length;
-    }
-
-    /**
-     * 获取长度验证码
-     *
-     * @return 验证码长度
-     */
-    public int getLength() {
-        return this.length;
+        this.len = length;
     }
 }

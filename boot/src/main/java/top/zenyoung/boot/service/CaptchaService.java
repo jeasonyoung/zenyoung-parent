@@ -3,6 +3,7 @@ package top.zenyoung.boot.service;
 import top.zenyoung.common.vo.CaptchaVO;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 
 /**
  * 验证码-服务接口
@@ -14,9 +15,11 @@ public interface CaptchaService {
     /**
      * 创建验证码数据
      *
+     * @param len    验证码长度
+     * @param expire 有效期
      * @return 验证码数据
      */
-    CaptchaVO createCaptcha();
+    CaptchaVO createCaptcha(final Integer len, final Duration expire);
 
     /**
      * 校验验证码
