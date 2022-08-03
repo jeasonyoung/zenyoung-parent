@@ -1,6 +1,6 @@
 package top.zenyoung.orm.service;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import top.zenyoung.boot.service.BaseService;
 import top.zenyoung.common.paging.PageList;
@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * ORM-操作服务接口
@@ -30,35 +31,35 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
     /**
      * 根据查询条件加载数据
      *
-     * @param query 查询条件
+     * @param consumer 查询条件处理
      * @return 加载数据
      */
-    PO getOne(@Nonnull final Wrapper<PO> query);
+    PO getOne(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
 
     /**
      * 根据查询条件查询总记录数
      *
-     * @param query 查询条件
+     * @param consumer 查询条件处理
      * @return 总记录数
      */
-    int count(@Nonnull final Wrapper<PO> query);
+    int count(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
 
     /**
      * 查询数据集合
      *
-     * @param query 查询条件
+     * @param consumer 查询条件处理
      * @return 数据集合
      */
-    List<PO> queryList(@Nonnull final Wrapper<PO> query);
+    List<PO> queryList(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
 
     /**
      * 分页查询数据
      *
-     * @param page  分页条件
-     * @param query 查询条件
+     * @param page     分页条件
+     * @param consumer 查询条件处理
      * @return 查询结果
      */
-    PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query);
+    PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<PO>> consumer);
 
     /**
      * 新增
@@ -88,10 +89,10 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
     /**
      * 根据条件更新数据
      *
-     * @param updateWrapper 更新数据条件
+     * @param consumer 更新数据条件处理
      * @return 更新结果
      */
-    int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper);
+    int modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer);
 
     /**
      * 批量更新数据
@@ -120,8 +121,8 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
     /**
      * 根据条件删除数据
      *
-     * @param wrapper 删除条件
+     * @param consumer 删除条件处理
      * @return 删除结果
      */
-    boolean delete(@Nonnull final Wrapper<PO> wrapper);
+    boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
 }

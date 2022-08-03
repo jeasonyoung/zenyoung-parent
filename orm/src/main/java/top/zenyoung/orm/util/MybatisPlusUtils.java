@@ -23,9 +23,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * MybatisPlus工具类
@@ -64,15 +64,11 @@ public class MybatisPlusUtils {
 
     }
 
-    @SuppressWarnings({"unchecked"})
-    private static <R> void buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
-                                          @Nonnull final AbstractLambdaWrapper<R, ?> lambdaWrapper, @Nullable final List<String> excludes) {
+    private static <R> void buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls, @Nullable final List<String> excludes,
+                                          @Nonnull final BiConsumer<Pair<String, String>, Object> fieldValHandler) {
         if (!CollectionUtils.isEmpty(params)) {
             final Map<String, ColumnCache> colCacheMap = LambdaUtils.getColumnMap(cls);
             if (!CollectionUtils.isEmpty(colCacheMap)) {
-                final boolean isUpdate = (lambdaWrapper instanceof LambdaUpdateWrapper);
-                final Map<String, Method> methodMap = Stream.of(ReflectionUtils.getAllDeclaredMethods(lambdaWrapper.getClass()))
-                        .collect(Collectors.toMap(Method::getName, Function.identity(), (n, o) -> n));
                 params.forEach((name, val) -> {
                     final ColumnCache colCache = colCacheMap.get(LambdaUtils.formatKey(name));
                     if (Objects.nonNull(colCache) && Objects.nonNull(val)) {
@@ -81,41 +77,59 @@ public class MybatisPlusUtils {
                             return;
                         }
                         final String colName = colCache.getColumn();
-                        if (isUpdate) {
-                            //更新处理
-                            buildUpdateFieldMap((LambdaUpdateWrapper<R>) lambdaWrapper, methodMap, colName, val);
-                        } else {
-                            //查询处理
-                            buildQueryFieldMap((LambdaQueryWrapper<R>) lambdaWrapper, methodMap, colName, val);
-                        }
+                        fieldValHandler.accept(Pair.of(name, colName), val);
                     }
                 });
             }
         }
     }
 
-    private static <R> String formatSqlHandler(@Nonnull final AbstractLambdaWrapper<R, ?> queryWrapper, @Nonnull final Method method, @Nonnull final Object... params) {
+    public static <R> void buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                         @Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nullable final List<String> excludes,
+                                         @Nonnull final Function<String, SqlKeyword> fieldOpHandler) {
+        buildFieldMap(params, cls, excludes, (p, val) -> {
+            //查询操作
+            final SqlKeyword op = fieldOpHandler.apply(p.getLeft());
+            if (Objects.nonNull(op)) {
+                //查询处理
+                buildQueryFieldMap(queryWrapper, p.getRight(), op, val);
+            }
+        });
+    }
+
+    public static <R> void buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                         @Nonnull final LambdaUpdateWrapper<R> updateWrapper, @Nullable final List<String> excludes) {
+        buildFieldMap(params, cls, excludes, (p, val) -> {
+            //更新处理
+            buildUpdateFieldMap(updateWrapper, p.getRight(), val);
+        });
+    }
+
+    private static <R> String formatSqlHandler(@Nonnull final AbstractLambdaWrapper<R, ?> queryWrapper, @Nonnull final Object val) {
         try {
-            method.setAccessible(true);
-            return (String) method.invoke(queryWrapper, "{0}", params);
+            final Class<?> cls = queryWrapper.getClass();
+            final Method formatSqlMethod = ReflectionUtils.findMethod(cls, "formatSql");
+            if (Objects.nonNull(formatSqlMethod)) {
+                formatSqlMethod.setAccessible(true);
+                return (String) formatSqlMethod.invoke(queryWrapper, "{0}", val);
+            }
         } catch (Throwable e) {
-            log.warn("formatSqlHandler(params: {})-exp: {}", params, e.getMessage());
+            log.warn("formatSqlHandler(val: {})-exp: {}", val, e.getMessage());
         }
         return null;
     }
 
-    private static <R> void buildQueryFieldMap(@Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nonnull final Map<String, Method> methodMap,
-                                               @Nonnull final String colName, @Nonnull final Object val) {
-        final Method method = methodMap.get("doIt"), formatSqlMethod = methodMap.get("formatSql");
-        if (Objects.nonNull(method) && Objects.nonNull(formatSqlMethod)) {
+    private static <R> void buildQueryFieldMap(@Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nonnull final String colName, @Nonnull final SqlKeyword op, @Nonnull final Object val) {
+        final Class<?> cls = queryWrapper.getClass();
+        final Method method = ReflectionUtils.findMethod(cls, "doIt");
+        if (Objects.nonNull(method)) {
             try {
-                final String formatSql = formatSqlHandler(queryWrapper, formatSqlMethod, val);
+                final String formatSql = formatSqlHandler(queryWrapper, val);
                 if (!Strings.isNullOrEmpty(formatSql)) {
-                    final SqlKeyword eq = SqlKeyword.EQ;
                     final ISqlSegment col = () -> colName;
                     final ISqlSegment colVal = () -> formatSql;
                     method.setAccessible(true);
-                    method.invoke(queryWrapper, true, new ISqlSegment[]{col, eq, colVal});
+                    method.invoke(queryWrapper, true, new ISqlSegment[]{col, op, colVal});
                 }
             } catch (Throwable e) {
                 log.warn("buildQueryFieldMap(queryWrapper: {},colCache: {})-exp: {}", queryWrapper, colName, e.getMessage());
@@ -123,40 +137,61 @@ public class MybatisPlusUtils {
         }
     }
 
-    private static <R> void buildUpdateFieldMap(@Nonnull final LambdaUpdateWrapper<R> updateWrapper, @Nonnull final Map<String, Method> methodMap,
-                                                @Nonnull final String colName, @Nonnull final Object val) {
-        final Method formatSqlMethod = methodMap.get("formatSql");
-        if (Objects.nonNull(formatSqlMethod)) {
-            try {
-                final String formatSql = formatSqlHandler(updateWrapper, formatSqlMethod, val);
-                if (!Strings.isNullOrEmpty(formatSql)) {
-                    updateWrapper.setSql(true, String.format("%s=%s", colName, formatSql));
-                }
-            } catch (Throwable e) {
-                log.warn("buildUpdateFieldMap(updateWrapper: {},colName: {},val: {})-exp: {}", updateWrapper, colName, val, e.getMessage());
+    private static <R> void buildUpdateFieldMap(@Nonnull final LambdaUpdateWrapper<R> updateWrapper, @Nonnull final String colName, @Nonnull final Object val) {
+        try {
+            final String formatSql = formatSqlHandler(updateWrapper, val);
+            if (!Strings.isNullOrEmpty(formatSql)) {
+                updateWrapper.setSql(true, String.format("%s=%s", colName, formatSql));
             }
+        } catch (Throwable e) {
+            log.warn("buildUpdateFieldMap(updateWrapper: {},colName: {},val: {})-exp: {}", updateWrapper, colName, val, e.getMessage());
         }
     }
 
-    public static <R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {
+    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls) {
+        return buildQueryWrapper(params, cls, (List<String>) null);
+    }
+
+    public static <R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                                              @Nullable final List<String> excludes) {
+        return buildQueryWrapper(params, cls, excludes, f -> SqlKeyword.EQ);
+    }
+
+    public static <R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                                              @Nullable final List<String> excludes, @Nonnull final Function<String, SqlKeyword> fieldOpHandler) {
         final LambdaQueryWrapper<R> queryWrapper = Wrappers.lambdaQuery(cls);
         if (!CollectionUtils.isEmpty(params)) {
-            buildFieldMap(params, cls, queryWrapper, excludes);
+            buildFieldMap(params, cls, queryWrapper, excludes, fieldOpHandler);
         }
         return queryWrapper;
     }
 
-    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> clazz, @Nullable final List<String> excludes) {
+    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes,
+                                                                 @Nonnull final Function<String, SqlKeyword> fieldOpHandler) {
         final Map<String, Object> args = from(dto);
-        return buildQueryWrapper(args, clazz, excludes);
+        return buildQueryWrapper(args, cls, excludes, fieldOpHandler);
+    }
+
+    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {
+        return buildQueryWrapper(dto, cls, excludes, f -> SqlKeyword.EQ);
+    }
+
+    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nonnull final Function<String, SqlKeyword> fieldOpHandler) {
+        return buildQueryWrapper(dto, cls, null, fieldOpHandler);
     }
 
     public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> clazz) {
-        return buildQueryWrapper(dto, clazz, null);
+        return buildQueryWrapper(dto, clazz, (List<String>) null);
     }
 
-    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> clazz) {
-        return buildQueryWrapper(params, clazz, null);
+    @SuppressWarnings({"unchecked"})
+    public static <T> LambdaQueryWrapper<T> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Function<String, SqlKeyword> fieldOpHandler) {
+        final Class<T> cls = (Class<T>) dto.getClass();
+        return buildQueryWrapper(dto, cls, fieldOpHandler);
+    }
+
+    public static <T> LambdaQueryWrapper<T> buildQueryWrapper(@Nonnull final T dto) {
+        return buildQueryWrapper(dto, f -> SqlKeyword.EQ);
     }
 
     public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {

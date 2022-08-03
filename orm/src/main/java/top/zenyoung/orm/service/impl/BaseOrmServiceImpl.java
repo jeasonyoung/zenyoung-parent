@@ -1,15 +1,16 @@
 package top.zenyoung.orm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
@@ -30,13 +31,14 @@ import top.zenyoung.orm.constant.PoConstants;
 import top.zenyoung.orm.mapper.BaseMapper;
 import top.zenyoung.orm.model.BasePO;
 import top.zenyoung.orm.service.BaseOrmService;
+import top.zenyoung.orm.util.MybatisPlusUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +54,12 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
-        return ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmService.class, index);
+        return ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, index);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    protected final Class<PO> getModelClass() {
+        return (Class<PO>) getGenericType(0);
     }
 
     /**
@@ -61,7 +68,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
      * @return 主键ID
      */
     @SuppressWarnings({"unchecked"})
-    protected ID genId() {
+    protected final ID genId() {
         final Long id = this.idSequence.nextId();
         final Class<ID> cls = (Class<ID>) getGenericType(1);
         if (cls == Long.class) {
@@ -87,22 +94,48 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     }
 
     @Override
-    public PO getOne(@Nonnull final Wrapper<PO> query) {
+    public PO getOne(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        consumer.accept(queryWrapper);
+        return getOne(queryWrapper);
+    }
+
+    protected PO getOne(@Nonnull final Wrapper<PO> query) {
         return getMapper().selectOne(query);
     }
 
     @Override
-    public int count(@Nonnull final Wrapper<PO> query) {
+    public int count(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        consumer.accept(queryWrapper);
+        return count(queryWrapper);
+    }
+
+    protected int count(@Nonnull final Wrapper<PO> query) {
         return (int) SqlHelper.retCount(getMapper().selectCount(query));
     }
 
     @Override
-    public List<PO> queryList(@Nonnull final Wrapper<PO> query) {
+    public List<PO> queryList(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        consumer.accept(queryWrapper);
+        return queryList(queryWrapper);
+    }
+
+    protected List<PO> queryList(@Nonnull final Wrapper<PO> query) {
         return getMapper().selectList(query);
     }
 
     @Override
-    public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query) {
+    public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        if (Objects.nonNull(consumer)) {
+            consumer.accept(queryWrapper);
+        }
+        return queryForPage(page, queryWrapper);
+    }
+
+    protected PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query) {
         final int idx = (Objects.isNull(page) || page.getPageIndex() <= 0) ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
         final int size = (Objects.isNull(page) || page.getPageSize() <= 0) ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
         IPage<PO> p = new Page<>(idx, size);
@@ -141,15 +174,17 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     protected void setUpdate(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
         final String sqlSet = updateWrapper.getSqlSet();
         if (!Strings.isNullOrEmpty(sqlSet)) {
-            final Class<?> poClass = getPoClass();
-            final Map<String, Field> fieldMaps = ReflectionKit.getFieldMap(poClass);
+            final Map<String, Object> params = Maps.newHashMap();
             //更新时间
             if (!sqlSet.contains(PoConstants.UPDATE_AT)) {
-                setFieldValue(updateWrapper, fieldMaps, PoConstants.UPDATE_AT, new Date());
+                params.put(PoConstants.UPDATE_AT, new Date());
             }
             //更新用户
             if (!sqlSet.contains(PoConstants.UPDATE_BY)) {
-                setUser(updateWrapper, fieldMaps, PoConstants.UPDATE_BY);
+                SecurityUtils.getUserOpt().ifPresent(u -> params.put(PoConstants.UPDATE_BY, u.getId()));
+            }
+            if (!CollectionUtils.isEmpty(params)) {
+                MybatisPlusUtils.buildFieldMap(params, getModelClass(), updateWrapper, null);
             }
         }
     }
@@ -162,17 +197,6 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
             SecurityUtils.getUserOpt().ifPresent(u -> setFieldValue(po, field, u.getId()));
         } catch (Throwable e) {
             log.warn("setUser(po: {},field: {})-exp: {}", po, field, e.getMessage());
-        }
-    }
-
-    private void setUser(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper, @Nonnull final Map<String, Field> fieldMaps, @Nonnull final String field) {
-        if (Strings.isNullOrEmpty(field)) {
-            return;
-        }
-        try {
-            SecurityUtils.getUserOpt().ifPresent(u -> setFieldValue(updateWrapper, fieldMaps, field, u.getId()));
-        } catch (Throwable e) {
-            log.warn("setUser(updateWrapper: {},field: {})-exp: {}", updateWrapper, field, e.getMessage());
         }
     }
 
@@ -202,34 +226,6 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         }
     }
 
-    private void setFieldValue(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper, @Nonnull final Map<String, Field> fieldMaps,
-                               @Nonnull final String field, @Nonnull final Object val) {
-        if (Strings.isNullOrEmpty(field) || !fieldMaps.containsKey(field)) {
-            return;
-        }
-        try {
-            final Field f = fieldMaps.get(field);
-            if (Objects.nonNull(f)) {
-                f.setAccessible(true);
-                final AtomicBoolean has = new AtomicBoolean(true);
-                final SFunction<PO, ?> sf = po -> {
-                    try {
-                        return f.get(po);
-                    } catch (Throwable e) {
-                        has.set(false);
-                        log.warn("setUpdate[f: {}]-exp: {}", f, e);
-                    }
-                    return null;
-                };
-                if (has.get()) {
-                    updateWrapper.set(sf, val);
-                }
-            }
-        } catch (Throwable e) {
-            log.warn("setFieldValue(updateWrapper: {},field: {},val: {})-exp: {}", updateWrapper, field, val, e.getMessage());
-        }
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PO add(@Nonnull final PO po) {
@@ -239,15 +235,6 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         getMapper().insert(po);
         //返回
         return po;
-    }
-
-    /**
-     * 获取PO class
-     *
-     * @return class
-     */
-    protected Class<?> getPoClass() {
-        return getGenericType(0);
     }
 
     @Override
@@ -261,7 +248,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
                 .peek(this::patchData)
                 .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(rows)) {
-            final Class<?> poClass = getPoClass();
+            final Class<?> poClass = getModelClass();
             final Class<?> mapperClass = getMapper().getClass();
             final Log l = new Slf4jImpl(getClass().getName());
             return SqlHelper.saveOrUpdateBatch(poClass, mapperClass, l, rows, BATCH_SIZE, (s, p) -> true, null);
@@ -279,7 +266,14 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
+    public int modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer) {
+        final LambdaUpdateWrapper<PO> updateWrapper = new LambdaUpdateWrapper<>();
+        consumer.accept(updateWrapper);
+        return modify(updateWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
         setUpdate(updateWrapper);
         return getMapper().update(null, updateWrapper);
     }
@@ -288,7 +282,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     @Transactional(rollbackFor = Exception.class)
     public boolean batchModify(@Nonnull final Collection<PO> items) {
         if (!CollectionUtils.isEmpty(items)) {
-            final Class<?> poClass = getPoClass();
+            final Class<?> poClass = getModelClass();
             final Class<?> mapperClass = getMapper().getClass();
             final Log l = new Slf4jImpl(getClass().getName());
             final String sqlStatement = SqlHelper.getSqlStatement(mapperClass, SqlMethod.UPDATE_BY_ID);
@@ -315,6 +309,13 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        consumer.accept(queryWrapper);
+        return delete(queryWrapper);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final Wrapper<PO> wrapper) {
         return SqlHelper.retBool(getMapper().delete(wrapper));
