@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.base.Strings;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID> {
-    protected static final int BATCH_SIZE = 500;
+    protected static final int BATCH_SIZE = 50;
 
     @Autowired(required = false)
     private IdSequence idSequence;
@@ -95,7 +96,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     public PO getOne(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return getOne(queryWrapper);
     }
@@ -106,7 +107,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     public int count(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return count(queryWrapper);
     }
@@ -117,7 +118,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     public List<PO> queryList(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return queryList(queryWrapper);
     }
@@ -128,7 +129,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         if (Objects.nonNull(consumer)) {
             consumer.accept(queryWrapper);
         }
@@ -267,7 +268,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer) {
-        final LambdaUpdateWrapper<PO> updateWrapper = new LambdaUpdateWrapper<>();
+        final LambdaUpdateWrapper<PO> updateWrapper = Wrappers.lambdaUpdate(getModelClass());
         consumer.accept(updateWrapper);
         return modify(updateWrapper);
     }
@@ -311,7 +312,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = new LambdaQueryWrapper<>();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return delete(queryWrapper);
     }
