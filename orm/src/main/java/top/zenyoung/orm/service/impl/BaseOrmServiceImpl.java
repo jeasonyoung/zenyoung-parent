@@ -51,11 +51,27 @@ import java.util.stream.Collectors;
 public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID> {
     protected static final int BATCH_SIZE = 50;
 
+    private final Map<Integer, Object> lock = Maps.newConcurrentMap();
+    private final Map<Integer, Class<?>> clsMaps = Maps.newHashMap();
+
     @Autowired(required = false)
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
-        return ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, index);
+        synchronized (lock.computeIfAbsent(index, k -> new Object())) {
+            try {
+                Class<?> cls = clsMaps.get(index);
+                if (Objects.isNull(cls)) {
+                    cls = ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, index);
+                    if (Objects.nonNull(cls)) {
+                        clsMaps.put(index, cls);
+                    }
+                }
+                return cls;
+            } finally {
+                lock.remove(index);
+            }
+        }
     }
 
     @SuppressWarnings({"unchecked"})
