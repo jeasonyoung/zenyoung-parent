@@ -117,7 +117,8 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return getOne(queryWrapper);
     }
 
-    protected PO getOne(@Nonnull final Wrapper<PO> query) {
+    @Override
+    public PO getOne(@Nonnull final Wrapper<PO> query) {
         return getMapper().selectOne(query);
     }
 
@@ -128,7 +129,8 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return count(queryWrapper);
     }
 
-    protected int count(@Nonnull final Wrapper<PO> query) {
+    @Override
+    public int count(@Nonnull final Wrapper<PO> query) {
         return (int) SqlHelper.retCount(getMapper().selectCount(query));
     }
 
@@ -139,7 +141,8 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return queryList(queryWrapper);
     }
 
-    protected List<PO> queryList(@Nonnull final Wrapper<PO> query) {
+    @Override
+    public List<PO> queryList(@Nonnull final Wrapper<PO> query) {
         return getMapper().selectList(query);
     }
 
@@ -152,7 +155,8 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return queryForPage(page, queryWrapper);
     }
 
-    protected PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query) {
+    @Override
+    public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query) {
         final int idx = (Objects.isNull(page) || page.getPageIndex() <= 0) ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
         final int size = (Objects.isNull(page) || page.getPageSize() <= 0) ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
         IPage<PO> p = new Page<>(idx, size);
@@ -289,8 +293,9 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return modify(updateWrapper);
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
-    protected int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
+    public int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
         setUpdate(updateWrapper);
         return getMapper().update(null, updateWrapper);
     }
@@ -333,6 +338,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return delete(queryWrapper);
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final Wrapper<PO> wrapper) {
         return SqlHelper.retBool(getMapper().delete(wrapper));
