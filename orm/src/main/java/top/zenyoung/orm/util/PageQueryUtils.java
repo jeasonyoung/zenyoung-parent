@@ -40,4 +40,11 @@ public class PageQueryUtils {
                                           @Nonnull final Function<IPage<T>, IPage<T>> queryHandler) {
         return wrapper(pageNum, pageSize, queryHandler, Function.identity());
     }
+
+    public static <T, P extends BasePageDTO> PageList<T> wrapper(@Nullable final P dto, @Nonnull final Function<IPage<T>, IPage<T>> queryHandler) {
+        if (Objects.isNull(dto)) {
+            return wrapper(null, null, queryHandler);
+        }
+        return wrapper(dto.getPageIndex(), dto.getPageSize(), queryHandler);
+    }
 }
