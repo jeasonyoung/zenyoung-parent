@@ -182,12 +182,12 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         }
     }
 
-    protected void setCreate(@Nonnull final PO po) {
+    protected <T> void setCreate(@Nonnull final T po) {
         setUser(po, PoConstants.CREATE_BY);
         setFieldValue(po, PoConstants.CREATE_AT, new Date());
     }
 
-    protected void setUpdate(@Nonnull final PO po) {
+    protected <T> void setUpdate(@Nonnull final T po) {
         setUser(po, PoConstants.UPDATE_BY);
         setFieldValue(po, PoConstants.UPDATE_AT, new Date());
     }
@@ -210,7 +210,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         }
     }
 
-    private void setUser(@Nonnull final PO po, @Nonnull final String field) {
+    private <T> void setUser(@Nonnull final T po, @Nonnull final String field) {
         if (Strings.isNullOrEmpty(field)) {
             return;
         }
@@ -221,14 +221,14 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         }
     }
 
-    protected void setStatus(@Nonnull final PO po) {
+    protected <T> void setStatus(@Nonnull final T po) {
         //状态
         setFieldValue(po, PoConstants.STATUS, Status.Enable.getVal());
         //逻辑删除
         setFieldValue(po, PoConstants.LOGIC_DEL, Status.Disable.getVal());
     }
 
-    private void setFieldValue(@Nonnull final PO po, @Nonnull final String field, @Nonnull final Object val) {
+    private <T> void setFieldValue(@Nonnull final T po, @Nonnull final String field, @Nonnull final Object val) {
         if (Strings.isNullOrEmpty(field)) {
             return;
         }
