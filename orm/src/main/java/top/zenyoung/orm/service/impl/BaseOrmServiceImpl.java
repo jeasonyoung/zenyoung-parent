@@ -271,8 +271,15 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         if (!CollectionUtils.isEmpty(rows)) {
             final Class<?> poClass = getModelClass();
             final Class<?> mapperClass = getMapper().getClass();
+            return batchAdd(poClass, mapperClass, rows);
+        }
+        return false;
+    }
+
+    protected <T extends BasePO<?>> boolean batchAdd(@Nonnull final Class<?> poCls, @Nonnull final Class<?> mapperCls, @Nonnull final Collection<T> items) {
+        if (!CollectionUtils.isEmpty(items)) {
             final Log l = new Slf4jImpl(getClass().getName());
-            return SqlHelper.saveOrUpdateBatch(poClass, mapperClass, l, rows, BATCH_SIZE, (s, p) -> true, null);
+            return SqlHelper.saveOrUpdateBatch(poCls, mapperCls, l, items, BATCH_SIZE, (s, p) -> true, null);
         }
         return false;
     }
@@ -306,10 +313,18 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         if (!CollectionUtils.isEmpty(items)) {
             final Class<?> poClass = getModelClass();
             final Class<?> mapperClass = getMapper().getClass();
+            return batchModify(poClass, mapperClass, items);
+        }
+        return false;
+    }
+
+    protected <T extends BasePO<?>> boolean batchModify(@Nonnull final Class<?> poCls, @Nonnull final Class<?> mapperCls,
+                                                        @Nonnull final Collection<T> items) {
+        if (!CollectionUtils.isEmpty(items)) {
             final Log l = new Slf4jImpl(getClass().getName());
-            final String sqlStatement = SqlHelper.getSqlStatement(mapperClass, SqlMethod.UPDATE_BY_ID);
-            return SqlHelper.executeBatch(poClass, l, items, BATCH_SIZE, (session, po) -> {
-                final MapperMethod.ParamMap<PO> param = new MapperMethod.ParamMap<>();
+            final String sqlStatement = SqlHelper.getSqlStatement(mapperCls, SqlMethod.UPDATE_BY_ID);
+            return SqlHelper.executeBatch(poCls, l, items, BATCH_SIZE, (session, po) -> {
+                final MapperMethod.ParamMap<T> param = new MapperMethod.ParamMap<>();
                 setUpdate(po);
                 param.put(Constants.ENTITY, po);
                 session.update(sqlStatement, param);
