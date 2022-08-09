@@ -48,7 +48,9 @@
         <!-- p6spy -->
         <p6spy.version>3.9.1</p6spy.version>
 
-        <!--短信-->
+        <!-- 阿里云 SDK-->
+        <aliyun-core.version>4.6.1</aliyun-core.version>
+        <!-- 阿里云 短信 -->
         <aliyun-dysmsapi.version>2.2.1</aliyun-dysmsapi.version>
 
         <!-- tools -->
@@ -185,7 +187,12 @@
                 <version>${p6spy.version}</version>
             </dependency>
 
-            <!-- 短信:阿里云 -->
+            <!-- 阿里云 -->
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>aliyun-java-sdk-core</artifactId>
+                <version>${aliyun-core.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
