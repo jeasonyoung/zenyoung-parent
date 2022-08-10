@@ -97,6 +97,25 @@ public class MybatisPlusUtils {
         });
     }
 
+    public static <R> void buildFieldMap(@Nonnull final Map<String, Pair<SqlKeyword, Object>> params, @Nonnull final Class<R> cls,
+                                         @Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nullable final List<String> excludes) {
+        final Map<String, Object> args = params.entrySet().stream()
+                .map(entry -> {
+                    final String name = entry.getKey();
+                    final Pair<SqlKeyword, Object> v = entry.getValue();
+                    return Pair.of(name, v.getRight());
+                })
+                .collect(Collectors.toMap(Pair::getLeft, Pair::getRight, (n, o) -> n));
+        buildFieldMap(args, cls, excludes, (p, val) -> {
+            final Pair<SqlKeyword, Object> v = params.get(p.getLeft());
+            final SqlKeyword op;
+            if (Objects.nonNull(v) && Objects.nonNull(op = v.getLeft())) {
+                //查询处理
+                buildQueryFieldMap(queryWrapper, p.getRight(), op, val);
+            }
+        });
+    }
+
     public static <R> void buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
                                          @Nonnull final LambdaUpdateWrapper<R> updateWrapper, @Nullable final List<String> excludes) {
         buildFieldMap(params, cls, excludes, (p, val) -> {
@@ -108,20 +127,20 @@ public class MybatisPlusUtils {
     private static <R> String formatSqlHandler(@Nonnull final AbstractLambdaWrapper<R, ?> queryWrapper, @Nonnull final Object val) {
         try {
             final Class<?> cls = queryWrapper.getClass();
-            final Method formatSqlMethod = ReflectionUtils.findMethod(cls, "formatSql");
+            final Method formatSqlMethod = ReflectionUtils.findMethod(cls, "formatSql", String.class, Object[].class);
             if (Objects.nonNull(formatSqlMethod)) {
                 formatSqlMethod.setAccessible(true);
-                return (String) formatSqlMethod.invoke(queryWrapper, "{0}", val);
+                return (String) formatSqlMethod.invoke(queryWrapper, "{0}", new Object[]{val});
             }
         } catch (Throwable e) {
-            log.warn("formatSqlHandler(val: {})-exp: {}", val, e.getMessage());
+            log.error("formatSqlHandler(val: {})-exp: {}", val, e.getMessage());
         }
         return null;
     }
 
     private static <R> void buildQueryFieldMap(@Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nonnull final String colName, @Nonnull final SqlKeyword op, @Nonnull final Object val) {
         final Class<?> cls = queryWrapper.getClass();
-        final Method method = ReflectionUtils.findMethod(cls, "doIt");
+        final Method method = ReflectionUtils.findMethod(cls, "doIt", boolean.class, ISqlSegment[].class);
         if (Objects.nonNull(method)) {
             try {
                 final String formatSql = formatSqlHandler(queryWrapper, val);
@@ -166,6 +185,18 @@ public class MybatisPlusUtils {
         return queryWrapper;
     }
 
+    public static <R> void buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                             @Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nullable final List<String> excludes) {
+        if (!CollectionUtils.isEmpty(params)) {
+            buildFieldMap(params, cls, queryWrapper, excludes, f -> SqlKeyword.EQ);
+        }
+    }
+
+    public static <R> void buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
+                                             @Nonnull final LambdaQueryWrapper<R> queryWrapper) {
+        buildQueryWrapper(params, cls, queryWrapper, null);
+    }
+
     public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes,
                                                                  @Nonnull final Function<String, SqlKeyword> fieldOpHandler) {
         final Map<String, Object> args = from(dto);
@@ -192,6 +223,18 @@ public class MybatisPlusUtils {
 
     public static <T> LambdaQueryWrapper<T> buildQueryWrapper(@Nonnull final T dto) {
         return buildQueryWrapper(dto, f -> SqlKeyword.EQ);
+    }
+
+    public static <T, R> void buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls,
+                                                @Nonnull final LambdaQueryWrapper<R> queryWrapper, @Nullable final List<String> excludes) {
+        final Map<String, Object> args = from(dto);
+        if (!CollectionUtils.isEmpty(args)) {
+            buildFieldMap(args, cls, queryWrapper, excludes, col -> SqlKeyword.EQ);
+        }
+    }
+
+    public static <T, R> void buildQueryWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nonnull final LambdaQueryWrapper<R> queryWrapper) {
+        buildQueryWrapper(dto, cls, queryWrapper, null);
     }
 
     public static <T, R> LambdaUpdateWrapper<R> buildUpdateWrapper(@Nonnull final T dto, @Nonnull final Class<R> cls, @Nullable final List<String> excludes) {
