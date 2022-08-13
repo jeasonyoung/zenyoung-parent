@@ -15,6 +15,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @EnableCreateCacheAnnotation
+@EnableMethodCache(basePackages = {"top.zenyoung"})
 public @interface EnableJetCache {
     /**
      * 扫描包集合

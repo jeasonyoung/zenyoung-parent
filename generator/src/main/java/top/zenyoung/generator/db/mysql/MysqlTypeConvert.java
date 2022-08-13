@@ -21,7 +21,7 @@ public class MysqlTypeConvert implements DbTypeConvert {
         return runner.use(fieldType)
                 .test(runner.containsAny("char", "text", "json", "enum").then(STRING))
                 .test(runner.contains("bigint").then(LONG))
-                .test(runner.containsAny("tinyint(1)", "bit(1)").then(BOOLEAN))
+                .test(runner.containsAny("tinyint(1)", "bit(1)").then(INTEGER))
                 .test(runner.contains("bit").then(BYTE))
                 .test(runner.contains("int").then(INTEGER))
                 .test(runner.contains("decimal").then(BIG_DECIMAL))
