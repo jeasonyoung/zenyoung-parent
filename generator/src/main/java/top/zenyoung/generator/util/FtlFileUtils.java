@@ -31,21 +31,19 @@ public class FtlFileUtils {
     private static boolean checkIncludeGroup(@Nonnull final FtlFileType type, @Nonnull final GeneratorDTO dto) {
         final String includeGroup;
         if (!Strings.isNullOrEmpty(includeGroup = dto.getIncludeGroup())) {
-            final String comma = ",", regex = "^[A-Z][a-z]+$";
+            final String comma = ",", regex = "^[A-Z]+$";
             final List<String> groups = NameUtils.splitter(comma, includeGroup).stream()
-                    .filter(g -> !Strings.isNullOrEmpty(g))
+                    .filter(g -> g.matches(regex))
                     .collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(groups)) {
-                for(String group : groups){
-                    if (!Strings.isNullOrEmpty(group) && group.matches(regex)) {
-                        try {
-                            final FtlFileGroup g = Enum.valueOf(FtlFileGroup.class, group);
-                            if(g.isEnable(type.getGroups())){
-                                return true;
-                            }
-                        } catch (Throwable e) {
-                            log.warn("checkIncludeGroup: {} -exp: {}", group, e.getMessage());
+                for (String group : groups) {
+                    try {
+                        final FtlFileGroup g = Enum.valueOf(FtlFileGroup.class, group);
+                        if (g.isEnable(type.getGroups())) {
+                            return true;
                         }
+                    } catch (Throwable e) {
+                        log.warn("checkIncludeGroup: {} -exp: {}", group, e.getMessage());
                     }
                 }
                 return false;
