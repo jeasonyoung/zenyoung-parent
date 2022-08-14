@@ -16,5 +16,5 @@ public abstract class BaseLogicDel<ID extends Serializable> implements Serializa
      * 逻辑删除标识(0:正常, ID:删除)
      */
     @TableLogic(value = "0", delval = "id")
-    private ID del;
+    private ID logicDel;
 }
