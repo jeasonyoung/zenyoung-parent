@@ -158,7 +158,7 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
      * @param ids 主键ID集合
      * @return 删除
      */
-    boolean delete(@Nonnull final Collection<ID> ids);
+    boolean delete(@Nonnull final List<ID> ids);
 
     /**
      * 根据条件删除数据

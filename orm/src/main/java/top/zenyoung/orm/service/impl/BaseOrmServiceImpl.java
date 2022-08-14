@@ -341,7 +341,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delete(@Nonnull final Collection<ID> ids) {
+    public boolean delete(@Nonnull final List<ID> ids) {
         return SqlHelper.retBool(getMapper().deleteBatchIds(ids));
     }
 
