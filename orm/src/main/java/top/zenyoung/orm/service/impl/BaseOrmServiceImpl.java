@@ -286,15 +286,15 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int modify(@Nonnull final ID id, @Nonnull final PO po) {
+    public boolean modify(@Nonnull final ID id, @Nonnull final PO po) {
         po.setId(id);
         setUpdate(po);
-        return getMapper().updateById(po);
+        return SqlHelper.retBool(getMapper().updateById(po));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer) {
+    public boolean modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer) {
         final LambdaUpdateWrapper<PO> updateWrapper = Wrappers.lambdaUpdate(getModelClass());
         consumer.accept(updateWrapper);
         return modify(updateWrapper);
@@ -302,9 +302,9 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
+    public boolean modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
         setUpdate(updateWrapper);
-        return getMapper().update(null, updateWrapper);
+        return SqlHelper.retBool(getMapper().update(null, updateWrapper));
     }
 
     @Override

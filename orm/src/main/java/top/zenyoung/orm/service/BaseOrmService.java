@@ -118,7 +118,7 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
      * @param po 修改数据
      * @return 修改结果
      */
-    int modify(@Nonnull final ID id, @Nonnull final PO po);
+    boolean modify(@Nonnull final ID id, @Nonnull final PO po);
 
     /**
      * 根据条件更新数据
@@ -126,7 +126,7 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
      * @param consumer 更新数据条件处理
      * @return 更新结果
      */
-    int modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer);
+    boolean modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer);
 
     /**
      * 根据条件更新数据
@@ -134,7 +134,7 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
      * @param updateWrapper 更新数据条件
      * @return 更新结果
      */
-    int modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper);
+    boolean modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper);
 
     /**
      * 批量更新数据
