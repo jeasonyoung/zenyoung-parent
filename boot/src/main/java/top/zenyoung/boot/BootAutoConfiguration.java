@@ -26,8 +26,8 @@ import top.zenyoung.common.sequence.IdSequence;
  */
 @Slf4j
 @Configuration
-@ComponentScan({"top.zenyoung.boot.aop"})
-@Import({AsyncConfig.class, SwaggerConfig.class, ExceptionController.class})
+@ComponentScan({"top.zenyoung.boot.aop", "top.zenyoung.boot.resolver", "top.zenyoung.boot.interceptor"})
+@Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, ExceptionController.class})
 @EnableConfigurationProperties({RepeatSubmitProperties.class, CaptchaProperties.class, IdSequenceProperties.class})
 public class BootAutoConfiguration {
     @Bean

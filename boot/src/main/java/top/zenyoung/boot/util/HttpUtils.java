@@ -2,6 +2,7 @@ package top.zenyoung.boot.util;
 
 import com.google.common.base.Strings;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -96,6 +97,20 @@ public class HttpUtils {
     public static String getClientIpAddr(@Nullable final InetSocketAddress address) {
         if (address != null) {
             return Objects.requireNonNull(address).getAddress().getHostAddress();
+        }
+        return null;
+    }
+
+    /**
+     * 获取请求内容类型
+     *
+     * @param request 请求对象
+     * @return 请求内容类型
+     */
+    public static MediaType getContentType(@Nonnull final HttpServletRequest request) {
+        final String requestContentType = request.getContentType();
+        if (!Strings.isNullOrEmpty(requestContentType)) {
+            return MediaType.parseMediaType(requestContentType);
         }
         return null;
     }
