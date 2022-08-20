@@ -26,7 +26,7 @@ public interface ArgumentResolver extends HandlerMethodArgumentResolver {
      *                      have returned {@code true}.
      * @param mavContainer  the ModelAndViewContainer for the current request
      * @param webRequest    the current request
-     * @param binderFactory a factory for creating {@link WebDataBinder} instances
+     * @param binderFactory a factory for creating {@link WebDataBinderFactory} instances
      * @return 参数数据
      * @throws Exception 异常
      */
