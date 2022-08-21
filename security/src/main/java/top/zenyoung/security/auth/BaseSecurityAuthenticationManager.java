@@ -1,20 +1,17 @@
 package top.zenyoung.security.auth;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.boot.config.CaptchaProperties;
 import top.zenyoung.boot.service.CaptchaService;
+import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.config.SecurityProperties;
@@ -31,7 +28,6 @@ import javax.security.auth.login.AccountNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 令牌认证管理器-基类
@@ -162,13 +158,7 @@ public class BaseSecurityAuthenticationManager implements SecurityAuthentication
             if (ticket == null) {
                 throw new TokenException("令牌无效!");
             }
-            final List<String> roles = ticket.getRoles();
-            final List<? extends GrantedAuthority> authorities = CollectionUtils.isEmpty(roles) ? Lists.newArrayList() :
-                    roles.stream()
-                            .filter(role -> !Strings.isNullOrEmpty(role))
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-            return new UsernamePasswordAuthenticationToken(ticket, null, authorities);
+            return SecurityUtils.create(ticket);
         }
         return null;
     }

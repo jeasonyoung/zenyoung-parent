@@ -1,5 +1,6 @@
 package top.zenyoung.common.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import top.zenyoung.common.paging.PagingQuery;
 
@@ -9,7 +10,8 @@ import top.zenyoung.common.paging.PagingQuery;
  * @author young
  */
 @Data
-public abstract class BasePageDTO implements PagingQuery {
+@AllArgsConstructor(staticName = "of")
+public class BasePageDTO implements PagingQuery {
     public static final int DEF_PAGE_INDEX = 1;
     public static final int DEF_PAGE_SIZE = 20;
     /**

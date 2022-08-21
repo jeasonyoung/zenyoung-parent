@@ -1,8 +1,8 @@
 package top.zenyoung.common.model;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -18,6 +18,7 @@ import java.util.Map;
  * 2020/3/19 4:31 下午
  **/
 @Data
+@NoArgsConstructor
 public class UserPrincipal implements Principal, Serializable {
     /**
      * 用户ID
@@ -35,11 +36,10 @@ public class UserPrincipal implements Principal, Serializable {
      * 设备标识
      */
     private String device;
-
     /**
      * 扩展数据
      */
-    private final Map<String, Serializable> exts = Maps.newLinkedHashMap();
+    private Map<String, Serializable> exts = Maps.newLinkedHashMap();
 
     @Override
     public String getName() {
@@ -85,13 +85,6 @@ public class UserPrincipal implements Principal, Serializable {
      */
     public UserPrincipal(@Nonnull final UserPrincipal principal) {
         this(principal.getId(), principal.getAccount(), principal.getRoles(), principal.getDevice(), principal.getExts());
-    }
-
-    /**
-     * 构造函数
-     */
-    public UserPrincipal() {
-        this(null, null, Lists.newLinkedList(), null, Maps.newLinkedHashMap());
     }
 
     /**

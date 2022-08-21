@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.UserId;
+import top.zenyoung.boot.util.SecurityUtils;
+import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Objects;
 
 /**
  * 认证用户ID参数分解器
@@ -16,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @Component
 public class UserIdMethodArgumentResolver implements ArgumentResolver {
-    public static final String USER_ID = "user-id";
 
     @Override
     public boolean supportsParameter(@Nonnull final MethodParameter parameter) {
@@ -25,6 +27,12 @@ public class UserIdMethodArgumentResolver implements ArgumentResolver {
 
     @Override
     public Object resolveArgument(@Nonnull final MethodParameter parameter, @Nonnull final HttpServletRequest req) {
-        return req.getHeader(USER_ID);
+        final UserPrincipal principal = SecurityUtils.getUser();
+        if (Objects.nonNull(principal)) {
+            log.info("获取当前用户信息: {}", principal);
+            return principal.getId();
+        }
+        log.warn("为获取到当前用户信息");
+        return null;
     }
 }

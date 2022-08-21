@@ -1,6 +1,10 @@
 package top.zenyoung.common.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.paging.PagingQuery;
 
 /**
@@ -11,13 +15,16 @@ import top.zenyoung.common.paging.PagingQuery;
  * date 2020/8/9 10:56 下午
  **/
 @Data
-public class ReqPagingQuery implements PagingQuery {
+@NoArgsConstructor
+@AllArgsConstructor(staticName = "of")
+@EqualsAndHashCode(callSuper = true)
+public class ReqPagingQuery extends BasePageDTO implements PagingQuery {
     /**
      * 页码
      */
     private Integer pageIndex;
     /**
-     * 当前页数量
+     * 页数据量
      */
     private Integer pageSize;
 }

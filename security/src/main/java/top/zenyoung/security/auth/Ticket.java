@@ -42,7 +42,7 @@ public class Ticket extends UserPrincipal {
     }
 
     public Map<String, Object> toClaims() {
-        return new HashMap<String, Object>(3) {
+        return new HashMap<String, Object>(5) {
             {
                 //用户ID
                 put(KEY_ID, getId());
