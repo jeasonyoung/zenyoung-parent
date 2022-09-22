@@ -3,6 +3,7 @@ package top.zenyoung.common.util;
 import com.google.common.cache.Cache;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,7 +55,8 @@ public class AsyncUtils implements AutoCloseable {
      * @return 异步工具实例
      */
     public static AsyncUtils getInstance(@Nonnull final Integer totals) {
-        return new AsyncUtils(ThreadUtils.createPools(), totals);
+        Assert.isTrue(totals > 0, "'totals'必须大于0");
+        return new AsyncUtils(ThreadUtils.createPools(totals, Math.max(totals + 1, (int) (totals * 1.2))), totals);
     }
 
     /**
