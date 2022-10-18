@@ -1,12 +1,24 @@
 package top.zenyoung.boot.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.common.paging.PageList;
+import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.common.vo.ResultVO;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * 控制器-基类
@@ -16,6 +28,8 @@ import java.util.Objects;
  * date 2020/8/10 9:53 下午
  **/
 public class BaseController {
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * 成功响应
@@ -145,5 +159,31 @@ public class BaseController {
             return failed(((EnumValue) e));
         }
         return failed(e.getMessage());
+    }
+
+    /**
+     * 导出Excel处理
+     *
+     * @param res           响应对象
+     * @param fileName      文件名
+     * @param exportHandler 导出业务处理
+     */
+    protected void exportExcel(@Nonnull final HttpServletResponse res, @Nonnull final String fileName, @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
+        final String enc = StandardCharsets.UTF_8.name();
+        try (final OutputStream outputStream = res.getOutputStream()) {
+            res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            res.setCharacterEncoding(enc);
+            final String ext = FilenameUtils.getExtension(fileName);
+            final String exportFileName = URLEncoder.encode(FilenameUtils.getBaseName(fileName), enc).replaceAll("\\+", "%20");
+            res.setHeader("Content-disposition", "attachment;filename*=utf-8''" + exportFileName + "." + (Strings.isNullOrEmpty(ext) ? "xlsx" : ext));
+            //业务处理
+            exportHandler.accept(outputStream);
+            res.flushBuffer();
+        } catch (Throwable e) {
+            res.reset();
+            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            res.setCharacterEncoding(enc);
+            res.getWriter().write(JsonUtils.toJson(objectMapper, failed(null, e.getMessage())));
+        }
     }
 }
