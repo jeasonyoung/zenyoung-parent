@@ -1,6 +1,5 @@
 package top.zenyoung.orm.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,11 +15,9 @@ public abstract class BaseCreate implements Serializable {
     /**
      * 创建者
      */
-    @TableField("create_by")
     private String createBy;
     /**
      * 创建时间
      */
-    @TableField("create_at")
     private Date createAt;
 }

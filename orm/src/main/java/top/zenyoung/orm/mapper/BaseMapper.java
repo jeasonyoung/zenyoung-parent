@@ -2,12 +2,15 @@ package top.zenyoung.orm.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import org.apache.ibatis.annotations.Param;
 import top.zenyoung.orm.model.BasePO;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -92,4 +95,36 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
         consumer.accept(queryWrapper);
         return selectList(queryWrapper);
     }
+
+    /**
+     * 根据ID加载数据(包括被逻辑删除的)
+     *
+     * @param id ID
+     * @return 加载数据
+     */
+    PO selectPhysicalById(@Nonnull final ID id);
+
+    /**
+     * 根据ID集合查询数据(包括被逻辑删除的)
+     *
+     * @param ids ID集合
+     * @return 数据集合
+     */
+    List<PO> selectPhysicalByIds(@Nonnull @Param(Constants.COLL) final Collection<ID> ids);
+
+    /**
+     * 批量插入,主键相同则更新
+     *
+     * @param pos 批量插入数据集合
+     * @return 批量插入结果
+     */
+    int batchAddOrUpdate(@Nonnull @Param(Constants.COLL) final List<PO> pos);
+
+    /**
+     * 物理删除数据
+     *
+     * @param ids ID集合
+     * @return 删除结果
+     */
+    int physicalDelete(@Nonnull @Param(Constants.COLL) final List<ID> ids);
 }

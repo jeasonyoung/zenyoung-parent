@@ -11,11 +11,13 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -28,9 +30,10 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
-import top.zenyoung.orm.constant.PoConstants;
+import top.zenyoung.orm.enums.PoConstant;
 import top.zenyoung.orm.mapper.BaseMapper;
 import top.zenyoung.orm.model.BasePO;
+import top.zenyoung.orm.model.PoFieldHelper;
 import top.zenyoung.orm.service.BaseOrmService;
 import top.zenyoung.orm.util.MybatisPlusUtils;
 
@@ -48,30 +51,15 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID> {
-    protected static final int BATCH_SIZE = 50;
-
-    private final Map<Integer, Object> lock = Maps.newConcurrentMap();
-    private final Map<Integer, Class<?>> clsMaps = Maps.newHashMap();
-
+public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID>, InitializingBean {
+    protected static final int BATCH_SIZE = 500;
+    private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
+    private final PoFieldHelper<PO> poPoFieldHelper = PoFieldHelper.of(this.getModelClass());
     @Autowired(required = false)
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
-        synchronized (lock.computeIfAbsent(index, k -> new Object())) {
-            try {
-                Class<?> cls = clsMaps.get(index);
-                if (Objects.isNull(cls)) {
-                    cls = ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, index);
-                    if (Objects.nonNull(cls)) {
-                        clsMaps.put(index, cls);
-                    }
-                }
-                return cls;
-            } finally {
-                lock.remove(index);
-            }
-        }
+        return clsMaps.computeIfAbsent(index, idx -> ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, idx));
     }
 
     @SuppressWarnings({"unchecked"})
@@ -86,7 +74,10 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
      */
     @SuppressWarnings({"unchecked"})
     protected final ID genId() {
-        final Long id = this.idSequence.nextId();
+        if (Objects.isNull(idSequence)) {
+            return null;
+        }
+        final Long id = idSequence.nextId();
         final Class<ID> cls = (Class<ID>) getGenericType(1);
         if (cls == Long.class) {
             return cls.cast(id);
@@ -107,7 +98,19 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     public PO getById(@Nonnull final ID id) {
+        return getById(id, false);
+    }
+
+    protected PO getById(@Nonnull final ID id, final boolean logicDel) {
+        if (logicDel) {
+            return getMapper().selectPhysicalById(id);
+        }
         return getMapper().selectById(id);
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        poPoFieldHelper.init();
     }
 
     @Override
@@ -183,13 +186,13 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     }
 
     protected <T> void setCreate(@Nonnull final T po) {
-        setUser(po, PoConstants.CREATE_BY);
-        setFieldValue(po, PoConstants.CREATE_AT, new Date());
+        setUser(po, PoConstant.CreateBy);
+        setFieldValue(po, PoConstant.CreateAt, new Date());
     }
 
     protected <T> void setUpdate(@Nonnull final T po) {
-        setUser(po, PoConstants.UPDATE_BY);
-        setFieldValue(po, PoConstants.UPDATE_AT, new Date());
+        setUser(po, PoConstant.UpdateBy);
+        setFieldValue(po, PoConstant.UpdateAt, new Date());
     }
 
     protected void setUpdate(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
@@ -197,50 +200,60 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         if (!Strings.isNullOrEmpty(sqlSet)) {
             final Map<String, Object> params = Maps.newHashMap();
             //更新时间
-            if (!sqlSet.contains(PoConstants.UPDATE_AT)) {
-                params.put(PoConstants.UPDATE_AT, new Date());
+            final String updateAt = poPoFieldHelper.getColumn(PoConstant.UpdateAt);
+            if (!Strings.isNullOrEmpty(updateAt) && !sqlSet.contains(updateAt)) {
+                params.put(updateAt, new Date());
             }
             //更新用户
-            if (!sqlSet.contains(PoConstants.UPDATE_BY)) {
-                SecurityUtils.getUserOpt().ifPresent(u -> params.put(PoConstants.UPDATE_BY, u.getId()));
+            final String updateBy = poPoFieldHelper.getColumn(PoConstant.UpdateBy);
+            if (!Strings.isNullOrEmpty(updateBy) && !sqlSet.contains(updateBy)) {
+                SecurityUtils.getUserOpt().ifPresent(u -> params.put(updateBy, u.getId()));
             }
+            //
             if (!CollectionUtils.isEmpty(params)) {
                 MybatisPlusUtils.buildFieldMap(params, getModelClass(), updateWrapper, null);
             }
         }
     }
 
-    private <T> void setUser(@Nonnull final T po, @Nonnull final String field) {
-        if (Strings.isNullOrEmpty(field)) {
-            return;
-        }
+    private <T> void setUser(@Nonnull final T po, @Nonnull final PoConstant pc) {
         try {
-            SecurityUtils.getUserOpt().ifPresent(u -> setFieldValue(po, field, u.getId()));
+            final Field userField = poPoFieldHelper.getField(pc);
+            if (Objects.nonNull(userField)) {
+                SecurityUtils.getUserOpt().ifPresent(u -> setFieldValue(po, userField, u.getId()));
+            }
         } catch (Throwable e) {
-            log.warn("setUser(po: {},field: {})-exp: {}", po, field, e.getMessage());
+            log.warn("setUser(po: {},pc: {})-exp: {}", po, pc, e.getMessage());
         }
     }
 
     protected <T> void setStatus(@Nonnull final T po) {
         //状态
-        setFieldValue(po, PoConstants.STATUS, Status.Enable.getVal());
+        setFieldValue(po, PoConstant.Status, Status.Enable.getVal());
         //逻辑删除
-        setFieldValue(po, PoConstants.LOGIC_DEL, Status.Disable.getVal());
+        setFieldValue(po, PoConstant.LogicDel, Status.Disable.getVal());
     }
 
-    private <T> void setFieldValue(@Nonnull final T po, @Nonnull final String field, @Nonnull final Object val) {
-        if (Strings.isNullOrEmpty(field)) {
+    private <T> void setFieldValue(@Nonnull final T po, @Nullable final PoConstant pc, @Nonnull final Object val) {
+        if (Objects.isNull(pc)) {
             return;
         }
+        final Field field = poPoFieldHelper.getField(pc);
+        if (Objects.nonNull(field)) {
+            this.setFieldValue(po, field, val);
+        }
+    }
+
+    private <T> void setFieldValue(@Nonnull final T po, @Nullable final Field field, @Nonnull final Object val) {
         try {
-            final Field f = ReflectionUtils.findField(po.getClass(), field);
-            if (Objects.nonNull(f)) {
-                f.setAccessible(true);
-                final Object old = ReflectionUtils.getField(f, po);
-                if (Objects.isNull(old)) {
-                    //设置新值
-                    ReflectionUtils.setField(f, po, val);
-                }
+            if (Objects.isNull(field)) {
+                return;
+            }
+            field.setAccessible(true);
+            final Object old = ReflectionUtils.getField(field, po);
+            if (Objects.isNull(old)) {
+                //设置新值
+                ReflectionUtils.setField(field, po, val);
             }
         } catch (Throwable e) {
             log.warn("setFieldValue(po: {},field: {},val: {})-exp: {}", po, field, val, e.getMessage());
@@ -255,6 +268,16 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         //插入数据
         getMapper().insert(po);
         //返回
+        return po;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected PO addOrUpdate(@Nonnull final PO po) {
+        //补充数据
+        patchData(po);
+        //插入数据
+        getMapper().batchAddOrUpdate(Lists.newArrayList(po));
+        //
         return po;
     }
 
@@ -274,6 +297,40 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
             return batchAdd(poClass, mapperClass, rows);
         }
         return false;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected boolean batchAddOrUpdate(@Nonnull final Collection<PO> items) {
+        if (CollectionUtils.isEmpty(items)) {
+            return false;
+        }
+        final List<PO> rows = items.stream()
+                .filter(Objects::nonNull)
+                .peek(this::patchData)
+                .collect(Collectors.toList());
+        return batchHandler(rows, pos -> {
+            final int ret = getMapper().batchAddOrUpdate(pos);
+            log.debug("batchAddOrUpdate=> {}", ret);
+        });
+    }
+
+    private boolean batchHandler(@Nonnull final Collection<PO> pos, @Nonnull final Consumer<List<PO>> handler) {
+        int count = 0;
+        if (!CollectionUtils.isEmpty(pos)) {
+            final List<PO> items = Lists.newArrayList(pos);
+            final int totals = pos.size();
+            int idx = 0;
+            while (count < totals) {
+                final int start = (idx * BATCH_SIZE), end = (start + BATCH_SIZE) > totals ? (totals - start) : (start + BATCH_SIZE);
+                final List<PO> rows = items.subList(start, end);
+                count += rows.size();
+                //批处理
+                handler.accept(rows);
+                //分页计数
+                idx++;
+            }
+        }
+        return count > 0;
     }
 
     protected <T extends BasePO<?>> boolean batchAdd(@Nonnull final Class<?> poCls, @Nonnull final Class<?> mapperCls, @Nonnull final Collection<T> items) {
@@ -336,13 +393,31 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final ID id) {
-        return SqlHelper.retBool(getMapper().deleteById(id));
+        return delete(id, false);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected boolean delete(@Nonnull final ID id, final boolean physicalDel) {
+        final BaseMapper<PO, ID> mapper = getMapper();
+        if (physicalDel) {
+            return SqlHelper.retBool(mapper.physicalDelete(Lists.newArrayList(id)));
+        }
+        return SqlHelper.retBool(mapper.deleteById(id));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final List<ID> ids) {
-        return SqlHelper.retBool(getMapper().deleteBatchIds(ids));
+        return delete(ids, false);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected boolean delete(@Nonnull final List<ID> ids, final boolean physicalDel) {
+        final BaseMapper<PO, ID> mapper = getMapper();
+        if (physicalDel) {
+            return SqlHelper.retBool(mapper.physicalDelete(ids));
+        }
+        return SqlHelper.retBool(mapper.deleteBatchIds(ids));
     }
 
     @Override

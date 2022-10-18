@@ -1,6 +1,5 @@
 package top.zenyoung.orm.model;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,11 +16,9 @@ public abstract class BaseCreateUpdate extends BaseCreate {
     /**
      * 更新者
      */
-    @TableField("update_by")
     private String updateBy;
     /**
      * 更新时间
      */
-    @TableField("update_at")
     private Date updateAt;
 }
