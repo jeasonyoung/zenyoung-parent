@@ -8,10 +8,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import top.zenyoung.redis.jetcache.JetCacheRedissonConfig;
 import top.zenyoung.redis.lock.LockService;
 import top.zenyoung.redis.lock.impl.RedisLockServiceImpl;
 import top.zenyoung.redis.service.QueueService;
@@ -29,8 +26,6 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
-@Import({JetCacheRedissonConfig.class})
-@ComponentScan({"top.zenyoung.redis.sync"})
 public class RedisAutoConfiguration {
 
     @Bean
@@ -47,7 +42,7 @@ public class RedisAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RedisEnhancedService enhancedService(){
+    public RedisEnhancedService enhancedService() {
         return new RedisEnhancedServiceImpl();
     }
 

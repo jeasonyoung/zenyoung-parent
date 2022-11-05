@@ -29,7 +29,7 @@
         <zenyoung.version>3.0.0</zenyoung.version>
 
         <!-- jetcache -->
-        <jetcache.version>2.6.5</jetcache.version>
+        <jetcache.version>2.7.0</jetcache.version>
         <!-- redisson -->
         <redisson.version>3.17.4</redisson.version>
 
@@ -127,12 +127,7 @@
             <!-- jetcache -->
             <dependency>
                 <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-core</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-autoconfigure</artifactId>
+                <artifactId>jetcache-starter-redisson</artifactId>
                 <version>${jetcache.version}</version>
             </dependency>
             <!-- redisson -->

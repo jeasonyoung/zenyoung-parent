@@ -28,11 +28,8 @@
         <!-- jetcache -->
         <dependency>
             <groupId>com.alicp.jetcache</groupId>
-            <artifactId>jetcache-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alicp.jetcache</groupId>
-            <artifactId>jetcache-autoconfigure</artifactId>
+            <artifactId>jetcache-starter-redisson</artifactId>
+            <optional>true</optional>
         </dependency>
         <!-- redisson -->
         <dependency>
