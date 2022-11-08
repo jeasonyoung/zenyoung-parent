@@ -82,6 +82,8 @@
         <module>boot</module>
         <!-- mybatis-plus orm -->
         <module>orm</module>
+        <!-- 定时任务 -->
+        <module>quartz</module>
         <!-- jpa -->
         <module>jpa</module>
         <!-- security -->
@@ -249,6 +251,11 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>orm</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>quartz</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
