@@ -167,15 +167,51 @@ public class BaseController {
      * @param res           响应对象
      * @param fileName      文件名
      * @param exportHandler 导出业务处理
+     * @throws IOException IO异常处理
      */
     protected void exportExcel(@Nonnull final HttpServletResponse res, @Nonnull final String fileName, @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
+        final String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        this.export(res, fileName, contentType, "xlsx", exportHandler);
+    }
+
+    /**
+     * 导出Zip处理
+     *
+     * @param res           响应对象
+     * @param fileName      文件名
+     * @param exportHandler 导出业务处理
+     * @throws IOException IO异常处理
+     */
+    protected void exportZip(@Nonnull final HttpServletResponse res, @Nonnull final String fileName, @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
+        final String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        this.export(res, fileName, "zip", contentType, exportHandler);
+    }
+
+    /**
+     * 导出处理
+     *
+     * @param res           响应对象
+     * @param fileName      文件名
+     * @param defExt        默认后缀
+     * @param contentType   ContentType
+     * @param exportHandler 导出流处理
+     * @throws IOException 异常处理
+     */
+    protected void export(@Nonnull final HttpServletResponse res, @Nonnull final String fileName, @Nonnull final String defExt,
+                          @Nonnull final String contentType, @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
         final String enc = StandardCharsets.UTF_8.name();
         try (final OutputStream outputStream = res.getOutputStream()) {
-            res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            res.setContentType(contentType);
             res.setCharacterEncoding(enc);
-            final String ext = FilenameUtils.getExtension(fileName);
+            String ext = FilenameUtils.getExtension(fileName);
+            final String sep = ".";
+            if (!Strings.isNullOrEmpty(ext)) {
+                ext = sep + ext;
+            } else if (!Strings.isNullOrEmpty(defExt)) {
+                ext = defExt.startsWith(sep) ? defExt : "." + defExt;
+            }
             final String exportFileName = URLEncoder.encode(FilenameUtils.getBaseName(fileName), enc).replaceAll("\\+", "%20");
-            res.setHeader("Content-disposition", "attachment;filename*=utf-8''" + exportFileName + "." + (Strings.isNullOrEmpty(ext) ? "xlsx" : ext));
+            res.setHeader("Content-disposition", "attachment;filename*=utf-8''" + exportFileName + ext);
             //业务处理
             exportHandler.accept(outputStream);
             res.flushBuffer();
