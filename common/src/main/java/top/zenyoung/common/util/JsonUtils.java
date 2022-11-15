@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -107,6 +108,25 @@ public class JsonUtils {
         if (!Strings.isNullOrEmpty(json)) {
             final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valClass);
             return objectMapper.readValue(json, javaType);
+        }
+        return null;
+    }
+
+    /**
+     * 将JSON字符串反序列化为List-Map对象
+     *
+     * @param objectMapper JSON处理器
+     * @param json         json字符串
+     * @param valClass     值数据类型class
+     * @param <R>          值类型
+     * @return List-Map对象
+     */
+    @SneakyThrows({})
+    public static <R> List<Map<String, R>> fromJsonToListMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valClass) {
+        if (!Strings.isNullOrEmpty(json)) {
+            final JavaType mapType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valClass);
+            final JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, mapType);
+            return objectMapper.readValue(json, listType);
         }
         return null;
     }
