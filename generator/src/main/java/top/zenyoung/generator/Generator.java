@@ -11,6 +11,7 @@ import top.zenyoung.generator.db.Table;
 import top.zenyoung.generator.dto.GeneratorDTO;
 import top.zenyoung.generator.ftl.FtlFileInfo;
 import top.zenyoung.generator.util.FtlFileUtils;
+import top.zenyoung.generator.util.PathUtils;
 import top.zenyoung.generator.vo.FileVO;
 import top.zenyoung.generator.vo.TableVO;
 
@@ -90,11 +91,21 @@ public class Generator {
                 files.addAll(tbs);
             }
         }
+        final String prefix = PathUtils.commonPrefix(files.stream().map(FtlFileInfo::getFileDir)
+                .filter(dir -> !Strings.isNullOrEmpty(dir)).collect(Collectors.toList()));
         //生成处理
         return files.stream()
                 .map(info -> {
                     final String content = info.buildFtlContent();
                     return FileVO.of(info.getFileDir(), info.getFileName(), content);
+                })
+                .peek(vo -> {
+                    if (!Strings.isNullOrEmpty(prefix) && !Strings.isNullOrEmpty(vo.getDir())) {
+                        final String dir = PathUtils.removePrefix(vo.getDir(), prefix);
+                        if (!Strings.isNullOrEmpty(dir)) {
+                            vo.setDir(dir);
+                        }
+                    }
                 })
                 .sorted((o1, o2) -> {
                     final String dir1 = o1.getDir(), dir2 = o2.getDir();
