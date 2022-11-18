@@ -15,9 +15,9 @@ public abstract class BaseCreate implements Serializable {
     /**
      * 创建者
      */
-    private String createBy;
+    private String createdBy;
     /**
      * 创建时间
      */
-    private Date createAt;
+    private Date createdAt;
 }

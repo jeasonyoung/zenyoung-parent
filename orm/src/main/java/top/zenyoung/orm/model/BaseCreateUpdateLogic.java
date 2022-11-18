@@ -13,10 +13,10 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseCreateUpdateLogic<ID extends Serializable> extends BaseCreateUpdate {
+public abstract class BaseCreateUpdateLogic extends BaseCreateUpdate {
     /**
-     * 逻辑删除标识(0:正常, ID:删除)
+     * 逻辑删除标识(0:正常, 1:删除)
      */
-    @TableLogic(value = "0", delval = "id")
-    private ID logicDel;
+    @TableLogic(value = "0", delval = "1")
+    private Integer deletedAt;
 }

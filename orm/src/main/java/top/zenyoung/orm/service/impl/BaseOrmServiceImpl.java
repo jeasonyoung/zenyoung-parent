@@ -1,5 +1,6 @@
 package top.zenyoung.orm.service.impl;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -177,6 +178,25 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         this.setCreate(po);
         this.setUpdate(po);
         this.setStatus(po);
+        //初始化逻辑删除
+        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.LogicDel);
+        if (Objects.nonNull(logicDelField) && logicDelField.isAnnotationPresent(TableLogic.class)) {
+            try {
+                final String defVal = logicDelField.getAnnotation(TableLogic.class).value();
+                if (!Strings.isNullOrEmpty(defVal)) {
+                    final Class<?> logicDelType = logicDelField.getType();
+                    if (logicDelType == String.class) {
+                        this.setFieldValue(po, logicDelField, defVal);
+                        return;
+                    }
+                    if (logicDelType == Integer.class || logicDelType == Long.class) {
+                        this.setFieldValue(po, logicDelField, Integer.parseInt(defVal));
+                    }
+                }
+            } catch (Throwable e) {
+                log.warn("patchData(po: {})-初始化逻辑删除值失败", po);
+            }
+        }
     }
 
     protected void setAutoId(@Nonnull final PO po) {
