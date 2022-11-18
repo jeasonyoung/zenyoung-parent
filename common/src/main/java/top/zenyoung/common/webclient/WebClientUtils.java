@@ -116,13 +116,14 @@ public class WebClientUtils implements WebClient {
         }
         //方法处理
         builder.method(method, bodyConvert.get());
-        final Response response = client.newCall(builder.build()).execute();
-        if (!response.isSuccessful()) {
-            throw new RuntimeException("[" + response.code() + "]" + response.message());
+        try (final Response response = client.newCall(builder.build()).execute()) {
+            if (!response.isSuccessful()) {
+                throw new RuntimeException("[" + response.code() + "]" + response.message());
+            }
+            final ResponseBody respBody = response.body();
+            //结果转换
+            return respBodyConvert.apply(respBody == null ? null : respBody.string());
         }
-        final ResponseBody respBody = response.body();
-        //结果转换
-        return respBodyConvert.apply(respBody == null ? null : respBody.string());
     }
 
     @Override
@@ -185,11 +186,12 @@ public class WebClientUtils implements WebClient {
         //上传数据构建
         requestBuilder.post(bodyBuilder.build());
         //上传处理
-        final Response response = client.newCall(requestBuilder.build()).execute();
-        if (response.isSuccessful()) {
-            final ResponseBody respBody = response.body();
-            if (respBody != null) {
-                log.info("uploadFile(url: {},headers: {},bodyBuilderHandler: {})=> {}", url, headers, bodyBuilderHandler, respBody.string());
+        try (final Response response = client.newCall(requestBuilder.build()).execute()) {
+            if (response.isSuccessful()) {
+                final ResponseBody respBody = response.body();
+                if (respBody != null) {
+                    log.info("uploadFile(url: {},headers: {},bodyBuilderHandler: {})=> {}", url, headers, bodyBuilderHandler, respBody.string());
+                }
             }
         }
     }

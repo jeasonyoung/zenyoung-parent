@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.orm.config.MapperScannerRegister;
 import top.zenyoung.orm.config.MybatisPlusConfig;
 import top.zenyoung.orm.injector.BatchAddOrUpdateMethod;
 import top.zenyoung.orm.injector.PhysicalDeleteMethod;
@@ -25,7 +24,7 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({MybatisPlusConfig.class, MapperScannerRegister.class})
+@Import({MybatisPlusConfig.class})
 public class OrmAutoConfiguration {
 
     @Bean
