@@ -44,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -166,6 +167,18 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         IPage<PO> p = new Page<>(idx, size);
         p = getMapper().selectPage(p, query);
         return DataResult.of(p.getTotal(), p.getRecords());
+    }
+
+    protected <R> PageList<R> mapping(@Nonnull final PageList<PO> pageList, @Nonnull final Function<PO, R> convert) {
+        final List<PO> items;
+        if (!CollectionUtils.isEmpty(items = pageList.getRows())) {
+            return DataResult.of(pageList.getTotal(),
+                    items.stream()
+                            .map(convert)
+                            .collect(Collectors.toList())
+            );
+        }
+        return DataResult.of(pageList.getTotal(), Lists.newArrayList());
     }
 
     /**
