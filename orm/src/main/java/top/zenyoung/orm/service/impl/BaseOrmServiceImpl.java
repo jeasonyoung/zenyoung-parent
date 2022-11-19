@@ -75,7 +75,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
      * @return 主键ID
      */
     @SuppressWarnings({"unchecked"})
-    protected final ID genId() {
+    protected ID genId() {
         if (Objects.isNull(idSequence)) {
             return null;
         }
