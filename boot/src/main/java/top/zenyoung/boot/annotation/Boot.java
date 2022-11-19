@@ -2,6 +2,7 @@ package top.zenyoung.boot.annotation;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -19,6 +20,7 @@ import java.lang.annotation.*;
 @Inherited
 @Documented
 @EnableAsync
+@EnableCaching
 @EnableScheduling
 @SpringBootApplication
 public @interface Boot {
