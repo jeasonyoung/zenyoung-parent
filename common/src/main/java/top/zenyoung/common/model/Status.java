@@ -1,7 +1,9 @@
 package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +23,8 @@ import java.util.stream.Stream;
  **/
 @Getter
 @ToString
+@ApiModel("状态")
+@JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Status implements EnumValue {
     /**
@@ -43,7 +47,7 @@ public enum Status implements EnumValue {
      * @param val 状态值
      * @return 状态对象
      */
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Status parse(final Integer val) {
         if (val != null) {
             for (Status s : Status.values()) {
