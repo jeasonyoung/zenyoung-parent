@@ -101,7 +101,7 @@ public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> 
      * @param po 新增数据
      * @return 新增结果
      */
-    PO add(@Nonnull final PO po);
+    boolean add(@Nonnull final PO po);
 
     /**
      * 批量新增

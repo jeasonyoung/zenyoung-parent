@@ -295,23 +295,23 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PO add(@Nonnull final PO po) {
+    public boolean add(@Nonnull final PO po) {
         //补充数据
         patchData(po);
         //插入数据
-        getMapper().insert(po);
+        final int ret = getMapper().insert(po);
         //返回
-        return po;
+        return SqlHelper.retBool(ret);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    protected PO addOrUpdate(@Nonnull final PO po) {
+    protected boolean addOrUpdate(@Nonnull final PO po) {
         //补充数据
         patchData(po);
         //插入数据
-        getMapper().batchAddOrUpdate(Lists.newArrayList(po));
+        final int ret = getMapper().batchAddOrUpdate(Lists.newArrayList(po));
         //
-        return po;
+        return SqlHelper.retBool(ret);
     }
 
     @Override
