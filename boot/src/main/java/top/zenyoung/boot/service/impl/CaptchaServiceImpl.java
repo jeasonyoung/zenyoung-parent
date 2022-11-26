@@ -1,19 +1,18 @@
 package top.zenyoung.boot.service.impl;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.config.CaptchaProperties;
 import top.zenyoung.boot.model.CaptchaCategory;
 import top.zenyoung.boot.model.CaptchaType;
 import top.zenyoung.boot.service.CaptchaService;
+import top.zenyoung.boot.service.CaptchaStorageService;
 import top.zenyoung.common.captcha.BaseCaptcha;
 import top.zenyoung.common.captcha.Captcha;
 import top.zenyoung.common.captcha.generator.CodeGenerator;
@@ -41,17 +40,16 @@ import java.util.Properties;
 @Slf4j
 @RequiredArgsConstructor
 public class CaptchaServiceImpl implements CaptchaService {
-    private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
+    private static final Map<Long, Object> LOCKS = Maps.newConcurrentMap();
     private final CaptchaProperties captchaProperties;
     private final ApplicationContext context;
 
     private Captcha captcha;
-
-    private StringRedisTemplate redisTemplate;
+    private CaptchaStorageService storageService;
 
     public void init() {
-        //RedisTemplate
-        this.redisTemplate = context.getBean(StringRedisTemplate.class);
+        //存储服务
+        this.storageService = context.getBean(CaptchaStorageService.class);
         //验证码配置
         if (Objects.nonNull(captchaProperties)) {
             //参数配置
@@ -128,21 +126,14 @@ public class CaptchaServiceImpl implements CaptchaService {
         return null;
     }
 
-    private String getCaptchaCodeKey(final long captchaId) {
-        final String sep = ":";
-        return Joiner.on(sep).skipNulls().join("zy-framework", "captcha", captchaId);
-    }
-
-
     private void addCaptchaCodeCache(final long captchaId, final String captchaCode, final Duration expire) {
         if (captchaId > 0 && !Strings.isNullOrEmpty(captchaCode)) {
-            final String key = getCaptchaCodeKey(captchaId);
-            synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
+            synchronized (LOCKS.computeIfAbsent(captchaId, k -> new Object())) {
                 try {
                     final Duration e = Objects.isNull(expire) ? Duration.ofSeconds(120) : expire;
-                    redisTemplate.opsForValue().set(key, captchaCode, e);
+                    storageService.addCaptcha(captchaId, captchaCode, e);
                 } finally {
-                    LOCKS.remove(key);
+                    LOCKS.remove(captchaId);
                 }
             }
         }
@@ -150,29 +141,15 @@ public class CaptchaServiceImpl implements CaptchaService {
 
     private String getCaptchaCodeCache(final long captchaId) {
         if (captchaId > 0) {
-            final String key = getCaptchaCodeKey(captchaId);
-            synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
+            synchronized (LOCKS.computeIfAbsent(captchaId, k -> new Object())) {
                 try {
-                    redisTemplate.opsForValue().get(key);
+                    return storageService.getCaptcha(captchaId);
                 } finally {
-                    LOCKS.remove(key);
+                    LOCKS.remove(captchaId);
                 }
             }
         }
         return null;
-    }
-
-    private void clearCaptchaCodeCache(final long captchaId) {
-        if (captchaId > 0) {
-            final String key = getCaptchaCodeKey(captchaId);
-            synchronized (LOCKS.computeIfAbsent(key, k -> new Object())) {
-                try {
-                    redisTemplate.delete(key);
-                } finally {
-                    LOCKS.remove(key);
-                }
-            }
-        }
     }
 
     @Override
@@ -193,8 +170,7 @@ public class CaptchaServiceImpl implements CaptchaService {
     @Override
     public boolean verify(@Nonnull final Long captchaId, @Nonnull final String inputCode) {
         if (captchaId > 0 && !Strings.isNullOrEmpty(inputCode) && Objects.nonNull(this.captcha)) {
-            final String lock = "verify-" + captchaId;
-            synchronized (LOCKS.computeIfAbsent(lock, k -> new Object())) {
+            synchronized (LOCKS.computeIfAbsent(captchaId, k -> new Object())) {
                 try {
                     //加载缓存验证码
                     final String captchaCode = getCaptchaCodeCache(captchaId);
@@ -202,12 +178,12 @@ public class CaptchaServiceImpl implements CaptchaService {
                         final boolean ret = this.captcha.verify(captchaCode, inputCode);
                         if (ret) {
                             //验证成功
-                            clearCaptchaCodeCache(captchaId);
+                            storageService.clearCaptcha(captchaId);
                         }
                         return ret;
                     }
                 } finally {
-                    LOCKS.remove(lock);
+                    LOCKS.remove(captchaId);
                 }
             }
         }

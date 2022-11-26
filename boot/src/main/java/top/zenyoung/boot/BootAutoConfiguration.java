@@ -10,12 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import top.zenyoung.boot.advice.ExceptionController;
 import top.zenyoung.boot.config.*;
 import top.zenyoung.boot.service.BeanMappingService;
 import top.zenyoung.boot.service.CaptchaService;
+import top.zenyoung.boot.service.CaptchaStorageService;
 import top.zenyoung.boot.service.impl.BeanMappingServiceImpl;
 import top.zenyoung.boot.service.impl.CaptchaServiceImpl;
+import top.zenyoung.boot.service.impl.RedisCaptchaStorageServiceImpl;
 import top.zenyoung.boot.util.IdSequenceUtils;
 import top.zenyoung.common.sequence.IdSequence;
 
@@ -40,6 +43,12 @@ public class BootAutoConfiguration {
     @ConditionalOnMissingBean
     public BeanMappingService beanMappingService() {
         return new BeanMappingServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CaptchaStorageService captchaStorageService(final ObjectProvider<StringRedisTemplate> redisTemplate) {
+        return RedisCaptchaStorageServiceImpl.of(redisTemplate.getIfAvailable());
     }
 
     @Bean
