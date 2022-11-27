@@ -1,21 +1,26 @@
 package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import top.zenyoung.annotation.DbEnumValue;
 
 import javax.annotation.Nullable;
 
 /**
- * 业务操作记录-数据实体
+ * 业务操作类型
  *
  * @author young
  */
 @Getter
 @ToString
+@ApiModel("业务操作类型")
+@JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum OperaType implements EnumValue {
     /**
@@ -40,11 +45,11 @@ public enum OperaType implements EnumValue {
     Other(4, "其它");
 
     @JsonValue
-    @com.baomidou.mybatisplus.annotation.EnumValue
+    @DbEnumValue
     private final int val;
     private final String title;
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static OperaType parse(@Nullable final Integer val) {
         if (val != null) {
             for (OperaType t : OperaType.values()) {

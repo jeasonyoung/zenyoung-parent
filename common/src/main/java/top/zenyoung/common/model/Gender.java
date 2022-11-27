@@ -1,22 +1,24 @@
 package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 import top.zenyoung.annotation.DbEnumValue;
 
 import javax.annotation.Nullable;
 
 /**
- * 性别-枚举
+ * 性别
  *
  * @author young
  */
 @Getter
-@ToString
+@ApiModel("性别")
+@JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Gender implements EnumValue {
     /**
@@ -37,7 +39,7 @@ public enum Gender implements EnumValue {
     private final int val;
     private final String title;
 
-    @JsonCreator
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Gender parse(@Nullable final Integer val) {
         if (val != null) {
             for (Gender g : Gender.values()) {

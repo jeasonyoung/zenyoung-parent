@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -41,7 +42,7 @@ public class RandomUtils {
      *
      * <p>
      * 注意：此方法返回的{@link ThreadLocalRandom}不可以在多线程环境下共享对象，否则有重复随机数问题。
-     * 见：https://www.jianshu.com/p/89dfe990295c
+     * 见：<a href="https://www.jianshu.com/p/89dfe990295c">...</a>
      * </p>
      *
      * @return {@link ThreadLocalRandom}
@@ -56,7 +57,7 @@ public class RandomUtils {
      * @param seed 自定义随机种子
      * @return {@link SecureRandom}
      */
-    public static SecureRandom createSecureRandom(final byte[] seed) {
+    public static SecureRandom createSecureRandom(@Nullable final byte[] seed) {
         return (null == seed) ? new SecureRandom() : new SecureRandom(seed);
     }
 
@@ -65,7 +66,7 @@ public class RandomUtils {
      * 注意：此方法获取的是伪随机序列发生器PRNG（pseudo-random number generator）
      *
      * <p>
-     * 相关说明见：https://stackoverflow.com/questions/137212/how-to-solve-slow-java-securerandom
+     * 相关说明见：<a href="https://stackoverflow.com/questions/137212/how-to-solve-slow-java-securerandom">...</a>
      *
      * @return {@link SecureRandom}
      */
@@ -78,37 +79,30 @@ public class RandomUtils {
      * 注意：此方法获取的是伪随机序列发生器PRNG（pseudo-random number generator）
      *
      * <p>
-     * 相关说明见：https://stackoverflow.com/questions/137212/how-to-solve-slow-java-securerandom
+     * 相关说明见：<a href="https://stackoverflow.com/questions/137212/how-to-solve-slow-java-securerandom">...</a>
      *
      * @param seed 随机数种子
      * @return {@link SecureRandom}
      * @see #createSecureRandom(byte[])
      */
-    public static SecureRandom getSecureRandom(final byte[] seed) {
+    public static SecureRandom getSecureRandom(@Nullable final byte[] seed) {
         return createSecureRandom(seed);
     }
 
     /**
      * 获取SHA1PRNG的{@link SecureRandom}，类提供加密的强随机数生成器 (RNG)<br>
      * 注意：此方法获取的是伪随机序列发生器PRNG（pseudo-random number generator）,在Linux下噪声生成时可能造成较长时间停顿。<br>
-     * see: http://ifeve.com/jvm-random-and-entropy-source/
+     * see: <a href="http://ifeve.com/jvm-random-and-entropy-source/">...</a>
      *
      * <p>
-     * 相关说明见：https://stackoverflow.com/questions/137212/how-to-solve-slow-java-securerandom
+     * 相关说明见：<a href="https://stackoverflow.com/questions/137212/how-to-solve-slow-java-securerandom">...</a>
      *
      * @param seed 随机数种子
      * @return {@link SecureRandom}
      */
-    public static SecureRandom getSHA1PRNGRandom(final byte[] seed) throws NoSuchAlgorithmException {
-        SecureRandom random;
-        try {
-            random = SecureRandom.getInstance("SHA1PRNG");
-        } catch (NoSuchAlgorithmException e) {
-            throw e;
-        }
-        if (null != seed) {
-            random.setSeed(seed);
-        }
+    public static SecureRandom getSHA1PRNGRandom(@Nonnull final byte[] seed) throws NoSuchAlgorithmException {
+        final SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(seed);
         return random;
     }
 
@@ -119,11 +113,7 @@ public class RandomUtils {
      * @return {@link SecureRandom}
      */
     public static SecureRandom getSecureRandomStrong() throws NoSuchAlgorithmException {
-        try {
-            return SecureRandom.getInstanceStrong();
-        } catch (NoSuchAlgorithmException e) {
-            throw e;
-        }
+        return SecureRandom.getInstanceStrong();
     }
 
     /**
@@ -244,7 +234,8 @@ public class RandomUtils {
      * @return 随机数
      * @since 4.0.8
      */
-    public static double randomDouble(final double min, final double max, final int scale, final RoundingMode roundingMode) {
+    public static double randomDouble(final double min, final double max, final int scale,
+                                      @Nonnull final RoundingMode roundingMode) {
         return round(BigDecimal.valueOf(randomDouble(min, max)), scale, roundingMode).doubleValue();
     }
 
@@ -257,17 +248,10 @@ public class RandomUtils {
      * @param roundingMode 保留小数的模式 {@link RoundingMode}，如果传入null则默认四舍五入
      * @return 新值
      */
-    public static BigDecimal round(BigDecimal number, int scale, RoundingMode roundingMode) {
-        if (null == number) {
-            number = BigDecimal.ZERO;
-        }
-        if (scale < 0) {
-            scale = 0;
-        }
-        if (null == roundingMode) {
-            roundingMode = RoundingMode.HALF_UP;
-        }
-        return number.setScale(scale, roundingMode);
+    public static BigDecimal round(@Nullable final BigDecimal number, final int scale, @Nullable final RoundingMode roundingMode) {
+        final BigDecimal decimal = Objects.isNull(number) ? BigDecimal.ZERO : number;
+        final RoundingMode mode = Objects.isNull(roundingMode) ? RoundingMode.HALF_UP : roundingMode;
+        return decimal.setScale(Math.max(scale, 0), mode);
     }
 
     /**
@@ -289,7 +273,7 @@ public class RandomUtils {
      * @return 随机数
      * @since 4.0.8
      */
-    public static double randomDouble(final int scale, final RoundingMode roundingMode) {
+    public static double randomDouble(final int scale, @Nullable final RoundingMode roundingMode) {
         return round(BigDecimal.valueOf(randomDouble()), scale, roundingMode).doubleValue();
     }
 
@@ -301,7 +285,7 @@ public class RandomUtils {
      * @see ThreadLocalRandom#nextDouble(double)
      * @since 3.3.0
      */
-    public static double randomDouble(double limit) {
+    public static double randomDouble(final double limit) {
         return getRandom().nextDouble(limit);
     }
 
@@ -314,7 +298,7 @@ public class RandomUtils {
      * @return 随机数
      * @since 4.0.8
      */
-    public static double randomDouble(double limit, int scale, RoundingMode roundingMode) {
+    public static double randomDouble(final double limit, final int scale, @Nullable final RoundingMode roundingMode) {
         return round(BigDecimal.valueOf(randomDouble(limit)), scale, roundingMode).doubleValue();
     }
 
@@ -335,7 +319,7 @@ public class RandomUtils {
      * @return 随机数
      * @since 4.0.9
      */
-    public static BigDecimal randomBigDecimal(final BigDecimal limit) {
+    public static BigDecimal randomBigDecimal(@Nonnull final BigDecimal limit) {
         return BigDecimal.valueOf(getRandom().nextDouble(limit.doubleValue()));
     }
 
@@ -347,7 +331,7 @@ public class RandomUtils {
      * @return 随机数
      * @since 4.0.9
      */
-    public static BigDecimal randomBigDecimal(final BigDecimal min, final BigDecimal max) {
+    public static BigDecimal randomBigDecimal(@Nonnull final BigDecimal min, @Nonnull final BigDecimal max) {
         return BigDecimal.valueOf(getRandom().nextDouble(min.doubleValue(), max.doubleValue()));
     }
 
@@ -382,11 +366,10 @@ public class RandomUtils {
      * @param limit 限制列表的前N项
      * @return 随机元素
      */
-    public static <T> T randomEle(final List<T> list, int limit) {
-        if (list.size() < limit) {
-            limit = list.size();
-        }
-        return list.get(randomInt(limit));
+    public static <T> T randomEle(final List<T> list, final int limit) {
+        final int max = Math.min(limit, list.size());
+        final int index = randomInt(max);
+        return list.get(index);
     }
 
     /**
@@ -410,11 +393,10 @@ public class RandomUtils {
      * @return 随机元素
      * @since 3.3.0
      */
-    public static <T> T randomEle(final T[] array, int limit) {
-        if (array.length < limit) {
-            limit = array.length;
-        }
-        return array[randomInt(limit)];
+    public static <T> T randomEle(final T[] array, final int limit) {
+        final int max = Math.min(limit, array.length);
+        final int index = randomInt(max);
+        return array[index];
     }
 
     /**
@@ -427,9 +409,12 @@ public class RandomUtils {
      */
     public static <T> List<T> randomEles(final List<T> list, final int count) {
         final List<T> result = Lists.newLinkedList();
-        int limit = list.size();
+        final int limit = list.size();
         while (result.size() < count) {
-            result.add(randomEle(list, limit));
+            final T item = randomEle(list, limit);
+            if (!result.contains(item)) {
+                result.add(item);
+            }
         }
         return result;
     }
@@ -490,7 +475,7 @@ public class RandomUtils {
      * @return 空数组
      */
     @SuppressWarnings("unchecked")
-    public static <T> T[] newArray(final Class<?> componentType, final int newSize) {
+    public static <T> T[] newArray(@Nonnull final Class<?> componentType, final int newSize) {
         return (T[]) Array.newInstance(componentType, newSize);
     }
 

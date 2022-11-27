@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 import top.zenyoung.annotation.DbEnumValue;
 
 import java.util.Comparator;
@@ -22,7 +21,6 @@ import java.util.stream.Stream;
  * @version 1.0
  **/
 @Getter
-@ToString
 @ApiModel("状态")
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
