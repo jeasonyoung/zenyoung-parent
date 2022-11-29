@@ -29,6 +29,8 @@
         <module>boot</module>
         <!-- mybatis-plus orm -->
         <module>orm</module>
+        <!-- sms -->
+        <module>sms</module>
         <!-- 定时任务 -->
         <module>quartz</module>
         <!-- jpa -->
