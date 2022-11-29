@@ -244,6 +244,11 @@
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
+                <artifactId>sms</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
