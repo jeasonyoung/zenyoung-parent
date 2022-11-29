@@ -36,7 +36,7 @@
         <!-- jpa -->
         <module>jpa</module>
         <!-- security -->
-        <module>security</module>
+        <!-- <module>security</module>-->
         <!-- 存储 -->
         <module>storage</module>
         <!-- netty -->
@@ -69,7 +69,7 @@
         <mybatis-plus.version>3.5.2</mybatis-plus.version>
 
         <!-- jwt -->
-        <jwt.version>0.11.5</jwt.version>
+        <nimbus-jose-jwt.version>9.24.4</nimbus-jose-jwt.version>
 
         <!-- modelmapper -->
         <modelmapper.version>3.1.0</modelmapper.version>
@@ -94,7 +94,6 @@
         <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
 
         <!-- plugin -->
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
     </properties>
 
@@ -156,14 +155,9 @@
 
             <!-- jwt -->
             <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-jackson</artifactId>
-                <version>${jwt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt-impl</artifactId>
-                <version>${jwt.version}</version>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
 
             <!-- modelmapper -->
