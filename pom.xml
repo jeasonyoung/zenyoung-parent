@@ -64,6 +64,8 @@
         <jetcache.version>2.7.0</jetcache.version>
         <!-- redisson -->
         <redisson.version>3.17.4</redisson.version>
+        <!-- protobuf -->
+        <protobuf-java.version>3.21.12</protobuf-java.version>
 
         <!-- mybatis-plus -->
         <mybatis-plus.version>3.5.2</mybatis-plus.version>
@@ -134,6 +136,12 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+            <!-- protobuf -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf-java.version}</version>
             </dependency>
 
             <!-- mybatis-plus -->
