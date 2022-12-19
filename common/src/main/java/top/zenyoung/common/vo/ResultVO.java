@@ -2,8 +2,10 @@ package top.zenyoung.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.common.model.ResultCode;
@@ -21,6 +23,8 @@ import java.util.Objects;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResultVO<T> implements Serializable {
