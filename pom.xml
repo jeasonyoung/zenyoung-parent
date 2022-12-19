@@ -72,6 +72,8 @@
 
         <!-- jwt -->
         <nimbus-jose-jwt.version>9.24.4</nimbus-jose-jwt.version>
+        <!-- kryo -->
+        <kryo.version>4.0.2</kryo.version>
 
         <!-- modelmapper -->
         <modelmapper.version>3.1.0</modelmapper.version>
@@ -166,6 +168,12 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>${nimbus-jose-jwt.version}</version>
+            </dependency>
+            <!-- kryo -->
+            <dependency>
+                <groupId>com.esotericsoftware</groupId>
+                <artifactId>kryo</artifactId>
+                <version>${kryo.version}</version>
             </dependency>
 
             <!-- modelmapper -->
