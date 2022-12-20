@@ -92,7 +92,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         //重连间隔
         final Duration interval = this.properites.getReconnectInterval();
         //启动客户端去连接服务端
-        final ChannelFuture future = bootstrap.connect(host, port);
+        final ChannelFuture future = bootstrap.connect(host, port).syncUninterruptibly();
         future.addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
                 log.info("连接服务器[{}:{}]-连接成功", host, port);

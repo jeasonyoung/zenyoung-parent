@@ -68,7 +68,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
             final ChannelFuture[] futures = portCodecMap.keySet().stream()
                     .filter(port -> Objects.nonNull(port) && port > 0)
                     .map(port -> {
-                        final ChannelFuture future = bootstrap.bind(port);
+                        final ChannelFuture future = bootstrap.bind(port).syncUninterruptibly();
                         future.addListener((ChannelFutureListener) f -> log.info("开始监听端口[{}]: {}", port, f.isSuccess() ? "成功" : "失败"));
                         return future;
                     })
