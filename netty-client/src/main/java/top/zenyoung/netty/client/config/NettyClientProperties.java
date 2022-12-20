@@ -20,7 +20,7 @@ public class NettyClientProperties extends BaseProperties {
     /**
      * Netty服务器IP地址
      */
-    private String serverIp;
+    private String host;
     /**
      * 服务器端口
      */
