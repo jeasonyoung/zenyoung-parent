@@ -24,9 +24,11 @@ import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * NettyServer服务接口实现
@@ -56,26 +58,30 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
     @Override
     public void run() {
         try {
-            log.info("Netty启动...");
+            log.info("Netty-Server 启动...");
             final Map<Integer, Map<String, String>> portCodecMap = portCodec();
             if (CollectionUtils.isEmpty(portCodecMap)) {
-                log.error("Netty-未配置服务器监听端口及编解码器!");
+                log.error("Netty-Server-未配置服务器监听端口及编解码器!");
                 return;
             }
             //启动
             final ServerBootstrap bootstrap = new ServerBootstrap();
             buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
-            final ChannelFuture[] futures = portCodecMap.keySet().stream()
+            final List<Integer> ports = portCodecMap.keySet().stream()
                     .filter(port -> Objects.nonNull(port) && port > 0)
+                    .collect(Collectors.toList());
+            log.info("Netty-Server 监听端口: {}", ports);
+            final ChannelFuture[] futures = ports.stream()
                     .map(port -> {
                         final ChannelFuture future = bootstrap.bind(port).syncUninterruptibly();
                         future.addListener((ChannelFutureListener) f -> log.info("开始监听端口[{}]: {}", port, f.isSuccess() ? "成功" : "失败"));
                         return future;
                     })
                     .toArray(ChannelFuture[]::new);
-            syncShutdownHook(futures);
+            //JVM钩子及同步阻塞
+            this.syncShutdownHook(futures);
         } catch (Throwable e) {
-            log.error("Netty运行失败: {}", e.getMessage());
+            log.error("Netty-Server 运行失败: {}", e.getMessage());
         }
     }
 
