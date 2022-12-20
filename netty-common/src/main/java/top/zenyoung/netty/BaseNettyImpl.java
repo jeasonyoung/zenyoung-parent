@@ -160,7 +160,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                     }
                 }));
                 //同步阻塞
-                Stream.of(futures)
+                Stream.of(futures).parallel()
                         .filter(Objects::nonNull)
                         .forEach(f -> f.channel().closeFuture().syncUninterruptibly());
             } catch (Throwable e) {
