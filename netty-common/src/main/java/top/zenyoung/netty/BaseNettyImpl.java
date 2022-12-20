@@ -85,9 +85,26 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             @Nonnull final AbstractBootstrap<B, C> bootstrap,
             @Nonnull final Supplier<Class<? extends C>> channelHandler
     ) {
+        //工作线程池
+        if (bootstrap instanceof ServerBootstrap) {
+            ((ServerBootstrap) bootstrap).group(BOSS_GROUP, WORKER_GROUP);
+        } else {
+            bootstrap.group(WORKER_GROUP);
+        }
+        //channel配置
+        bootstrap.channel(channelHandler.get())
+                //保存连接
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                //TCP立即发包
+                .option(ChannelOption.TCP_NODELAY, true);
+        //Epoll设置
+        if (IS_EPOLL) {
+            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
+        }
+        //服务器配置
         if (bootstrap instanceof ServerBootstrap) {
             final ServerBootstrap serverBootstrap = (ServerBootstrap) bootstrap;
-            serverBootstrap.group(BOSS_GROUP, WORKER_GROUP);
             //保持连接数
             final int backlog = Math.max(this.getBacklog(), 50);
             serverBootstrap.option(ChannelOption.SO_BACKLOG, backlog)
@@ -100,37 +117,34 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             if (IS_EPOLL) {
                 serverBootstrap.childOption(EpollChannelOption.TCP_QUICKACK, true);
             }
-        } else {
-            bootstrap.group(WORKER_GROUP);
         }
-        //日志级别
-        final LogLevel logLevel = this.getLogLevel();
-        //channel
-        bootstrap.channel(channelHandler.get())
-                //保存连接
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                //TCP立即发包
-                .option(ChannelOption.TCP_NODELAY, true)
-                //日志
-                .handler(new LoggingHandler(logLevel))
-                .handler(new ChannelInitializer<C>() {
-                    @Override
-                    protected void initChannel(final C ch) {
-                        final InetSocketAddress socketAddr = (InetSocketAddress) ch.localAddress();
-                        final int port = Objects.isNull(socketAddr) ? 0 : socketAddr.getPort();
-                        log.info("Netty[{}]新设备连接: {}", port, ch);
-                        //获取通信管道
-                        final ChannelPipeline pipeline = ch.pipeline();
-                        if (Objects.nonNull(pipeline)) {
-                            initChannelPipelineHandler(port, pipeline);
-                            log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
-                        }
-                    }
-                });
-        //Epoll设置
-        if (IS_EPOLL) {
-            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
+        //业务处理管道
+        final Supplier<ChannelHandler> channelPipelineHandler = () -> new ChannelInitializer<C>() {
+            @Override
+            protected void initChannel(final C ch) {
+                final InetSocketAddress socketAddr = (InetSocketAddress) ch.localAddress();
+                final int port = Objects.isNull(socketAddr) ? -1 : socketAddr.getPort();
+                log.info("Netty[{}]新设备连接: {}", port, ch);
+                //获取通信管道
+                final ChannelPipeline pipeline = ch.pipeline();
+                if (Objects.nonNull(pipeline)) {
+                    initChannelPipelineHandler(port, pipeline);
+                    log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
+                }
+            }
+        };
+        //日志处理器
+        final LoggingHandler loggingHandler = new LoggingHandler(this.getLogLevel());
+        //服务器端
+        if (bootstrap instanceof ServerBootstrap) {
+            ((ServerBootstrap) bootstrap)
+                    .childHandler(loggingHandler)
+                    .childHandler(channelPipelineHandler.get());
+        } else {
+            //客户端
+            bootstrap
+                    .handler(loggingHandler)
+                    .handler(channelPipelineHandler.get());
         }
     }
 
