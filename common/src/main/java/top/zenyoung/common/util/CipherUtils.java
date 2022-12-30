@@ -2,8 +2,8 @@ package top.zenyoung.common.util;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
-import org.springframework.util.Base64Utils;
 
 import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
@@ -122,7 +122,8 @@ public class CipherUtils {
     @SneakyThrows({GeneralSecurityException.class})
     public static byte[] rsaEncrypt(@Nonnull final byte[] raw, @Nonnull final String base64PublicKey) {
         final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
-        final PublicKey publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(Base64Utils.decodeFromString(base64PublicKey)));
+        final byte[] keys = Base64.decodeBase64(base64PublicKey);
+        final PublicKey publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(keys));
         return rsaEncrypt(raw, publicKey);
     }
 
@@ -133,7 +134,8 @@ public class CipherUtils {
     @SneakyThrows({GeneralSecurityException.class})
     public static byte[] rsaDecrypt(@Nonnull final byte[] raw, @Nonnull final String base64PrivateKey) {
         final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
-        final PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Utils.decodeFromString(base64PrivateKey)));
+        final byte[] keys = Base64.decodeBase64(base64PrivateKey);
+        final PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keys));
         return rsaDecrypt(raw, privateKey);
     }
 }
