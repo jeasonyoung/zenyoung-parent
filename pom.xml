@@ -36,6 +36,7 @@
         <!-- jpa -->
         <module>jpa</module>
         <!-- security -->
+        <module>security-web</module>
         <!-- <module>security</module>-->
         <!-- 存储 -->
         <module>storage</module>
@@ -260,6 +261,11 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>quartz</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>security-web</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
