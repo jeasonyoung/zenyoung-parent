@@ -1,5 +1,6 @@
 package top.zenyoung.common.util;
 
+import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -17,6 +18,7 @@ import java.io.RandomAccessFile;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.List;
 
 /**
  * AES加密工具类
@@ -27,7 +29,8 @@ import java.security.spec.X509EncodedKeySpec;
 @Slf4j
 public class CipherUtils {
     private static final String AES = "AES";
-    private static final String AES_TRANSFORMATION = "AES/CBC/PKCS5Padding";
+    private static final String AES_CBC = "AES/CBC/PKCS5Padding";
+    private static final String AES_ECB = "AES/ECB/PKCS5Padding";
 
     private static final String RSA = "RSA";
     private static final int RSA_MAX_ENCRYPT_BLOCK = 117;
@@ -36,7 +39,7 @@ public class CipherUtils {
     @SneakyThrows({GeneralSecurityException.class})
     private static byte[] aesHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final byte[] secret) {
         final SecretKeySpec keySpec = new SecretKeySpec(secret, AES);
-        final Cipher cipher = Cipher.getInstance(AES_TRANSFORMATION);
+        final Cipher cipher = Cipher.getInstance(AES_ECB);
         cipher.init(cipherMode, keySpec);
         return cipher.doFinal(raw);
     }
@@ -60,7 +63,7 @@ public class CipherUtils {
             }
         }
         //加密器处理
-        final Cipher cipher = Cipher.getInstance(AES_TRANSFORMATION);
+        final Cipher cipher = Cipher.getInstance(AES_CBC);
         final SecretKeySpec keySpec = new SecretKeySpec(secret, AES);
         final IvParameterSpec ivSpec = new IvParameterSpec(iv);
         cipher.init(cipherMode, keySpec, ivSpec);
@@ -92,6 +95,7 @@ public class CipherUtils {
     public static void aesDecrypt(@Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
         aesHandler(Cipher.DECRYPT_MODE, raw, secret, iv);
     }
+
 
     @SneakyThrows({GeneralSecurityException.class, IOException.class})
     private static byte[] rsaHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final Key key) {
@@ -137,5 +141,19 @@ public class CipherUtils {
         final byte[] keys = Base64.decodeBase64(base64PrivateKey);
         final PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keys));
         return rsaDecrypt(raw, privateKey);
+    }
+
+    @SneakyThrows({GeneralSecurityException.class})
+    public static List<String> generateRsaKey(final int keySize) {
+        final List<String> keys = Lists.newArrayList();
+        final KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA);
+        generator.initialize(Math.max(keySize, 1024));
+        final KeyPair keyPair = generator.generateKeyPair();
+        //公钥
+        keys.add(Base64.encodeBase64String(keyPair.getPublic().getEncoded()));
+        //私钥
+        keys.add(Base64.encodeBase64String(keyPair.getPrivate().getEncoded()));
+        //返回数据
+        return keys;
     }
 }
