@@ -62,7 +62,7 @@
         <!-- zenyoung -->
         <zenyoung.version>3.0.0</zenyoung.version>
         <!-- jetcache -->
-        <jetcache.version>2.7.0</jetcache.version>
+        <jetcache.version>2.7.2</jetcache.version>
         <!-- redisson -->
         <redisson.version>3.17.4</redisson.version>
         <!-- protobuf -->
