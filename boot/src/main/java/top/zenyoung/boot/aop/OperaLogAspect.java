@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -22,10 +21,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.boot.annotation.OperaLog;
-import top.zenyoung.common.dto.OperaLogDTO;
-import top.zenyoung.common.model.OperaType;
 import top.zenyoung.boot.util.HttpUtils;
 import top.zenyoung.boot.util.SecurityUtils;
+import top.zenyoung.common.dto.OperaLogDTO;
+import top.zenyoung.common.model.OperaType;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.util.ClassUtils;
 import top.zenyoung.common.util.JsonUtils;
@@ -201,15 +200,32 @@ public class OperaLogAspect extends BaseAspect {
             final ApiImplicitParams paramsAnno = method.getAnnotation(ApiImplicitParams.class);
             final ApiImplicitParam[] pas;
             if ((pas = paramsAnno.value()) != null && pas.length > 0) {
-                return Stream.of(pas).map(p -> {
+                return Stream.of(pas)
+                        .map(p -> {
                             final String name = p.name(), value = p.value();
                             if (!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(value)) {
-                                return Pair.of(name, value);
+                                return new Map.Entry<String, String>() {
+
+                                    @Override
+                                    public String getKey() {
+                                        return name;
+                                    }
+
+                                    @Override
+                                    public String getValue() {
+                                        return value;
+                                    }
+
+                                    @Override
+                                    public String setValue(String value) {
+                                        return null;
+                                    }
+                                };
                             }
                             return null;
                         })
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight, (n, o) -> n));
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (n, o) -> n));
             }
         }
         return null;
@@ -253,7 +269,7 @@ public class OperaLogAspect extends BaseAspect {
         //判断是否为基本类型
         if (isPrimitive(cls) || cls.isArray() || Collection.class.isAssignableFrom(cls)) {
             final LogReqParamVal rpv = LogReqParamVal.of(argTitle, argVal);
-            if (Strings.isNullOrEmpty(rpv.getTitle()) && argAnnos != null && argAnnos.length > 0) {
+            if (Strings.isNullOrEmpty(rpv.getTitle()) && argAnnos != null) {
                 //注解判断
                 for (Annotation anno : argAnnos) {
                     //Swgger注解

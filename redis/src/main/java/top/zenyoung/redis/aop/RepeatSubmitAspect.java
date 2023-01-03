@@ -1,4 +1,4 @@
-package top.zenyoung.boot.aop;
+package top.zenyoung.redis.aop;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.RepeatSubmit;
+import top.zenyoung.boot.aop.BaseAspect;
 import top.zenyoung.boot.config.RepeatSubmitProperties;
 import top.zenyoung.boot.exception.ServiceException;
 import top.zenyoung.boot.util.HttpUtils;

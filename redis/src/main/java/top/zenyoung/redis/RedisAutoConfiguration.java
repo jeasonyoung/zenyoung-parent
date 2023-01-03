@@ -8,11 +8,15 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import top.zenyoung.boot.service.CaptchaStorageService;
 import top.zenyoung.redis.lock.LockService;
 import top.zenyoung.redis.lock.impl.RedisLockServiceImpl;
 import top.zenyoung.redis.service.QueueService;
 import top.zenyoung.redis.service.RedisEnhancedService;
+import top.zenyoung.redis.service.impl.RedisCaptchaStorageServiceImpl;
 import top.zenyoung.redis.service.impl.RedisEnhancedServiceImpl;
 import top.zenyoung.redis.service.impl.RedisQueueServiceImpl;
 
@@ -26,6 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 @Configuration
+@ComponentScan({"top.zenyoung.redis.aop"})
 public class RedisAutoConfiguration {
 
     @Bean
@@ -56,5 +61,11 @@ public class RedisAutoConfiguration {
     @ConditionalOnMissingBean
     public LockService lockService(final ObjectProvider<RedissonClient> clients) {
         return new RedisLockServiceImpl(clients.getIfAvailable());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CaptchaStorageService captchaStorageService(final ObjectProvider<StringRedisTemplate> redisTemplate) {
+        return RedisCaptchaStorageServiceImpl.of(redisTemplate.getIfAvailable());
     }
 }

@@ -1,4 +1,4 @@
-package top.zenyoung.boot.service.impl;
+package top.zenyoung.redis.service.impl;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import top.zenyoung.boot.service.CaptchaStorageService;
+import top.zenyoung.boot.service.impl.BaseServiceImpl;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;

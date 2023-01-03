@@ -14,6 +14,12 @@
     </parent>
 
     <dependencies>
+        <!-- boot -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>boot</artifactId>
+        </dependency>
+
         <!--spring-data-redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -49,12 +55,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
