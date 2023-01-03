@@ -1,6 +1,5 @@
 package top.zenyoung.boot.config;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -16,7 +15,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @EnableAsync
 @Configuration
-@ConditionalOnMissingBean(AsyncConfigurer.class)
 public class AsyncConfig implements AsyncConfigurer {
     /**
      * 核心线程数

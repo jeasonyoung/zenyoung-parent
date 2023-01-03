@@ -4,7 +4,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.security.service.AuthenManagerService;
@@ -20,7 +22,7 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
-public abstract class BaseAuthenManagerServiceImpl implements AuthenManagerService {
+public abstract class BaseAuthenManagerServiceImpl implements AuthenManagerService, AuthenticationManager {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
 
     @Override
@@ -44,6 +46,11 @@ public abstract class BaseAuthenManagerServiceImpl implements AuthenManagerServi
                 }
             }
         }
+        return null;
+    }
+
+    @Override
+    public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         return null;
     }
 
