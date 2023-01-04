@@ -112,7 +112,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             //保持连接数
             final int backlog = Math.max(this.getBacklog(), 50);
             serverBootstrap
-                    .childOption(ChannelOption.SO_BACKLOG, backlog)
+                    .option(ChannelOption.SO_BACKLOG, backlog)
                     .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
             //Epoll设置
             if (IS_EPOLL) {
