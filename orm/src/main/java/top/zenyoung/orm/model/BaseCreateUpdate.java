@@ -16,9 +16,9 @@ public abstract class BaseCreateUpdate extends BaseCreate {
     /**
      * 更新者
      */
-    private String updateBy;
+    private String updatedBy;
     /**
      * 更新时间
      */
-    private Date updateAt;
+    private Date updatedAt;
 }

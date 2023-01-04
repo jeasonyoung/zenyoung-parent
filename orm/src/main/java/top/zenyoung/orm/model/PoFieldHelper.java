@@ -79,10 +79,10 @@ public class PoFieldHelper<PO> {
         PoConstant pc;
         //检测是否有逻辑删除注解
         if (field.isAnnotationPresent(TableLogic.class)) {
-            pc = PoConstant.LogicDel;
+            pc = PoConstant.DeletedAt;
         } else {
             pc = PoConstant.byFieldName(field.getName());
-            if (pc == PoConstant.LogicDel) {
+            if (pc == PoConstant.DeletedAt) {
                 return;
             }
         }

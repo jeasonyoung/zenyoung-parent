@@ -13,19 +13,19 @@ public enum DbField {
     /**
      * 创建者字段
      */
-    CreateBy,
+    CreatedBy,
     /**
      * 创建日期字段
      */
-    CreateAt,
+    CreatedAt,
     /**
      * 更新者字段
      */
-    UpdateBy,
+    UpdatedBy,
     /**
      * 更新日期字段
      */
-    UpdateAt,
+    UpdatedAt,
     /**
      * 状态字段
      */

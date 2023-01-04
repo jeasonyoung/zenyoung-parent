@@ -192,7 +192,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         this.setUpdate(po);
         this.setStatus(po);
         //初始化逻辑删除
-        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.LogicDel);
+        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.DeletedAt);
         if (Objects.nonNull(logicDelField) && logicDelField.isAnnotationPresent(TableLogic.class)) {
             try {
                 final String defVal = logicDelField.getAnnotation(TableLogic.class).value();
@@ -219,13 +219,13 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     }
 
     protected <T> void setCreate(@Nonnull final T po) {
-        setUser(po, PoConstant.CreateBy);
-        setFieldValue(po, PoConstant.CreateAt, new Date());
+        setUser(po, PoConstant.CreatedBy);
+        setFieldValue(po, PoConstant.CreatedAt, new Date());
     }
 
     protected <T> void setUpdate(@Nonnull final T po) {
-        setUser(po, PoConstant.UpdateBy);
-        setFieldValue(po, PoConstant.UpdateAt, new Date());
+        setUser(po, PoConstant.UpdatedBy);
+        setFieldValue(po, PoConstant.UpdatedAt, new Date());
     }
 
     protected void setUpdate(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
@@ -233,12 +233,12 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         if (!Strings.isNullOrEmpty(sqlSet)) {
             final Map<String, Object> params = Maps.newHashMap();
             //更新时间
-            final String updateAt = poPoFieldHelper.getColumn(PoConstant.UpdateAt);
+            final String updateAt = poPoFieldHelper.getColumn(PoConstant.UpdatedAt);
             if (!Strings.isNullOrEmpty(updateAt) && !sqlSet.contains(updateAt)) {
                 params.put(updateAt, new Date());
             }
             //更新用户
-            final String updateBy = poPoFieldHelper.getColumn(PoConstant.UpdateBy);
+            final String updateBy = poPoFieldHelper.getColumn(PoConstant.UpdatedBy);
             if (!Strings.isNullOrEmpty(updateBy) && !sqlSet.contains(updateBy)) {
                 SecurityUtils.getUserOpt().ifPresent(u -> params.put(updateBy, u.getId()));
             }
@@ -264,7 +264,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         //状态
         setFieldValue(po, PoConstant.Status, Status.Enable.getVal());
         //逻辑删除
-        setFieldValue(po, PoConstant.LogicDel, Status.Disable.getVal());
+        setFieldValue(po, PoConstant.DeletedAt, Status.Disable.getVal());
     }
 
     private <T> void setFieldValue(@Nonnull final T po, @Nullable final PoConstant pc, @Nonnull final Object val) {

@@ -20,19 +20,19 @@ public enum PoConstant {
     /**
      * 创建用户字段
      */
-    CreateBy("createBy"),
+    CreatedBy("createdBy"),
     /**
      * 创建时间字段
      */
-    CreateAt("createAt"),
+    CreatedAt("createdAt"),
     /**
      * 更新用户字段
      */
-    UpdateBy("updateBy"),
+    UpdatedBy("updatedBy"),
     /**
      * 更新时间字段
      */
-    UpdateAt("updateAt"),
+    UpdatedAt("updatedAt"),
     /**
      * 状态字段(0:禁用,1:启用)
      */
@@ -40,7 +40,7 @@ public enum PoConstant {
     /**
      * 逻辑删除字段(0:未删除,1:逻辑删除)
      */
-    LogicDel("logicDel");
+    DeletedAt("deletedAt");
 
     /**
      * 字段名称
@@ -73,14 +73,14 @@ public enum PoConstant {
     public static PoConstant byPoField(@Nullable final PoField poField) {
         if (Objects.nonNull(poField)) {
             switch (poField.fill()) {
-                case CreateBy:
-                    return PoConstant.CreateBy;
-                case CreateAt:
-                    return PoConstant.CreateAt;
-                case UpdateBy:
-                    return PoConstant.UpdateBy;
-                case UpdateAt:
-                    return PoConstant.UpdateAt;
+                case CreatedBy:
+                    return PoConstant.CreatedBy;
+                case CreatedAt:
+                    return PoConstant.CreatedAt;
+                case UpdatedBy:
+                    return PoConstant.UpdatedBy;
+                case UpdatedAt:
+                    return PoConstant.UpdatedAt;
                 case Status:
                     return PoConstant.Status;
                 default:
