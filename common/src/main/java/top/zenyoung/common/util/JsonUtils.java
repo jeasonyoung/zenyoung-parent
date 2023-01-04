@@ -47,6 +47,20 @@ public class JsonUtils {
     }
 
     /**
+     * 将JSON字节数组反序列化为对象
+     *
+     * @param objectMapper JSON处理器
+     * @param jsonBytes    字节数组
+     * @param tClass       数据类型class
+     * @param <R>          目标数据类型
+     * @return 反序列为对象
+     */
+    @SneakyThrows({})
+    public static <R> R fromJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final byte[] jsonBytes, @Nonnull final Class<R> tClass) {
+        return objectMapper.readValue(jsonBytes, tClass);
+    }
+
+    /**
      * 将JSON字符串反序列为对象
      *
      * @param objectMapper JSON处理器
