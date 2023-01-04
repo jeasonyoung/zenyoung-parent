@@ -3,6 +3,7 @@ package top.zenyoung.netty;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import io.netty.bootstrap.AbstractBootstrap;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -19,7 +20,6 @@ import top.zenyoung.netty.config.BaseProperties;
 import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -94,11 +94,14 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
         }
         //channel配置
         bootstrap.channel(channelHandler.get())
-                //保存连接
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                //TCP立即发包
-                .option(ChannelOption.TCP_NODELAY, true);
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        //客户端配置参数
+        if (bootstrap instanceof Bootstrap) {
+            //保存连接
+            bootstrap.option(ChannelOption.SO_KEEPALIVE, true)
+                    //TCP立即发包
+                    .option(ChannelOption.TCP_NODELAY, true);
+        }
         //Epoll设置
         if (IS_EPOLL) {
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
