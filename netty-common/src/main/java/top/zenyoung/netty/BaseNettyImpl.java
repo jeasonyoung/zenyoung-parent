@@ -19,6 +19,7 @@ import top.zenyoung.netty.config.BaseProperties;
 import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -124,7 +125,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             protected void initChannel(final C ch) {
                 final InetSocketAddress socketAddr = (InetSocketAddress) ch.localAddress();
                 final int port = Objects.isNull(socketAddr) ? -1 : socketAddr.getPort();
-                log.info("Netty[{}]新设备连接: {}", port, ch);
+                if (port > -1) {
+                    log.info("Netty[{}]新设备连接: {}", port, ch);
+                }
                 //获取通信管道
                 final ChannelPipeline pipeline = ch.pipeline();
                 if (Objects.nonNull(pipeline)) {
