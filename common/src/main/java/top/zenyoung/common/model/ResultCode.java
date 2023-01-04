@@ -35,7 +35,6 @@ public enum ResultCode implements EnumValue {
      */
     Error(500, "错误");
 
-    @JsonValue
     @DbEnumValue
     private final int val;
     private final String title;

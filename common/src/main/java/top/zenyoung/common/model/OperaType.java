@@ -44,7 +44,6 @@ public enum OperaType implements EnumValue {
      */
     Other(4, "其它");
 
-    @JsonValue
     @DbEnumValue
     private final int val;
     private final String title;

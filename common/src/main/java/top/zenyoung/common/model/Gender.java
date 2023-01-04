@@ -34,7 +34,6 @@ public enum Gender implements EnumValue {
      */
     Female(2, "女");
 
-    @JsonValue
     @DbEnumValue
     private final int val;
     private final String title;

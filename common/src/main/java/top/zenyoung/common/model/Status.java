@@ -34,7 +34,6 @@ public enum Status implements EnumValue {
      */
     Enable(1, "启用");
 
-    @JsonValue
     @DbEnumValue
     private final int val;
     private final String title;
