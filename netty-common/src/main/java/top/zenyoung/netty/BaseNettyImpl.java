@@ -108,12 +108,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             final ServerBootstrap serverBootstrap = (ServerBootstrap) bootstrap;
             //保持连接数
             final int backlog = Math.max(this.getBacklog(), 50);
-            serverBootstrap.option(ChannelOption.SO_BACKLOG, backlog)
-                    //保存连接
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                    //TCP立即发包
-                    .childOption(ChannelOption.TCP_NODELAY, true);
+            serverBootstrap
+                    .childOption(ChannelOption.SO_BACKLOG, backlog)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
             //Epoll设置
             if (IS_EPOLL) {
                 serverBootstrap.childOption(EpollChannelOption.TCP_QUICKACK, true);
