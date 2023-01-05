@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -89,15 +91,19 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@Nonnull final HttpServletRequest request, @Nonnull final HttpServletResponse response, @Nonnull final FilterChain chain) throws ServletException, IOException {
         try {
+            Authentication authen;
             //检查令牌URL是否需要获取令牌
             if (checkTokenUrl(request)) {
                 //解析令牌
-                final Authentication authen = manager.parseAuthenToken(request);
-                if (Objects.nonNull(authen)) {
-                    //将Authentication存入ThreadLocal,方便后续获取用户信息
-                    SecurityContextHolder.getContext().setAuthentication(authen);
+                authen = manager.parseAuthenToken(request);
+                if (Objects.isNull(authen)) {
+                    throw new DisabledException("令牌解析失败!");
                 }
+            } else {
+                authen = new UsernamePasswordAuthenticationToken(null, null, null);
             }
+            //将Authentication存入ThreadLocal,方便后续获取用户信息
+            SecurityContextHolder.getContext().setAuthentication(authen);
         } catch (AuthenticationException ex) {
             RespJsonUtils.buildFailResp(objMapper, response, HttpStatus.UNAUTHORIZED, ex);
             log.warn("doFilterInternal-exp: {}", ex.getMessage());
