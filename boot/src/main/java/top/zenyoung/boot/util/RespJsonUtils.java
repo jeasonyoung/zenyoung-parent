@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 响应工具类
@@ -22,82 +23,113 @@ public class RespJsonUtils {
     /**
      * 构建响应
      *
-     * @param objectMapper Json工具对象
-     * @param response     响应对象
-     * @param respResult   响应数据
+     * @param objMapper  Json工具对象
+     * @param res        响应对象
+     * @param statusCode 响应状态码
+     * @param data       响应数据
+     * @param <T>        响应数据类型
      */
-    public static void buildResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nonnull final ResultVO<?> respResult) {
+    public static <T> void buildResp(@Nonnull final ObjectMapper objMapper,
+                                     @Nonnull final HttpServletResponse res,
+                                     @Nullable final Integer statusCode,
+                                     @Nonnull final T data) {
         try {
-            final Integer code = respResult.getCode();
-            response.setStatus(Math.max(HttpStatus.OK.value(), code));
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            objectMapper.writeValue(response.getOutputStream(), respResult);
-            response.flushBuffer();
+            if (Objects.nonNull(statusCode)) {
+                res.setStatus(Math.max(HttpStatus.OK.value(), statusCode));
+            }
+            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objMapper.writeValue(res.getOutputStream(), data);
+            res.flushBuffer();
         } catch (Throwable e) {
-            log.error("buildResp(respResult: {})-exp: {}", respResult, e.getMessage());
+            log.error("buildResp(statusCode: {},data: {})-exp: {}", statusCode, data, e.getMessage());
         }
+    }
+
+    /**
+     * 构建响应
+     *
+     * @param objMapper Json工具对象
+     * @param res       响应对象
+     * @param vo        响应数据
+     */
+    public static void buildResp(@Nonnull final ObjectMapper objMapper,
+                                 @Nonnull final HttpServletResponse res,
+                                 @Nonnull final ResultVO<?> vo) {
+        buildResp(objMapper, res, vo.getCode(), vo);
     }
 
     /**
      * 构建成功响应
      *
-     * @param objectMapper Json工具对象
-     * @param response     响应对象
-     * @param data         响应数据
-     * @param <T>          响应数据类型
+     * @param objMapper Json工具对象
+     * @param res       响应对象
+     * @param data      响应数据
+     * @param <T>       响应数据类型
      */
-    public static <T extends Serializable> void buildSuccessResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final T data) {
-        buildResp(objectMapper, response, ResultVO.ofSuccess(data));
+    public static <T extends Serializable> void buildSuccessResp(@Nonnull final ObjectMapper objMapper,
+                                                                 @Nonnull final HttpServletResponse res,
+                                                                 @Nullable final T data) {
+        buildResp(objMapper, res, ResultVO.ofSuccess(data));
     }
 
     /**
      * 构建失败响应
      *
-     * @param objectMapper Json工具对象
-     * @param response     响应对象
-     * @param status       响应状态
-     * @param err          错误消息
+     * @param objMapper  Json工具对象
+     * @param res        响应对象
+     * @param statusCode 响应状态
+     * @param err        错误消息
      */
-    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final Integer status, @Nullable final String err) {
-        final ResultVO<?> respResult = ResultVO.ofFail(err);
-        if (status != null) {
-            respResult.setCode(status);
+    public static void buildFailResp(@Nonnull final ObjectMapper objMapper,
+                                     @Nonnull final HttpServletResponse res,
+                                     @Nullable final Integer statusCode,
+                                     @Nullable final String err) {
+        final ResultVO<?> vo = ResultVO.ofFail(err);
+        if (Objects.nonNull(statusCode)) {
+            vo.setCode(statusCode);
         }
-        buildResp(objectMapper, response, respResult);
+        buildResp(objMapper, res, vo);
     }
 
     /**
      * 构建失败响应
      *
-     * @param objectMapper Json工具对象
-     * @param response     响应对象
-     * @param err          错误消息
+     * @param objMapper Json工具对象
+     * @param res       响应对象
+     * @param err       错误消息
      */
-    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final String err) {
-        buildFailResp(objectMapper, response, null, err);
+    public static void buildFailResp(@Nonnull final ObjectMapper objMapper,
+                                     @Nonnull final HttpServletResponse res,
+                                     @Nullable final String err) {
+        buildFailResp(objMapper, res, null, err);
     }
 
     /**
      * 构建失败响应
      *
-     * @param objectMapper Json工具对象
-     * @param response     响应对象
-     * @param httpStatus   响应状态码
-     * @param e            异常数据
+     * @param objMapper  Json工具对象
+     * @param res        响应对象
+     * @param httpStatus 响应状态码
+     * @param e          异常数据
      */
-    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final HttpStatus httpStatus, @Nullable final Throwable e) {
-        final String err = e == null ? "未知错误" : e.getMessage();
-        buildFailResp(objectMapper, response, httpStatus == null ? null : httpStatus.value(), err);
+    public static void buildFailResp(@Nonnull final ObjectMapper objMapper,
+                                     @Nonnull final HttpServletResponse res,
+                                     @Nullable final HttpStatus httpStatus,
+                                     @Nullable final Throwable e) {
+        final String err = Objects.isNull(e) ? "未知错误" : e.getMessage();
+        buildFailResp(objMapper, res, httpStatus == null ? null : httpStatus.value(), err);
     }
 
     /**
      * 构建失败响应
      *
-     * @param objectMapper Json工具对象
-     * @param response     响应对象
-     * @param e            异常数据
+     * @param objMapper Json工具对象
+     * @param res       响应对象
+     * @param e         异常数据
      */
-    public static void buildFailResp(@Nonnull final ObjectMapper objectMapper, @Nonnull final HttpServletResponse response, @Nullable final Throwable e) {
-        buildFailResp(objectMapper, response, null, e);
+    public static void buildFailResp(@Nonnull final ObjectMapper objMapper,
+                                     @Nonnull final HttpServletResponse res,
+                                     @Nullable final Throwable e) {
+        buildFailResp(objMapper, res, null, e);
     }
 }

@@ -45,11 +45,9 @@ public class ClassUtils {
         if (cls != Object.class) {
             //获取全部字段
             final Field[] fields = cls.getDeclaredFields();
-            if (fields.length > 0) {
-                for (Field f : fields) {
-                    if (predicate.test(f)) {
-                        return f;
-                    }
+            for (Field f : fields) {
+                if (predicate.test(f)) {
+                    return f;
                 }
             }
             //获取父类

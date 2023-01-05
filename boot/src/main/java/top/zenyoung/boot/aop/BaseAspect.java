@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -97,7 +98,7 @@ public abstract class BaseAspect {
     protected static List<String> getReqArgs(@Nonnull final JoinPoint joinPoint, @Nonnull final Function<Object, String> handler) {
         final List<String> arguments = Lists.newLinkedList();
         final Object[] args = joinPoint.getArgs();
-        if (args != null && args.length > 0) {
+        if (Objects.nonNull(args)) {
             for (Object arg : args) {
                 if (arg == null) {
                     continue;

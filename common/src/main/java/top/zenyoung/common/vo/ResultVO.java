@@ -104,7 +104,7 @@ public class ResultVO<T> implements Serializable {
      * @return 响应数据
      */
     public static <T> ResultVO<T> ofFail(@Nullable final String message) {
-        final ResultVO<T> ret = of(ResultCode.Success);
+        final ResultVO<T> ret = of(ResultCode.Fail);
         if (!Strings.isNullOrEmpty(message)) {
             ret.setMessage(message);
         }
