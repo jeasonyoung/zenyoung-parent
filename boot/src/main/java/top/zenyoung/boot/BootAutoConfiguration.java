@@ -41,7 +41,6 @@ import java.util.Objects;
 @ComponentScan({
         "top.zenyoung.boot.aop",
         "top.zenyoung.boot.resolver",
-        "top.zenyoung.boot.interceptor",
         "top.zenyoung.boot.controller"
 })
 @Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, ExceptionController.class})

@@ -11,7 +11,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import top.zenyoung.boot.interceptor.Interceptor;
+import top.zenyoung.boot.interceptor.RequestMappingInterceptor;
 import top.zenyoung.boot.resolver.ArgumentResolver;
 import top.zenyoung.common.model.EnumValue;
 
@@ -26,7 +26,7 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Autowired
-    private List<Interceptor> interceptors;
+    private List<RequestMappingInterceptor> interceptors;
     @Autowired
     private List<ArgumentResolver> argumentResolvers;
 

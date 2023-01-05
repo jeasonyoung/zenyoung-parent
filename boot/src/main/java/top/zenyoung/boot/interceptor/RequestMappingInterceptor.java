@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author young
  */
-public interface Interceptor extends HandlerInterceptor {
+public interface RequestMappingInterceptor extends HandlerInterceptor {
 
     /**
      * 获取排序号
@@ -30,7 +30,7 @@ public interface Interceptor extends HandlerInterceptor {
     /**
      * 获取执行模型
      *
-     * @return 执行模型
+     * @return 执行模型集合
      */
     default List<String> getIncludePatterns() {
         return null;
@@ -39,7 +39,7 @@ public interface Interceptor extends HandlerInterceptor {
     /**
      * 获取非执行模型
      *
-     * @return 非执行模型
+     * @return 非执行模型集合
      */
     default List<String> getExcludePatterns() {
         return null;
@@ -69,8 +69,9 @@ public interface Interceptor extends HandlerInterceptor {
         if (handler instanceof HandlerMethod) {
             final HandlerMethod handlerMethod = (HandlerMethod) handler;
             final MediaType contentType = HttpUtils.getContentType(req);
-            if (handlerMethod.hasMethodAnnotation(RequestMapping.class) && supportsContentType(contentType)) {
-                this.handler(req, res, handlerMethod);
+            if (handlerMethod.hasMethodAnnotation(RequestMapping.class) && this.supportsContentType(contentType)) {
+                //执行处理
+                return this.handler(req, res, handlerMethod);
             }
         }
         return true;
@@ -82,6 +83,7 @@ public interface Interceptor extends HandlerInterceptor {
      * @param req     请求对象
      * @param res     响应对象
      * @param handler 拦截方法处理器
+     * @return 处理结果
      */
-    void handler(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final HandlerMethod handler);
+    boolean handler(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final HandlerMethod handler);
 }
