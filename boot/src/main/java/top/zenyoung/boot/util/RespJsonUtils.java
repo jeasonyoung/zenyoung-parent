@@ -1,6 +1,7 @@
 package top.zenyoung.boot.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -101,7 +102,7 @@ public class RespJsonUtils {
     public static void buildFailResp(@Nonnull final ObjectMapper objMapper,
                                      @Nonnull final HttpServletResponse res,
                                      @Nullable final String err) {
-        buildFailResp(objMapper, res, null, err);
+        buildFailResp(objMapper, res, (HttpStatus) null, err);
     }
 
     /**
@@ -117,6 +118,22 @@ public class RespJsonUtils {
                                      @Nullable final HttpStatus httpStatus,
                                      @Nullable final Throwable e) {
         final String err = Objects.isNull(e) ? "未知错误" : e.getMessage();
+        buildFailResp(objMapper, res, httpStatus == null ? null : httpStatus.value(), err);
+    }
+
+    /**
+     * 构建失败响应
+     *
+     * @param objMapper  Json工具对象
+     * @param res        响应对象
+     * @param httpStatus 响应状态码
+     * @param msg        消息数据
+     */
+    public static void buildFailResp(@Nonnull final ObjectMapper objMapper,
+                                     @Nonnull final HttpServletResponse res,
+                                     @Nullable final HttpStatus httpStatus,
+                                     @Nullable final String msg) {
+        final String err = Strings.isNullOrEmpty(msg) ? "未知错误" : msg;
         buildFailResp(objMapper, res, httpStatus == null ? null : httpStatus.value(), err);
     }
 
