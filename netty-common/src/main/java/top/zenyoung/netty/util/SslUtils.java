@@ -41,4 +41,10 @@ public class SslUtils {
         }
     }
 
+    public static void addSslCodec(@Nonnull final ChannelPipeline pipeline){
+        final Channel channel = pipeline.channel();
+        if(Objects.nonNull(channel)){
+            addSslCodec(pipeline, channel);
+        }
+    }
 }
