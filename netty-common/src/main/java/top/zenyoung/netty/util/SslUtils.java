@@ -18,11 +18,11 @@ import java.util.Objects;
  */
 @Slf4j
 public class SslUtils {
-    private static SslContext sslContext;
+    private static SslContext sslClientContext;
 
     static {
         try {
-            sslContext = SslContextBuilder
+            sslClientContext = SslContextBuilder
                     .forClient()
                     .trustManager(InsecureTrustManagerFactory.INSTANCE)
                     .build();
@@ -31,20 +31,20 @@ public class SslUtils {
         }
     }
 
-    public static SslContext getContext() {
-        return sslContext;
+    public static SslContext getClientContext() {
+        return sslClientContext;
     }
 
-    public static void addSslCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final Channel channel) {
-        if (Objects.nonNull(sslContext)) {
-            pipeline.addLast(sslContext.newHandler(channel.alloc()));
+    public static void addSslClientCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final Channel channel) {
+        if (Objects.nonNull(sslClientContext)) {
+            pipeline.addLast(sslClientContext.newHandler(channel.alloc()));
         }
     }
 
-    public static void addSslCodec(@Nonnull final ChannelPipeline pipeline){
+    public static void addSslClientCodec(@Nonnull final ChannelPipeline pipeline){
         final Channel channel = pipeline.channel();
         if(Objects.nonNull(channel)){
-            addSslCodec(pipeline, channel);
+            addSslClientCodec(pipeline, channel);
         }
     }
 }
