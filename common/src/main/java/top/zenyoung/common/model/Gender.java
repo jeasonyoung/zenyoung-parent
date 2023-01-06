@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import top.zenyoung.annotation.DbEnumValue;
 
 import javax.annotation.Nullable;
 
@@ -33,7 +32,7 @@ public enum Gender implements EnumValue {
      */
     Female(2, "女");
 
-    @DbEnumValue
+    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 

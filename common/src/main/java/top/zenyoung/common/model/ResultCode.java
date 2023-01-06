@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import top.zenyoung.annotation.DbEnumValue;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -34,7 +33,7 @@ public enum ResultCode implements EnumValue {
      */
     Error(500, "错误");
 
-    @DbEnumValue
+    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 

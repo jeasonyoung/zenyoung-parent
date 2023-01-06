@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import top.zenyoung.annotation.DbEnumValue;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +32,7 @@ public enum Status implements EnumValue {
      */
     Enable(1, "启用");
 
-    @DbEnumValue
+    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 

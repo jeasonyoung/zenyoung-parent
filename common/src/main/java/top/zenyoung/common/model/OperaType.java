@@ -7,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import top.zenyoung.annotation.DbEnumValue;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +42,7 @@ public enum OperaType implements EnumValue {
      */
     Other(4, "其它");
 
-    @DbEnumValue
+    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 
