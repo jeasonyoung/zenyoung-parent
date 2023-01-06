@@ -35,7 +35,7 @@ public class SslUtils {
         return sslContext;
     }
 
-    public void addSslCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final SocketChannel channel) {
+    public static void addSslCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final SocketChannel channel) {
         if (Objects.nonNull(sslContext)) {
             pipeline.addLast(sslContext.newHandler(channel.alloc()));
         }
