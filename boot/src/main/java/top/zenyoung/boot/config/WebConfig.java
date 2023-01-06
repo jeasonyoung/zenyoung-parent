@@ -25,9 +25,9 @@ import java.util.List;
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    @Autowired
+    @Autowired(required = false)
     private List<RequestMappingInterceptor> interceptors;
-    @Autowired
+    @Autowired(required = false)
     private List<ArgumentResolver> argumentResolvers;
 
     @Override
