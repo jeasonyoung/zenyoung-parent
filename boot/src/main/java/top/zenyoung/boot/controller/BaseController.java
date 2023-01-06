@@ -158,7 +158,16 @@ public class BaseController {
         if (e instanceof EnumValue) {
             return failed(((EnumValue) e));
         }
-        return failed(e.getMessage());
+        return failed(getExpErr(e));
+    }
+
+    private String getExpErr(@Nonnull final Throwable e) {
+        final String err = e.getMessage();
+        final Throwable parent;
+        if (Strings.isNullOrEmpty(err) && Objects.nonNull(parent = e.getCause())) {
+            return getExpErr(parent);
+        }
+        return err;
     }
 
     /**
@@ -219,7 +228,7 @@ public class BaseController {
             res.reset();
             res.setContentType(MediaType.APPLICATION_JSON_VALUE);
             res.setCharacterEncoding(enc);
-            res.getWriter().write(JsonUtils.toJson(objectMapper, failed(null, e.getMessage())));
+            res.getWriter().write(JsonUtils.toJson(objectMapper, failed(null, getExpErr(e))));
         }
     }
 }
