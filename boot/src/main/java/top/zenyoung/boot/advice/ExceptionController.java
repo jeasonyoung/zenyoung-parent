@@ -1,7 +1,6 @@
 package top.zenyoung.boot.advice;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -56,12 +55,6 @@ public class ExceptionController extends BaseController {
     @ExceptionHandler({ConstraintViolationException.class})
     public ResultVO<?> handleConstraintViolationException(@Nonnull final ConstraintViolationException e) {
         log.warn("handleConstraintViolationException(e: {})...", e.getMessage());
-        return failed(e);
-    }
-
-    @ExceptionHandler({DuplicateKeyException.class})
-    public ResultVO<?> handleDuplicateKeyException(@Nonnull final DuplicateKeyException e) {
-        log.warn("handleDuplicateKeyException(e: {})...", e.getMessage());
         return failed(e);
     }
 
