@@ -33,8 +33,11 @@ public class CipherUtils {
     private static final String AES_ECB = "AES/ECB/PKCS5Padding";
 
     private static final String RSA = "RSA";
-    private static final int RSA_MAX_ENCRYPT_BLOCK = 117;
-    private static final int RAS_MAX_DECRYPT_BLOCK = 256;
+    private static final String RSA_ECB = "RSA/ECB/PKCS1Padding";
+    private static final int RSA_KEY_SIZE = 1024;
+    private static final int RSA_RESERVE_BYTES = 11;
+    private static final int RAS_MAX_DECRYPT_BLOCK = RSA_KEY_SIZE / 8;
+    private static final int RSA_MAX_ENCRYPT_BLOCK = RAS_MAX_DECRYPT_BLOCK - RSA_RESERVE_BYTES;
 
     @SneakyThrows({GeneralSecurityException.class})
     private static byte[] aesHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final byte[] secret) {
@@ -98,22 +101,20 @@ public class CipherUtils {
 
 
     @SneakyThrows({GeneralSecurityException.class, IOException.class})
-    private static byte[] rsaHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final Key key) {
-        final Cipher cipher = Cipher.getInstance(RSA);
+    private static byte[] rsaHandler(final int cipherMode, @Nonnull final byte[] data, @Nonnull final Key key) {
+        final Cipher cipher = Cipher.getInstance(RSA_ECB);
         cipher.init(cipherMode, key);
-        final int len = raw.length;
-        final int max = cipherMode == Cipher.ENCRYPT_MODE ? RSA_MAX_ENCRYPT_BLOCK : RAS_MAX_DECRYPT_BLOCK;
-        try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            int pos = 0, offset;
-            byte[] buf;
-            while ((offset = len - pos) > 0) {
-                if (offset > max) {
-                    buf = cipher.doFinal(raw, pos, max);
-                } else {
-                    buf = cipher.doFinal(raw, pos, offset);
+        final int len = data.length;
+        final int block = (cipherMode == Cipher.ENCRYPT_MODE) ? RSA_MAX_ENCRYPT_BLOCK : RAS_MAX_DECRYPT_BLOCK;
+        final int blockCount = (len / block) + (len % block == 0 ? 0 : 1);
+        try (final ByteArrayOutputStream output = new ByteArrayOutputStream(blockCount * block)) {
+            for(int offset = 0; offset < len; offset += block){
+                int input = (len - offset);
+                if(input > block){
+                    input = block;
                 }
+                final byte[] buf = cipher.doFinal(data, offset, input);
                 output.write(buf);
-                pos += max;
             }
             return output.toByteArray();
         }
@@ -147,7 +148,7 @@ public class CipherUtils {
     public static List<String> generateRsaKey(final int keySize) {
         final List<String> keys = Lists.newArrayList();
         final KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA);
-        generator.initialize(Math.max(keySize, 1024));
+        generator.initialize(Math.max(keySize, RSA_KEY_SIZE));
         final KeyPair keyPair = generator.generateKeyPair();
         //公钥
         keys.add(Base64.encodeBase64String(keyPair.getPublic().getEncoded()));
