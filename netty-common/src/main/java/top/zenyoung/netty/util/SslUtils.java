@@ -1,7 +1,7 @@
 package top.zenyoung.netty.util;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -35,7 +35,7 @@ public class SslUtils {
         return sslContext;
     }
 
-    public static void addSslCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final SocketChannel channel) {
+    public static void addSslCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final Channel channel) {
         if (Objects.nonNull(sslContext)) {
             pipeline.addLast(sslContext.newHandler(channel.alloc()));
         }
