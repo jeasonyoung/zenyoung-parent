@@ -1,5 +1,6 @@
 package top.zenyoung.common.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.Map;
  **/
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserPrincipal implements Principal, Serializable {
     /**
      * 用户ID

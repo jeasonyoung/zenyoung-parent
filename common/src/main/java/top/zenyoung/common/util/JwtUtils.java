@@ -1,5 +1,6 @@
 package top.zenyoung.common.util;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -17,7 +18,12 @@ import java.util.Objects;
  */
 @Slf4j
 public class JwtUtils {
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER;
+
+    static {
+        MAPPER = new ObjectMapper();
+        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     public static <T> String generate(@Nonnull final JWSAlgorithm algorithm, @Nullable final JWSSigner signer, @Nonnull final T data) {
         try {
