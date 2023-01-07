@@ -1,5 +1,7 @@
 package top.zenyoung.netty.config;
 
+import com.google.common.base.Strings;
+import io.netty.handler.logging.LogLevel;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -24,4 +26,21 @@ public abstract class BaseProperties implements Serializable {
      * 心跳超时次数
      */
     private Integer heartbeatTimeoutTotal = 3;
+
+    /**
+     * 获取Netty日志级别
+     *
+     * @return Netty日志级别
+     */
+    public LogLevel getNettyLogLevel() {
+        final String logLevel = this.getLogLevel();
+        if (!Strings.isNullOrEmpty(logLevel)) {
+            for (final LogLevel level : LogLevel.values()) {
+                if (logLevel.equalsIgnoreCase(level.name())) {
+                    return level;
+                }
+            }
+        }
+        return LogLevel.INFO;
+    }
 }
