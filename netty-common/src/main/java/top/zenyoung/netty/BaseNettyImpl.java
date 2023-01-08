@@ -16,6 +16,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.config.BaseProperties;
+import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import java.io.Closeable;
@@ -177,9 +178,18 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                     }
                 }));
                 //同步阻塞
-                Stream.of(futures).parallel()
+                Stream.of(futures)
                         .filter(Objects::nonNull)
-                        .forEach(f -> f.channel().closeFuture().syncUninterruptibly());
+                        .forEach(f -> {
+                            final Channel ch;
+                            if (Objects.nonNull(ch = f.channel())) {
+                                try {
+                                    ch.closeFuture().sync();
+                                } catch (Throwable ex) {
+                                    log.error("同步阻塞[channelId: {}]异常-exp: {}", SocketUtils.getChannelId(ch), ex.getMessage());
+                                }
+                            }
+                        });
             } catch (Throwable e) {
                 log.error("netty 运行失败-exp: {}", e.getMessage());
             }
