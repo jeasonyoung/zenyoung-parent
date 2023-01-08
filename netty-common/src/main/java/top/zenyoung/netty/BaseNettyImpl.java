@@ -74,7 +74,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @return 保持连接数
      */
     protected int getBacklog() {
-        return 0;
+        return 2048;
     }
 
     /**
