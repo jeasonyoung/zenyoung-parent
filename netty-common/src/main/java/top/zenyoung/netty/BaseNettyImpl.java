@@ -137,6 +137,8 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                 }
             }
         };
+        //Options处理
+        this.addBootstrapOptions(bootstrap);
         //日志处理器
         final LoggingHandler loggingHandler = new LoggingHandler(this.getLogLevel());
         //服务器端
@@ -150,6 +152,10 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                     .handler(loggingHandler)
                     .handler(channelPipelineHandler.get());
         }
+    }
+    
+    protected <B extends AbstractBootstrap<B, C>, C extends Channel> void addBootstrapOptions(@Nonnull final AbstractBootstrap<B, C> bootstrap) {
+
     }
 
     /**
