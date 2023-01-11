@@ -19,6 +19,7 @@ import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -81,17 +82,57 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     /**
      * 构建Bootstrap参数
      *
-     * @param bootstrap bootstrap对象
+     * @param bootstrap      bootstrap对象
+     * @param channelHandler 通道处理器
+     * @param <C>            通道类型
+     * @param <B>            bootstrap对象类型
      */
     protected <B extends AbstractBootstrap<B, C>, C extends Channel> void buildBootstrap(
             @Nonnull final AbstractBootstrap<B, C> bootstrap,
             @Nonnull final Supplier<Class<? extends C>> channelHandler
     ) {
+        buildBootstrap(bootstrap, null, null, channelHandler);
+    }
+
+    /**
+     * 构建Bootstrap参数
+     *
+     * @param bootstrap      bootstrap对象
+     * @param work           工作线程池
+     * @param channelHandler 通道处理器
+     * @param <C>            通道类型
+     * @param <B>            bootstrap对象类型
+     */
+    protected <B extends AbstractBootstrap<B, C>, C extends Channel> void buildBootstrap(
+            @Nonnull final AbstractBootstrap<B, C> bootstrap,
+            @Nullable final EventLoopGroup work,
+            @Nonnull final Supplier<Class<? extends C>> channelHandler
+    ) {
+        buildBootstrap(bootstrap, null, work, channelHandler);
+    }
+
+    /**
+     * 构建Bootstrap参数
+     *
+     * @param bootstrap      bootstrap对象
+     * @param boss           主线程池(服务端)
+     * @param work           工作线程池
+     * @param channelHandler 通道处理器
+     * @param <C>            通道类型
+     * @param <B>            bootstrap对象类型
+     */
+    protected <B extends AbstractBootstrap<B, C>, C extends Channel> void buildBootstrap(
+            @Nonnull final AbstractBootstrap<B, C> bootstrap,
+            @Nullable final EventLoopGroup boss, @Nullable final EventLoopGroup work,
+            @Nonnull final Supplier<Class<? extends C>> channelHandler
+    ) {
         //工作线程池
         if (bootstrap instanceof ServerBootstrap) {
-            ((ServerBootstrap) bootstrap).group(BOSS_GROUP, WORKER_GROUP);
+            final EventLoopGroup bossGroup = Objects.nonNull(boss) ? boss : BOSS_GROUP;
+            final EventLoopGroup workGroup = Objects.nonNull(work) ? work : WORKER_GROUP;
+            ((ServerBootstrap) bootstrap).group(bossGroup, workGroup);
         } else {
-            bootstrap.group(WORKER_GROUP);
+            bootstrap.group(Objects.nonNull(work) ? work : WORKER_GROUP);
         }
         //channel配置
         bootstrap.channel(channelHandler.get())
@@ -153,7 +194,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                     .handler(channelPipelineHandler.get());
         }
     }
-    
+
     protected <B extends AbstractBootstrap<B, C>, C extends Channel> void addBootstrapOptions(@Nonnull final AbstractBootstrap<B, C> bootstrap) {
 
     }
