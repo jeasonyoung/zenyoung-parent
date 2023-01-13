@@ -286,7 +286,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     /**
      * 通道写入消息数据
      *
-     * @param ctx      通道上下文
+     * @param channel  通道对象
      * @param msg      消息数据
      * @param listener 通道监听器
      * @param <T>      消息数据类型
