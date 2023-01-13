@@ -267,6 +267,40 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     }
 
     /**
+     * 通道写入消息数据
+     *
+     * @param ctx      通道上下文
+     * @param msg      消息数据
+     * @param listener 通道监听器
+     * @param <T>      消息数据类型
+     */
+    protected static <T> void writeAndFlush(@Nullable final ChannelHandlerContext ctx, @Nonnull final T msg, @Nullable final ChannelFutureListener listener) {
+        if (Objects.nonNull(ctx)) {
+            final ChannelFuture future = ctx.writeAndFlush(msg);
+            if (Objects.nonNull(listener)) {
+                future.addListener(listener);
+            }
+        }
+    }
+
+    /**
+     * 通道写入消息数据
+     *
+     * @param ctx      通道上下文
+     * @param msg      消息数据
+     * @param listener 通道监听器
+     * @param <T>      消息数据类型
+     */
+    protected static <T> void writeAndFlush(@Nullable final Channel channel, @Nonnull final T msg, @Nullable final ChannelFutureListener listener) {
+        if (Objects.nonNull(channel)) {
+            final ChannelFuture future = channel.writeAndFlush(msg);
+            if (Objects.nonNull(listener)) {
+                future.addListener(listener);
+            }
+        }
+    }
+
+    /**
      * 同步阻塞并添加JVM钩子
      *
      * @param futures ChannelFuture
