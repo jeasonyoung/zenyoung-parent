@@ -25,6 +25,7 @@ import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -211,7 +212,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     protected abstract void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline);
 
     /**
-     * 创建定时任务
+     * 创建定时任务(无返回值)
      *
      * @param ctx   通道上下文
      * @param task  定时任务
@@ -219,6 +220,18 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @return 任务句柄
      */
     protected static ScheduledFuture<?> scheduleCreate(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Runnable task, @Nonnull final Duration delay) {
+        return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 创建定时任务(有返回值)
+     *
+     * @param ctx   通道上下文
+     * @param task  定时任务
+     * @param delay 定时间隔
+     * @return 任务句柄
+     */
+    protected static <R> ScheduledFuture<R> schedule(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Callable<R> task, @Nonnull final Duration delay) {
         return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 
