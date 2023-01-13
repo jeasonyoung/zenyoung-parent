@@ -271,8 +271,8 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @param listener 通道监听器
      * @param <T>      消息数据类型
      */
-    protected static <T> void writeAndFlush(@Nullable final ChannelHandlerContext ctx, @Nonnull final T msg, @Nullable final ChannelFutureListener listener) {
-        if (Objects.nonNull(ctx)) {
+    protected static <T> void writeAndFlush(@Nullable final ChannelHandlerContext ctx, @Nullable final T msg, @Nullable final ChannelFutureListener listener) {
+        if (Objects.nonNull(ctx) && Objects.nonNull(msg)) {
             final ChannelFuture future = ctx.writeAndFlush(msg);
             if (Objects.nonNull(listener)) {
                 future.addListener(listener);
@@ -288,8 +288,8 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @param listener 通道监听器
      * @param <T>      消息数据类型
      */
-    protected static <T> void writeAndFlush(@Nullable final Channel channel, @Nonnull final T msg, @Nullable final ChannelFutureListener listener) {
-        if (Objects.nonNull(channel)) {
+    protected static <T> void writeAndFlush(@Nullable final Channel channel, @Nullable final T msg, @Nullable final ChannelFutureListener listener) {
+        if (Objects.nonNull(channel) && Objects.nonNull(msg)) {
             final ChannelFuture future = channel.writeAndFlush(msg);
             if (Objects.nonNull(listener)) {
                 future.addListener(listener);
