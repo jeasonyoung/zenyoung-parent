@@ -14,6 +14,7 @@ import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.util.SocketUtils;
@@ -22,7 +23,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -206,6 +209,29 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @param pipeline 管道对象
      */
     protected abstract void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline);
+
+    /**
+     * 创建定时任务
+     *
+     * @param ctx   通道上下文
+     * @param task  定时任务
+     * @param delay 定时间隔
+     * @return 任务句柄
+     */
+    protected static ScheduledFuture<?> scheduleCreate(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Runnable task, @Nonnull final Duration delay) {
+        return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 取消定时任务
+     *
+     * @param future 任务句柄
+     */
+    protected static void scheduleCancel(@Nullable final ScheduledFuture<?> future) {
+        if (Objects.nonNull(future)) {
+            future.cancel(false);
+        }
+    }
 
     /**
      * 同步阻塞并添加JVM钩子
