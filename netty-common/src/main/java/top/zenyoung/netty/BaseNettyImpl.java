@@ -212,6 +212,26 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     protected abstract void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline);
 
     /**
+     * 开启异步执行
+     *
+     * @param ctx     通道上下文
+     * @param handler 执行任务
+     */
+    protected static void execute(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Runnable handler) {
+        ctx.executor().execute(handler);
+    }
+
+    /**
+     * 开启异步执行
+     *
+     * @param channel 通道对象
+     * @param handler 执行任务
+     */
+    protected static void execute(@Nonnull final Channel channel, @Nonnull final Runnable handler) {
+        channel.eventLoop().execute(handler);
+    }
+
+    /**
      * 创建定时任务(无返回值)
      *
      * @param ctx   通道上下文
