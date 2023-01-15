@@ -177,8 +177,6 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                 //获取通信管道
                 final ChannelPipeline pipeline = ch.pipeline();
                 if (Objects.nonNull(pipeline)) {
-                    //0.挂载日志处理器
-                    pipeline.addLast("log", new LoggingHandler(getLogLevel()));
                     initChannelPipelineHandler(port, pipeline);
                     log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
                 }
@@ -206,7 +204,10 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @param port     端口
      * @param pipeline 管道对象
      */
-    protected abstract void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline);
+    protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
+        //0.挂载日志处理器
+        pipeline.addLast("log", new LoggingHandler(getLogLevel()));
+    }
 
     /**
      * 开启异步执行
