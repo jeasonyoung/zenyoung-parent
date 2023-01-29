@@ -249,7 +249,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @param delay 定时间隔
      * @return 任务句柄
      */
-    protected static <R> ScheduledFuture<R> schedule(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Callable<R> task, @Nonnull final Duration delay) {
+    protected static <R> ScheduledFuture<R> scheduleCreate(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Callable<R> task, @Nonnull final Duration delay) {
         return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 
