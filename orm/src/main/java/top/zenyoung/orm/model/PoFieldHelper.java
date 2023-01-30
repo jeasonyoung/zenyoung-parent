@@ -47,7 +47,6 @@ public class PoFieldHelper<PO> {
                 //实体类字段
                 final List<Field> fields = ReflectionKit.getFieldList(poCls);
                 if (CollectionUtils.isEmpty(fields)) {
-                    log.warn("init=>fields: {} ", fields);
                     return;
                 }
                 //实体数据表字段
