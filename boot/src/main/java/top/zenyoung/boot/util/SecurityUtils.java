@@ -6,12 +6,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,10 @@ public class SecurityUtils {
      */
     public static void setAuthentication(@Nonnull final UserPrincipal userPrincipal) {
         final Authentication authentication = create(userPrincipal);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        final SecurityContext ctx;
+        if (Objects.nonNull(ctx = SecurityContextHolder.getContext())) {
+            ctx.setAuthentication(authentication);
+        }
     }
 
     /**
@@ -53,7 +58,11 @@ public class SecurityUtils {
      * @return 当前用户认证信息
      */
     public static Authentication getAuthentication() {
-        return SecurityContextHolder.getContext().getAuthentication();
+        final SecurityContext ctx;
+        if (Objects.nonNull(ctx = SecurityContextHolder.getContext())) {
+            return ctx.getAuthentication();
+        }
+        return null;
     }
 
     /**
@@ -62,7 +71,11 @@ public class SecurityUtils {
      * @return 当前用户信息
      */
     public static UserPrincipal getUser() {
-        return (UserPrincipal) getAuthentication().getPrincipal();
+        final Authentication auth = getAuthentication();
+        if (Objects.nonNull(auth)) {
+            return (UserPrincipal) auth.getPrincipal();
+        }
+        return null;
     }
 
     /**

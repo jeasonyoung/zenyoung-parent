@@ -238,11 +238,13 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
                 params.put(updateAt, new Date());
             }
             //更新用户
-            final String updateBy = poPoFieldHelper.getColumn(PoConstant.UpdatedBy);
-            if (!Strings.isNullOrEmpty(updateBy) && !sqlSet.contains(updateBy)) {
-                SecurityUtils.getUserOpt().ifPresent(u -> params.put(updateBy, u.getId()));
-            }
-            //
+            SecurityUtils.getUserOpt().ifPresent(u -> {
+                final String updateBy = poPoFieldHelper.getColumn(PoConstant.UpdatedBy);
+                if (!Strings.isNullOrEmpty(updateBy) && !sqlSet.contains(updateBy)) {
+                    params.put(updateBy, u.getId());
+                }
+            });
+            //设置更新数据
             if (!CollectionUtils.isEmpty(params)) {
                 MybatisPlusUtils.buildFieldMap(params, getModelClass(), updateWrapper, null);
             }
@@ -251,10 +253,12 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     private <T> void setUser(@Nonnull final T po, @Nonnull final PoConstant pc) {
         try {
-            final Field userField = poPoFieldHelper.getField(pc);
-            if (Objects.nonNull(userField)) {
-                SecurityUtils.getUserOpt().ifPresent(u -> setFieldValue(po, userField, u.getId()));
-            }
+            SecurityUtils.getUserOpt().ifPresent(u -> {
+                final Field userField = poPoFieldHelper.getField(pc);
+                if (Objects.nonNull(userField)) {
+                    setFieldValue(po, userField, u.getId());
+                }
+            });
         } catch (Throwable e) {
             log.warn("setUser(po: {},pc: {})-exp: {}", po, pc, e.getMessage());
         }
