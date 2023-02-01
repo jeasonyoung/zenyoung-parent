@@ -1,11 +1,13 @@
 package top.zenyoung.orm.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.util.CollectionUtils;
 import top.zenyoung.orm.model.BasePO;
 
 import javax.annotation.Nonnull;
@@ -68,6 +70,21 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
         final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectOne(queryWrapper);
+    }
+
+    /**
+     * 根据条件查询第一条数据
+     *
+     * @param queryWrapper 实体对象封装操作类（可以为 null）
+     * @return 查询数据
+     */
+    @Override
+    default PO selectOne(@Param(Constants.WRAPPER) final Wrapper<PO> queryWrapper) {
+        final List<PO> pos = this.selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(pos)) {
+            return pos.get(0);
+        }
+        return null;
     }
 
     /**
