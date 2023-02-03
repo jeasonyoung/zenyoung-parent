@@ -1,13 +1,11 @@
 package top.zenyoung.orm.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.util.CollectionUtils;
 import top.zenyoung.orm.model.BasePO;
 
 import javax.annotation.Nonnull;
@@ -120,7 +118,7 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
      * @param pos 批量插入数据集合
      * @return 批量插入结果
      */
-    int batchAddOrUpdate(@Nonnull final List<PO> pos);
+    int batchAddOrUpdate(@Nonnull @Param(Constants.COLL) final List<PO> pos);
 
     /**
      * 物理删除数据

@@ -12,8 +12,11 @@ import org.apache.ibatis.mapping.SqlSource;
  *
  * @author young
  */
-@SuppressWarnings({"all"})
 public class PhysicalDeleteMethod extends AbstractMethod {
+
+    public PhysicalDeleteMethod() {
+        super("physicalDelete");
+    }
 
     @Override
     public MappedStatement injectMappedStatement(final Class<?> mapperClass, final Class<?> modelClass, final TableInfo tableInfo) {
@@ -24,6 +27,6 @@ public class PhysicalDeleteMethod extends AbstractMethod {
                                 "#{item}", "#{item." + tableInfo.getKeyProperty() + "}"),
                         COLL, null, "item", COMMA));
         final SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, Object.class);
-        return this.addDeleteMappedStatement(mapperClass, "physicalDelete", sqlSource);
+        return this.addDeleteMappedStatement(mapperClass, sqlSource);
     }
 }

@@ -12,8 +12,11 @@ import org.apache.ibatis.mapping.SqlSource;
  *
  * @author young
  */
-@SuppressWarnings({"all"})
 public class SelectPhysicalByIdsMethod extends AbstractMethod {
+
+    public SelectPhysicalByIdsMethod(){
+        super("selectPhysicalByIds");
+    }
 
     @Override
     public MappedStatement injectMappedStatement(final Class<?> mapperClass, final Class<?> modelClass, final TableInfo tableInfo) {
@@ -28,6 +31,6 @@ public class SelectPhysicalByIdsMethod extends AbstractMethod {
                 String.format(sql, selCols, tableInfo.getTableName(), tableInfo.getKeyColumn(), whereIn, ""),
                 Object.class);
         //
-        return addSelectMappedStatementForTable(mapperClass, "selectPhysicalByIds", sqlSource, tableInfo);
+        return addSelectMappedStatementForTable(mapperClass, sqlSource, tableInfo);
     }
 }

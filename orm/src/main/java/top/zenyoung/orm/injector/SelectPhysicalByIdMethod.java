@@ -12,8 +12,11 @@ import org.apache.ibatis.scripting.defaults.RawSqlSource;
  *
  * @author young
  */
-@SuppressWarnings({"all"})
 public class SelectPhysicalByIdMethod extends AbstractMethod {
+
+    public SelectPhysicalByIdMethod(){
+        super("selectPhysicalById");
+    }
 
     @Override
     public MappedStatement injectMappedStatement(final Class<?> mapperClass, final Class<?> modelClass, final TableInfo tableInfo) {
@@ -25,6 +28,6 @@ public class SelectPhysicalByIdMethod extends AbstractMethod {
         final SqlSource sqlSource = new RawSqlSource(configuration,
                 String.format(sql, selCols, tableInfo.getTableName(), tableInfo.getKeyColumn(), tableInfo.getKeyProperty(), ""),
                 Object.class);
-        return this.addSelectMappedStatementForTable(mapperClass, "selectPhysicalById", sqlSource, tableInfo);
+        return this.addSelectMappedStatementForTable(mapperClass, sqlSource, tableInfo);
     }
 }

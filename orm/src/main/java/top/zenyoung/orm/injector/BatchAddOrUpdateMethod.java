@@ -1,15 +1,17 @@
 package top.zenyoung.orm.injector;
 
+import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import com.google.common.collect.Maps;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
+import com.google.common.base.Joiner;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -17,46 +19,42 @@ import java.util.stream.Collectors;
  *
  * @author young
  */
-@SuppressWarnings({"all"})
 public class BatchAddOrUpdateMethod extends AbstractMethod {
-    private static final Map<Class<?>, List<String>> classColumnsMap = Maps.newConcurrentMap();
+
+    public BatchAddOrUpdateMethod() {
+        super("batchAddOrUpdate");
+    }
 
     @Override
     public MappedStatement injectMappedStatement(final Class<?> mapperClass, final Class<?> modelClass, final TableInfo tableInfo) {
-        //脚本模板
-        final String sql = "<script>\nINSERT INTO %s (%s)\nVALUES\n" +
-                "<foreach collection=\"list\" index=\"index\" item=\"item\" separator=\",\">\n %s \n</foreach>\n" +
-                "ON DUPLICATE KEY UPDATE\n%s\n</script>";
-        //字段list（除了主键）
-        final List<TableFieldInfo> fields = tableInfo.getFieldList();
-        //全部字段
-        final List<String> allFieldName = fields.stream()
+        final List<String> cols = tableInfo.getFieldList().stream()
                 .map(TableFieldInfo::getColumn)
                 .collect(Collectors.toList());
-        allFieldName.add(0, tableInfo.getKeyColumn());
-        //生成所需的SQL片段
-        final String fieldNames = String.join(COMMA, allFieldName);
-        final String insertFields = buildInsertFields(tableInfo);
-        final String updateFields = fields.stream()
-                .map(field -> {
-                    final String col = field.getColumn();
-                    return col + "=values(" + col + ")";
-                })
-                .collect(Collectors.joining(COMMA + NEWLINE));
-        //生成SQL
-        final String sqlResult = String.format(sql, tableInfo.getTableName(), fieldNames, insertFields, updateFields);
-        final SqlSource sqlSource = languageDriver.createSqlSource(configuration, sqlResult, modelClass);
-        return this.addUpdateMappedStatement(mapperClass, modelClass, "batchAddOrUpdate", sqlSource);
+        cols.add(0, tableInfo.getKeyColumn());
+        //
+        final String colScript = buildColSql(cols);
+        final String valScript = buildValSql(cols) + buildUpdateSql(cols);
+        final String sql = String.format(SqlMethod.INSERT_ONE.getSql(), tableInfo.getTableName(), colScript, valScript);
+        final SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, modelClass);
+        return this.addInsertMappedStatement(mapperClass, modelClass, sqlSource, null, null, null);
     }
 
-    private String buildInsertFields(@Nonnull final TableInfo tableInfo) {
-        final List<String> allFieldNames = tableInfo.getFieldList().stream()
-                .map(field -> field.getField().getName())
-                .collect(Collectors.toList());
-        allFieldNames.add(0, tableInfo.getKeyProperty());
-        final String insertFields = allFieldNames.stream()
-                .map(name -> "#{item." + name + "}")
+    private String buildColSql(@Nonnull final List<String> cols) {
+        return LEFT_BRACKET + Joiner.on(COMMA).join(cols) + RIGHT_BRACKET;
+    }
+
+    private String buildValSql(@Nonnull final List<String> cols) {
+        final String valScript = cols.stream()
+                .map(field -> "#{item." + field + "}")
                 .collect(Collectors.joining(COMMA));
-        return LEFT_BRACKET + insertFields + RIGHT_BRACKET;
+        return SqlScriptUtils.convertForeach(valScript, Constants.COLL, null, "item", COMMA);
+    }
+
+    private String buildUpdateSql(@Nonnull final List<String> cols) {
+        final String sql = "\n ON DUPLICATE KEY UPDATE\n%s\n";
+        final String updateScript = cols.stream()
+                .map(col -> col + "=values(" + col + ")")
+                .collect(Collectors.joining(COMMA + NEWLINE));
+        return String.format(sql, updateScript);
     }
 }
