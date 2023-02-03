@@ -44,9 +44,7 @@ public class BatchAddOrUpdateMethod extends AbstractMethod {
     }
 
     private String buildValSql(@Nonnull final List<String> cols) {
-        final String valScript = cols.stream()
-                .map(field -> "#{item." + field + "}")
-                .collect(Collectors.joining(COMMA));
+        final String valScript = LEFT_BRACKET + cols.stream().map(field -> "#{item." + field + "}").collect(Collectors.joining(COMMA)) + RIGHT_BRACKET;
         return SqlScriptUtils.convertForeach(valScript, Constants.COLL, null, "item", COMMA);
     }
 
