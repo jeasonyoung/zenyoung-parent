@@ -120,7 +120,7 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
      * @param pos 批量插入数据集合
      * @return 批量插入结果
      */
-    int batchAddOrUpdate(@Nonnull @Param(Constants.COLL) final Collection<PO> pos);
+    int batchAddOrUpdate(@Nonnull final List<PO> pos);
 
     /**
      * 物理删除数据
