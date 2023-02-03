@@ -314,8 +314,10 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         //补充数据
         patchData(po);
         //插入数据
-        final int ret = getMapper().batchAddOrUpdate(Lists.newArrayList(po));
-        //
+        final List<PO> pos = Lists.newArrayList();
+        pos.add(po);
+        final int ret = getMapper().batchAddOrUpdate(pos);
+        //新增结果
         return SqlHelper.retBool(ret);
     }
 
