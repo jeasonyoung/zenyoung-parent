@@ -124,7 +124,8 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     @Override
     public PO getOne(@Nonnull final Wrapper<PO> query) {
-        return getMapper().selectOne(query);
+        final List<PO> pos = this.queryList(query);
+        return CollectionUtils.isEmpty(pos) ? null : pos.get(0);
     }
 
     @Override

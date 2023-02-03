@@ -73,21 +73,6 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
     }
 
     /**
-     * 根据条件查询第一条数据
-     *
-     * @param queryWrapper 实体对象封装操作类（可以为 null）
-     * @return 查询数据
-     */
-    @Override
-    default PO selectOne(@Param(Constants.WRAPPER) final Wrapper<PO> queryWrapper) {
-        final List<PO> pos = this.selectList(queryWrapper);
-        if (!CollectionUtils.isEmpty(pos)) {
-            return pos.get(0);
-        }
-        return null;
-    }
-
-    /**
      * 根据条件判断是否存在记录
      *
      * @param consumer 查询条件处理
