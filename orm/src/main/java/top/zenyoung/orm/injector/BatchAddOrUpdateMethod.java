@@ -1,12 +1,18 @@
 package top.zenyoung.orm.injector;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.sql.SqlScriptUtils;
 import com.google.common.base.Joiner;
+import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
+import org.apache.ibatis.executor.keygen.KeyGenerator;
+import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 
@@ -36,7 +42,7 @@ public class BatchAddOrUpdateMethod extends AbstractMethod {
         final String valScript = buildValSql(cols) + buildUpdateSql(cols);
         final String sql = String.format(SqlMethod.INSERT_ONE.getSql(), tableInfo.getTableName(), colScript, valScript);
         final SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, modelClass);
-        return this.addInsertMappedStatement(mapperClass, modelClass, sqlSource, null, null, null);
+        return this.addInsertMappedStatement(mapperClass, modelClass, sqlSource, NoKeyGenerator.INSTANCE, null, null);
     }
 
     private String buildColSql(@Nonnull final List<String> cols) {
