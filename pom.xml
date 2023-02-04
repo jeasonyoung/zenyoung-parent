@@ -323,6 +323,13 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <repository>
+            <id>aliyun-public</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
     <licenses>
