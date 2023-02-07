@@ -103,6 +103,8 @@
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <!-- plugin -->
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <!-- os -->
+        <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -351,6 +353,13 @@
     </scm>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+            </extension>
+        </extensions>
         <pluginManagement>
             <plugins>
                 <!-- spring-boot-maven-plugin -->
