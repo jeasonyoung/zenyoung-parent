@@ -90,7 +90,7 @@ public class ZipUtils {
                 //是否需要保留文件目录结构
                 if (keepDirStructure) {
                     //空文件夹处理
-                    zipOutputStream.putNextEntry(new ZipEntry(name + File.pathSeparator));
+                    zipOutputStream.putNextEntry(new ZipEntry(name + File.separator));
                     //没有文件不需要复制文件内容
                     zipOutputStream.closeEntry();
                 }
@@ -102,7 +102,7 @@ public class ZipUtils {
                     continue;
                 }
                 final String childName = child.getName();
-                compress(child, keepDirStructure ? name + File.pathSeparator + childName : childName, zipOutputStream, keepDirStructure);
+                compress(child, keepDirStructure ? name + File.separator + childName : childName, zipOutputStream, keepDirStructure);
             }
         }
     }
