@@ -5,12 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -91,7 +90,7 @@ public class ZipUtils {
                 //是否需要保留文件目录结构
                 if (keepDirStructure) {
                     //空文件夹处理
-                    zipOutputStream.putNextEntry(new ZipEntry(name + "/"));
+                    zipOutputStream.putNextEntry(new ZipEntry(name + File.pathSeparator));
                     //没有文件不需要复制文件内容
                     zipOutputStream.closeEntry();
                 }
@@ -103,7 +102,47 @@ public class ZipUtils {
                     continue;
                 }
                 final String childName = child.getName();
-                compress(child, keepDirStructure ? name + "/" + childName : childName, zipOutputStream, keepDirStructure);
+                compress(child, keepDirStructure ? name + File.pathSeparator + childName : childName, zipOutputStream, keepDirStructure);
+            }
+        }
+    }
+
+    /**
+     * Zip解压
+     *
+     * @param zipFile ZIP压缩文件
+     * @param outDir  解压目录
+     * @throws IOException 异常
+     */
+    public static void toUnzip(@Nonnull final File zipFile, @Nonnull final File outDir) throws IOException {
+        if (!zipFile.exists() || !zipFile.isFile()) {
+            throw new FileNotFoundException(zipFile.getName() + "zip文件不存在");
+        }
+        try (final ZipInputStream zipInput = new ZipInputStream(FileUtils.openInputStream(zipFile))) {
+            ZipEntry entry;
+            while ((entry = zipInput.getNextEntry()) != null) {
+                final File outPath = FileUtils.getFile(outDir, entry.getName());
+                if (entry.isDirectory()) {
+                    if (!outPath.exists()) {
+                        final boolean ret = outPath.mkdirs();
+                        log.info("toUnzip[{}]=> outpath: {}", ret, outPath);
+                    }
+                    zipInput.closeEntry();
+                    continue;
+                }
+                final File parent = outPath.getParentFile();
+                if (!parent.exists()) {
+                    final boolean ret = parent.mkdirs();
+                    log.info("toUnzip[{}]=> parent: {}", ret, parent);
+                }
+                try (final FileOutputStream output = new FileOutputStream(outPath)) {
+                    final byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = zipInput.read(buf, 0, buf.length)) != -1) {
+                        output.write(buf, 0, len);
+                    }
+                    zipInput.closeEntry();
+                }
             }
         }
     }
