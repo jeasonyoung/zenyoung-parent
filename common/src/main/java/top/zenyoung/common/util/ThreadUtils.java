@@ -25,13 +25,28 @@ public class ThreadUtils {
     /**
      * 创建线程工厂
      *
-     * @param name 工厂名称
+     * @param daemon 是否为后台线程
+     * @param prefix 线程名称前缀
      * @return 线程工厂
      */
-    public static ThreadFactory createThreadFactory(@Nullable final String name) {
-        log.debug("createThreadFactory(name: {})...", name);
-        final String nameFormat = ThreadUtils.class.getSimpleName() + "_" + REF_COUNT.getAndIncrement() + (Strings.isNullOrEmpty(name) ? "" : "_" + name) + "-pools-%d";
-        return new ThreadFactoryBuilder().setNameFormat(nameFormat).build();
+    public static ThreadFactory createThreadFactory(final boolean daemon, @Nullable final String prefix) {
+        log.debug("createThreadFactory(daemon: {},prefix: {})...", daemon, prefix);
+        final long refIdx = REF_COUNT.incrementAndGet();
+        final String nameFormat = (Strings.isNullOrEmpty(prefix) ? "" : prefix) + "[" + refIdx + "]-pools-%d";
+        return new ThreadFactoryBuilder()
+                .setDaemon(daemon)
+                .setNameFormat(nameFormat)
+                .build();
+    }
+
+    /**
+     * 创建线程工厂
+     *
+     * @param prefix 工厂名称
+     * @return 线程工厂
+     */
+    public static ThreadFactory createThreadFactory(@Nullable final String prefix) {
+        return createThreadFactory(true, prefix);
     }
 
     private static BlockingQueue<Runnable> createBlockingQueue() {
@@ -42,6 +57,17 @@ public class ThreadUtils {
         return new ThreadPoolExecutor.DiscardOldestPolicy();
     }
 
+    public static Executor createPools(final boolean daemon, @Nullable final String prefix,
+                                       @Nullable final Integer min, @Nullable final Integer max) {
+        log.debug("createPools(daemon: {},prefix: {},min: {},max: {})...", daemon, prefix, min, max);
+        final int corePoolSize = Math.max(min == null ? 0 : min, MIN);
+        final int maxPoolSize = Math.max(max == null ? 0 : max, MAX);
+        final long keepAliveTimeSeconds = KEEP_ALIVE.getSeconds();
+        return new ThreadPoolExecutor(corePoolSize, maxPoolSize,
+                keepAliveTimeSeconds, TimeUnit.SECONDS,
+                createBlockingQueue(), createThreadFactory(daemon, prefix), createRejectedHandler());
+    }
+
     /**
      * 创建线程池
      *
@@ -50,11 +76,7 @@ public class ThreadUtils {
      * @return 线程池
      */
     public static Executor createPools(@Nullable final Integer min, @Nullable final Integer max) {
-        log.debug("createPools(min: {},max: {})...", min, max);
-        final int corePoolSize = Math.max(min == null ? 0 : min, MIN);
-        final int maxPoolSize = Math.max(max == null ? 0 : max, MAX);
-        return new ThreadPoolExecutor(corePoolSize, maxPoolSize, KEEP_ALIVE.getSeconds(), TimeUnit.SECONDS,
-                createBlockingQueue(), createThreadFactory("createPools"), createRejectedHandler());
+        return createPools(true, "default", min, max);
     }
 
     /**
@@ -75,7 +97,7 @@ public class ThreadUtils {
     public static ScheduledExecutorService createScheduledPools(@Nullable final Integer pools) {
         log.debug("createScheduledPools(pools: {})...", pools);
         return new ScheduledThreadPoolExecutor(Math.max(pools == null ? 0 : pools, 1),
-                createThreadFactory("createScheduledPools"), createRejectedHandler());
+                createThreadFactory("default-scheduled"), createRejectedHandler());
     }
 
     /**
