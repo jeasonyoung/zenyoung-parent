@@ -1,7 +1,7 @@
 package top.zenyoung.common.captcha;
 
-import top.zenyoung.common.image.GraphicsUtils;
-import top.zenyoung.common.image.ImageUtils;
+import top.zenyoung.common.util.GraphicsUtils;
+import top.zenyoung.common.util.ImageUtils;
 import top.zenyoung.common.util.RandomUtils;
 
 import java.awt.*;

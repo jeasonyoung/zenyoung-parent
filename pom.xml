@@ -48,6 +48,9 @@
         <module>generator</module>
         <!-- micro -->
         <module>micro</module>
+
+        <!-- jfx -->
+        <module>jfx-validator</module>
     </modules>
 
     <properties>
@@ -312,6 +315,12 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>micro</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
+            <!-- jfx -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>jfx-validator</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
         </dependencies>

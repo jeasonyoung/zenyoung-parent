@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import top.zenyoung.common.util.FileTypeUtils;
+import top.zenyoung.common.util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

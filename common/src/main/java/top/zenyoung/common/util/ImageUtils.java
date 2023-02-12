@@ -1,11 +1,12 @@
-package top.zenyoung.common.image;
+package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import top.zenyoung.common.util.RandomUtils;
+import top.zenyoung.common.image.BackgroundRemoval;
+import top.zenyoung.common.image.LocalImage;
 
 import javax.annotation.Nonnull;
 import javax.imageio.*;

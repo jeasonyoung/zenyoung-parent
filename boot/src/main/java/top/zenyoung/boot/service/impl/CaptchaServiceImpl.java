@@ -16,7 +16,7 @@ import top.zenyoung.boot.service.CaptchaStorageService;
 import top.zenyoung.common.captcha.BaseCaptcha;
 import top.zenyoung.common.captcha.Captcha;
 import top.zenyoung.common.captcha.generator.CodeGenerator;
-import top.zenyoung.common.image.ImageUtils;
+import top.zenyoung.common.util.ImageUtils;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.common.util.BeanCacheUtils;

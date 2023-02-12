@@ -6,8 +6,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import top.zenyoung.common.captcha.generator.CodeGenerator;
 import top.zenyoung.common.captcha.generator.RandomGenerator;
-import top.zenyoung.common.image.FontUtils;
-import top.zenyoung.common.image.ImageUtils;
+import top.zenyoung.common.util.FontUtils;
+import top.zenyoung.common.util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

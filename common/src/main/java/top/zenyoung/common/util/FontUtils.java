@@ -1,4 +1,4 @@
-package top.zenyoung.common.image;
+package top.zenyoung.common.util;
 
 import java.awt.*;
 import java.io.File;
