@@ -19,9 +19,10 @@ import java.util.function.Function;
  * @author r.lichtenberger@synedra.com
  */
 public class DefaultDecoration {
+    private static final String PREFIX = "/top/zenyoung/jfx/validator";
 
-    private static final Image ERROR_IMAGE = fromResource("/decoration-error.png");
-    private static final Image WARNING_IMAGE = fromResource("/decoration-warning.png");
+    private static final Image ERROR_IMAGE = fromResource(PREFIX + "/decoration-error.png");
+    private static final Image WARNING_IMAGE = fromResource(PREFIX + "/decoration-warning.png");
 
     private static final String POPUP_SHADOW_EFFECT = "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 5);";
     private static final String TOOLTIP_COMMON_EFFECTS = "-fx-font-weight: bold; -fx-padding: 5; -fx-border-width:1;";
