@@ -5,11 +5,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
 import top.zenyoung.common.util.JfxUtils;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -32,14 +29,6 @@ public class SplashScreen {
      */
     @Setter
     private Double prefHeight;
-
-    public void setApplicationContext(@Nullable final ConfigurableApplicationContext context) {
-        if (Objects.nonNull(context)) {
-            final ConfigurableEnvironment env = context.getEnvironment();
-            PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_WIDTH, Double.class, w -> prefWidth = w);
-            PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_HEIGHT, Double.class, h -> prefHeight = h);
-        }
-    }
 
     /**
      * Override this to create your own splash pane parent node.
