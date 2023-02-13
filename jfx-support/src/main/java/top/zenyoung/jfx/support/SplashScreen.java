@@ -4,7 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import lombok.Setter;
+import lombok.Getter;
 import top.zenyoung.common.util.JfxUtils;
 
 import java.util.Objects;
@@ -22,12 +22,12 @@ public class SplashScreen {
     /**
      * 宽度
      */
-    @Setter
+    @Getter
     private Double prefWidth;
     /**
      * 高度
      */
-    @Setter
+    @Getter
     private Double prefHeight;
 
     /**
