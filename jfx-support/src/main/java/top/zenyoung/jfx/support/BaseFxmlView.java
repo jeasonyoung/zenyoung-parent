@@ -76,7 +76,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
         log.debug("AbstractFxmlView construction");
         // Set the root path to package path
         this.fxmlRoot = PropertyReaderHelper.determineFilePathFromPackageName(getClass());
-        this.annotation = getFXMLAnnotation();
+        this.annotation = getFxmlAnnotation();
         this.resource = getUrlResource(annotation);
         this.presenterProperty = new SimpleObjectProperty<>();
         this.bundle = getResourceBundle(getBundleName());
@@ -103,7 +103,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
      *
      * @return the FXML annotation
      */
-    private FXMLView getFXMLAnnotation() {
+    private FXMLView getFxmlAnnotation() {
         final Class<? extends BaseFxmlView> theClass = this.getClass();
         return theClass.getAnnotation(FXMLView.class);
     }

@@ -4,8 +4,12 @@ import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import lombok.Setter;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import top.zenyoung.common.util.JfxUtils;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -18,6 +22,24 @@ import java.util.Objects;
  */
 public class SplashScreen {
     private final static String RES_PREFIX = "/top/zenyoung/jfx/support";
+    /**
+     * 宽度
+     */
+    @Setter
+    private Double prefWidth;
+    /**
+     * 高度
+     */
+    @Setter
+    private Double prefHeight;
+
+    public void setApplicationContext(@Nullable final ConfigurableApplicationContext context) {
+        if (Objects.nonNull(context)) {
+            final ConfigurableEnvironment env = context.getEnvironment();
+            PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_WIDTH, Double.class, w -> prefWidth = w);
+            PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_HEIGHT, Double.class, h -> prefHeight = h);
+        }
+    }
 
     /**
      * Override this to create your own splash pane parent node.
@@ -27,10 +49,19 @@ public class SplashScreen {
     public Parent getParent() {
         final ImageView imageView = JfxUtils.fromResourceToImageView(getClass(), getImagePath());
         final ProgressBar splashProgressBar = new ProgressBar();
-        if (Objects.nonNull(imageView)) {
+        final VBox vbox = new VBox();
+        //宽度
+        if (Objects.nonNull(prefWidth) && prefWidth > 0) {
+            vbox.setPrefWidth(prefWidth);
+            splashProgressBar.setPrefWidth(prefWidth);
+        } else if (Objects.nonNull(imageView)) {
             splashProgressBar.setPrefWidth(imageView.getImage().getWidth());
         }
-        final VBox vbox = new VBox();
+        //高度
+        if (Objects.nonNull(prefHeight) && prefHeight > 0) {
+            vbox.setPrefHeight(prefHeight);
+        }
+        //添加
         vbox.getChildren().addAll(imageView, splashProgressBar);
         return vbox;
     }

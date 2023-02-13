@@ -121,6 +121,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
         GUIState.setStage(stage);
         final Stage splashStage = new Stage(StageStyle.TRANSPARENT);
         if (splashScreen.visible()) {
+            splashScreen.setApplicationContext(applicationContext);
             final Scene splashScene = new Scene(splashScreen.getParent(), Color.TRANSPARENT);
             splashStage.setScene(splashScene);
             splashStage.getIcons().addAll(defaultIcons);
