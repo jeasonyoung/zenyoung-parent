@@ -1,6 +1,5 @@
 package top.zenyoung.jfx.support;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import javafx.application.Application;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.util.JfxUtils;
 
 import javax.annotation.Nonnull;
@@ -201,32 +199,6 @@ public abstract class BaseJavaFxAppSupport extends Application {
         final ConfigurableEnvironment env = applicationContext.getEnvironment();
         final Stage stage = GUIState.getStage();
         PropertyReaderHelper.setIfPresent(env, Constant.KEY_TITLE, String.class, stage::setTitle);
-        PropertyReaderHelper.setIfPresent(env, Constant.KEY_CSS, String.class, css -> {
-            if (!Strings.isNullOrEmpty(css)) {
-                final Scene scene = GUIState.getScene();
-                if (Objects.nonNull(scene)) {
-                    final Class<?> cls = BaseJavaFxAppSupport.class;
-                    final List<String> cssFiles = Splitter.on(";")
-                            .trimResults().omitEmptyStrings().splitToList(css).stream()
-                            .map(path -> {
-                                if (!Strings.isNullOrEmpty(path)) {
-                                    final String cssPath = JfxUtils.fromResource(cls, path);
-                                    if (!Strings.isNullOrEmpty(cssPath)) {
-                                        return path;
-                                    }
-                                    return cssPath;
-                                }
-                                return null;
-                            })
-                            .filter(path -> !Strings.isNullOrEmpty(path))
-                            .distinct()
-                            .collect(Collectors.toList());
-                    if (!CollectionUtils.isEmpty(cssFiles)) {
-                        scene.getStylesheets().addAll(cssFiles);
-                    }
-                }
-            }
-        });
         PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_WIDTH, Double.class, stage::setWidth);
         PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_HEIGHT, Double.class, stage::setHeight);
         PropertyReaderHelper.setIfPresent(env, Constant.KEY_STAGE_RESIZABLE, Boolean.class, stage::setResizable);

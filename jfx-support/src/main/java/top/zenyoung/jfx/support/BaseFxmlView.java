@@ -1,6 +1,8 @@
 package top.zenyoung.jfx.support;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.util.JfxUtils;
 
 import javax.annotation.Nonnull;
@@ -29,6 +32,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.ResourceBundle.getBundle;
@@ -256,7 +260,9 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
     public Parent getView() {
         ensureFxmlLoaderInitialized();
         final Parent parent = fxmlLoader.getRoot();
+        //添加默认样式
         addCssIfAvailable(parent);
+        //返回对象
         return parent;
     }
 
@@ -294,30 +300,43 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
      *
      * @param parent the parent
      */
-    void addCssIfAvailable(@Nonnull final Parent parent) {
+    private void addCssIfAvailable(@Nonnull final Parent parent) {
+        final List<String> globals = Lists.newArrayList();
         // Read global css when available:
-        final List<String> list = PropertyReaderHelper.get(applicationContext.getEnvironment(), "javafx.css");
-        if (!list.isEmpty()) {
+        final List<String> list = PropertyReaderHelper.get(applicationContext.getEnvironment(), Constant.KEY_CSS);
+        if (!CollectionUtils.isEmpty(list)) {
             final Class<?> cls = getClass();
-            final ObservableList<String> stylesheets = parent.getStylesheets();
-            list.forEach(css -> {
-                if (!Strings.isNullOrEmpty(css)) {
-                    final String path = JfxUtils.fromResource(cls, css);
-                    if (!Strings.isNullOrEmpty(path) && !stylesheets.contains(path)) {
-                        stylesheets.add(path);
-                    }
-                }
-            });
+            final String sep = ";";
+            globals.addAll(list.stream()
+                    .map(css -> {
+                        if (!Strings.isNullOrEmpty(css)) {
+                            if (css.contains(sep)) {
+                                return Splitter.on(sep).omitEmptyStrings().trimResults().splitToList(css);
+                            }
+                            return Lists.newArrayList(css);
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .map(css -> JfxUtils.fromResource(cls, css))
+                    .filter(path -> !Strings.isNullOrEmpty(path))
+                    .distinct()
+                    .collect(Collectors.toList())
+            );
+        } else {
+            globals.add(JfxUtils.getBootstrapCss());
         }
+        if (!CollectionUtils.isEmpty(globals)) {
+            parent.getStylesheets().addAll(globals);
+        }
+        //注解样式加载
         addCssFromAnnotation(parent);
-
-        final URL uri = getClass().getResource(getStyleSheetName());
-        if (uri == null) {
-            return;
+        //默认样式文件
+        final String uriToCss = JfxUtils.fromResource(getClass(), getStyleSheetName());
+        if (!Strings.isNullOrEmpty(uriToCss)) {
+            parent.getStylesheets().add(uriToCss);
         }
-
-        final String uriToCss = uri.toExternalForm();
-        parent.getStylesheets().add(uriToCss);
     }
 
     /**
@@ -329,18 +348,13 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
         final String[] css;
         if (Objects.nonNull(annotation) && Objects.nonNull(css = annotation.css()) && css.length > 0) {
             final Class<?> cls = getClass();
-            final ObservableList<String> styleSheets = parent.getStylesheets();
-            Stream.of(css)
-                    .filter(cssFile -> !Strings.isNullOrEmpty(cssFile))
-                    .forEach(cssFile -> {
-                        final String path = JfxUtils.fromResource(cls, cssFile);
-                        if (!Strings.isNullOrEmpty(path)) {
-                            styleSheets.add(path);
-                            log.debug("css file added to parent: {}", cssFile);
-                        } else {
-                            log.warn("referenced {} css file could not be located", cssFile);
-                        }
-                    });
+            final List<String> annSheets = Stream.of(css)
+                    .map(f -> JfxUtils.fromResource(cls, f))
+                    .filter(path -> !Strings.isNullOrEmpty(path))
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(annSheets)) {
+                parent.getStylesheets().addAll(annSheets);
+            }
         }
     }
 

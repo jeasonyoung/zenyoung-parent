@@ -1,12 +1,19 @@
 package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
+import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.kordamp.bootstrapfx.scene.layout.Panel;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.URL;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Jfx 工具类
@@ -59,5 +66,15 @@ public class JfxUtils {
             return new Image(uri);
         }
         return null;
+    }
+
+    /**
+     * 获取Bootstrap全局样式文件
+     *
+     * @return 样式文件
+     */
+    public static String getBootstrapCss() {
+        final String css = "org/kordamp/bootstrapfx/bootstrapfx.css";
+        return fromResource(Panel.class, css);
     }
 }
