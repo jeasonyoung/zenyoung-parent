@@ -50,6 +50,7 @@
         <module>micro</module>
 
         <!-- jfx -->
+        <module>jfx-support</module>
         <module>jfx-validator</module>
     </modules>
 
@@ -318,6 +319,11 @@
                 <version>${zenyoung.version}</version>
             </dependency>
             <!-- jfx -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>jfx-support</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>jfx-validator</artifactId>
