@@ -74,7 +74,7 @@ public class JfxUtils {
      * @return 样式文件
      */
     public static String getBootstrapCss() {
-        final String css = "org/kordamp/bootstrapfx/bootstrapfx.css";
+        final String css = "/org/kordamp/bootstrapfx/bootstrapfx.css";
         return fromResource(Panel.class, css);
     }
 }

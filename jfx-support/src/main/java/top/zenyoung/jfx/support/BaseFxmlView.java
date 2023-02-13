@@ -325,7 +325,10 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
                     .collect(Collectors.toList())
             );
         } else {
-            globals.add(JfxUtils.getBootstrapCss());
+            final String css = JfxUtils.getBootstrapCss();
+            if (!Strings.isNullOrEmpty(css)) {
+                globals.add(css);
+            }
         }
         if (!CollectionUtils.isEmpty(globals)) {
             parent.getStylesheets().addAll(globals);
