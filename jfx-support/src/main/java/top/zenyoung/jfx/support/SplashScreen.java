@@ -4,7 +4,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import lombok.Getter;
 import top.zenyoung.common.util.JfxUtils;
 
 import java.util.Objects;
@@ -19,16 +18,20 @@ import java.util.Objects;
  */
 public class SplashScreen {
     private final static String RES_PREFIX = "/top/zenyoung/jfx/support";
+
     /**
      * 宽度
      */
-    @Getter
-    private Double prefWidth;
+    public Double getPrefWidth() {
+        return null;
+    }
+
     /**
      * 高度
      */
-    @Getter
-    private Double prefHeight;
+    public Double getPrefHeight() {
+        return null;
+    }
 
     /**
      * Override this to create your own splash pane parent node.
@@ -36,22 +39,26 @@ public class SplashScreen {
      * @return A standard image
      */
     public Parent getParent() {
-        final ImageView imageView = JfxUtils.fromResourceToImageView(getClass(), getImagePath());
-        final ProgressBar splashProgressBar = new ProgressBar();
         final VBox vbox = new VBox();
-        //宽度
-        if (Objects.nonNull(prefWidth) && prefWidth > 0) {
-            vbox.setPrefWidth(prefWidth);
-            splashProgressBar.setPrefWidth(prefWidth);
-        } else if (Objects.nonNull(imageView)) {
-            splashProgressBar.setPrefWidth(imageView.getImage().getWidth());
+        final ImageView imageView = JfxUtils.fromResourceToImageView(getClass(), getImagePath());
+        if (Objects.nonNull(imageView)) {
+            final ProgressBar splashProgressBar = new ProgressBar();
+            //宽度
+            final Double prefWidth;
+            if (Objects.nonNull(prefWidth = getPrefWidth()) && prefWidth > 0) {
+                imageView.setFitWidth(prefWidth);
+                splashProgressBar.setPrefWidth(prefWidth);
+            } else {
+                splashProgressBar.setPrefWidth(imageView.getImage().getWidth());
+            }
+            //高度
+            final Double prefHeight;
+            if (Objects.nonNull(prefHeight = getPrefHeight()) && prefHeight > 0) {
+                imageView.setFitHeight(prefHeight);
+            }
+            //添加
+            vbox.getChildren().addAll(imageView, splashProgressBar);
         }
-        //高度
-        if (Objects.nonNull(prefHeight) && prefHeight > 0) {
-            vbox.setPrefHeight(prefHeight);
-        }
-        //添加
-        vbox.getChildren().addAll(imageView, splashProgressBar);
         return vbox;
     }
 
