@@ -11,13 +11,24 @@ import javax.annotation.Nullable;
  * @author young
  */
 public class ServiceException extends BaseException {
+
+    /**
+     * 构造函数
+     *
+     * @param code    异常代码
+     * @param message 异常消息
+     */
+    public ServiceException(@Nonnull final Integer code, @Nullable final String message) {
+        super(code, message);
+    }
+
     /**
      * 构造函数
      *
      * @param msg 异常消息
      */
     public ServiceException(@Nullable final String msg) {
-        super(500, msg);
+        this(500, msg);
     }
 
     public ServiceException(@Nonnull final EnumValue enumValue) {
