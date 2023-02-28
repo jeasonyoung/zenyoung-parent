@@ -73,7 +73,6 @@ public class RequestBodyReaderWrapper extends HttpServletRequestWrapper {
     protected List<MediaType> includeMediaTypes() {
         return Lists.newArrayList(
                 MediaType.APPLICATION_JSON,
-                MediaType.APPLICATION_JSON_UTF8,
                 MediaType.APPLICATION_FORM_URLENCODED
         );
     }

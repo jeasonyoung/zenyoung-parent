@@ -31,7 +31,7 @@ import top.zenyoung.common.sequence.IdSequence;
         "top.zenyoung.boot.resolver",
         "top.zenyoung.boot.controller"
 })
-@Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, ExceptionController.class})
+@Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, Knife4jConfig.class, ExceptionController.class})
 @EnableConfigurationProperties({RepeatSubmitProperties.class, CaptchaProperties.class, IdSequenceProperties.class})
 public class BootAutoConfiguration {
 

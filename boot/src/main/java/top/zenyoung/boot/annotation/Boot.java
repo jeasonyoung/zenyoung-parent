@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 import java.lang.annotation.*;
 
@@ -15,14 +16,15 @@ import java.lang.annotation.*;
  *
  * @author young
  */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 @EnableAsync
 @EnableCaching
 @EnableScheduling
+@EnableSwagger2WebMvc
 @SpringBootApplication
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Boot {
     /**
      * 排除启动服务集合
