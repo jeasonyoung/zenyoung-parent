@@ -26,6 +26,11 @@
             <groupId>top.zenyoung</groupId>
             <artifactId>file-common</artifactId>
         </dependency>
+        <!-- 默认阿里云OSS -->
+        <dependency>
+            <groupId>top.zenyoung</groupId>
+            <artifactId>file-aliyun</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
