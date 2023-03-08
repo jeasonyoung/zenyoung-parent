@@ -12,6 +12,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import top.zenyoung.file.FileService;
 import top.zenyoung.file.dto.DirectDTO;
+import top.zenyoung.file.util.ExtHeadersUtils;
 import top.zenyoung.file.util.TrimUtils;
 import top.zenyoung.file.vo.DirectVO;
 import top.zenyoung.file.vo.FileVO;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,6 +36,7 @@ import java.util.Objects;
 public class AliyunFileService implements FileService {
     private final static long MAX_FILE_SIZE = 1048576000L;
     private final OSS client;
+    private final Map<String, Map<String, String>> extHeaders;
 
     @Override
     public boolean checkFileExists(@Nonnull final String bucket, @Nonnull final String key) {
@@ -92,8 +95,11 @@ public class AliyunFileService implements FileService {
     public FileVO upload(@Nonnull final String bucket, @Nonnull final String key, @Nonnull final String fileName, @Nonnull final InputStream input) {
         //文件大小
         final long size = input.available();
+        //后缀名
+        final String ext = FilenameUtils.getExtension(key);
         //创建上传配置
         final ObjectMetadata metadata = createMetadata(fileName, size);
+        ExtHeadersUtils.handler(extHeaders, ext, metadata::setHeader);
         //上传文件
         final PutObjectResult ret = client.putObject(bucket, key, input, metadata);
         log.info("upload(bucket: {},key: {})=> {}", bucket, key, ret);
@@ -101,7 +107,7 @@ public class AliyunFileService implements FileService {
         return FileVO.builder()
                 .name(fileName)
                 .size(size)
-                .suffix(FilenameUtils.getExtension(fileName))
+                .suffix(ext)
                 .key(key)
                 .build();
     }
@@ -140,6 +146,8 @@ public class AliyunFileService implements FileService {
         final CopyObjectRequest copyReq = new CopyObjectRequest(sourceBucket, sourceKey, targetBucket, targetKey);
         //设置新的文件元信息
         final ObjectMetadata metadata = client.getObjectMetadata(sourceBucket, sourceKey);
+        final String ext = FilenameUtils.getExtension(targetKey);
+        ExtHeadersUtils.handler(extHeaders, ext, metadata::setHeader);
         copyReq.setNewObjectMetadata(metadata);
         //复制文件
         final CopyObjectResult ret = client.copyObject(copyReq);

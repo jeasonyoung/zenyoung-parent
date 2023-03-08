@@ -27,6 +27,6 @@ public class AliyunFileServiceFactory implements FileServiceFactory {
     public FileService create(@Nonnull final Properties prop) {
         final CredentialsProvider provider = new DefaultCredentialProvider(prop.getAccessKeyId(), prop.getAccessKeySecret());
         final OSSClient client = new OSSClient(prop.getEndpoint(), provider, new ClientBuilderConfiguration());
-        return AliyunFileService.of(client);
+        return AliyunFileService.of(client, prop.getExtHeaders());
     }
 }

@@ -1,8 +1,10 @@
 package top.zenyoung.file;
 
+import com.google.common.collect.Maps;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 文件配置
@@ -23,4 +25,8 @@ public class Properties implements Serializable {
      * 接入秘钥
      */
     private String accessKeySecret;
+    /**
+     * 上传文件后缀处理
+     */
+    private Map<String, Map<String, String>> extHeaders = Maps.newLinkedHashMap();
 }

@@ -10,6 +10,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import top.zenyoung.file.FileService;
 import top.zenyoung.file.dto.DirectDTO;
+import top.zenyoung.file.util.ExtHeadersUtils;
 import top.zenyoung.file.util.TrimUtils;
 import top.zenyoung.file.vo.DirectVO;
 import top.zenyoung.file.vo.FileVO;
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -34,6 +36,7 @@ import java.util.stream.Stream;
 public class HuaweiFileService implements FileService {
     private final static long MAX_FILE_SIZE = 1048576000L;
     private final ObsClient client;
+    private final Map<String, Map<String, String>> extHeaders;
 
     @Override
     public boolean checkFileExists(@Nonnull final String bucket, @Nonnull final String key) {
@@ -96,6 +99,8 @@ public class HuaweiFileService implements FileService {
     public FileVO upload(@Nonnull final String bucket, @Nonnull final String key, @Nonnull final String fileName, @Nonnull final InputStream input) {
         final long size = input.available();
         final ObjectMetadata metadata = createMetadata(fileName, size);
+        final String ext = FilenameUtils.getExtension(key);
+        ExtHeadersUtils.handler(extHeaders, ext, metadata::addUserMetadata);
         final PutObjectResult ret = client.putObject(bucket, key, input, metadata);
         log.info("upload(bucket: {},key: {})=> {}", bucket, key, ret);
         //返回文件
@@ -141,6 +146,8 @@ public class HuaweiFileService implements FileService {
         final CopyObjectRequest copyReq = new CopyObjectRequest(sourceBucket, sourceKey, targetBucket, targetKey);
         //设置新的文件元信息
         final ObjectMetadata metadata = client.getObjectMetadata(sourceBucket, sourceKey);
+        final String ext = FilenameUtils.getExtension(targetKey);
+        ExtHeadersUtils.handler(extHeaders, ext, metadata::addUserMetadata);
         copyReq.setNewObjectMetadata(metadata);
         //复制文件
         final CopyObjectResult ret = client.copyObject(copyReq);
