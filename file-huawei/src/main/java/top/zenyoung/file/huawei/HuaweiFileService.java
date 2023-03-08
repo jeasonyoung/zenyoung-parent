@@ -107,7 +107,7 @@ public class HuaweiFileService implements FileService {
         return FileVO.builder()
                 .name(fileName)
                 .size(size)
-                .suffix(FilenameUtils.getExtension(fileName))
+                .suffix(ext)
                 .key(key)
                 .build();
     }
