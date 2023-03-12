@@ -8,14 +8,12 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.annotation.PrivacyPolicy;
 import top.zenyoung.boot.annotation.PrivacyPolicyType;
-import top.zenyoung.common.util.ClassUtils;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -39,16 +37,11 @@ public class PrivacyPolicyAspect extends BaseAspect {
 
     @SneakyThrows({})
     private void buildPrivacyPolicy(@Nonnull final Class<?> cls, @Nonnull final PrivacyPolicy policy, @Nonnull final Object objVal) {
-        final List<Field> fields = Lists.newLinkedList();
-        ClassUtils.getAllFieldsWithSuper(cls, fields);
-        if (!CollectionUtils.isEmpty(fields)) {
-            final List<String> privacyNames = policy.fields() == null ? Lists.newArrayList() : Lists.newArrayList(policy.fields());
-            for (Field field : fields) {
+        final List<String> privacyNames = Objects.isNull(policy.fields()) ? Lists.newArrayList() : Lists.newArrayList(policy.fields());
+        ReflectionUtils.doWithFields(cls, field -> {
+            final Object fVal = field.get(objVal);
+            if (Objects.nonNull(fVal)) {
                 final Class<?> fCls = field.getType();
-                final Object fVal = field.get(objVal);
-                if (fVal == null) {
-                    continue;
-                }
                 if (field.isAnnotationPresent(PrivacyPolicy.class) || privacyNames.contains(field.getName())) {
                     //设置可见性
                     field.setAccessible(true);
@@ -100,7 +93,7 @@ public class PrivacyPolicyAspect extends BaseAspect {
                     }
                 }
             }
-        }
+        });
     }
 
     private String buildPrivacyHandler(@Nonnull final Class<?> cls, @Nonnull final PrivacyPolicy policy, @Nonnull final Object objVal) {

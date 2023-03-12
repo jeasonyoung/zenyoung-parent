@@ -13,11 +13,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.annotation.OperaLogView;
 import top.zenyoung.boot.annotation.OperaLogViewFieldValue;
 import top.zenyoung.boot.model.LogViewFieldType;
 import top.zenyoung.common.util.CacheUtils;
-import top.zenyoung.common.util.ClassUtils;
 import top.zenyoung.common.util.JsonUtils;
 
 import javax.annotation.Nonnull;
@@ -27,6 +27,7 @@ import java.lang.reflect.Parameter;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -54,16 +55,16 @@ public class OperaLogViewAspect extends BaseAspect {
             final String logViewFieldName;
             if (jsonResult != null && !Strings.isNullOrEmpty(logViewFieldName = controllerLogView.value())) {
                 final Class<?> retCls = jsonResult.getClass();
-                final Field reqMethod = ClassUtils.findFieldByClass(retCls, f -> METHOD_KEY.equalsIgnoreCase(f.getName()));
-                if (reqMethod != null) {
+                final Field reqMethod = ReflectionUtils.findField(retCls, METHOD_KEY);
+                if (Objects.nonNull(reqMethod)) {
                     final Object methodObj = reqMethod.get(jsonResult);
                     if (methodObj instanceof String) {
                         final String method = methodObj + "";
                         if (!Strings.isNullOrEmpty(method)) {
-                            final Field reqDataField = ClassUtils.findFieldByClass(retCls, f -> logViewFieldName.equalsIgnoreCase(f.getName()));
-                            if (reqDataField != null) {
+                            final Field reqDataField = ReflectionUtils.findField(retCls, logViewFieldName);
+                            if (Objects.nonNull(reqDataField)) {
                                 final Object oldVal = reqDataField.get(jsonResult);
-                                if (oldVal != null) {
+                                if (Objects.nonNull(oldVal)) {
                                     final Map<String, LogReqParamVal> dataMap = JsonUtils.toMap(objMapper, oldVal, LogReqParamVal.class);
                                     if (!CollectionUtils.isEmpty(dataMap)) {
                                         //业务处理后的值
@@ -123,7 +124,7 @@ public class OperaLogViewAspect extends BaseAspect {
                 }
             } else {
                 final List<Field> fields = Lists.newLinkedList();
-                ClassUtils.getAllFieldsWithSuper(pc, fields);
+                ReflectionUtils.doWithFields(pc, fields::add);
                 if (!CollectionUtils.isEmpty(fields)) {
                     for (Field f : fields) {
                         if (name.equalsIgnoreCase(f.getName())) {

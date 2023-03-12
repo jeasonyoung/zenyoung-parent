@@ -1,6 +1,7 @@
 package top.zenyoung.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DateRangeVO implements Serializable {
     /**
      * 开始时间

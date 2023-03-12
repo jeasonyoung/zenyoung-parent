@@ -5,7 +5,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,23 +28,20 @@ public class ProcessUtils {
     private static final String SEP = " ";
 
     private static List<String> buildArgments(@Nonnull final List<String> argments) {
-        if (!CollectionUtils.isEmpty(argments)) {
-            return argments.stream()
-                    .map(arg -> {
-                        if (!Strings.isNullOrEmpty(arg)) {
-                            return Splitter.on(SEP)
-                                    .trimResults()
-                                    .omitEmptyStrings()
-                                    .splitToList(arg);
-                        }
-                        return null;
-                    })
-                    .filter(Objects::nonNull)
-                    .flatMap(Collection::stream)
-                    .filter(arg -> !Strings.isNullOrEmpty(arg))
-                    .collect(Collectors.toList());
-        }
-        return null;
+        return argments.stream()
+                .map(arg -> {
+                    if (!Strings.isNullOrEmpty(arg)) {
+                        return Splitter.on(SEP)
+                                .trimResults()
+                                .omitEmptyStrings()
+                                .splitToList(arg);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .filter(arg -> !Strings.isNullOrEmpty(arg))
+                .collect(Collectors.toList());
     }
 
     private static String getProcessOutput(@Nullable final InputStream input) {
@@ -75,7 +71,7 @@ public class ProcessUtils {
      */
     public static String exec(@Nonnull final List<String> argments) throws Exception {
         final List<String> cmds = buildArgments(argments);
-        if (CollectionUtils.isEmpty(cmds)) {
+        if (cmds.size() == 0) {
             throw new IllegalArgumentException("'argments'为空或不合法!");
         }
         final String key = Joiner.on(SEP).join(cmds);

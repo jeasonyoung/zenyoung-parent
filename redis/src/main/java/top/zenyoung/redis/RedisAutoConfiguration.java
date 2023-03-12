@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import top.zenyoung.boot.service.CaptchaStorageService;
+import top.zenyoung.graphics.service.CaptchaStorageService;
 import top.zenyoung.redis.lock.LockService;
 import top.zenyoung.redis.lock.impl.RedisLockServiceImpl;
 import top.zenyoung.redis.service.QueueService;

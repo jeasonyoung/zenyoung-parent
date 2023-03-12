@@ -18,6 +18,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.boot.annotation.OperaLog;
@@ -26,7 +27,6 @@ import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.dto.OperaLogDTO;
 import top.zenyoung.common.model.OperaType;
 import top.zenyoung.common.model.Status;
-import top.zenyoung.common.util.ClassUtils;
 import top.zenyoung.common.util.JsonUtils;
 
 import javax.annotation.Nonnull;
@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -291,24 +290,19 @@ public class OperaLogAspect extends BaseAspect {
                 argParamValMaps.put(argName, rpv);
             }
         } else {
-            final List<Field> fields = Lists.newLinkedList();
-            ClassUtils.getAllFieldsWithSuper(cls, fields);
-            if (!CollectionUtils.isEmpty(fields)) {
-                fields.stream().filter(Objects::nonNull)
-                        .forEach(field -> {
-                            try {
-                                //设置可见性
-                                field.setAccessible(true);
-                                //获取对象值
-                                final Object val = field.get(argVal);
-                                if (val != null && isNotFilterObject(val)) {
-                                    buildParamArgValHandler(field.getName(), null, val, field.getAnnotations(), log, operLog, argParamValMaps);
-                                }
-                            } catch (Throwable ex) {
-                                OperaLogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
-                            }
-                        });
-            }
+            ReflectionUtils.doWithFields(cls, field -> {
+                try {
+                    //设置可见性
+                    field.setAccessible(true);
+                    //获取对象值
+                    final Object val = field.get(argVal);
+                    if (val != null && isNotFilterObject(val)) {
+                        buildParamArgValHandler(field.getName(), null, val, field.getAnnotations(), log, operLog, argParamValMaps);
+                    }
+                } catch (Throwable ex) {
+                    OperaLogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
+                }
+            });
         }
     }
 

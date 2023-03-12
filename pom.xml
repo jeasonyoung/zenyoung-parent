@@ -43,6 +43,10 @@
         <module>file-aliyun</module>
         <module>file-huawei</module>
         <module>file-boot</module>
+        <!-- 图像工具 -->
+        <module>graphics-utils</module>
+        <module>graphics-captcha</module>
+        <module>graphics-boot</module>
         <!-- netty -->
         <module>netty-common</module>
         <module>netty-server</module>
@@ -53,7 +57,7 @@
         <module>micro</module>
 
         <!-- jfx -->
-        <module>jfx-support</module>
+        <module>jfx-boot</module>
         <module>jfx-validator</module>
     </modules>
 
@@ -390,10 +394,26 @@
                 <artifactId>micro</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
+            <!-- graphics -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>graphics-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>graphics-captcha</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>graphics-boot</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- jfx -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
-                <artifactId>jfx-support</artifactId>
+                <artifactId>jfx-boot</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
             <dependency>

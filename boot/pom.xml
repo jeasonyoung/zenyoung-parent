@@ -58,6 +58,18 @@
             <artifactId>modelmapper</artifactId>
         </dependency>
 
+        <!-- okhttp3 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- 模块依赖 -->
         <dependency>
             <groupId>${project.groupId}</groupId>

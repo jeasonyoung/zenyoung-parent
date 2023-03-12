@@ -20,6 +20,12 @@
             <artifactId>boot</artifactId>
         </dependency>
 
+        <!-- graphics -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>graphics-captcha</artifactId>
+        </dependency>
+
         <!--spring-data-redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

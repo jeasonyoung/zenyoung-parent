@@ -1,5 +1,6 @@
 package top.zenyoung.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @author young
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @RequiredArgsConstructor(staticName = "of")
 public class CaptchaVO implements Serializable {
     /**

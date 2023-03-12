@@ -13,9 +13,7 @@ import org.springframework.context.annotation.Import;
 import top.zenyoung.boot.advice.ExceptionController;
 import top.zenyoung.boot.config.*;
 import top.zenyoung.boot.service.BeanMappingService;
-import top.zenyoung.boot.service.CaptchaService;
 import top.zenyoung.boot.service.impl.BeanMappingServiceImpl;
-import top.zenyoung.boot.service.impl.CaptchaServiceImpl;
 import top.zenyoung.boot.util.IdSequenceUtils;
 import top.zenyoung.common.sequence.IdSequence;
 
@@ -32,7 +30,7 @@ import top.zenyoung.common.sequence.IdSequence;
         "top.zenyoung.boot.controller"
 })
 @Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, Knife4jConfig.class, ExceptionController.class})
-@EnableConfigurationProperties({RepeatSubmitProperties.class, CaptchaProperties.class, IdSequenceProperties.class})
+@EnableConfigurationProperties({RepeatSubmitProperties.class, IdSequenceProperties.class})
 public class BootAutoConfiguration {
 
     @Bean
@@ -45,19 +43,5 @@ public class BootAutoConfiguration {
     @ConditionalOnMissingBean
     public BeanMappingService beanMappingService() {
         return new BeanMappingServiceImpl();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "top.zenyoung.captcha", name = "enable", havingValue = "true")
-    public CaptchaService captchaService(final ObjectProvider<CaptchaProperties> properties,
-                                         final ObjectProvider<ApplicationContext> contexts) {
-        final CaptchaProperties cp = properties.getIfAvailable();
-        final ApplicationContext ctx = contexts.getIfAvailable();
-        final CaptchaServiceImpl impl = new CaptchaServiceImpl(cp, ctx);
-        //初始化
-        impl.init();
-        //返回
-        return impl;
     }
 }

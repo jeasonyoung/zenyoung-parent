@@ -100,7 +100,7 @@ public class RandomUtils {
      * @param seed 随机数种子
      * @return {@link SecureRandom}
      */
-    public static SecureRandom getSHA1PRNGRandom(@Nonnull final byte[] seed) throws NoSuchAlgorithmException {
+    public static SecureRandom getSha1PrngRandom(@Nonnull final byte[] seed) throws NoSuchAlgorithmException {
         final SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
         random.setSeed(seed);
         return random;
@@ -366,7 +366,7 @@ public class RandomUtils {
      * @param limit 限制列表的前N项
      * @return 随机元素
      */
-    public static <T> T randomEle(final List<T> list, final int limit) {
+    public static <T> T randomEle(@Nonnull final List<T> list, final int limit) {
         final int max = Math.min(limit, list.size());
         final int index = randomInt(max);
         return list.get(index);
@@ -380,7 +380,7 @@ public class RandomUtils {
      * @return 随机元素
      * @since 3.3.0
      */
-    public static <T> T randomEle(final T[] array) {
+    public static <T> T randomEle(@Nonnull final T[] array) {
         return randomEle(array, array.length);
     }
 
@@ -393,7 +393,7 @@ public class RandomUtils {
      * @return 随机元素
      * @since 3.3.0
      */
-    public static <T> T randomEle(final T[] array, final int limit) {
+    public static <T> T randomEle(@Nonnull final T[] array, final int limit) {
         final int max = Math.min(limit, array.length);
         final int index = randomInt(max);
         return array[index];
@@ -407,7 +407,7 @@ public class RandomUtils {
      * @param count 随机取出的个数
      * @return 随机元素
      */
-    public static <T> List<T> randomEles(final List<T> list, final int count) {
+    public static <T> List<T> randomEles(@Nonnull final List<T> list, final int count) {
         final List<T> result = Lists.newLinkedList();
         final int limit = list.size();
         while (result.size() < count) {
@@ -429,7 +429,7 @@ public class RandomUtils {
      * @return 随机列表
      * @since 5.2.1
      */
-    public static <T> List<T> randomEleList(final List<T> source, final int count) {
+    public static <T> List<T> randomEleList(@Nonnull final List<T> source, final int count) {
         if (count >= source.size()) {
             return source;
         }
@@ -441,7 +441,7 @@ public class RandomUtils {
         return result;
     }
 
-    public static int[] sub(final int[] array, int start, int end) {
+    public static int[] sub(@Nonnull final int[] array, int start, int end) {
         final int length = array.length;
         if (start < 0) {
             start += length;
@@ -554,7 +554,7 @@ public class RandomUtils {
      * @param excludedEnd 结束的数字（不包含）
      * @return 数字列表
      */
-    private static int[] range(int excludedEnd) {
+    private static int[] range(final int excludedEnd) {
         return range(0, excludedEnd, 1);
     }
 
@@ -566,7 +566,7 @@ public class RandomUtils {
      * @param index2 位置2
      * @return 交换后的数组，与传入数组为同一对象
      */
-    public static int[] swap(int[] array, int index1, int index2) {
+    public static int[] swap(@Nullable final int[] array, int index1, int index2) {
         if (array == null || array.length == 0) {
             throw new IllegalArgumentException("Number array must not empty !");
         }
@@ -582,7 +582,7 @@ public class RandomUtils {
      * @param length 字符串的长度
      * @return 随机字符串
      */
-    public static String randomString(int length) {
+    public static String randomString(final int length) {
         return randomString(BASE_CHAR_NUMBER, length);
     }
 
@@ -593,7 +593,7 @@ public class RandomUtils {
      * @return 随机字符串
      * @since 4.0.13
      */
-    public static String randomStringUpper(int length) {
+    public static String randomStringUpper(final int length) {
         return randomString(BASE_CHAR_NUMBER, length).toUpperCase();
     }
 
@@ -604,7 +604,7 @@ public class RandomUtils {
      * @param elemData 要排除的字符串,如：去重容易混淆的字符串，oO0、lL1、q9Q、pP，不区分大小写
      * @return 随机字符串
      */
-    public static String randomStringWithoutStr(final int length, final String elemData) {
+    public static String randomStringWithoutStr(final int length, @Nonnull final String elemData) {
         String baseStr = BASE_CHAR_NUMBER;
         baseStr = removeAll(baseStr, elemData.toLowerCase().toCharArray());
         return randomString(baseStr, length);
@@ -617,7 +617,7 @@ public class RandomUtils {
      * @param chars 字符列表
      * @return 去除后的字符
      */
-    public static String removeAll(final CharSequence str, final char... chars) {
+    public static String removeAll(@Nullable final CharSequence str, @Nullable final char... chars) {
         if (null == str) {
             return null;
         }
@@ -645,7 +645,7 @@ public class RandomUtils {
      * @param length 字符串的长度
      * @return 随机字符串
      */
-    public static String randomNumbers(int length) {
+    public static String randomNumbers(final int length) {
         return randomString(BASE_NUMBER, length);
     }
 

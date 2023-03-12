@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import top.zenyoung.common.util.MapUtils;
+import top.zenyoung.boot.util.MapUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

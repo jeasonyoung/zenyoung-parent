@@ -2,13 +2,14 @@ package top.zenyoung.common.util;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -83,33 +84,26 @@ public class CacheUtils {
      * @return 缓存值
      */
     public static <K, V> V getCacheValue(@Nonnull final Cache<K, V> cache, @Nonnull final K key, @Nonnull final Callable<? extends V> loader) {
-        try {
-            V data = cache.getIfPresent(key);
-            if (data == null) {
-                final String keyVal = String.valueOf(key);
-                synchronized (LOCKS.computeIfAbsent(keyVal, k -> new Object())) {
-                    try {
-                        data = loader.call();
-                        if (data != null) {
-                            cache.put(key, data);
-                        } else {
+        return Optional.ofNullable(cache.getIfPresent(key))
+                .orElseGet(() -> {
+                    final String keyVal = String.valueOf(key);
+                    synchronized (LOCKS.computeIfAbsent(keyVal, k -> new Object())) {
+                        try {
+                            final V data = loader.call();
+                            if (Objects.nonNull(data)) {
+                                cache.put(key, data);
+                            } else {
+                                cache.invalidate(key);
+                            }
+                            return data;
+                        } catch (Exception e) {
                             cache.invalidate(key);
+                            log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
+                            return null;
+                        } finally {
+                            LOCKS.remove(keyVal);
                         }
-                    } finally {
-                        LOCKS.remove(keyVal);
                     }
-                }
-            }
-            return data;
-        } catch (CacheLoader.InvalidCacheLoadException e) {
-            log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
-            return null;
-        } catch (RuntimeException e) {
-            log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
-            throw e;
-        } catch (Throwable e) {
-            log.warn("getCacheValue(key: {})-exp: {}", key, e.getMessage());
-            throw new RuntimeException(e);
-        }
+                });
     }
 }

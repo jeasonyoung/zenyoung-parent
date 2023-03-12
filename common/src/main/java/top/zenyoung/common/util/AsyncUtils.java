@@ -3,7 +3,6 @@ package top.zenyoung.common.util;
 import com.google.common.cache.Cache;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,12 +28,9 @@ public class AsyncUtils implements AutoCloseable {
      * @param executors 线程池
      * @param totals    执行总数
      */
-    private AsyncUtils(@Nonnull final Executor executors, @Nonnull final Integer totals) {
-        if (totals <= 0) {
-            throw new IllegalArgumentException("'totals'必须大于0!");
-        }
+    private AsyncUtils(@Nonnull final Executor executors, final int totals) {
         this.executors = executors;
-        this.latch = new CountDownLatch(totals);
+        this.latch = new CountDownLatch(Math.max(totals, 1));
     }
 
     /**
@@ -44,7 +40,7 @@ public class AsyncUtils implements AutoCloseable {
      * @param totals    执行总数
      * @return 异步工具实例
      */
-    public static AsyncUtils getInstance(@Nonnull final Executor executors, @Nonnull final Integer totals) {
+    public static AsyncUtils getInstance(@Nonnull final Executor executors, final int totals) {
         return new AsyncUtils(executors, totals);
     }
 
@@ -54,9 +50,9 @@ public class AsyncUtils implements AutoCloseable {
      * @param totals 执行总数
      * @return 异步工具实例
      */
-    public static AsyncUtils getInstance(@Nonnull final Integer totals) {
-        Assert.isTrue(totals > 0, "'totals'必须大于0");
-        return new AsyncUtils(ThreadUtils.createPools(totals, Math.max(totals + 1, (int) (totals * 1.2))), totals);
+    public static AsyncUtils getInstance(final int totals) {
+        final int max = Math.max(totals, 1);
+        return new AsyncUtils(ThreadUtils.createPools(max, Math.max(max + 1, (int) (max * 1.2))), max);
     }
 
     /**
@@ -81,7 +77,8 @@ public class AsyncUtils implements AutoCloseable {
      * @param <T>      数据类型
      * @return 异步工具实例
      */
-    public <K, T> AsyncUtils asyncCacheHandler(@Nonnull final Cache<K, T> cache, @Nonnull final K key, @Nonnull final Supplier<T> supplier, @Nonnull final Consumer<T> consumer) {
+    public <K, T> AsyncUtils asyncCacheHandler(@Nonnull final Cache<K, T> cache, @Nonnull final K key,
+                                               @Nonnull final Supplier<T> supplier, @Nonnull final Consumer<T> consumer) {
         return asyncHandler(() -> {
             //读取缓存
             T data = cache.getIfPresent(key);
@@ -124,7 +121,8 @@ public class AsyncUtils implements AutoCloseable {
      * @param latch      线程计数器
      * @param bizHandler 业务处理器
      */
-    public static void asyncHandler(@Nonnull final Executor executor, @Nonnull final CountDownLatch latch, @Nullable final Runnable bizHandler) {
+    public static void asyncHandler(@Nonnull final Executor executor, @Nonnull final CountDownLatch latch,
+                                    @Nullable final Runnable bizHandler) {
         executor.execute(() -> {
             try {
                 //业务处理

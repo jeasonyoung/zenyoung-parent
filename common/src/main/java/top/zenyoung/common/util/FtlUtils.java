@@ -9,7 +9,7 @@ import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.DigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,8 +30,7 @@ public class FtlUtils {
     private final ByteArrayTemplateLoader dynamicLoader;
     private final Configuration config;
 
-    private FtlUtils(@Nullable final Class<?> resourceLoaderClass,
-                     @Nullable final String basePackagePath) {
+    private FtlUtils(@Nullable final Class<?> resourceLoaderClass, @Nullable final String basePackagePath) {
         log.debug("FtlUtils(resourceLoaderClass: {},basePackagePath: {})...", resourceLoaderClass, basePackagePath);
         //初始化配置
         this.config = new Configuration(Configuration.VERSION_2_3_30);
@@ -57,8 +56,7 @@ public class FtlUtils {
      * @param basePackagePath     模板资源路径
      * @return 模板工具
      */
-    public static FtlUtils getInstance(@Nullable final Class<?> resourceLoaderClass,
-                                       @Nullable final String basePackagePath) {
+    public static FtlUtils getInstance(@Nullable final Class<?> resourceLoaderClass, @Nullable final String basePackagePath) {
         return new FtlUtils(resourceLoaderClass, basePackagePath);
     }
 
@@ -131,7 +129,7 @@ public class FtlUtils {
         if (!Strings.isNullOrEmpty(content)) {
             try {
                 final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-                final String name = String.format("tmp-%s.ftl", DigestUtils.md5DigestAsHex(bytes));
+                final String name = String.format("tmp-%s.ftl", DigestUtils.md5Hex(bytes));
                 this.dynamicLoader.putTemplate(name, bytes);
                 process(name, params, out);
             } catch (Throwable e) {

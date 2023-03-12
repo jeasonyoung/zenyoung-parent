@@ -1,5 +1,6 @@
 package top.zenyoung.common.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,7 @@ import top.zenyoung.common.paging.PagingQuery;
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
 @EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ReqPagingQuery extends BasePageDTO implements PagingQuery {
     /**
      * 页码

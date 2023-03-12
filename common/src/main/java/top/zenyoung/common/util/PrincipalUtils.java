@@ -2,7 +2,7 @@ package top.zenyoung.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import org.springframework.util.Base64Utils;
+import org.apache.commons.codec.binary.Base64;
 import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ public class PrincipalUtils {
      */
     public static String encode(@Nonnull final ObjectMapper objectMapper, @Nonnull final UserPrincipal userPrincipal) {
         final String json = JsonUtils.toJson(objectMapper, userPrincipal);
-        return Base64Utils.encodeToString(json.getBytes(CHARET));
+        return Base64.encodeBase64String(json.getBytes(CHARET));
     }
 
     /**
@@ -38,7 +38,7 @@ public class PrincipalUtils {
      */
     public static UserPrincipal decode(@Nonnull final ObjectMapper objectMapper, @Nonnull final String encode) {
         if (!Strings.isNullOrEmpty(encode)) {
-            final String json = new String(Base64Utils.decodeFromString(encode), CHARET);
+            final String json = new String(Base64.decodeBase64(encode), CHARET);
             if (!Strings.isNullOrEmpty(json)) {
                 return JsonUtils.fromJson(objectMapper, json, UserPrincipal.class);
             }

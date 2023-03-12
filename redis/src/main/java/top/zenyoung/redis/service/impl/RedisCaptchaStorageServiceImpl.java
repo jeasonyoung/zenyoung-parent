@@ -5,8 +5,8 @@ import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import top.zenyoung.boot.service.CaptchaStorageService;
 import top.zenyoung.boot.service.impl.BaseServiceImpl;
+import top.zenyoung.graphics.service.CaptchaStorageService;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;

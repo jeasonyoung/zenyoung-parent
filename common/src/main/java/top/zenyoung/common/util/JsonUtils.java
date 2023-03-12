@@ -51,13 +51,14 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param jsonBytes    字节数组
-     * @param tClass       数据类型class
+     * @param cls          数据类型class
      * @param <R>          目标数据类型
      * @return 反序列为对象
      */
     @SneakyThrows({})
-    public static <R> R fromJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final byte[] jsonBytes, @Nonnull final Class<R> tClass) {
-        return objectMapper.readValue(jsonBytes, tClass);
+    public static <R> R fromJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final byte[] jsonBytes,
+                                      @Nonnull final Class<R> cls) {
+        return objectMapper.readValue(jsonBytes, cls);
     }
 
     /**
@@ -65,14 +66,15 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param json         json字符串
-     * @param tClass       数据类型class
+     * @param cls          数据类型class
      * @param <R>          目标数据类型
      * @return 反序列为对象
      */
     @SneakyThrows({})
-    public static <R> R fromJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> tClass) {
+    public static <R> R fromJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json,
+                                 @Nonnull final Class<R> cls) {
         if (!Strings.isNullOrEmpty(json)) {
-            return objectMapper.readValue(json, tClass);
+            return objectMapper.readValue(json, cls);
         }
         return null;
     }
@@ -82,13 +84,14 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param inputStream  输入流
-     * @param tClass       数据类型class
+     * @param cls          数据类型class
      * @param <R>          数据类型
      * @return 数据对象
      */
     @SneakyThrows({})
-    public static <R> R fromStream(@Nonnull final ObjectMapper objectMapper, @Nonnull final InputStream inputStream, @Nonnull final Class<R> tClass) {
-        return objectMapper.readValue(inputStream, tClass);
+    public static <R> R fromStream(@Nonnull final ObjectMapper objectMapper, @Nonnull final InputStream inputStream,
+                                   @Nonnull final Class<R> cls) {
+        return objectMapper.readValue(inputStream, cls);
     }
 
     /**
@@ -96,14 +99,15 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param map          Map数据
-     * @param tClass       目标数据类型Class
+     * @param cls          目标数据类型Class
      * @param <R>          目标数据类型
      * @return 对象数据
      */
-    public static <R> R fromMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final Map<String, Serializable> map, @Nonnull final Class<R> tClass) {
+    public static <R> R fromMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final Map<String, Serializable> map,
+                                @Nonnull final Class<R> cls) {
         final String json = toJson(objectMapper, map);
         if (!Strings.isNullOrEmpty(json)) {
-            return fromJson(objectMapper, json, tClass);
+            return fromJson(objectMapper, json, cls);
         }
         return null;
     }
@@ -113,14 +117,15 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param json         json字符串
-     * @param valClass     值数据类型class
+     * @param valCls       值数据类型class
      * @param <R>          值类型
      * @return Map对象
      */
     @SneakyThrows({})
-    public static <R> Map<String, R> fromJsonToMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valClass) {
+    public static <R> Map<String, R> fromJsonToMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json,
+                                                   @Nonnull final Class<R> valCls) {
         if (!Strings.isNullOrEmpty(json)) {
-            final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valClass);
+            final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valCls);
             return objectMapper.readValue(json, javaType);
         }
         return null;
@@ -131,14 +136,15 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param json         json字符串
-     * @param valClass     值数据类型class
+     * @param valCls       值数据类型class
      * @param <R>          值类型
      * @return List-Map对象
      */
     @SneakyThrows({})
-    public static <R> List<Map<String, R>> fromJsonToListMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valClass) {
+    public static <R> List<Map<String, R>> fromJsonToListMap(@Nonnull final ObjectMapper objectMapper,
+                                                             @Nonnull final String json, @Nonnull final Class<R> valCls) {
         if (!Strings.isNullOrEmpty(json)) {
-            final JavaType mapType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valClass);
+            final JavaType mapType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valCls);
             final JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, mapType);
             return objectMapper.readValue(json, listType);
         }
@@ -150,16 +156,17 @@ public class JsonUtils {
      *
      * @param objectMapper JSON处理器
      * @param data         数据
-     * @param valClass     值数据类型class
+     * @param valCls       值数据类型class
      * @param <T>          数据类型
      * @param <R>          值类型
      * @return Map对象
      */
     @SneakyThrows({})
-    public static <T, R> Map<String, R> toMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data, @Nonnull final Class<R> valClass) {
+    public static <T, R> Map<String, R> toMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data,
+                                              @Nonnull final Class<R> valCls) {
         final String json = toJson(objectMapper, data);
         if (!Strings.isNullOrEmpty(json)) {
-            return fromJsonToMap(objectMapper, json, valClass);
+            return fromJsonToMap(objectMapper, json, valCls);
         }
         return null;
     }

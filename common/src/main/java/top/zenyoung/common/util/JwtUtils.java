@@ -25,7 +25,8 @@ public class JwtUtils {
         MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public static <T> String generate(@Nonnull final JWSAlgorithm algorithm, @Nullable final JWSSigner signer, @Nonnull final T data) {
+    public static <T> String generate(@Nonnull final JWSAlgorithm algorithm, @Nullable final JWSSigner signer,
+                                      @Nonnull final T data) {
         try {
             final String body = JsonUtils.toJson(MAPPER, data);
             final JWSHeader header = new JWSHeader.Builder(algorithm)
