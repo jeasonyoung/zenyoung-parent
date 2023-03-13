@@ -398,17 +398,17 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>graphics-utils</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>graphics-captcha</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>graphics-boot</artifactId>
-                <version>${project.version}</version>
+                <version>${zenyoung.version}</version>
             </dependency>
             <!-- jfx -->
             <dependency>
