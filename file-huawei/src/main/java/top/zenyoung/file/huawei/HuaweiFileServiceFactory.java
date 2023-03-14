@@ -3,7 +3,7 @@ package top.zenyoung.file.huawei;
 import com.obs.services.ObsClient;
 import top.zenyoung.file.FileService;
 import top.zenyoung.file.FileServiceFactory;
-import top.zenyoung.file.Properties;
+import top.zenyoung.file.FileProperties;
 
 import javax.annotation.Nonnull;
 
@@ -20,7 +20,7 @@ public class HuaweiFileServiceFactory implements FileServiceFactory {
     }
 
     @Override
-    public FileService create(@Nonnull final Properties prop) {
+    public FileService create(@Nonnull final FileProperties prop) {
         final ObsClient client = new ObsClient(prop.getAccessKeyId(), prop.getAccessKeySecret(), prop.getEndpoint());
         return HuaweiFileService.of(client, prop.getExtHeaders());
     }

@@ -12,7 +12,7 @@ import java.util.Map;
  * @author young
  */
 @Data
-public class Properties implements Serializable {
+public class FileProperties implements Serializable {
     /**
      * 接入点
      */

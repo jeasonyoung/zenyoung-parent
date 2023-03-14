@@ -22,5 +22,5 @@ public interface FileServiceFactory {
      * @param prop 文件属性
      * @return 文件服务
      */
-    FileService create(@Nonnull final Properties prop);
+    FileService create(@Nonnull final FileProperties prop);
 }

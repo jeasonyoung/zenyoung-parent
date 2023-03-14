@@ -6,7 +6,7 @@ import com.aliyun.oss.common.auth.CredentialsProvider;
 import com.aliyun.oss.common.auth.DefaultCredentialProvider;
 import top.zenyoung.file.FileService;
 import top.zenyoung.file.FileServiceFactory;
-import top.zenyoung.file.Properties;
+import top.zenyoung.file.FileProperties;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +24,7 @@ public class AliyunFileServiceFactory implements FileServiceFactory {
     }
 
     @Override
-    public FileService create(@Nonnull final Properties prop) {
+    public FileService create(@Nonnull final FileProperties prop) {
         final CredentialsProvider provider = new DefaultCredentialProvider(prop.getAccessKeyId(), prop.getAccessKeySecret());
         final OSSClient client = new OSSClient(prop.getEndpoint(), provider, new ClientBuilderConfiguration());
         return AliyunFileService.of(client, prop.getExtHeaders());
