@@ -15,23 +15,10 @@
     </parent>
 
     <dependencies>
-        <!-- lombok -->
+        <!-- 框架模块 -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <!-- tools -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
+            <groupId>top.zenyoung</groupId>
+            <artifactId>common</artifactId>
         </dependency>
         <!-- log -->
         <dependency>

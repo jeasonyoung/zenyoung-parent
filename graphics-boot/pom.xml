@@ -21,11 +21,6 @@
             <artifactId>spring-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- common -->
-        <dependency>
-            <groupId>top.zenyoung</groupId>
-            <artifactId>common</artifactId>
-        </dependency>
         <!-- captcha -->
         <dependency>
             <groupId>top.zenyoung</groupId>
