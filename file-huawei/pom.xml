@@ -24,10 +24,6 @@
             <groupId>com.huaweicloud</groupId>
             <artifactId>esdk-obs-java</artifactId>
         </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
         <!-- log -->
         <dependency>
             <groupId>org.slf4j</groupId>
