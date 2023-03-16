@@ -59,6 +59,9 @@
         <!-- jfx -->
         <module>jfx-boot</module>
         <module>jfx-validator</module>
+
+        <!-- fc-runtime -->
+        <module>fc-runtime-huawei</module>
     </modules>
 
     <properties>
@@ -419,6 +422,12 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>jfx-validator</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
+            <!-- fc-runtime -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>fc-runtime-huawei</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
         </dependencies>
