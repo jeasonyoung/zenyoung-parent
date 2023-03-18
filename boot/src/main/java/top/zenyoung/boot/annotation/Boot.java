@@ -4,10 +4,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
+import top.zenyoung.boot.registrar.BootRegistrar;
 
 import java.lang.annotation.*;
 
@@ -25,6 +27,7 @@ import java.lang.annotation.*;
 @SpringBootApplication
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@Import({BootRegistrar.class})
 public @interface Boot {
     /**
      * 排除启动服务集合
@@ -48,7 +51,7 @@ public @interface Boot {
      * @return 基础包名
      */
     @AliasFor(annotation = ComponentScan.class, attribute = "basePackages")
-    String[] basePackages() default {};
+    String[] scanBasePackages() default {"top.zenyoung"};
 
     /**
      * 扫描基础包类
@@ -56,5 +59,5 @@ public @interface Boot {
      * @return 基础包类
      */
     @AliasFor(annotation = ComponentScan.class, attribute = "basePackageClasses")
-    Class<?>[] basePackageClasses() default {};
+    Class<?>[] scanBasePackageClasses() default {};
 }
