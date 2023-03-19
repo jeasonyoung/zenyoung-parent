@@ -8,6 +8,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import top.zenyoung.boot.util.matcher.AntPathRequestMatcher;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Http 工具类
@@ -113,5 +115,19 @@ public class HttpUtils {
             return MediaType.parseMediaType(requestContentType);
         }
         return null;
+    }
+
+    /**
+     * 判断请求是否匹配
+     *
+     * @param request  请求对象
+     * @param patterns 匹配集合
+     * @return 匹配结果
+     */
+    public static boolean matches(@Nonnull final HttpServletRequest request, @Nonnull final String... patterns) {
+        return Stream.of(patterns)
+                .filter(pattern -> !Strings.isNullOrEmpty(pattern))
+                .map(AntPathRequestMatcher::new)
+                .anyMatch(p -> p.matches(request));
     }
 }
