@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,8 +40,7 @@ public abstract class BaseAspect {
      */
     protected static boolean isPrimitive(@Nonnull final Class<?> cls) {
         try {
-            //8种值类型直接判断
-            if (cls.isPrimitive()) {
+            if (ClassUtils.isPrimitiveOrWrapper(cls)) {
                 return true;
             }
             //自定义基本类型
