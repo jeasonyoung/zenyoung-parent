@@ -14,6 +14,9 @@ import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
@@ -57,7 +60,10 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     protected static final int BATCH_SIZE = 500;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
     private final PoFieldHelper<PO> poPoFieldHelper = PoFieldHelper.of(this.getModelClass());
+
     @Autowired(required = false)
+    @Getter(value = AccessLevel.PROTECTED)
+    @Setter(value = AccessLevel.PROTECTED)
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
@@ -76,18 +82,19 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
      */
     @SuppressWarnings({"unchecked"})
     protected ID genId() {
-        if (Objects.isNull(idSequence)) {
-            return null;
-        }
-        final Long id = idSequence.nextId();
-        final Class<ID> cls = (Class<ID>) getGenericType(1);
-        if (cls == Long.class) {
-            return cls.cast(id);
-        }
-        if (cls == String.class) {
-            return cls.cast(id + "");
-        }
-        return cls.cast(id);
+        return Optional.ofNullable(getIdSequence())
+                .map(idSeq -> {
+                    final Long id = idSeq.nextId();
+                    final Class<ID> cls = (Class<ID>) getGenericType(1);
+                    if (cls == Long.class) {
+                        return cls.cast(id);
+                    }
+                    if (cls == String.class) {
+                        return cls.cast(id + "");
+                    }
+                    return cls.cast(id);
+                })
+                .orElse(null);
     }
 
     /**
@@ -361,7 +368,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
             final int totals = pos.size();
             int idx = 0;
             while (count < totals) {
-                final int start = (idx * BATCH_SIZE), end = (start + BATCH_SIZE) > totals ? (totals - start) : (start + BATCH_SIZE);
+                final int start = (idx * BATCH_SIZE), end = Math.min(start + BATCH_SIZE, totals);
                 final List<PO> rows = items.subList(start, end);
                 count += rows.size();
                 //批处理
