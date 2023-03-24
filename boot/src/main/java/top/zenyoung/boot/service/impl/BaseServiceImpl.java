@@ -1,5 +1,8 @@
 package top.zenyoung.boot.service.impl;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import top.zenyoung.boot.exception.ServiceException;
@@ -23,27 +26,10 @@ import java.util.function.Function;
  */
 @Slf4j
 public class BaseServiceImpl implements BaseService, BeanMapping {
-
     @Autowired(required = false)
+    @Getter(value = AccessLevel.PROTECTED)
+    @Setter(value = AccessLevel.PROTECTED)
     private BeanMappingService mappingService;
-
-    /**
-     * 设置BeanMappingService
-     *
-     * @param mappingService BeanMappingService对象
-     */
-    protected final void setMappingService(@Nonnull final BeanMappingService mappingService) {
-        this.mappingService = mappingService;
-    }
-
-    /**
-     * 获取BeanMappingService
-     *
-     * @return BeanMappingService对象
-     */
-    protected BeanMappingService getMappingService() {
-        return this.mappingService;
-    }
 
     private <T, R> R mappingHandler(@Nonnull final Function<BeanMappingService, R> handler) {
         return Optional.ofNullable(getMappingService())
