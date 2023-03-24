@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 数据结果
@@ -25,12 +26,42 @@ public class DataResult<T> implements PagingResult<T> {
      */
     private final List<T> rows;
 
+    /**
+     * 创建数据结果
+     *
+     * @param data 分页数据结果
+     * @param <T>  数据类型
+     * @return 数据结果
+     */
     public static <T> DataResult<T> of(@Nullable final PagingResult<T> data) {
-        return DataResult.of(data == null ? 0L : data.getTotal(), data == null ? Lists.newLinkedList() : data.getRows());
+        if (Objects.nonNull(data)) {
+            final List<T> items = data.getRows();
+            return of(data.getTotal(), Objects.nonNull(items) ? items : Lists.newArrayList());
+        }
+        return empty();
     }
 
+    /**
+     * 创建数据结果
+     *
+     * @param items 数据集合
+     * @param <T>   数据类型
+     * @return 数据结果
+     */
     public static <T> DataResult<T> of(@Nullable final List<T> items) {
-        final boolean has = items != null && items.size() > 0;
-        return DataResult.of((long) (has ? items.size() : 0), items);
+        if (Objects.nonNull(items)) {
+            return of((long) items.size(), items);
+        }
+        return empty();
+    }
+
+    /**
+     * 创建空数据结果
+     *
+     * @param <T> 数据类型
+     * @return 空数据结果
+     */
+    public static <T> DataResult<T> empty() {
+        return of(0L, Lists.newArrayList());
     }
 }
