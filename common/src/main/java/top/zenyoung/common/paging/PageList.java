@@ -22,4 +22,14 @@ public interface PageList<T> extends Serializable {
      * @return 数据结果集合
      */
     List<T> getRows();
+
+    /**
+     * 空对象方法
+     *
+     * @param <R> 类型
+     * @return 空对象
+     */
+    static <R> PageList<R> empty() {
+        return DataResult.empty();
+    }
 }
