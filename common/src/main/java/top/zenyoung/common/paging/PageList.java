@@ -10,6 +10,11 @@ import java.util.List;
  */
 public interface PageList<T> extends Serializable {
     /**
+     * 空数据列表
+     */
+    PageList<?> EMPTY = DataResult.empty();
+
+    /**
      * 获取数据总数
      *
      * @return 数据总数
