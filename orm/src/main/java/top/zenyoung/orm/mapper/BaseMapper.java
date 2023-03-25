@@ -2,6 +2,7 @@ package top.zenyoung.orm.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -12,6 +13,7 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -84,6 +86,19 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
     }
 
     /**
+     * 根据Wrapper条件，查询总记录数
+     *
+     * @param consumer 查询条件处理
+     * @return 总记录数
+     */
+    default Long selectCount(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final Class<PO> cls = getModelClass();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+        consumer.accept(queryWrapper);
+        return selectCount(queryWrapper);
+    }
+
+    /**
      * 根据条件查询全部记录
      *
      * @param consumer 查询条件处理
@@ -94,6 +109,62 @@ public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> exte
         final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectList(queryWrapper);
+    }
+
+    /**
+     * 根据Wrapper条件,查询全部记录
+     *
+     * @param consumer 查询条件处理
+     * @return 查询结果
+     */
+    default List<Map<String, Object>> selectMaps(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final Class<PO> cls = getModelClass();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+        consumer.accept(queryWrapper);
+        return selectMaps(queryWrapper);
+    }
+
+    /**
+     * 根据Wrapper条件,查询全部记录
+     *
+     * @param consumer 查询条件处理
+     * @return 查询结果
+     */
+    default List<Object> selectObjs(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final Class<PO> cls = getModelClass();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+        consumer.accept(queryWrapper);
+        return selectObjs(queryWrapper);
+    }
+
+    /**
+     * 根据Wrapper条件,分页查询
+     *
+     * @param page     分页条件
+     * @param consumer 查询条件
+     * @param <P>      分页类型
+     * @return 查询结果
+     */
+    default <P extends IPage<PO>> P selectPage(@Nonnull final P page, @Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final Class<PO> cls = getModelClass();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+        consumer.accept(queryWrapper);
+        return selectPage(page, queryWrapper);
+    }
+
+    /**
+     * 根据Wrapper条件,分页查询
+     *
+     * @param page     分页条件
+     * @param consumer 查询条件
+     * @param <P>      分页类型
+     * @return 查询结果
+     */
+    default <P extends IPage<Map<String, Object>>> P selectMapsPage(@Nonnull final P page, @Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
+        final Class<PO> cls = getModelClass();
+        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+        consumer.accept(queryWrapper);
+        return selectMapsPage(page, queryWrapper);
     }
 
     /**
