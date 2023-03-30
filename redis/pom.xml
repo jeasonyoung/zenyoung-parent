@@ -9,8 +9,9 @@
 
     <parent>
         <groupId>top.zenyoung</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>dependencies</artifactId>
         <version>3.0.0</version>
+        <relativePath>../dependencies/pom.xml</relativePath>
     </parent>
 
     <dependencies>
@@ -65,21 +66,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.class</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/META-INF/**</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

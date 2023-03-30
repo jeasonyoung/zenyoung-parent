@@ -9,8 +9,9 @@
 
     <parent>
         <groupId>top.zenyoung</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>dependencies</artifactId>
         <version>3.0.0</version>
+        <relativePath>../dependencies/pom.xml</relativePath>
     </parent>
 
     <dependencies>

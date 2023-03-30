@@ -14,432 +14,57 @@
     <description>zenyoung tools for Springboot2</description>
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.14</version>
-    </parent>
-
     <modules>
+        <!-- 依赖模块 -->
+        <module>dependencies</module>
         <!-- 公共模块 -->
         <module>common</module>
-        <!-- redis -->
-        <module>redis</module>
         <!-- spring boot -->
         <module>boot</module>
+        <!-- micro -->
+        <module>micro</module>
         <!-- mybatis-plus orm -->
         <module>orm</module>
+
+        <!-- 图像工具 -->
+        <module>graphics-utils</module>
+        <module>graphics-captcha</module>
+        <module>graphics-boot</module>
+
+        <!-- redis -->
+        <module>redis</module>
         <!-- sms -->
         <module>sms</module>
         <!-- 定时任务 -->
         <module>quartz</module>
         <!-- jpa -->
-        <module>jpa</module>
+<!--        <module>jpa</module>-->
         <!-- security -->
-        <module>security-web</module>
+<!--        <module>security-web</module>-->
         <!-- <module>security</module>-->
         <!-- 文件存储 -->
         <module>file-common</module>
         <module>file-aliyun</module>
         <module>file-huawei</module>
         <module>file-boot</module>
-        <!-- 图像工具 -->
-        <module>graphics-utils</module>
-        <module>graphics-captcha</module>
-        <module>graphics-boot</module>
         <!-- netty -->
         <module>netty-common</module>
         <module>netty-server</module>
         <module>netty-client</module>
-        <!-- 代码生成器 -->
-        <module>generator</module>
-        <!-- micro -->
-        <module>micro</module>
-
         <!-- jfx -->
         <module>jfx-boot</module>
         <module>jfx-validator</module>
-
         <!-- fc-runtime -->
         <module>fc-runtime-huawei</module>
+        <!-- 代码生成器 -->
+        <module>generator</module>
     </modules>
 
     <properties>
-        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <spring-cloud.version>2021.0.4</spring-cloud.version>
-        <alibaba-cloud.version>2021.0.4.0</alibaba-cloud.version>
-        <spring-native.version>0.12.1</spring-native.version>
-        <repackage.classifier/>
-
-        <!-- zenyoung -->
-        <zenyoung.version>3.0.0</zenyoung.version>
-        <!-- jetcache -->
-        <jetcache.version>2.7.2</jetcache.version>
-        <!-- redisson -->
-        <redisson.version>3.17.4</redisson.version>
-        <!-- protobuf -->
-        <protobuf-java.version>3.21.12</protobuf-java.version>
-
-        <!-- mybatis-plus -->
-        <mybatis-plus.version>3.5.2</mybatis-plus.version>
-
-        <!-- jwt -->
-        <nimbus-jose-jwt.version>9.24.4</nimbus-jose-jwt.version>
-        <!-- kryo -->
-        <kryo.version>4.0.2</kryo.version>
-        <!-- snappy -->
-        <snappy-java.version>1.1.9.1</snappy-java.version>
-        <!-- bouncycastle -->
-        <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-
-        <!-- modelmapper -->
-        <modelmapper.version>3.1.0</modelmapper.version>
-
-        <!-- p6spy -->
-        <p6spy.version>3.9.1</p6spy.version>
-
-        <!-- 阿里云 SDK-->
-        <aliyun-core.version>4.6.1</aliyun-core.version>
-        <!-- 阿里云 短信 -->
-        <aliyun-dysmsapi.version>2.2.1</aliyun-dysmsapi.version>
-        <!-- 阿里云-oss -->
-        <aliyun-oss.version>3.16.1</aliyun-oss.version>
-        <!-- 华为-obs -->
-        <huawei-obs.version>3.22.12</huawei-obs.version>
-
-        <!-- tools -->
-        <guava.version>30.1.1-jre</guava.version>
-        <commons-io.version>2.8.0</commons-io.version>
-        <zxing.version>3.5.1</zxing.version>
-
-        <!-- swagger -->
-        <swagger.version>1.5.20</swagger.version>
-        <knife4j.version>2.0.9</knife4j.version>
-
-        <!-- jfx -->
-        <bootstrapfx-core.version>0.3.0</bootstrapfx-core.version>
-        <ikonli.version>2.6.0</ikonli.version>
-        <jipsy.version>0.6.0</jipsy.version>
-
-        <!-- apt -->
-        <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
-        <!-- docker -->
-        <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <!-- plugin -->
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-        <!-- os -->
-        <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
-        <!-- jfx -->
-        <javafx-maven-plugin.version>8.8.3</javafx-maven-plugin.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- spring cloud dependencies  -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- spring cloud alibaba -->
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>${alibaba-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- spring-native -->
-            <dependency>
-                <groupId>org.springframework.experimental</groupId>
-                <artifactId>spring-native</artifactId>
-                <version>${spring-native.version}</version>
-            </dependency>
-
-            <!-- jetcache -->
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-starter-redisson</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-            <!-- redisson -->
-            <dependency>
-                <groupId>org.redisson</groupId>
-                <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>${redisson.version}</version>
-            </dependency>
-            <!-- protobuf -->
-            <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
-                <version>${protobuf-java.version}</version>
-            </dependency>
-
-            <!-- mybatis-plus -->
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-annotation</artifactId>
-                <version>${mybatis-plus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
-            </dependency>
-
-            <!-- jwt -->
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbus-jose-jwt.version}</version>
-            </dependency>
-            <!-- kryo -->
-            <dependency>
-                <groupId>com.esotericsoftware</groupId>
-                <artifactId>kryo</artifactId>
-                <version>${kryo.version}</version>
-            </dependency>
-            <!-- snappy -->
-            <dependency>
-                <groupId>org.xerial.snappy</groupId>
-                <artifactId>snappy-java</artifactId>
-                <version>${snappy-java.version}</version>
-            </dependency>
-            <!-- bouncycastle -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>${bcprov-jdk15on.version}</version>
-            </dependency>
-
-            <!-- modelmapper -->
-            <dependency>
-                <groupId>org.modelmapper</groupId>
-                <artifactId>modelmapper</artifactId>
-                <version>${modelmapper.version}</version>
-            </dependency>
-
-            <!-- p6spy -->
-            <dependency>
-                <groupId>p6spy</groupId>
-                <artifactId>p6spy</artifactId>
-                <version>${p6spy.version}</version>
-            </dependency>
-
-            <!-- 阿里云 -->
-            <dependency>
-                <groupId>com.aliyun</groupId>
-                <artifactId>aliyun-java-sdk-core</artifactId>
-                <version>${aliyun-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.aliyun</groupId>
-                <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
-                <version>${aliyun-dysmsapi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.aliyun.oss</groupId>
-                <artifactId>aliyun-sdk-oss</artifactId>
-                <version>${aliyun-oss.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.huaweicloud</groupId>
-                <artifactId>esdk-obs-java</artifactId>
-                <version>${huawei-obs.version}</version>
-            </dependency>
-
-            <!-- tools -->
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.zxing</groupId>
-                <artifactId>core</artifactId>
-                <version>${zxing.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.zxing</groupId>
-                <artifactId>javase</artifactId>
-                <version>${zxing.version}</version>
-            </dependency>
-
-            <!-- swagger -->
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-annotations</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-micro-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-
-            <!-- jfx -->
-            <dependency>
-                <groupId>org.kordamp.bootstrapfx</groupId>
-                <artifactId>bootstrapfx-core</artifactId>
-                <version>${bootstrapfx-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kordamp.ikonli</groupId>
-                <artifactId>ikonli-javafx</artifactId>
-                <version>${ikonli.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kordamp.ikonli</groupId>
-                <artifactId>ikonli-fontawesome5-pack</artifactId>
-                <version>${ikonli.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kordamp.jipsy</groupId>
-                <artifactId>jipsy</artifactId>
-                <version>${jipsy.version}</version>
-            </dependency>
-
-            <!-- 模块 -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>common</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>redis</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>orm</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>sms</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>security-web</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-common</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-aliyun</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-huawei</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-boot</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>netty-server</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>netty-client</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>boot</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>generator</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>micro</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <!-- graphics -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>graphics-utils</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>graphics-captcha</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>graphics-boot</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <!-- jfx -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>jfx-boot</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>jfx-validator</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-            <!-- fc-runtime -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>fc-runtime-huawei</artifactId>
-                <version>${zenyoung.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <repositories>
         <repository>
@@ -476,134 +101,19 @@
         <url>git@github.com:jeasonyoung/zenyoung-parent.git</url>
     </scm>
 
-    <build>
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os-maven-plugin.version}</version>
-            </extension>
-        </extensions>
-        <pluginManagement>
-            <plugins>
-                <!-- spring-boot-maven-plugin -->
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <configuration>
-                        <excludes>
-                            <exclude>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                            </exclude>
-                        </excludes>
-                        <classifier>${repackage.classifier}</classifier>
-                        <image>
-                            <builder>paketobuildpacks/builder:tiny</builder>
-                            <env>
-                                <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
-                            </env>
-                        </image>
-                    </configuration>
-                </plugin>
-                <!-- spring-native -->
-                <plugin>
-                    <groupId>org.springframework.experimental</groupId>
-                    <artifactId>spring-aot-maven-plugin</artifactId>
-                    <version>${spring-native.version}</version>
-                    <executions>
-                        <execution>
-                            <id>test-generate</id>
-                            <goals>
-                                <goal>test-generate</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>generate</id>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>com.mysema.maven</groupId>
-                    <artifactId>apt-maven-plugin</artifactId>
-                    <version>${apt-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.spotify</groupId>
-                    <artifactId>dockerfile-maven-plugin</artifactId>
-                    <version>${dockerfile-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>${maven-gpg-plugin.version}</version>
-                </plugin>
-                <!-- jfx -->
-                <plugin>
-                    <groupId>com.zenjava</groupId>
-                    <artifactId>javafx-maven-plugin</artifactId>
-                    <version>${javafx-maven-plugin.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <profiles>
-        <!-- native -->
-        <profile>
-            <id>native</id>
-            <properties>
-                <repackage.classifier>exec</repackage.classifier>
-                <native-buildtools.version>0.9.13</native-buildtools.version>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.junit.platform</groupId>
-                    <artifactId>junit-platform-launcher</artifactId>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <version>${native-buildtools.version}</version>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>test-native</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>build-native</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <!-- 上传处理 -->
         <profile>
             <id>release</id>
@@ -613,7 +123,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${maven-compiler-plugin.version}</version>
                         <configuration>
                             <source>${java.version}</source>
                             <target>${java.version}</target>
@@ -624,7 +133,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -638,7 +146,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
                         <configuration>
                             <show>private</show>
                             <nohelp>true</nohelp>
@@ -659,7 +166,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
