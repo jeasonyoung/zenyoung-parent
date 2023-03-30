@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
@@ -38,6 +39,10 @@ public class CipherUtils {
     private static final int RSA_RESERVE_BYTES = 11;
     private static final int RAS_MAX_DECRYPT_BLOCK = RSA_KEY_SIZE / 8;
     private static final int RSA_MAX_ENCRYPT_BLOCK = RAS_MAX_DECRYPT_BLOCK - RSA_RESERVE_BYTES;
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @SneakyThrows({GeneralSecurityException.class})
     private static byte[] aesHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final byte[] secret) {
@@ -108,9 +113,9 @@ public class CipherUtils {
         final int block = (cipherMode == Cipher.ENCRYPT_MODE) ? RSA_MAX_ENCRYPT_BLOCK : RAS_MAX_DECRYPT_BLOCK;
         final int blockCount = (len / block) + (len % block == 0 ? 0 : 1);
         try (final ByteArrayOutputStream output = new ByteArrayOutputStream(blockCount * block)) {
-            for(int offset = 0; offset < len; offset += block){
+            for (int offset = 0; offset < len; offset += block) {
                 int input = (len - offset);
-                if(input > block){
+                if (input > block) {
                     input = block;
                 }
                 final byte[] buf = cipher.doFinal(data, offset, input);
