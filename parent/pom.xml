@@ -44,9 +44,6 @@
         <spring-cloud.version>2021.0.4</spring-cloud.version>
         <alibaba-cloud.version>2021.0.4.0</alibaba-cloud.version>
 
-        <!-- 覆盖组件版本 -->
-        <netty.version>4.1.90.Final</netty.version>
-
         <!-- zenyoung -->
         <zenyoung.version>3.0.0</zenyoung.version>
 
@@ -125,15 +122,6 @@
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
                 <version>${alibaba-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- 覆盖版本 -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>${netty.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
