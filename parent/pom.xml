@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.zenyoung</groupId>
-    <artifactId>dependencies</artifactId>
+    <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <version>3.0.0</version>
 

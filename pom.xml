@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.zenyoung</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
     <version>3.0.0</version>
 
@@ -16,7 +16,7 @@
 
     <modules>
         <!-- 依赖模块 -->
-        <module>dependencies</module>
+        <module>parent</module>
         <!-- 公共模块 -->
         <module>common</module>
         <!-- spring boot -->
@@ -62,7 +62,7 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>dependencies</artifactId>
+                <artifactId>parent</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
