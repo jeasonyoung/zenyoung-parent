@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * SSL工具类
@@ -36,15 +37,12 @@ public class SslUtils {
     }
 
     public static void addSslClientCodec(@Nonnull final ChannelPipeline pipeline, @Nonnull final Channel channel) {
-        if (Objects.nonNull(sslClientContext)) {
-            pipeline.addLast(sslClientContext.newHandler(channel.alloc()));
-        }
+        Optional.ofNullable(sslClientContext)
+                .ifPresent(ctx -> pipeline.addLast(ctx.newHandler(channel.alloc())));
     }
 
-    public static void addSslClientCodec(@Nonnull final ChannelPipeline pipeline){
-        final Channel channel = pipeline.channel();
-        if(Objects.nonNull(channel)){
-            addSslClientCodec(pipeline, channel);
-        }
+    public static void addSslClientCodec(@Nonnull final ChannelPipeline pipeline) {
+        Optional.ofNullable(pipeline.channel())
+                .ifPresent(ch -> addSslClientCodec(pipeline, ch));
     }
 }

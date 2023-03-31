@@ -35,17 +35,18 @@ public class ChannelSessionMap {
      * @param session 会话
      */
     public static void put(@Nonnull final Session session) {
-        final String deviceId;
-        if (!Strings.isNullOrEmpty(deviceId = session.getDeviceId())) {
-            synchronized (LOCKS.computeIfAbsent(deviceId, k -> new Object())) {
-                try {
-                    SESSIONS.put(deviceId, session);
-                } finally {
-                    LOCKS.remove(deviceId);
-                    log.info("当前Session数量: {}", getTotals());
-                }
-            }
-        }
+        Optional.ofNullable(session.getDeviceId())
+                .filter(deviceId -> !Strings.isNullOrEmpty(deviceId))
+                .ifPresent(deviceId -> {
+                    synchronized (LOCKS.computeIfAbsent(deviceId, k -> new Object())) {
+                        try {
+                            SESSIONS.put(deviceId, session);
+                        } finally {
+                            LOCKS.remove(deviceId);
+                            log.info("当前Session数量: {}", getTotals());
+                        }
+                    }
+                });
     }
 
     /**
@@ -55,10 +56,10 @@ public class ChannelSessionMap {
      * @return 会话
      */
     public static Session getByDevice(@Nonnull final String deviceId) {
-        if (!Strings.isNullOrEmpty(deviceId)) {
-            return SESSIONS.get(deviceId);
-        }
-        return null;
+        return Optional.of(deviceId)
+                .filter(id -> !Strings.isNullOrEmpty(id))
+                .map(id -> SESSIONS.getOrDefault(id, null))
+                .orElse(null);
     }
 
     /**
@@ -77,22 +78,23 @@ public class ChannelSessionMap {
      * @param session 会话
      */
     public static void remove(@Nonnull final Session session) {
-        final String deviceId;
-        if (!Strings.isNullOrEmpty(deviceId = session.getDeviceId()) && SESSIONS.containsKey(deviceId)) {
-            synchronized (LOCKS.computeIfAbsent(deviceId, k -> new Object())) {
-                try {
-                    final Session s = SESSIONS.remove(deviceId);
-                    if (Objects.nonNull(s) && s.getStatus()) {
-                        s.close();
+        Optional.ofNullable(session.getDeviceId())
+                .filter(deviceId -> !Strings.isNullOrEmpty(deviceId) && SESSIONS.containsKey(deviceId))
+                .ifPresent(deviceId -> {
+                    synchronized (LOCKS.computeIfAbsent(deviceId, k -> new Object())) {
+                        try {
+                            final Session s = SESSIONS.remove(deviceId);
+                            if (Objects.nonNull(s) && s.getStatus()) {
+                                s.close();
+                            }
+                            log.info("移除Session:" + session);
+                        } catch (Throwable e) {
+                            log.warn("remove(deviceId: {})-exp: {}", deviceId, e.getMessage());
+                        } finally {
+                            LOCKS.remove(deviceId);
+                            log.info("当前Session数量: {}", getTotals());
+                        }
                     }
-                    log.info("移除Session:" + session);
-                } catch (Throwable e) {
-                    log.warn("remove(deviceId: {})-exp: {}", deviceId, e.getMessage());
-                } finally {
-                    LOCKS.remove(deviceId);
-                    log.info("当前Session数量: {}", getTotals());
-                }
-            }
-        }
+                });
     }
 }

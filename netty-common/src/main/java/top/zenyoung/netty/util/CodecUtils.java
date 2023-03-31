@@ -11,9 +11,7 @@ import top.zenyoung.netty.codec.MessageCodec;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,82 +26,93 @@ public class CodecUtils {
                                                           @Nullable final Map<String, String> codecMap,
                                                           @Nullable final Boolean checkScopePrototype) {
         //1.从配置获取编解码配置
-        final Map<String, ChannelHandler> propChannelHandlers = getChannelHandlers(context, codecMap, checkScopePrototype);
-        if (!CollectionUtils.isEmpty(propChannelHandlers)) {
-            return propChannelHandlers;
-        }
-        //2.从上下文中加载编解码器
-        final Map<String, ChannelHandler> ctxChannelHandlers = getChannelHandlers(context, checkScopePrototype);
-        if (!CollectionUtils.isEmpty(ctxChannelHandlers)) {
-            return ctxChannelHandlers;
-        }
-        //空置集合
-        return Maps.newHashMap();
+        return Optional.ofNullable(getChannelHandlersFromArgs(context, codecMap, checkScopePrototype))
+                .filter(handlers -> !CollectionUtils.isEmpty(handlers))
+                .orElseGet(() -> {
+                    //2.从上下文中加载编解码器
+                    return Optional.ofNullable(getChannelHandlers(context, checkScopePrototype))
+                            .orElse(Maps.newHashMap());
+                });
     }
 
-    public static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context,
-                                                                 @Nullable final Map<String, String> codecMap,
-                                                                 @Nullable final Boolean checkScopePrototype) {
-        if (!CollectionUtils.isEmpty(codecMap)) {
-            return codecMap.entrySet().stream()
-                    .map(entry -> {
-                        final String key = entry.getKey(), val = entry.getValue();
-                        if (Strings.isNullOrEmpty(key) || Strings.isNullOrEmpty(val)) {
-                            return null;
-                        }
-                        try {
-                            Object handler = context.getBean(val);
-                            if (handler instanceof ChannelHandler) {
-                                //检查编解码器注解
-                                if (Objects.nonNull(checkScopePrototype) && checkScopePrototype) {
-                                    ScopeUtils.checkPrototype(handler.getClass());
-                                }
-                                return Pair.of(key, (ChannelHandler) handler);
-                            }
-                            final Class<?> cls = Class.forName(val);
-                            if (ChannelHandler.class.isAssignableFrom(cls)) {
-                                handler = cls.newInstance();
-                                return Pair.of(key, (ChannelHandler) handler);
-                            }
-                        } catch (Throwable e) {
-                            log.warn("getCodec[key: {},val: {}]-exp: {}", key, val, e.getMessage());
-                        }
-                        return null;
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(Pair::getLeft, Pair::getValue, (n, o) -> n));
-        }
-        return null;
+    private static Map<String, ChannelHandler> getChannelHandlersFromArgs(@Nonnull final ApplicationContext context,
+                                                                          @Nullable final Map<String, String> codecMap,
+                                                                          @Nullable final Boolean checkScopePrototype) {
+        return Optional.ofNullable(codecMap)
+                .map(Map::entrySet)
+                .map(Set::stream)
+                .map(stream -> stream.map(entry -> {
+                                    final String key = entry.getKey(), val = entry.getValue();
+                                    if (Strings.isNullOrEmpty(key) || Strings.isNullOrEmpty(val)) {
+                                        return null;
+                                    }
+                                    return Optional.of(context.getBean(val))
+                                            .filter(bean -> bean instanceof ChannelHandler)
+                                            .map(bean -> {
+                                                //检查编解码器注解
+                                                if (Objects.nonNull(checkScopePrototype) && checkScopePrototype) {
+                                                    ScopeUtils.checkPrototype(bean.getClass());
+                                                }
+                                                return Pair.of(key, (ChannelHandler) bean);
+                                            })
+                                            .orElseGet(() -> Optional.ofNullable(createHandler(() -> Class.forName(val)))
+                                                    .filter(ChannelHandler.class::isAssignableFrom)
+                                                    .map(cls -> createHandler(() -> (ChannelHandler) cls.newInstance()))
+                                                    .map(handler -> Pair.of(key, handler))
+                                                    .orElse(null)
+                                            );
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toMap(Pair::getLeft, Pair::getValue, (o, n) -> n))
+                )
+                .filter(map -> !CollectionUtils.isEmpty(map))
+                .orElse(null);
     }
 
     private static Map<String, ChannelHandler> getChannelHandlers(@Nonnull final ApplicationContext context,
                                                                   @Nullable final Boolean checkScopePrototype) {
-        try {
-            final Map<String, ?> codecMap = context.getBeansOfType(MessageCodec.class);
-            if (!CollectionUtils.isEmpty(codecMap)) {
-                return codecMap.entrySet().stream()
-                        .map(entry -> {
-                            final String key = entry.getKey();
-                            final Object val = entry.getValue();
-                            if (!Strings.isNullOrEmpty(key) && Objects.nonNull(val)) {
-                                final Class<?> cls = val.getClass();
-                                if (ChannelHandler.class.isAssignableFrom(cls)) {
-                                    //检查编解码器注解
-                                    if (Objects.nonNull(checkScopePrototype) && checkScopePrototype) {
-                                        ScopeUtils.checkPrototype(cls);
+
+        return Optional.of(context.getBeansOfType(MessageCodec.class))
+                .filter(map -> !CollectionUtils.isEmpty(map))
+                .map(Map::entrySet)
+                .map(Set::stream)
+                .map(stream -> stream.map(entry -> {
+                                    final String key = entry.getKey();
+                                    final Object val = entry.getValue();
+                                    if (Strings.isNullOrEmpty(key) || Objects.isNull(val)) {
+                                        return null;
                                     }
-                                    return Pair.of(key, (ChannelHandler) val);
-                                }
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull)
-                        .sorted(Comparator.comparing(Pair::getLeft))
-                        .collect(Collectors.toMap(Pair::getLeft, Pair::getValue, (n, o) -> n));
-            }
+                                    return Optional.of(val.getClass())
+                                            .filter(ChannelHandler.class::isAssignableFrom)
+                                            .map(cls -> {
+                                                //检查编解码器注解
+                                                if (Objects.nonNull(checkScopePrototype) && checkScopePrototype) {
+                                                    ScopeUtils.checkPrototype(cls);
+                                                }
+                                                return Pair.of(key, (ChannelHandler) val);
+                                            })
+                                            .orElse(null);
+                                })
+                                .filter(Objects::nonNull)
+                                .sorted(Comparator.comparing(Pair::getLeft))
+                                .collect(Collectors.toMap(Pair::getLeft, Pair::getValue, (n, o) -> n))
+                )
+                .orElse(null);
+    }
+
+
+    private static <T> T createHandler(@Nonnull final InnerSupplier<T> handler) {
+        try {
+            return handler.get();
         } catch (Throwable e) {
-            log.warn("getChannelHandlers-exp: {}", e.getMessage());
+            log.error("createHandler(handler: {})-exp: {}", handler, e.getMessage());
+            return null;
         }
-        return null;
+    }
+
+    @FunctionalInterface
+    private interface InnerSupplier<T> {
+
+        T get() throws Throwable;
     }
 }

@@ -20,10 +20,8 @@ import top.zenyoung.netty.server.handler.IpAddrFilter;
 import top.zenyoung.netty.server.handler.RequestLimitFilter;
 import top.zenyoung.netty.server.server.NettyServer;
 import top.zenyoung.netty.util.CodecUtils;
-import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,17 +88,20 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         //1.挂载IP地址过滤器
         pipeline.addLast("ipFilter", new IpAddrFilter(properites));
         //2.挂载请求限制过滤器
-        if (Objects.nonNull(properites.getLimit())) {
-            pipeline.addLast("limitFilter", new RequestLimitFilter(properites));
-        }
+        Optional.ofNullable(getProperties())
+                .map(NettyServerProperties::getLimit)
+                .ifPresent(limit -> pipeline.addLast("limitFilter", new RequestLimitFilter(properites)));
         //3.挂载空闲检查处理器
-        final Duration heartbeat = this.properites.getHeartbeatInterval();
-        if (Objects.nonNull(heartbeat)) {
-            pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
-        }
+        Optional.ofNullable(getProperties())
+                .map(NettyServerProperties::getHeartbeatInterval)
+                .ifPresent(heartbeat -> pipeline.addLast("idle", new HeartbeatHandler(heartbeat)));
         //4.挂载编解码器
-        final Map<String, String> codecMap = portCodec().getOrDefault(port, null);
-        final Map<String, ChannelHandler> codecHandlerMap = CodecUtils.getCodecMap(context, codecMap, true);
+        final Map<String, String> codecMap = Optional.ofNullable(portCodec())
+                .map(map -> map.getOrDefault(port, null))
+                .orElse(null);
+        final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
+                .map(ctx -> CodecUtils.getCodecMap(ctx, codecMap, true))
+                .orElse(null);
         if (CollectionUtils.isEmpty(codecHandlerMap)) {
             log.error("端口[{}]未挂载编解码器,请检查配置!", port);
         } else {
@@ -108,9 +109,8 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
             log.info("端口[{}]挂载编解码器: {}", port, codecHandlerMap.keySet());
         }
         //5.挂载业务处理器
-        final ChannelHandler handler = SocketUtils.getHandler(context, BaseServerSocketHandler.class);
-        if (Objects.nonNull(handler)) {
-            pipeline.addLast("biz", handler);
-        }
+        Optional.ofNullable(context)
+                .map(ctx -> createHandler(() -> ctx.getBean(BaseServerSocketHandler.class)))
+                .ifPresent(handler -> pipeline.addLast("biz", handler));
     }
 }

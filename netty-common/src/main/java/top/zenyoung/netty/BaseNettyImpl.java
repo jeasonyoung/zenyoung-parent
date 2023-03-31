@@ -25,6 +25,7 @@ import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -63,15 +64,10 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * @return 日志级别
      */
     protected LogLevel getLogLevel() {
-        final String level;
-        if (!Strings.isNullOrEmpty(level = this.getProperties().getLogLevel())) {
-            try {
-                return Enum.valueOf(LogLevel.class, level.toUpperCase());
-            } catch (Throwable e) {
-                log.warn("getLogLevel(level: {})-exp: {}", level, e.getMessage());
-            }
-        }
-        return LogLevel.DEBUG;
+        return Optional.ofNullable(getProperties().getLogLevel())
+                .filter(level -> !Strings.isNullOrEmpty(level))
+                .map(level -> createHandler(() -> Enum.valueOf(LogLevel.class, level.toUpperCase())))
+                .orElse(LogLevel.DEBUG);
     }
 
     /**
@@ -170,7 +166,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             @Override
             protected void initChannel(final C ch) {
                 final InetSocketAddress socketAddr = (InetSocketAddress) ch.localAddress();
-                final int port = Objects.isNull(socketAddr) ? -1 : socketAddr.getPort();
+                final int port = Optional.ofNullable(socketAddr)
+                        .map(InetSocketAddress::getPort)
+                        .orElse(-1);
                 if (port > -1) {
                     log.info("Netty[{}]新设备连接: {}", port, ch);
                 }
@@ -274,10 +272,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      */
     protected static <T> void writeAndFlush(@Nullable final ChannelHandlerContext ctx, @Nullable final T msg, @Nullable final ChannelFutureListener listener) {
         if (Objects.nonNull(ctx) && Objects.nonNull(msg)) {
-            final ChannelFuture future = ctx.writeAndFlush(msg);
-            if (Objects.nonNull(listener)) {
-                future.addListener(listener);
-            }
+            Optional.ofNullable(ctx.writeAndFlush(msg))
+                    .filter(future -> Objects.nonNull(listener))
+                    .ifPresent(future -> future.addListener(listener));
         }
     }
 
@@ -291,10 +288,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      */
     protected static <T> void writeAndFlush(@Nullable final Channel channel, @Nullable final T msg, @Nullable final ChannelFutureListener listener) {
         if (Objects.nonNull(channel) && Objects.nonNull(msg)) {
-            final ChannelFuture future = channel.writeAndFlush(msg);
-            if (Objects.nonNull(listener)) {
-                future.addListener(listener);
-            }
+            Optional.ofNullable(channel.writeAndFlush(msg))
+                    .filter(future -> Objects.nonNull(listener))
+                    .ifPresent(future -> future.addListener(listener));
         }
     }
 
@@ -343,5 +339,26 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
         } catch (Throwable e) {
             log.error("Netty关闭异常: {}", e.getMessage());
         }
+    }
+
+    /**
+     * 创建处理(不抛异常)
+     *
+     * @param handler 处理逻辑
+     * @param <T>     创建对象
+     * @return 创建结果
+     */
+    protected static <T> T createHandler(@Nonnull final InnerThrowableSupplier<T> handler) {
+        try {
+            return handler.get();
+        } catch (Throwable e) {
+            log.error("createHandler(handler: {})-exp: {}", handler, e.getMessage());
+            return null;
+        }
+    }
+
+    @FunctionalInterface
+    protected interface InnerThrowableSupplier<T> {
+        T get() throws Throwable;
     }
 }

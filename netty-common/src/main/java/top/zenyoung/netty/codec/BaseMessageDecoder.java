@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 消息解码器
@@ -16,9 +16,7 @@ public abstract class BaseMessageDecoder<T extends Message> extends ByteToMessag
 
     @Override
     protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
-        final T data = decoder(in);
-        if (Objects.nonNull(data)) {
-            out.add(data);
-        }
+        Optional.ofNullable(decoder(in))
+                .ifPresent(out::add);
     }
 }

@@ -16,6 +16,7 @@ import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -51,9 +52,8 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param <E>   事件类型
      */
     protected <E> void publishContextEvent(@Nonnull final E event) {
-        if (Objects.nonNull(this.context)) {
-            this.context.publishEvent(event);
-        }
+        Optional.ofNullable(context)
+                .ifPresent(ctx -> ctx.publishEvent(event));
     }
 
     /**
@@ -66,33 +66,37 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     @Override
     public final void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            final IdleState state = ((IdleStateEvent) evt).state();
-            if (Objects.nonNull(state)) {
-                //检查是否读写空闲
-                if (state == IdleState.ALL_IDLE) {
-                    final long total = this.heartbeatTotals.incrementAndGet();
-                    if (total >= Long.MAX_VALUE) {
-                        this.heartbeatTotals.set(0);
-                        return;
-                    }
-                    final Integer max = this.getHeartbeatTimeoutTotal();
-                    if (Objects.nonNull(max) && total > max) {
-                        //检查Session
-                        if (Objects.nonNull(this.session)) {
-                            //移除会话
-                            this.close();
-                        } else {
-                            //关闭通道
-                            ctx.close();
+            Optional.ofNullable(((IdleStateEvent) evt).state())
+                    .ifPresent(state -> {
+                        //检查是否读写空闲
+                        if (state == IdleState.ALL_IDLE) {
+                            final long total = this.heartbeatTotals.incrementAndGet();
+                            if (total == Long.MAX_VALUE) {
+                                this.heartbeatTotals.set(0);
+                                return;
+                            }
+                            final boolean ret = Optional.ofNullable(getHeartbeatTimeoutTotal())
+                                    .filter(max -> total > max)
+                                    .map(max -> {
+                                        //检查Session
+                                        if (Objects.nonNull(this.session)) {
+                                            //移除会话
+                                            this.close();
+                                        } else {
+                                            //关闭通道
+                                            ctx.close();
+                                        }
+                                        return true;
+                                    })
+                                    .orElse(false);
+                            if (ret) {
+                                return;
+                            }
                         }
-                        return;
-                    }
-                }
-                //心跳处理
-                if (Objects.nonNull(this.session)) {
-                    this.heartbeatIdleHandle(this.session, state);
-                }
-            }
+                        //心跳处理
+                        Optional.ofNullable(session)
+                                .ifPresent(ses -> heartbeatIdleHandle(ses, state));
+                    });
         }
         super.userEventTriggered(ctx, evt);
     }
@@ -112,25 +116,26 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         final long start = System.currentTimeMillis();
         this.heartbeatTotals.set(0L);
-        final T data = (T) msg;
-        if (Objects.nonNull(data)) {
-            final String deviceId;
-            if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(deviceId = data.getDeviceId())) {
-                //创建会话
-                this.session = SessionFactory.create(ctx.channel(), deviceId, info -> {
-                    //发送设备通道关闭消息
-                    context.publishEvent(ClosedEvent.of(info.getDeviceId(), info.getClientIp()));
+        Optional.ofNullable((T) msg)
+                .ifPresent(data -> {
+                    //检查是否已建立会话
+                    final String deviceId;
+                    if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(deviceId = data.getDeviceId())) {
+                        //创建会话
+                        this.session = SessionFactory.create(ctx.channel(), deviceId, info -> {
+                            //发送设备通道关闭消息
+                            context.publishEvent(ClosedEvent.of(info.getDeviceId(), info.getClientIp()));
+                        });
+                        //存储会话
+                        this.buildSessionAfter(this.session);
+                    }
+                    try {
+                        //调用业务处理
+                        this.messageReceived(ctx, data);
+                    } finally {
+                        log.info("业务[session: {},ctx: {}]执行耗时: {}ms", this.session, ctx, (System.currentTimeMillis() - start));
+                    }
                 });
-                //存储会话
-                this.buildSessionAfter(this.session);
-            }
-            try {
-                //调用业务处理
-                this.messageReceived(ctx, data);
-            } finally {
-                log.info("业务[session: {},ctx: {}]执行耗时: {}ms", this.session, ctx, (System.currentTimeMillis() - start));
-            }
-        }
     }
 
     /**
@@ -151,18 +156,16 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         //全局策略处理器
         final T callback = globalStrategyProcess(session, msg);
         if (Objects.nonNull(callback)) {
-            ctx.writeAndFlush(callback);
+            Optional.ofNullable(ctx.writeAndFlush(callback))
+                    .ifPresent(future -> future.addListener(f -> log.info("消息发送=> {}", f.isSuccess())));
             return;
         }
         //根据消息执行策略命令
-        final StrategyFactory factory;
-        if (Objects.nonNull(factory = this.getStrategyFactory()) && Objects.nonNull(this.session) && this.session.getStatus()) {
-            //策略处理器处理
-            final T res = factory.process(session, msg);
-            if (Objects.nonNull(res)) {
-                ctx.writeAndFlush(res);
-            }
-        }
+        Optional.ofNullable(getStrategyFactory())
+                .filter(factory -> Objects.nonNull(session) && session.getStatus())
+                .map(factory -> factory.process(session, msg))
+                .map(ctx::writeAndFlush)
+                .ifPresent(future -> future.addListener(f -> log.info("消息发送=> {}", f.isSuccess())));
     }
 
     /**
@@ -192,11 +195,12 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * 关闭通道
      */
     protected void close() {
-        if (Objects.nonNull(this.session)) {
-            //移除会话
-            this.close(this.session);
-            this.session = null;
-        }
+        Optional.ofNullable(session)
+                .ifPresent(sess->{
+                    //移除会话
+                    this.close(sess);
+                    this.session = null;
+                });
     }
 
     /**

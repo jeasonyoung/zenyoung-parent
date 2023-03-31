@@ -1,15 +1,16 @@
 package top.zenyoung.netty.session;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Objects;
+import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -29,8 +30,8 @@ public class SessionFactory implements Session {
     private SessionFactory(@Nonnull final Channel channel, @Nonnull final String deviceId, @Nullable final Consumer<Info> closeEventListenter) {
         this.channel = channel;
         this.deviceId = deviceId;
-        this.clientIp = channel.remoteAddress() + "";
-        this.refStatus.set(true);
+        this.clientIp = Optional.ofNullable(SocketUtils.getRemoteAddr(channel)).map(InetSocketAddress::toString).orElse(null);
+        this.setStatus(true);
         this.closeEventListenter = closeEventListenter;
     }
 
@@ -76,43 +77,46 @@ public class SessionFactory implements Session {
         return this.refStatus.get();
     }
 
+    private void setStatus(final boolean status) {
+        this.refStatus.set(status);
+    }
+
     @Override
     public <T> void send(@Nonnull final T content, @Nullable final SendMessageResultListener listener) {
-        log.info("发送消息[{}]: {}", this.getStatus(), content);
-        if (this.getStatus()) {
-            try {
-                //发送消息
-                final ChannelFuture future = this.channel.writeAndFlush(content);
-                if (Objects.nonNull(future) && Objects.nonNull(listener)) {
-                    future.addListener(f -> {
-                        final boolean ret = f.isSuccess();
-                        log.info("发送消息[结果: {}]=> {}", ret, content);
-                        listener.onSendAfter(ret);
-                    });
-                }
-            } catch (Throwable e) {
-                log.error("send(content: {},listener: {})-exp: {}", content, listener, e.getMessage());
-            }
+        log.info("发送消息[{}]: {}", getStatus(), content);
+        if (getStatus()) {
+            Optional.ofNullable(channel.writeAndFlush(content))
+                    .ifPresent(future -> Optional.ofNullable(listener)
+                            .ifPresent(l -> future.addListener(f -> {
+                                        final boolean ret = f.isSuccess();
+                                        log.info("发送消息[结果: {}]=> {}", ret, content);
+                                        listener.onSendAfter(ret);
+                                    })
+                            )
+                    );
         }
     }
 
     @Override
     public void close() {
-        if (Objects.nonNull(this.channel) && this.getStatus()) {
-            this.refStatus.set(true);
-            log.info("关闭通道:[{}]{}, {}", this.deviceId, this.clientIp, this.channel);
-            final ChannelFuture future = channel.close();
-            if (Objects.nonNull(future)) {
-                future.addListener(f -> {
-                    //更新状态
-                    this.refStatus.set(!f.isSuccess());
-                    //关闭成功处理
-                    if (Objects.nonNull(this.closeEventListenter) && f.isSuccess()) {
-                        this.closeEventListenter.accept(Info.of(this.deviceId, this.clientIp));
-                    }
+        Optional.ofNullable(channel)
+                .filter(ch -> getStatus())
+                .ifPresent(ch -> {
+                    setStatus(true);
+                    Optional.ofNullable(ch.close())
+                            .ifPresent(future -> {
+                                future.addListener(f -> {
+                                    //更新状态
+                                    setStatus(!f.isSuccess());
+                                    Optional.ofNullable(closeEventListenter)
+                                            .filter(listenter -> f.isSuccess())
+                                            .ifPresent(listenter -> {
+                                                //关闭成功处理
+                                                listenter.accept(Info.of(getDeviceId(), getClientIp()));
+                                            });
+                                });
+                            });
                 });
-            }
-        }
     }
 
     @Override

@@ -1,12 +1,11 @@
 package top.zenyoung.netty.codec;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 消息编码接口
@@ -18,9 +17,7 @@ public abstract class BaseMessageEncoder<T extends Message> extends MessageToMes
 
     @Override
     protected void encode(final ChannelHandlerContext ctx, final T msg, final List<Object> out) {
-        final ByteBuf buf = encode(ctx.alloc(), msg);
-        if (Objects.nonNull(buf)) {
-            out.add(buf);
-        }
+        Optional.ofNullable(encode(ctx.alloc(), msg))
+                .ifPresent(out::add);
     }
 }

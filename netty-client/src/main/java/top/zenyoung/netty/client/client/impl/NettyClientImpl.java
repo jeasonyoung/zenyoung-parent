@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -18,12 +17,12 @@ import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.client.handler.BaseClientSocketHandler;
 import top.zenyoung.netty.handler.HeartbeatHandler;
 import top.zenyoung.netty.util.CodecUtils;
-import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -63,22 +62,29 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     @Override
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
         //1.挂载空闲检查处理器
-        final Duration heartbeat = this.properites.getHeartbeatInterval();
-        if (Objects.nonNull(heartbeat)) {
-            pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
-            log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
-        }
+        Optional.ofNullable(getProperties())
+                .map(NettyClientProperties::getHeartbeatInterval)
+                .ifPresent(heartbeat -> {
+                    pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
+                    log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
+                });
         //2.挂载编解码器
-        final Map<String, ChannelHandler> codecMaps = CodecUtils.getCodecMap(context, properites.getCodec(), true);
-        if (!CollectionUtils.isEmpty(codecMaps)) {
-            codecMaps.forEach(pipeline::addLast);
-        }
+        Optional.ofNullable(context)
+                .map(ctx -> {
+                    final Map<String, String> codecMap = Optional.ofNullable(getProperties())
+                            .map(NettyClientProperties::getCodec)
+                            .orElse(null);
+                    return CodecUtils.getCodecMap(ctx, codecMap, true);
+                })
+                .filter(map -> !CollectionUtils.isEmpty(map))
+                .ifPresent(map -> map.forEach(pipeline::addLast));
         //3.挂载业务处理器
-        final ChannelHandler handler = SocketUtils.getHandler(context, BaseClientSocketHandler.class);
-        if (Objects.nonNull(handler)) {
-            pipeline.addLast("biz", handler);
-            log.info("Netty-挂载业务处理器:" + handler);
-        }
+        Optional.ofNullable(context)
+                .map(ctx -> createHandler(() -> ctx.getBean(BaseClientSocketHandler.class)))
+                .ifPresent(handler -> {
+                    pipeline.addLast("biz", handler);
+                    log.info("Netty-挂载业务处理器:" + handler);
+                });
     }
 
     private void connect(@Nonnull final Bootstrap bootstrap) {

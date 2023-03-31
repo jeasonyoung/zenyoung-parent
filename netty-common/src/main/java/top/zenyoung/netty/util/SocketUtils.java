@@ -2,16 +2,15 @@ package top.zenyoung.netty.util;
 
 import com.google.common.base.Strings;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
-import top.zenyoung.netty.handler.BaseSocketHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 /**
@@ -22,23 +21,27 @@ import java.util.function.BiConsumer;
 @Slf4j
 public class SocketUtils {
 
-    /**
-     * 从Spring中获取通道处理器
-     *
-     * @param context Spring上下文
-     * @param cls     通道处理器类型
-     * @return 处理器对象
-     */
-    @SuppressWarnings({"all"})
-    public static ChannelHandler getHandler(@Nonnull final ApplicationContext context,
-                                            @Nonnull final Class<? extends BaseSocketHandler> cls) {
-        try {
-            return context.getBean(cls);
-        } catch (Throwable e) {
-            log.error("getHandler-exp: {}", e.getMessage());
-        }
-        return null;
-    }
+//    /**
+//     * 从Spring中获取通道处理器
+//     *
+//     * @param context Spring上下文
+//     * @param cls     通道处理器类型
+//     * @return 处理器对象
+//     */
+//    @SuppressWarnings({"all"})
+//    public static ChannelHandler getHandler(@Nonnull final ApplicationContext context,
+//                                            @Nonnull final Class<? extends BaseSocketHandler> cls) {
+//        return Optional.of(context)
+//                .map(ctx -> {
+//                    try {
+//                        return ctx.getBean(cls);
+//                    } catch (Throwable e) {
+//                        log.error("getHandler-exp: {}", e.getMessage());
+//                        return null;
+//                    }
+//                })
+//                .orElse(null);
+//    }
 
     /**
      * 获取远端地址
@@ -67,13 +70,17 @@ public class SocketUtils {
      * @param handler 获取IP和端口
      */
     public static void getIpAddrWithPort(@Nullable final InetSocketAddress addr, @Nonnull final BiConsumer<String, Integer> handler) {
-        if (Objects.nonNull(addr)) {
-            final String ipAddr = addr.getAddress().getHostAddress();
-            final int port = addr.getPort();
-            if (!Strings.isNullOrEmpty(ipAddr)) {
-                handler.accept(ipAddr, port);
-            }
-        }
+        Optional.ofNullable(addr)
+                .map(InetSocketAddress::getAddress)
+                .map(InetAddress::getHostAddress)
+                .filter(ipAddr -> !Strings.isNullOrEmpty(ipAddr))
+                .ifPresent(ipAddr -> {
+                    //端口
+                    final Integer port = Optional.of(addr)
+                            .map(InetSocketAddress::getPort)
+                            .orElse(null);
+                    handler.accept(ipAddr, port);
+                });
     }
 
     /**
@@ -83,7 +90,10 @@ public class SocketUtils {
      * @return 通道ID
      */
     public static String getChannelId(@Nonnull final Channel channel) {
-        return channel.id().asShortText();
+        return Optional.of(channel)
+                .map(Channel::id)
+                .map(ChannelId::asShortText)
+                .orElse(null);
     }
 
     /**
