@@ -1,6 +1,5 @@
 package top.zenyoung.netty.codec;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import javax.annotation.Nonnull;
@@ -19,5 +18,5 @@ public interface MessageEncoder<T extends Message> {
      * @param message   消息数据
      * @return 编码后的字节
      */
-    ByteBuf encode(@Nonnull final ByteBufAllocator allocator, @Nonnull final T message);
+    Object encode(@Nonnull final ByteBufAllocator allocator, @Nonnull final T message);
 }
