@@ -1,7 +1,5 @@
 package top.zenyoung.netty.codec;
 
-import io.netty.buffer.ByteBuf;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -16,5 +14,5 @@ public interface MessageDecoder<T extends Message> {
      * @param in 消息缓存
      * @return 解码后的对象
      */
-    T decoder(@Nonnull final ByteBuf in);
+    T decoder(@Nonnull final Object in);
 }
