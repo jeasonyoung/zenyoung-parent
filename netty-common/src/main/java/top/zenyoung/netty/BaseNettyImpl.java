@@ -14,14 +14,20 @@ import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.util.concurrent.ScheduledFuture;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.config.BaseProperties;
+import top.zenyoung.netty.mbean.TrafficAcceptor;
 import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.Closeable;
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.Objects;
@@ -52,11 +58,29 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     }
 
     /**
+     * 全局流量共享统计处理器
+     */
+    @Getter
+    private GlobalTrafficShapingHandler globalTrafficHandler;
+
+    /**
      * 获取配置数据
      *
      * @return 配置数据
      */
     protected abstract T getProperties();
+
+    /**
+     * 获取全局流量统计
+     *
+     * @return 全局流量统计
+     */
+    protected TrafficAcceptor getGlobalTraffic() {
+        return Optional.ofNullable(globalTrafficHandler)
+                .map(GlobalTrafficShapingHandler::trafficCounter)
+                .map(TrafficAcceptor::of)
+                .orElse(null);
+    }
 
     /**
      * 获取日志级别
@@ -126,6 +150,10 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             @Nullable final EventLoopGroup boss, @Nullable final EventLoopGroup work,
             @Nonnull final Supplier<Class<? extends C>> channelHandler
     ) {
+        //初始化全局流量处理器
+        if (Objects.isNull(globalTrafficHandler)) {
+            this.globalTrafficHandler = new GlobalTrafficShapingHandler(WORKER_GROUP, 1000L);
+        }
         //工作线程池
         if (bootstrap instanceof ServerBootstrap) {
             final EventLoopGroup bossGroup = Objects.nonNull(boss) ? boss : BOSS_GROUP;
@@ -190,6 +218,21 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
             //客户端
             bootstrap.handler(channelPipelineHandler.get());
         }
+        //启动startMbean处理
+        startMbean();
+    }
+
+    protected void startMbean() {
+        Optional.ofNullable(getGlobalTraffic())
+                .ifPresent(mbean -> {
+                    try {
+                        final MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+                        final ObjectName acceptorName = new ObjectName(mbean.getClass().getPackage().getName() + ":type=TrafficAcceptor");
+                        mBeanServer.registerMBean(mbean, acceptorName);
+                    } catch (Throwable e) {
+                        log.warn("startMbean[{}]-exp: {}", mbean, e.getMessage());
+                    }
+                });
     }
 
     protected <B extends AbstractBootstrap<B, C>, C extends Channel> void addBootstrapOptions(@Nonnull final AbstractBootstrap<B, C> bootstrap) {
@@ -205,6 +248,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
         //0.挂载日志处理器
         pipeline.addLast("log", new LoggingHandler(getLogLevel()));
+        //1.挂载流量统计处理器
+        Optional.ofNullable(globalTrafficHandler)
+                .ifPresent(handler -> pipeline.addLast("globalTraffic", handler));
     }
 
     /**
