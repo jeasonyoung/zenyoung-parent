@@ -74,10 +74,8 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
             return;
         }
         refRun.set(true);
-        EXECUTORS.execute(() -> {
-            log.info("Netty-Server 准备异步启动...");
-            start();
-        });
+        log.info("Netty-Server 准备开启异步");
+        EXECUTORS.execute(this::start);
     }
 
     private void start() {
