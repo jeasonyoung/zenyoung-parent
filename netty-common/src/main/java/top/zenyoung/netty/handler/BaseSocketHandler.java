@@ -162,7 +162,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         }
         //根据消息执行策略命令
         Optional.ofNullable(getStrategyFactory())
-                .filter(factory -> Objects.nonNull(session) && session.getStatus())
+                .filter(factory -> Objects.nonNull(session))
                 .map(factory -> factory.process(session, msg))
                 .map(ctx::writeAndFlush)
                 .ifPresent(future -> future.addListener(f -> log.info("消息发送=> {}", f.isSuccess())));
