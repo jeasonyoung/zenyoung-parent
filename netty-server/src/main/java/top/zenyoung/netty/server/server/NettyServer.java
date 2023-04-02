@@ -8,5 +8,5 @@ import java.io.Closeable;
  * @author young
  */
 public interface NettyServer extends Runnable, Closeable {
-
+    
 }

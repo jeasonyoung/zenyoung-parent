@@ -1,6 +1,7 @@
 package top.zenyoung.netty.server.server.impl;
 
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -36,8 +39,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
 public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implements NettyServer {
+    private final AtomicBoolean refRun = new AtomicBoolean(false);
     private final NettyServerProperties properites;
     private final ApplicationContext context;
+
+    private final static ScheduledExecutorService EXECUTORS;
+
+    static {
+        final int cpus = Runtime.getRuntime().availableProcessors();
+        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("netty-server-%d").setDaemon(true).build();
+        final RejectedExecutionHandler rejected = new ThreadPoolExecutor.DiscardOldestPolicy();
+        EXECUTORS = new ScheduledThreadPoolExecutor((int) Math.max(1, cpus * 2), factory, rejected);
+    }
+
 
     @Override
     protected NettyServerProperties getProperties() {
@@ -55,6 +69,18 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
 
     @Override
     public void run() {
+        if (refRun.get()) {
+            log.warn("Netty-Server 正在启动或已启动,请确认后操作...");
+            return;
+        }
+        refRun.set(true);
+        EXECUTORS.execute(() -> {
+            log.info("Netty-Server 准备异步启动...");
+            start();
+        });
+    }
+
+    private void start() {
         try {
             log.info("Netty-Server 启动...");
             final Map<Integer, Map<String, String>> portCodecMap = portCodec();
@@ -80,6 +106,8 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
             this.syncShutdownHook(futures);
         } catch (Throwable e) {
             log.error("Netty-Server 运行失败: {}", e.getMessage());
+        } finally {
+            refRun.set(false);
         }
     }
 
