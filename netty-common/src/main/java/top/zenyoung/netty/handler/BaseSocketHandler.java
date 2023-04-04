@@ -1,6 +1,7 @@
 package top.zenyoung.netty.handler;
 
 import com.google.common.base.Strings;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -113,7 +114,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Override
     @SuppressWarnings({"unchecked"})
-    public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         final long start = System.currentTimeMillis();
         this.heartbeatTotals.set(0L);
         Optional.ofNullable((T) msg)
@@ -165,7 +166,12 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 .filter(factory -> Objects.nonNull(session))
                 .map(factory -> factory.process(session, msg))
                 .map(ctx::writeAndFlush)
-                .ifPresent(future -> future.addListener(f -> log.info("消息发送=> {}", f.isSuccess())));
+                .ifPresent(future -> future.addListener(f -> {
+                    log.info("消息发送=> {}", f.isSuccess());
+                    //发送消息成功后,自动读取下一消息
+                    Optional.ofNullable(future.channel())
+                            .ifPresent(Channel::read);
+                }));
     }
 
     /**
@@ -196,7 +202,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      */
     protected void close() {
         Optional.ofNullable(session)
-                .ifPresent(sess->{
+                .ifPresent(sess -> {
                     //移除会话
                     this.close(sess);
                     this.session = null;

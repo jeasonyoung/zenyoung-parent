@@ -236,7 +236,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
     }
 
     protected <B extends AbstractBootstrap<B, C>, C extends Channel> void addBootstrapOptions(@Nonnull final AbstractBootstrap<B, C> bootstrap) {
-
+        bootstrap.option(ChannelOption.AUTO_READ, false);
     }
 
     /**

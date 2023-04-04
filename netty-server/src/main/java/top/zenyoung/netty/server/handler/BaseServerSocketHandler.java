@@ -1,5 +1,6 @@
 package top.zenyoung.netty.server.handler;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,13 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
 
     public BaseServerSocketHandler() {
         this.ensureHasScope();
+    }
+
+    @Override
+    public void channelActive(@Nonnull final ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        //触发读取消息
+        ctx.read();
     }
 
     @Override
