@@ -35,6 +35,11 @@ public interface Session extends Serializable, Closeable {
     boolean getStatus();
 
     /**
+     * 读取通道数据
+     */
+    void readChannelData();
+
+    /**
      * 发送消息
      *
      * @param content  消息内容。

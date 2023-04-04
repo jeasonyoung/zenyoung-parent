@@ -84,6 +84,12 @@ public class SessionFactory implements Session {
     }
 
     @Override
+    public final void readChannelData() {
+        Optional.ofNullable(channel)
+                .ifPresent(Channel::read);
+    }
+
+    @Override
     public <T> void send(@Nonnull final T content, @Nullable final ChannelFutureListener listener) {
         Optional.ofNullable(channel)
                 .map(ch -> ch.writeAndFlush(content))
