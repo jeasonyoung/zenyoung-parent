@@ -1,6 +1,7 @@
 package top.zenyoung.netty.session;
 
 import io.netty.channel.ChannelFutureListener;
+import top.zenyoung.netty.codec.Message;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,19 +43,17 @@ public interface Session extends Serializable, Closeable {
     /**
      * 发送消息
      *
-     * @param content  消息内容。
-     * @param listener 发送结果监听。
-     * @param <T>      消息数据类型
+     * @param data     消息数据
+     * @param listener 发送结果监听
      */
-    <T> void send(@Nonnull final T content, @Nullable final ChannelFutureListener listener);
+    void send(@Nonnull final Message data, @Nullable final ChannelFutureListener listener);
 
     /**
      * 发送消息
      *
-     * @param content 消息内容
-     * @param <T>     消息数据类型
+     * @param data 消息数据
      */
-    default <T> void send(@Nonnull final T content) {
-        this.send(content, null);
+    default void send(@Nonnull final Message data) {
+        this.send(data, null);
     }
 }

@@ -18,6 +18,7 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.util.concurrent.ScheduledFuture;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.mbean.TrafficAcceptor;
 import top.zenyoung.netty.util.SocketUtils;
@@ -312,32 +313,26 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
      * 通道写入消息数据
      *
      * @param ctx      通道上下文
-     * @param msg      消息数据
+     * @param data     消息数据
      * @param listener 通道监听器
-     * @param <T>      消息数据类型
      */
-    protected static <T> void writeAndFlush(@Nullable final ChannelHandlerContext ctx, @Nullable final T msg, @Nullable final ChannelFutureListener listener) {
-        if (Objects.nonNull(ctx) && Objects.nonNull(msg)) {
-            Optional.ofNullable(ctx.writeAndFlush(msg))
-                    .filter(future -> Objects.nonNull(listener))
-                    .ifPresent(future -> future.addListener(listener));
-        }
+    protected static void writeAndFlush(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Message data, @Nullable final ChannelFutureListener listener) {
+        Optional.ofNullable(ctx.writeAndFlush(data))
+                .filter(future -> Objects.nonNull(listener))
+                .ifPresent(future -> future.addListener(listener));
     }
 
     /**
      * 通道写入消息数据
      *
      * @param channel  通道对象
-     * @param msg      消息数据
+     * @param data     消息数据
      * @param listener 通道监听器
-     * @param <T>      消息数据类型
      */
-    protected static <T> void writeAndFlush(@Nullable final Channel channel, @Nullable final T msg, @Nullable final ChannelFutureListener listener) {
-        if (Objects.nonNull(channel) && Objects.nonNull(msg)) {
-            Optional.ofNullable(channel.writeAndFlush(msg))
-                    .filter(future -> Objects.nonNull(listener))
-                    .ifPresent(future -> future.addListener(listener));
-        }
+    protected static void writeAndFlush(@Nonnull final Channel channel, @Nonnull final Message data, @Nullable final ChannelFutureListener listener) {
+        Optional.ofNullable(channel.writeAndFlush(data))
+                .filter(future -> Objects.nonNull(listener))
+                .ifPresent(future -> future.addListener(listener));
     }
 
     /**

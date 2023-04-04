@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFutureListener;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
@@ -90,15 +91,15 @@ public class SessionFactory implements Session {
     }
 
     @Override
-    public <T> void send(@Nonnull final T content, @Nullable final ChannelFutureListener listener) {
+    public void send(@Nonnull final Message data, @Nullable final ChannelFutureListener listener) {
         Optional.ofNullable(channel)
-                .map(ch -> ch.writeAndFlush(content))
+                .map(ch -> ch.writeAndFlush(data))
                 .ifPresent(future -> {
                     if (Objects.nonNull(listener)) {
                         future.addListener(listener);
                     }
                     future.addListener(f -> {
-                        log.info("send(content: {}) => {}", content, f.isSuccess());
+                        log.info("send(data: {}) => {}", data, f.isSuccess());
                     });
                 });
     }
