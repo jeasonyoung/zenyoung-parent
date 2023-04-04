@@ -1,6 +1,7 @@
 package top.zenyoung.netty.session;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -82,40 +84,35 @@ public class SessionFactory implements Session {
     }
 
     @Override
-    public <T> void send(@Nonnull final T content, @Nullable final SendMessageResultListener listener) {
-        log.info("发送消息[{}]: {}", getStatus(), content);
-        if (getStatus()) {
-            Optional.ofNullable(channel.writeAndFlush(content))
-                    .ifPresent(future -> Optional.ofNullable(listener)
-                            .ifPresent(l -> future.addListener(f -> {
-                                        final boolean ret = f.isSuccess();
-                                        log.info("发送消息[结果: {}]=> {}", ret, content);
-                                        listener.onSendAfter(ret);
-                                    })
-                            )
-                    );
-        }
+    public <T> void send(@Nonnull final T content, @Nullable final ChannelFutureListener listener) {
+        Optional.ofNullable(channel)
+                .map(ch -> ch.writeAndFlush(content))
+                .ifPresent(future -> {
+                    if (Objects.nonNull(listener)) {
+                        future.addListener(listener);
+                    }
+                    future.addListener(f -> {
+                        log.info("send(content: {}) => {}", content, f.isSuccess());
+                    });
+                });
     }
 
     @Override
     public void close() {
         Optional.ofNullable(channel)
-                .filter(ch -> getStatus())
-                .ifPresent(ch -> {
-                    setStatus(true);
-                    Optional.ofNullable(ch.close())
-                            .ifPresent(future -> {
-                                future.addListener(f -> {
-                                    //更新状态
-                                    setStatus(!f.isSuccess());
-                                    Optional.ofNullable(closeEventListenter)
-                                            .filter(listenter -> f.isSuccess())
-                                            .ifPresent(listenter -> {
-                                                //关闭成功处理
-                                                listenter.accept(Info.of(getDeviceId(), getClientIp()));
-                                            });
-                                });
-                            });
+                .filter(Channel::isActive)
+                .map(Channel::close)
+                .ifPresent(future -> {
+                    future.addListener(f -> {
+                        if (f.isSuccess()) {
+                            //关闭成功
+                            setStatus(false);
+                            //关闭后通知
+                            if (Objects.nonNull(closeEventListenter)) {
+                                closeEventListenter.accept(Info.of(getDeviceId(), getClientIp()));
+                            }
+                        }
+                    });
                 });
     }
 

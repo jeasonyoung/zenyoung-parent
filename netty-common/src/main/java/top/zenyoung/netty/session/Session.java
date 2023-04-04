@@ -1,5 +1,7 @@
 package top.zenyoung.netty.session;
 
+import io.netty.channel.ChannelFutureListener;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Closeable;
@@ -39,7 +41,7 @@ public interface Session extends Serializable, Closeable {
      * @param listener 发送结果监听。
      * @param <T>      消息数据类型
      */
-    <T> void send(@Nonnull final T content, @Nullable final SendMessageResultListener listener);
+    <T> void send(@Nonnull final T content, @Nullable final ChannelFutureListener listener);
 
     /**
      * 发送消息
@@ -49,17 +51,5 @@ public interface Session extends Serializable, Closeable {
      */
     default <T> void send(@Nonnull final T content) {
         this.send(content, null);
-    }
-
-    /**
-     * 发送消息结果监听器。
-     */
-    interface SendMessageResultListener {
-        /**
-         * 消息发送之后。
-         *
-         * @param isSuccess 是否发送成功。
-         */
-        void onSendAfter(final boolean isSuccess);
     }
 }
