@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import java.io.Closeable;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -44,7 +43,7 @@ import java.util.stream.Stream;
  * @author young
  */
 @Slf4j
-public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnable, Closeable {
+public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnable {
     protected static final boolean IS_EPOLL;
     protected static final EventLoopGroup BOSS_GROUP;
     protected static final EventLoopGroup WORKER_GROUP;
@@ -371,7 +370,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
         }
     }
 
-    @Override
+    /**
+     * 关闭
+     */
     public void close() {
         try {
             BOSS_GROUP.shutdownGracefully();
