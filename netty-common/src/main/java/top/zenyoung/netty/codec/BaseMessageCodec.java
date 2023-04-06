@@ -2,6 +2,8 @@ package top.zenyoung.netty.codec;
 
 import io.netty.channel.CombinedChannelDuplexHandler;
 
+import javax.annotation.Nonnull;
+
 /**
  * 消息编解码器抽象基类
  *
@@ -14,6 +16,16 @@ public abstract class BaseMessageCodec<T extends BaseMessageEncoder<? extends Me
      */
     public BaseMessageCodec() {
         super();
-        this.init(getDecoder(), getEncoder());
+        this.initCodec(getDecoder(), getEncoder());
+    }
+
+    /**
+     * 初始化编解码器
+     *
+     * @param decoder 解码器
+     * @param encoder 编码器
+     */
+    protected void initCodec(@Nonnull final R decoder, @Nonnull final T encoder) {
+        this.init(decoder, encoder);
     }
 }

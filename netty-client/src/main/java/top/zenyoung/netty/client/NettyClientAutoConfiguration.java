@@ -29,7 +29,8 @@ import java.util.List;
 @Import({AsyncEventConfig.class})
 @EnableConfigurationProperties({NettyClientProperties.class})
 public class NettyClientAutoConfiguration {
-    @Bean("serverStrategyFactory")
+
+    @Bean("clientStrategyFactory")
     @ConditionalOnMissingBean
     public StrategyFactory strategyFactory(final List<ClientStrategyHandler<? extends Message>> strategies) {
         return StrategyFactoryInstance.instance(strategies);
