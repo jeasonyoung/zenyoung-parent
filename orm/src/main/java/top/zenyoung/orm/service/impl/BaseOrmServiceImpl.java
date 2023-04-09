@@ -199,25 +199,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         this.setCreate(po);
         this.setUpdate(po);
         this.setStatus(po);
-        //初始化逻辑删除
-        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.DeletedAt);
-        if (Objects.nonNull(logicDelField) && logicDelField.isAnnotationPresent(TableLogic.class)) {
-            try {
-                final String defVal = logicDelField.getAnnotation(TableLogic.class).value();
-                if (!Strings.isNullOrEmpty(defVal)) {
-                    final Class<?> logicDelType = logicDelField.getType();
-                    if (logicDelType == String.class) {
-                        this.setFieldValue(po, logicDelField, defVal);
-                        return;
-                    }
-                    if (logicDelType == Integer.class || logicDelType == Long.class) {
-                        this.setFieldValue(po, logicDelField, Integer.parseInt(defVal));
-                    }
-                }
-            } catch (Throwable e) {
-                log.warn("patchData(po: {})-初始化逻辑删除值失败", po);
-            }
-        }
+        this.setLogicDel(po);
     }
 
     protected void setAutoId(@Nonnull final PO po) {
@@ -228,12 +210,12 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     protected <T> void setCreate(@Nonnull final T po) {
         setUser(po, PoConstant.CreatedBy);
-        setFieldValue(po, PoConstant.CreatedAt, new Date());
+        setFieldValue(po, PoConstant.CreatedAt, cls -> new Date());
     }
 
     protected <T> void setUpdate(@Nonnull final T po) {
         setUser(po, PoConstant.UpdatedBy);
-        setFieldValue(po, PoConstant.UpdatedAt, new Date());
+        setFieldValue(po, PoConstant.UpdatedAt, cls -> new Date());
     }
 
     protected void setUpdate(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
@@ -274,31 +256,54 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
 
     protected <T> void setStatus(@Nonnull final T po) {
         //状态
-        setFieldValue(po, PoConstant.Status, Status.Enable.getVal());
-        //逻辑删除
-        setFieldValue(po, PoConstant.DeletedAt, Status.Disable.getVal());
+        setFieldValue(po, PoConstant.Status, cls -> {
+            final Status enable = Status.Enable;
+            if (cls == Status.class) {
+                return enable;
+            }
+            return enable.getVal();
+        });
     }
 
-    private <T> void setFieldValue(@Nonnull final T po, @Nullable final PoConstant pc, @Nonnull final Object val) {
-        if (Objects.isNull(pc)) {
-            return;
+    protected <T> void setLogicDel(@Nonnull final T po) {
+        //初始化逻辑删除
+        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.DeletedAt);
+        if (Objects.nonNull(logicDelField) && logicDelField.isAnnotationPresent(TableLogic.class)) {
+            try {
+                final String defVal = logicDelField.getAnnotation(TableLogic.class).value();
+                if (!Strings.isNullOrEmpty(defVal)) {
+                    final Class<?> logicDelType = logicDelField.getType();
+                    if (logicDelType == String.class) {
+                        this.setFieldValue(po, logicDelField, defVal);
+                        return;
+                    }
+                    if (logicDelType == Integer.class || logicDelType == Long.class) {
+                        this.setFieldValue(po, logicDelField, Integer.parseInt(defVal));
+                    }
+                }
+            } catch (Throwable e) {
+                log.warn("patchData(po: {})-初始化逻辑删除值失败", po);
+            }
         }
-        final Field field = poPoFieldHelper.getField(pc);
-        if (Objects.nonNull(field)) {
-            this.setFieldValue(po, field, val);
-        }
+    }
+
+    private <T, R> void setFieldValue(@Nonnull final T po, @Nullable final PoConstant pc, @Nonnull final Function<Class<?>, R> valHandler) {
+        Optional.ofNullable(pc)
+                .map(poPoFieldHelper::getField)
+                .ifPresent(field -> Optional.ofNullable(valHandler.apply(field.getType()))
+                        .ifPresent(val -> setFieldValue(po, field, val))
+                );
     }
 
     private <T> void setFieldValue(@Nonnull final T po, @Nullable final Field field, @Nonnull final Object val) {
         try {
-            if (Objects.isNull(field)) {
-                return;
-            }
-            field.setAccessible(true);
-            final Object old = ReflectionUtils.getField(field, po);
-            if (Objects.isNull(old)) {
-                //设置新值
-                ReflectionUtils.setField(field, po, val);
+            if (Objects.nonNull(field)) {
+                final Object old = ReflectionUtils.getField(field, po);
+                if (Objects.isNull(old)) {
+                    field.setAccessible(true);
+                    //设置新值
+                    ReflectionUtils.setField(field, po, val);
+                }
             }
         } catch (Throwable e) {
             log.warn("setFieldValue(po: {},field: {},val: {})-exp: {}", po, field, val, e.getMessage());
