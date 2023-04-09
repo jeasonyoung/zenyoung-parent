@@ -31,10 +31,7 @@ import top.zenyoung.boot.config.SwaggerProperties;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Swagger Bean 创建
@@ -115,6 +112,7 @@ public class SwaggerBeanCreator {
             final Field field = ReflectionUtils.findField(resolver.getClass(), name);
             if (Objects.nonNull(field)) {
                 try {
+                    field.setAccessible(true);
                     return (T) field.get(resolver);
                 } catch (Throwable e) {
                     log.error("getFieldValue(resolver: {},name: {})[field: {}]-exp: {}", resolver, name, field, e.getMessage());
@@ -131,11 +129,8 @@ public class SwaggerBeanCreator {
         if (knife4jEnable) {
             final OpenApiExtensionResolver resolver = context.getBean(OpenApiExtensionResolver.class);
             final Knife4jProperties knife4jProperties = context.getBean(Knife4jProperties.class);
-            final Field field = ReflectionUtils.findField(resolver.getClass(), "markdownFileMaps");
-            if (Objects.nonNull(field)) {
-                final Map<String, List<OpenApiExtendMarkdownFile>> markdownFileMap = (Map<String, List<OpenApiExtendMarkdownFile>>) field.get(resolver);
-                docket.extensions(buildExtensions(markdownFileMap, knife4jProperties));
-            }
+            Optional.ofNullable((Map<String, List<OpenApiExtendMarkdownFile>>) getFieldValue(resolver, "markdownFileMaps"))
+                    .ifPresent(markdownFileMap -> docket.extensions(buildExtensions(markdownFileMap, knife4jProperties)));
         }
         final String apiPath = defaultApiPath();
         docket.apiInfo(apiInfo())
