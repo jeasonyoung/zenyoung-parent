@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,8 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -333,20 +336,24 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return SqlHelper.retBool(ret);
     }
 
+    @SuppressWarnings({"deprecated"})
+    private String getSqlStatement(@Nonnull final SqlMethod sqlMethod) {
+        return SqlHelper.table(getModelClass())
+                .getSqlStatement(sqlMethod.getMethod());
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean batchAdd(@Nonnull final Collection<PO> items) {
-        if (CollectionUtils.isEmpty(items)) {
-            return false;
-        }
-        final List<PO> rows = items.stream()
-                .filter(Objects::nonNull)
-                .peek(this::patchData)
-                .collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(rows)) {
-            final Class<?> poClass = getModelClass();
-            final Class<?> mapperClass = getMapper().getClass();
-            return batchAdd(poClass, mapperClass, rows);
+        if (!CollectionUtils.isEmpty(items)) {
+            final List<PO> rows = items.stream()
+                    .filter(Objects::nonNull)
+                    .peek(this::patchData)
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(rows)) {
+                final String sqlStatement = getSqlStatement(SqlMethod.INSERT_ONE);
+                return batchHandler(rows, (session, po)-> session.insert(sqlStatement, po));
+            }
         }
         return false;
     }
@@ -385,12 +392,23 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return count > 0;
     }
 
-    protected <T extends BasePO<?>> boolean batchAdd(@Nonnull final Class<?> poCls, @Nonnull final Class<?> mapperCls, @Nonnull final Collection<T> items) {
-        if (!CollectionUtils.isEmpty(items)) {
-            final Log l = new Slf4jImpl(getClass().getName());
-            return SqlHelper.saveOrUpdateBatch(poCls, mapperCls, l, items, BATCH_SIZE, (s, p) -> true, null);
+    protected boolean batchHandler(@Nonnull final Collection<PO> pos, @Nonnull final BiConsumer<SqlSession, PO> handler) {
+        final AtomicInteger refIdx = new AtomicInteger(0);
+        try (final SqlSession session = SqlHelper.sqlSessionBatch(getModelClass())) {
+            pos.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(po -> {
+                        handler.accept(session, po);
+                        final int total = refIdx.incrementAndGet();
+                        if (total >= 1 && (total % BATCH_SIZE == 0)) {
+                            session.flushStatements();
+                        }
+                    });
+            if (refIdx.get() > 0) {
+                session.flushStatements();
+            }
         }
-        return false;
+        return refIdx.get() > 0;
     }
 
     @Override
@@ -420,21 +438,10 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     @Transactional(rollbackFor = Exception.class)
     public boolean batchModify(@Nonnull final Collection<PO> items) {
         if (!CollectionUtils.isEmpty(items)) {
-            final Class<?> poClass = getModelClass();
-            final Class<?> mapperClass = getMapper().getClass();
-            return batchModify(poClass, mapperClass, items);
-        }
-        return false;
-    }
-
-    protected <T extends BasePO<?>> boolean batchModify(@Nonnull final Class<?> poCls, @Nonnull final Class<?> mapperCls,
-                                                        @Nonnull final Collection<T> items) {
-        if (!CollectionUtils.isEmpty(items)) {
-            final Log l = new Slf4jImpl(getClass().getName());
-            final String sqlStatement = SqlHelper.getSqlStatement(mapperCls, SqlMethod.UPDATE_BY_ID);
-            return SqlHelper.executeBatch(poCls, l, items, BATCH_SIZE, (session, po) -> {
-                final MapperMethod.ParamMap<T> param = new MapperMethod.ParamMap<>();
+            final String sqlStatement = getSqlStatement(SqlMethod.UPDATE_BY_ID);
+            return batchHandler(items, (session, po)-> {
                 setUpdate(po);
+                final MapperMethod.ParamMap<PO> param = new MapperMethod.ParamMap<>();
                 param.put(Constants.ENTITY, po);
                 session.update(sqlStatement, param);
             });
