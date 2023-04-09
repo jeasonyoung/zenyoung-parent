@@ -122,15 +122,16 @@ public class SwaggerBeanCreator {
         return null;
     }
 
-    @SuppressWarnings({"unchecked"})
-    @SneakyThrows({})
     private Docket defaultDocket() {
         final Docket docket = new Docket(DocumentationType.SWAGGER_2);
         if (knife4jEnable) {
             final OpenApiExtensionResolver resolver = context.getBean(OpenApiExtensionResolver.class);
             final Knife4jProperties knife4jProperties = context.getBean(Knife4jProperties.class);
-            Optional.ofNullable((Map<String, List<OpenApiExtendMarkdownFile>>) getFieldValue(resolver, "markdownFileMaps"))
-                    .ifPresent(markdownFileMap -> docket.extensions(buildExtensions(markdownFileMap, knife4jProperties)));
+            //
+            final Map<String, List<OpenApiExtendMarkdownFile>> markdownFileMaps = getFieldValue(resolver, "markdownFileMaps");
+            if (Objects.nonNull(markdownFileMaps)) {
+                docket.extensions(buildExtensions(markdownFileMaps, knife4jProperties));
+            }
         }
         final String apiPath = defaultApiPath();
         docket.apiInfo(apiInfo())
