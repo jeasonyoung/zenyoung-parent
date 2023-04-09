@@ -336,7 +336,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
         return SqlHelper.retBool(ret);
     }
 
-    @SuppressWarnings({"deprecated"})
+    @SuppressWarnings({"deprecation"})
     private String getSqlStatement(@Nonnull final SqlMethod sqlMethod) {
         return SqlHelper.table(getModelClass())
                 .getSqlStatement(sqlMethod.getMethod());
@@ -352,7 +352,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
                     .collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(rows)) {
                 final String sqlStatement = getSqlStatement(SqlMethod.INSERT_ONE);
-                return batchHandler(rows, (session, po)-> session.insert(sqlStatement, po));
+                return batchHandler(rows, (session, po) -> session.insert(sqlStatement, po));
             }
         }
         return false;
@@ -439,7 +439,7 @@ public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Seria
     public boolean batchModify(@Nonnull final Collection<PO> items) {
         if (!CollectionUtils.isEmpty(items)) {
             final String sqlStatement = getSqlStatement(SqlMethod.UPDATE_BY_ID);
-            return batchHandler(items, (session, po)-> {
+            return batchHandler(items, (session, po) -> {
                 setUpdate(po);
                 final MapperMethod.ParamMap<PO> param = new MapperMethod.ParamMap<>();
                 param.put(Constants.ENTITY, po);
