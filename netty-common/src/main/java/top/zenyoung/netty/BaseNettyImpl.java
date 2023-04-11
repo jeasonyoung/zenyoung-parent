@@ -194,17 +194,18 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
         //服务器端
         final BaseNettyImpl<?> impl = this;
         if (bootstrap instanceof ServerBootstrap) {
-            ((ServerBootstrap) bootstrap).childHandler(new ChannelInitializer<ServerChannel>() {
+            ((ServerBootstrap) bootstrap).childHandler(new ChannelInitializer<C>() {
+
                 @Override
-                protected void initChannel(final ServerChannel ch) {
+                protected void initChannel(final C ch) {
                     impl.initChannel(ch);
                 }
             });
         } else {
             //客户端
-            bootstrap.handler(new ChannelInitializer<Channel>() {
+            bootstrap.handler(new ChannelInitializer<C>() {
                 @Override
-                protected void initChannel(final Channel ch) {
+                protected void initChannel(final C ch) {
                     impl.initChannel(ch);
                 }
             });
@@ -245,7 +246,11 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
     }
 
     protected <B extends AbstractBootstrap<B, C>, C extends Channel> void addBootstrapOptions(@Nonnull final AbstractBootstrap<B, C> bootstrap) {
-        bootstrap.option(ChannelOption.AUTO_READ, false);
+        if (bootstrap instanceof ServerBootstrap) {
+            ((ServerBootstrap) bootstrap).childOption(ChannelOption.AUTO_READ, false);
+        } else {
+            bootstrap.option(ChannelOption.AUTO_READ, false);
+        }
     }
 
     /**
