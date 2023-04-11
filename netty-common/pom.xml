@@ -24,11 +24,7 @@
         <!-- netty -->
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport-classes-epoll</artifactId>
+            <artifactId>netty-all</artifactId>
         </dependency>
 
         <!-- 工具类 -->

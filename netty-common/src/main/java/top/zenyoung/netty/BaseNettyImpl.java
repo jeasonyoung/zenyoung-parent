@@ -189,37 +189,46 @@ public abstract class BaseNettyImpl<T extends BaseProperties> implements Runnabl
                 serverBootstrap.childOption(EpollChannelOption.TCP_QUICKACK, true);
             }
         }
-        //业务处理管道
-        final Supplier<ChannelHandler> channelPipelineHandler = () -> new ChannelInitializer<C>() {
-            @Override
-            protected void initChannel(final C ch) {
-                final InetSocketAddress socketAddr = (InetSocketAddress) ch.localAddress();
-                final int port = Optional.ofNullable(socketAddr)
-                        .map(InetSocketAddress::getPort)
-                        .orElse(-1);
-                if (port > -1) {
-                    log.info("Netty[{}]新设备连接: {}", port, ch);
-                }
-                //获取通信管道
-                final ChannelPipeline pipeline = ch.pipeline();
-                if (Objects.nonNull(pipeline)) {
-                    initChannelPipelineHandler(port, pipeline);
-                    log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
-                }
-            }
-        };
         //Options处理
         this.addBootstrapOptions(bootstrap);
         //服务器端
+        final BaseNettyImpl<?> impl = this;
         if (bootstrap instanceof ServerBootstrap) {
-            ((ServerBootstrap) bootstrap)
-                    .childHandler(channelPipelineHandler.get());
+            ((ServerBootstrap) bootstrap).childHandler(new ChannelInitializer<ServerChannel>() {
+                @Override
+                protected void initChannel(final ServerChannel ch) {
+                    impl.initChannel(ch);
+                }
+            });
         } else {
             //客户端
-            bootstrap.handler(channelPipelineHandler.get());
+            bootstrap.handler(new ChannelInitializer<Channel>() {
+                @Override
+                protected void initChannel(final Channel ch) {
+                    impl.initChannel(ch);
+                }
+            });
         }
         //启动startMbean处理
         startMbean();
+    }
+
+    /**
+     * 初始化通道处理
+     *
+     * @param channel 连接通道
+     */
+    protected void initChannel(@Nonnull final Channel channel) {
+        final Integer port = Optional.ofNullable((InetSocketAddress) channel.localAddress())
+                .map(InetSocketAddress::getPort)
+                .orElse(-1);
+        log.info("Netty[{}]新设备连接: {}", port, SocketUtils.getChannelId(channel));
+        //获取通信管道
+        Optional.ofNullable(channel.pipeline())
+                .ifPresent(pipeline -> {
+                    initChannelPipelineHandler(port, pipeline);
+                    log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
+                });
     }
 
     protected void startMbean() {
