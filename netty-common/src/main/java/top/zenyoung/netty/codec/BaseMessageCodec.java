@@ -4,6 +4,7 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -20,8 +21,9 @@ public abstract class BaseMessageCodec<T extends BaseMessageEncoder<? extends Me
      * 构造函数
      */
     public BaseMessageCodec() {
-        this.encoder = getEncoder();
-        this.decoder = getDecoder();
+        encoder = getEncoder();
+        decoder = getDecoder();
+        initCodec(decoder, encoder);
     }
 
     @Override
@@ -40,5 +42,15 @@ public abstract class BaseMessageCodec<T extends BaseMessageEncoder<? extends Me
         } else {
             super.write(ctx, msg, promise);
         }
+    }
+
+    /**
+     * 初始化编解码器处理
+     *
+     * @param decoder 解码器
+     * @param encoder 编码器
+     */
+    protected void initCodec(@Nonnull final R decoder, @Nonnull final T encoder) {
+
     }
 }
