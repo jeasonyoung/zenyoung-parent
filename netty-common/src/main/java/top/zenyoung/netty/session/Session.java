@@ -5,7 +5,6 @@ import top.zenyoung.netty.codec.Message;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Closeable;
 import java.io.Serializable;
 
 /**
@@ -13,7 +12,7 @@ import java.io.Serializable;
  *
  * @author young
  */
-public interface Session extends Serializable, Closeable {
+public interface Session extends Serializable {
     /**
      * 获取客户端设备ID。
      *
