@@ -2,9 +2,9 @@ package top.zenyoung.netty.codec;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageEncoder;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,11 +13,18 @@ import java.util.Optional;
  * @author young
  */
 @ChannelHandler.Sharable
-public abstract class BaseMessageEncoder<T extends Message> extends MessageToMessageEncoder<T> implements MessageEncoder<T> {
+public abstract class BaseMessageEncoder<T extends Message> extends ChannelOutboundHandlerAdapter implements MessageEncoder<T> {
 
     @Override
-    protected void encode(final ChannelHandlerContext ctx, final T msg, final List<Object> out) {
-        Optional.ofNullable(encode(ctx.alloc(), msg))
-                .ifPresent(out::add);
+    @SuppressWarnings({"unchecked"})
+    public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) {
+        if (msg instanceof Message) {
+            final T cast = (T) msg;
+            Optional.of(cast)
+                    .map(in -> encode(ctx.alloc(), in))
+                    .ifPresent(out -> ctx.write(out, promise));
+        } else {
+            ctx.write(msg, promise);
+        }
     }
 }
