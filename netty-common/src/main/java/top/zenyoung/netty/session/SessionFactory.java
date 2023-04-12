@@ -10,7 +10,6 @@ import top.zenyoung.netty.util.SocketUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Closeable;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -24,7 +23,7 @@ import java.util.function.Consumer;
  * @author young
  */
 @Slf4j
-public class SessionFactory implements Session, Closeable {
+public class SessionFactory implements Session {
     private final Channel channel;
     private final String deviceId, clientIp;
     private final AtomicBoolean refStatus = new AtomicBoolean(false);

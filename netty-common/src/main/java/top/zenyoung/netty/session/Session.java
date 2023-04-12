@@ -55,4 +55,9 @@ public interface Session extends Serializable {
     default void send(@Nonnull final Message data) {
         this.send(data, null);
     }
+
+    /**
+     * 关闭会话
+     */
+    void close();
 }
