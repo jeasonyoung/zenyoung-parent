@@ -211,7 +211,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
             });
         }
         //启动startMbean处理
-        startMbean();
+       // startMbean();
     }
 
     /**

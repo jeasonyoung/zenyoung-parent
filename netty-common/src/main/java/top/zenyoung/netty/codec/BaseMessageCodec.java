@@ -21,9 +21,8 @@ public abstract class BaseMessageCodec<T extends BaseMessageEncoder<? extends Me
      * 构造函数
      */
     public BaseMessageCodec() {
-        encoder = getEncoder();
-        decoder = getDecoder();
-        initCodec(decoder, encoder);
+        preInit();
+        initCodec(decoder = getDecoder(), encoder = getEncoder());
     }
 
     @Override
@@ -42,6 +41,13 @@ public abstract class BaseMessageCodec<T extends BaseMessageEncoder<? extends Me
         } else {
             super.write(ctx, msg, promise);
         }
+    }
+
+    /**
+     * 初始化前置调用
+     */
+    protected void preInit() {
+
     }
 
     /**
