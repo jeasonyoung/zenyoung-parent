@@ -19,9 +19,9 @@ public abstract class BaseProperties implements Serializable {
      */
     private String logLevel = "DEBUG";
     /**
-     * 心跳间隔(默认5分钟)
+     * 心跳间隔(默认30秒)
      */
-    private Duration heartbeatInterval = Duration.ofSeconds(300);
+    private Duration heartbeatInterval = Duration.ofSeconds(30);
     /**
      * 心跳超时次数
      */
