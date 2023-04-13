@@ -323,32 +323,6 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
     }
 
     /**
-     * 通道写入消息数据
-     *
-     * @param ctx      通道上下文
-     * @param data     消息数据
-     * @param listener 通道监听器
-     */
-    protected static void writeAndFlush(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Message data, @Nullable final ChannelFutureListener listener) {
-        Optional.ofNullable(ctx.writeAndFlush(data))
-                .filter(future -> Objects.nonNull(listener))
-                .ifPresent(future -> future.addListener(listener));
-    }
-
-    /**
-     * 通道写入消息数据
-     *
-     * @param channel  通道对象
-     * @param data     消息数据
-     * @param listener 通道监听器
-     */
-    protected static void writeAndFlush(@Nonnull final Channel channel, @Nonnull final Message data, @Nullable final ChannelFutureListener listener) {
-        Optional.ofNullable(channel.writeAndFlush(data))
-                .filter(future -> Objects.nonNull(listener))
-                .ifPresent(future -> future.addListener(listener));
-    }
-
-    /**
      * 同步阻塞并添加JVM钩子
      *
      * @param futures ChannelFuture
