@@ -52,7 +52,8 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     }
 
     @Override
-    protected final void heartbeatIdleHandle(@Nonnull final Session session, @Nonnull final IdleState state) {
+    protected final void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
+        super.heartbeatIdleHandle(ctx, session, state);
         final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
         event.setSession(session);
         event.setState(state);

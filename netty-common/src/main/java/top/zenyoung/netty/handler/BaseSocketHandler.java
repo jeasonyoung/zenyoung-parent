@@ -96,7 +96,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                         }
                         //心跳处理
                         Optional.ofNullable(session)
-                                .ifPresent(ses -> heartbeatIdleHandle(ses, state));
+                                .ifPresent(ses -> heartbeatIdleHandle(ctx, ses, state));
                     });
         }
         super.userEventTriggered(ctx, evt);
@@ -108,7 +108,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param session Session
      * @param state   IdleState
      */
-    protected void heartbeatIdleHandle(@Nonnull final Session session, @Nonnull final IdleState state) {
+    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
         log.debug("heartbeatIdleHandle(session: {},state: {})...", session, state);
     }
 
