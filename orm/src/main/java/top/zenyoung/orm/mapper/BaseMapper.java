@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ibatis.annotations.Param;
-import top.zenyoung.orm.model.BasePO;
+import top.zenyoung.orm.model.Model;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  *
  * @author young
  */
-public interface BaseMapper<PO extends BasePO<ID>, ID extends Serializable> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<PO> {
+public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<PO> {
 
     /**
      * 获取当前数据模型类型

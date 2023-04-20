@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @author young
  */
-public interface BasePO<ID extends Serializable> extends Serializable {
+public interface Model<ID extends Serializable> extends Serializable {
     /**
      * 获取主键ID
      *

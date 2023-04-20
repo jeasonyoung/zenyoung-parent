@@ -19,8 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +35,8 @@ import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.orm.enums.PoConstant;
 import top.zenyoung.orm.mapper.BaseMapper;
-import top.zenyoung.orm.model.BasePO;
-import top.zenyoung.orm.model.PoFieldHelper;
+import top.zenyoung.orm.model.Model;
+import top.zenyoung.orm.model.ModelFieldHelper;
 import top.zenyoung.orm.service.BaseOrmService;
 import top.zenyoung.orm.util.MybatisPlusUtils;
 
@@ -59,10 +57,10 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseOrmServiceImpl<PO extends BasePO<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID>, InitializingBean {
+public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID>, InitializingBean {
     protected static final int BATCH_SIZE = 500;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
-    private final PoFieldHelper<PO> poPoFieldHelper = PoFieldHelper.of(this.getModelClass());
+    private final ModelFieldHelper<PO> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
 
     @Autowired(required = false)
     @Getter(value = AccessLevel.PROTECTED)

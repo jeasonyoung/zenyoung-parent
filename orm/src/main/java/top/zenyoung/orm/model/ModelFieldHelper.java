@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
-public class PoFieldHelper<PO> {
+public class ModelFieldHelper<PO> {
     private static final Map<Class<?>, Object> LOCKS = Maps.newConcurrentMap();
     private final Map<PoConstant, Field> fieldMap = Maps.newHashMap();
     private final Map<PoConstant, String> colMap = Maps.newHashMap();

@@ -25,7 +25,7 @@ public class SelectPhysicalByIdsMethod extends AbstractMethod {
         //查询字段
         final String selCols = sqlSelectColumns(tableInfo, false);
         //查询条件
-        final String whereIn = SqlScriptUtils.convertForeach("#{item}", COLLECTION, null, "item", COMMA);
+        final String whereIn = SqlScriptUtils.convertForeach("#{item}", COLL, null, "item", COMMA);
         //
         final SqlSource sqlSource = languageDriver.createSqlSource(configuration,
                 String.format(sql, selCols, tableInfo.getTableName(), tableInfo.getKeyColumn(), whereIn, ""),

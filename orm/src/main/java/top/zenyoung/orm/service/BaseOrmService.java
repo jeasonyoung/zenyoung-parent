@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import top.zenyoung.boot.service.BaseService;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.orm.model.BasePO;
+import top.zenyoung.orm.model.Model;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  *
  * @author young
  */
-public interface BaseOrmService<PO extends BasePO<ID>, ID extends Serializable> extends BaseService {
+public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> extends BaseService {
     /**
      * 根据ID加载数据
      *
