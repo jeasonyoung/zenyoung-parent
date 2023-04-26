@@ -112,6 +112,16 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         log.debug("heartbeatIdleHandle(session: {},state: {})...", session, state);
     }
 
+    /**
+     * 构建Session之之前
+     *
+     * @param rawDeviceId 原始设备ID
+     * @return 会话设备ID
+     */
+    protected String buildSessionBefore(@Nonnull final String rawDeviceId) {
+        return rawDeviceId;
+    }
+
     @Override
     @SuppressWarnings({"unchecked"})
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
@@ -120,15 +130,18 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         Optional.ofNullable((T) msg)
                 .ifPresent(data -> {
                     //检查是否已建立会话
-                    final String deviceId;
-                    if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(deviceId = data.getDeviceId())) {
-                        //创建会话
-                        this.session = SessionFactory.create(ctx.channel(), deviceId, info -> {
-                            //发送设备通道关闭消息
-                            context.publishEvent(ClosedEvent.of(info.getDeviceId(), info.getClientIp()));
-                        });
-                        //存储会话
-                        this.buildSessionAfter(this.session);
+                    final String rawDeviceId;
+                    if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(rawDeviceId = data.getDeviceId())) {
+                        final String sessionDeviceId = buildSessionBefore(rawDeviceId);
+                        if(!Strings.isNullOrEmpty(sessionDeviceId)) {
+                            //创建会话
+                            this.session = SessionFactory.create(ctx.channel(), sessionDeviceId, info -> {
+                                //发送设备通道关闭消息
+                                context.publishEvent(ClosedEvent.of(info.getDeviceId(), info.getClientIp()));
+                            });
+                            //存储会话
+                            this.buildSessionAfter(this.session);
+                        }
                     }
                     try {
                         //调用业务处理
