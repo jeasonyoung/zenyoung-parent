@@ -18,7 +18,6 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.util.concurrent.ScheduledFuture;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.mbean.TrafficAcceptor;
 import top.zenyoung.netty.util.SocketUtils;
@@ -90,7 +89,14 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
     protected LogLevel getLogLevel() {
         return Optional.ofNullable(getProperties().getLogLevel())
                 .filter(level -> !Strings.isNullOrEmpty(level))
-                .map(level -> createHandler(() -> Enum.valueOf(LogLevel.class, level.toUpperCase())))
+                .map(level -> {
+                    try {
+                        return Enum.valueOf(LogLevel.class, level);
+                    } catch (Throwable e) {
+                        log.warn("getLogLevel(level: {})-exp: {}", level, e.getMessage());
+                        return null;
+                    }
+                })
                 .orElse(LogLevel.DEBUG);
     }
 
@@ -211,7 +217,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
             });
         }
         //启动startMbean处理
-       // startMbean();
+        // startMbean();
     }
 
     /**
@@ -369,26 +375,5 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
         } catch (Throwable e) {
             log.error("Netty关闭异常: {}", e.getMessage());
         }
-    }
-
-    /**
-     * 创建处理(不抛异常)
-     *
-     * @param handler 处理逻辑
-     * @param <T>     创建对象
-     * @return 创建结果
-     */
-    protected static <T> T createHandler(@Nonnull final InnerThrowableSupplier<T> handler) {
-        try {
-            return handler.get();
-        } catch (Throwable e) {
-            log.error("createHandler(handler: {})-exp: {}", handler, e.getMessage());
-            return null;
-        }
-    }
-
-    @FunctionalInterface
-    protected interface InnerThrowableSupplier<T> {
-        T get() throws Throwable;
     }
 }

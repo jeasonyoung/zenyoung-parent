@@ -44,6 +44,10 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         return this.properites;
     }
 
+    protected final <T> T getBean(@Nonnull final Class<T> cls) {
+        return context.getBean(cls);
+    }
+
     @Override
     public final void run() {
         try {
@@ -79,12 +83,11 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                 .filter(map -> !CollectionUtils.isEmpty(map))
                 .ifPresent(map -> map.forEach(pipeline::addLast));
         //3.挂载业务处理器
-        Optional.ofNullable(context)
-                .map(ctx -> createHandler(() -> ctx.getBean(BaseClientSocketHandler.class)))
-                .ifPresent(handler -> {
-                    pipeline.addLast("biz", handler);
-                    log.info("Netty-挂载业务处理器:" + handler);
-                });
+        addBizSocketHandler(pipeline);
+    }
+
+    protected void addBizSocketHandler(@Nonnull final ChannelPipeline pipeline) {
+        pipeline.addLast("biz", getBean(BaseClientSocketHandler.class));
     }
 
     private void connect(@Nonnull final Bootstrap bootstrap) {

@@ -50,6 +50,17 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         return Optional.ofNullable(getProperties().getCodec()).orElse(Maps.newHashMap());
     }
 
+    /**
+     * 获取Bean对象
+     *
+     * @param cls Bean类型
+     * @param <T> Bean对象类型
+     * @return Bean对象
+     */
+    protected final <T> T getBean(@Nonnull final Class<T> cls) {
+        return context.getBean(cls);
+    }
+
     @Override
     protected int getBacklog() {
         return Math.max(this.properites.getBacklog(), 50);
@@ -102,9 +113,17 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
             log.info("端口[{}]挂载编解码器: {}", port, codecHandlerMap.keySet());
         }
         //5.挂载业务处理器
-        Optional.ofNullable(context)
-                .map(ctx -> createHandler(() -> ctx.getBean(BaseServerSocketHandler.class)))
-                .ifPresent(handler -> pipeline.addLast("biz", handler));
+        addBizSocketHandler(port, pipeline);
+    }
+
+    /**
+     * 添加业务处理器
+     *
+     * @param port     处理监听端口
+     * @param pipeline 通道管道
+     */
+    protected void addBizSocketHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
+        pipeline.addLast("biz", getBean(BaseServerSocketHandler.class));
     }
 
     @Override
