@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> {
-
     @Autowired
     private NettyServerProperties properties;
 
@@ -42,6 +41,15 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
 
     public BaseServerSocketHandler() {
         this.ensureHasScope();
+    }
+
+    /**
+     * 支持端口
+     *
+     * @param port 端口
+     */
+    public void supportedPort(final int port) {
+
     }
 
     @Override

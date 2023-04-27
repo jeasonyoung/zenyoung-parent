@@ -123,7 +123,9 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
      * @param pipeline 通道管道
      */
     protected void addBizSocketHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        pipeline.addLast("biz", getBean(BaseServerSocketHandler.class));
+        final BaseServerSocketHandler<?> srvSocketHandler = getBean(BaseServerSocketHandler.class);
+        srvSocketHandler.supportedPort(port);
+        pipeline.addLast("biz", srvSocketHandler);
     }
 
     @Override

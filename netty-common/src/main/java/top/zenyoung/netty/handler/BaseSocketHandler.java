@@ -28,9 +28,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public abstract class BaseSocketHandler<T extends Message> extends ChannelInboundHandlerAdapter {
     private final AtomicLong heartbeatTotals = new AtomicLong(0L);
+    private Session session;
     @Autowired
     private ApplicationContext context;
-    private Session session;
 
     /**
      * 获取心跳超时次数
@@ -45,6 +45,17 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @return 策略工厂
      */
     protected abstract StrategyFactory getStrategyFactory();
+
+    /**
+     * 获取Bean对象
+     *
+     * @param cls bean类型
+     * @param <R> bean对象类型
+     * @return Bean对象
+     */
+    protected final <R> R getBean(@Nonnull final Class<R> cls) {
+        return context.getBean(cls);
+    }
 
     /**
      * 发布Spring事件
@@ -133,7 +144,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                     final String rawDeviceId;
                     if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(rawDeviceId = data.getDeviceId())) {
                         final String sessionDeviceId = buildSessionBefore(rawDeviceId);
-                        if(!Strings.isNullOrEmpty(sessionDeviceId)) {
+                        if (!Strings.isNullOrEmpty(sessionDeviceId)) {
                             //创建会话
                             this.session = SessionFactory.create(ctx.channel(), sessionDeviceId, info -> {
                                 //发送设备通道关闭消息
