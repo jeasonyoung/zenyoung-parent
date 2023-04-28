@@ -363,6 +363,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
 
     /**
      * Gets the default title for to be shown in a (un)modal window.
+     * @return default title
      */
     protected String getDefaultTitle() {
         return annotation.title();
@@ -464,10 +465,8 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
      * Gets the fxml file path.
      *
      * @return the relative path to the fxml file derived from the FXML view.
-     * e.g. The name for the AirhacksView is going to be
-     * <PATH>/airhacks.fxml.
+     * e.g. The name for the AirhacksView is going to be /airhacks.fxml.
      */
-
     protected final String getFxmlPath() {
         final String fxmlPath = fxmlRoot + getConventionalName(".fxml");
         log.debug("Determined fxmlPath: " + fxmlPath);

@@ -27,7 +27,9 @@ public class SplashScreen {
     }
 
     /**
-     * 高度
+     * 获取高度
+     *
+     * @return 高度
      */
     public Double getPrefHeight() {
         return null;
