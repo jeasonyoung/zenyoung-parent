@@ -56,7 +56,8 @@ public class BaseController {
     /**
      * 成功响应
      *
-     * @return 响应数据
+     * @param <T> 响应结果类型
+     * @return 响应结果
      */
     protected <T> ResultVO<T> success() {
         return success((T) null);

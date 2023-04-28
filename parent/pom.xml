@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <version>3.0.0</version>
 
-    <name>dependencies</name>
+    <name>parent</name>
     <description>zenyoung tools for Springboot2</description>
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
@@ -39,7 +39,6 @@
     </repositories>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- spring -->
         <spring-cloud.version>2021.0.4</spring-cloud.version>
         <alibaba-cloud.version>2021.0.4.0</alibaba-cloud.version>
@@ -401,43 +400,14 @@
         </dependencies>
     </dependencyManagement>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>yangyong</name>
-            <email>young1982@foxmail.com</email>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</connection>
-        <developerConnection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</developerConnection>
-        <url>git@github.com:jeasonyoung/zenyoung-parent.git</url>
-    </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <build>
-        <!--        <extensions>-->
-        <!--            <extension>-->
-        <!--                <groupId>kr.motd.maven</groupId>-->
-        <!--                <artifactId>os-maven-plugin</artifactId>-->
-        <!--                <version>${os-maven-plugin.version}</version>-->
-        <!--            </extension>-->
-        <!--        </extensions>-->
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+            </extension>
+        </extensions>
         <pluginManagement>
             <plugins>
                 <!-- spring-boot-maven-plugin -->
@@ -462,7 +432,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-<!--                    <version>${maven-compiler-plugin.version}</version>-->
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -494,7 +463,42 @@
         </pluginManagement>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>yangyong</name>
+            <email>young1982@foxmail.com</email>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</connection>
+        <developerConnection>scm:git@github.com:jeasonyoung/zenyoung-parent.git</developerConnection>
+        <url>git@github.com:jeasonyoung/zenyoung-parent.git</url>
+    </scm>
+
     <profiles>
+        <profile>
+            <id>debug</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
         <!-- 上传处理 -->
         <profile>
             <id>release</id>
@@ -533,6 +537,10 @@
                             <charset>${project.build.sourceEncoding}</charset>
                             <encoding>${project.build.sourceEncoding}</encoding>
                             <docencoding>${project.build.sourceEncoding}</docencoding>
+                            <!-- 禁用doclint,不严格检查 -->
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <!-- 文档解析出错时仍然继续 -->
+                            <failOnError>false</failOnError>
                         </configuration>
                         <executions>
                             <execution>

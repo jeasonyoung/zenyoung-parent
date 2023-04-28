@@ -20,7 +20,15 @@ import java.util.Set;
  */
 public class RegistrarUtils {
 
-    public static void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry, final Class<?> annClazz) {
+    /**
+     * 注册Bean定义
+     *
+     * @param metadata metadata
+     * @param registry registry
+     * @param annClazz annClazz
+     */
+    public static void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry,
+                                               final Class<?> annClazz) {
         final ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
         final Set<String> packagesToScan = getPackagesToScan(annClazz, metadata);
         if (!CollectionUtils.isEmpty(packagesToScan)) {
@@ -28,9 +36,6 @@ public class RegistrarUtils {
         }
     }
 
-    /**
-     * 获取base packages
-     */
     private static Set<String> getPackagesToScan(final Class<?> annClazz, final AnnotationMetadata metadata) {
         final AnnotationAttributes attributes = getResourceAttributes(annClazz, metadata);
         if (Objects.isNull(attributes)) {
@@ -47,7 +52,6 @@ public class RegistrarUtils {
         }
         return packagesToScan;
     }
-
 
     @Nullable
     private static AnnotationAttributes getResourceAttributes(final Class<?> annClazz, AnnotationMetadata metadata) {

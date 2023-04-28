@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <version>3.0.0</version>
 
-    <name>parent</name>
+    <name>zenyoung-parent</name>
     <description>zenyoung tools for Springboot2</description>
     <url>https://github.com/jeasonyoung/zenyoung-parent</url>
 
@@ -69,4 +69,29 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>debug</id>
+           <activation>
+               <activeByDefault>true</activeByDefault>
+           </activation>
+        </profile>
+        <!-- 上传处理 -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>2.8.2</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

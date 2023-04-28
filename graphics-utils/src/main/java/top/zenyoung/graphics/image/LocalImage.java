@@ -48,7 +48,8 @@ public class LocalImage implements Serializable {
      * 从Path读取图片并开始处理
      *
      * @param imagePath 图片文件路径
-     * @return Img
+     * @return LocalImage
+     * @throws IOException 异常
      */
     public static LocalImage from(@Nonnull final Path imagePath) throws IOException {
         return from(imagePath.toFile());
@@ -58,7 +59,8 @@ public class LocalImage implements Serializable {
      * 从文件读取图片并开始处理
      *
      * @param imageFile 图片文件
-     * @return Img
+     * @return LocalImage
+     * @throws IOException 异常
      */
     public static LocalImage from(@Nonnull final File imageFile) throws IOException {
         return new LocalImage(ImageUtils.read(imageFile));
@@ -68,7 +70,8 @@ public class LocalImage implements Serializable {
      * 从流读取图片并开始处理
      *
      * @param in 图片流
-     * @return Img
+     * @return LocalImage
+     * @throws IOException 异常
      */
     public static LocalImage from(@Nonnull final InputStream in) throws IOException {
         return new LocalImage(ImageUtils.read(in));
@@ -78,7 +81,8 @@ public class LocalImage implements Serializable {
      * 从ImageInputStream取图片并开始处理
      *
      * @param imageStream 图片流
-     * @return Img
+     * @return LocalImage
+     * @throws IOException 异常
      */
     public static LocalImage from(@Nonnull final ImageInputStream imageStream) throws IOException {
         return new LocalImage(ImageUtils.read(imageStream));
@@ -88,7 +92,8 @@ public class LocalImage implements Serializable {
      * 从URL取图片并开始处理
      *
      * @param imageUrl 图片URL
-     * @return Img
+     * @return LocalImage
+     * @throws IOException 异常
      */
     public static LocalImage from(@Nonnull final URL imageUrl) throws IOException {
         return new LocalImage(ImageUtils.read(imageUrl));
@@ -98,7 +103,7 @@ public class LocalImage implements Serializable {
      * 从Image取图片并开始处理
      *
      * @param image 图片
-     * @return Img
+     * @return LocalImage
      */
     public static LocalImage from(@Nonnull final Image image) {
         return new LocalImage(ImageUtils.toBufferedImage(image));
@@ -150,7 +155,7 @@ public class LocalImage implements Serializable {
      * 计算x,y坐标的时候是否从中心做为原始坐标开始计算
      *
      * @param positionBaseCentre 是否从中心做为原始坐标开始计算
-     * @return this
+     * @return LocalImage
      */
     public LocalImage setPositionBaseCentre(final boolean positionBaseCentre) {
         this.positionBaseCentre = positionBaseCentre;
@@ -161,7 +166,7 @@ public class LocalImage implements Serializable {
      * 设置图片输出质量，数字为0~1（不包括0和1）表示质量压缩比，除此数字外设置表示不压缩
      *
      * @param quality 质量，数字为0~1（不包括0和1）表示质量压缩比，除此数字外设置表示不压缩
-     * @return this
+     * @return LocalImage
      */
     public LocalImage setQuality(final double quality) {
         return setQuality((float) quality);
@@ -171,7 +176,7 @@ public class LocalImage implements Serializable {
      * 设置图片输出质量，数字为0~1（不包括0和1）表示质量压缩比，除此数字外设置表示不压缩
      *
      * @param quality 质量，数字为0~1（不包括0和1）表示质量压缩比，除此数字外设置表示不压缩
-     * @return this
+     * @return LocalImage
      */
     public LocalImage setQuality(final float quality) {
         if (quality > 0 && quality < 1) {
@@ -186,7 +191,7 @@ public class LocalImage implements Serializable {
      * 缩放图像（按比例缩放）
      *
      * @param scale 缩放比例。比例大于1时为放大，小于1大于0为缩小
-     * @return this
+     * @return LocalImage
      */
     public LocalImage scale(float scale) {
         if (scale < 0) {
@@ -213,25 +218,25 @@ public class LocalImage implements Serializable {
     }
 
     /**
-     * 缩放图像（按长宽缩放）<br>
+     * 缩放图像（按长宽缩放）
      * 注意：目标长宽与原图不成比例会变形
      *
      * @param width  目标宽度
      * @param height 目标高度
-     * @return this
+     * @return LocalImage
      */
     public LocalImage scale(final int width, final int height) {
         return scale(width, height, Image.SCALE_SMOOTH);
     }
 
     /**
-     * 缩放图像（按长宽缩放）<br>
+     * 缩放图像（按长宽缩放）
      * 注意：目标长宽与原图不成比例会变形
      *
      * @param width     目标宽度
      * @param height    目标高度
      * @param scaleType 缩放类型，可选{@link Image#SCALE_SMOOTH}平滑模式或{@link Image#SCALE_DEFAULT}默认模式
-     * @return this
+     * @return LocalImage
      */
     public LocalImage scale(final int width, final int height, final int scaleType) {
         final Image srcImg = getValidSrcImg();
@@ -262,7 +267,7 @@ public class LocalImage implements Serializable {
      * @param width      缩放后的宽度
      * @param height     缩放后的高度
      * @param fixedColor 比例不对时补充的颜色，不补充为{@code null}
-     * @return this
+     * @return LocalImage
      */
     public LocalImage scale(final int width, final int height, @Nullable final Color fixedColor) {
         Image srcImage = getValidSrcImg();
@@ -302,7 +307,7 @@ public class LocalImage implements Serializable {
      * 图像切割(按指定起点坐标和宽高切割)
      *
      * @param rectangle 矩形对象，表示矩形区域的x，y，width，height
-     * @return this
+     * @return LocalImage
      */
     public LocalImage cut(@Nonnull final Rectangle rectangle) {
         final Image srcImage = getValidSrcImg();
@@ -317,7 +322,7 @@ public class LocalImage implements Serializable {
      *
      * @param x 原图的x坐标起始位置
      * @param y 原图的y坐标起始位置
-     * @return this
+     * @return LocalImage
      */
     public LocalImage cut(final int x, final int y) {
         return cut(x, y, -1);
@@ -329,7 +334,7 @@ public class LocalImage implements Serializable {
      * @param x      原图的x坐标起始位置
      * @param y      原图的y坐标起始位置
      * @param radius 半径，小于0表示填充满整个图片（直径取长宽最小值）
-     * @return this
+     * @return LocalImage
      */
     public LocalImage cut(int x, int y, final int radius) {
         final Image srcImage = getValidSrcImg();
@@ -354,7 +359,7 @@ public class LocalImage implements Serializable {
      * 图片圆角处理
      *
      * @param arc 圆角弧度，0~1，为长宽占比
-     * @return this
+     * @return LocalImage
      */
     public LocalImage round(double arc) {
         final Image srcImage = getValidSrcImg();
@@ -380,7 +385,7 @@ public class LocalImage implements Serializable {
     /**
      * 彩色转为灰度
      *
-     * @return this
+     * @return LocalImage
      */
     public LocalImage gray() {
         this.targetImage = ImageUtils.colorConvert(ColorSpace.getInstance(ColorSpace.CS_GRAY), getValidSrcBufferedImg());
@@ -390,7 +395,7 @@ public class LocalImage implements Serializable {
     /**
      * 彩色转为黑白二值化图片
      *
-     * @return this
+     * @return LocalImage
      */
     public LocalImage binary() {
         this.targetImage = ImageUtils.copyImage(getValidSrcImg(), BufferedImage.TYPE_BYTE_BINARY);
@@ -398,7 +403,7 @@ public class LocalImage implements Serializable {
     }
 
     /**
-     * 给图片添加文字水印<br>
+     * 给图片添加文字水印
      * 此方法只在给定位置写出一个水印字符串
      *
      * @param pressText 水印文字

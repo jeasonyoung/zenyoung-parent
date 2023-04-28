@@ -14,7 +14,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OperaLog {
     /**
-     * 模块
+     * 获取模块标题
+     *
+     * @return 模块标题
      */
     String title() default "";
 
@@ -26,17 +28,23 @@ public @interface OperaLog {
     String primaryKey() default "id";
 
     /**
-     * 功能
+     * 获取功能类型
+     *
+     * @return 功能类型
      */
     OperaType operaType() default OperaType.Other;
 
     /**
      * 是否保存请求的参数
+     *
+     * @return 是否保存请求参数
      */
     boolean isSaveReqData() default true;
 
     /**
      * 是否保存响应的参数
+     *
+     * @return 是否保存响应
      */
     boolean isSaveRespData() default true;
 }
