@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.codec.Message;
-import top.zenyoung.netty.util.SocketUtils;
+import top.zenyoung.netty.util.NettyUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +33,7 @@ public class SessionFactory implements Session {
     private SessionFactory(@Nonnull final Channel channel, @Nonnull final String deviceId, @Nullable final Consumer<Info> closeEventListenter) {
         this.channel = channel;
         this.deviceId = deviceId;
-        this.clientIp = Optional.ofNullable(SocketUtils.getRemoteAddr(channel)).map(InetSocketAddress::toString).orElse(null);
+        this.clientIp = Optional.ofNullable(NettyUtils.getRemoteAddr(channel)).map(InetSocketAddress::toString).orElse(null);
         this.setStatus(true);
         this.closeEventListenter = closeEventListenter;
     }

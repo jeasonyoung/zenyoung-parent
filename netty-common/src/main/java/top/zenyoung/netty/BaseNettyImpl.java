@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.mbean.TrafficAcceptor;
-import top.zenyoung.netty.util.SocketUtils;
+import top.zenyoung.netty.util.NettyUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -229,7 +229,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
         final Integer port = Optional.ofNullable((InetSocketAddress) channel.localAddress())
                 .map(InetSocketAddress::getPort)
                 .orElse(-1);
-        log.info("Netty[{}]新设备连接: {}", port, SocketUtils.getChannelId(channel));
+        log.info("Netty[{}]新设备连接: {}", port, NettyUtils.getChannelId(channel));
         //获取通信管道
         Optional.ofNullable(channel.pipeline())
                 .ifPresent(pipeline -> {
@@ -354,7 +354,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
                                 try {
                                     ch.closeFuture().sync();
                                 } catch (Throwable ex) {
-                                    log.error("同步阻塞[channelId: {}]异常-exp: {}", SocketUtils.getChannelId(ch), ex.getMessage());
+                                    log.error("同步阻塞[channelId: {}]异常-exp: {}", NettyUtils.getChannelId(ch), ex.getMessage());
                                 }
                             }
                         });
