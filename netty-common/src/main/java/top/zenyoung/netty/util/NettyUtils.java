@@ -42,6 +42,31 @@ public class NettyUtils {
     }
 
     /**
+     * 获取IP地址
+     *
+     * @param addr InetSocketAddress
+     * @return IP地址
+     */
+    public static String getIpAddr(@Nullable final InetSocketAddress addr) {
+        return Optional.ofNullable(addr)
+                .map(InetSocketAddress::getAddress)
+                .map(InetAddress::getHostAddress)
+                .orElse(null);
+    }
+
+    /**
+     * 获取端口号
+     *
+     * @param addr InetSocketAddress
+     * @return 端口号
+     */
+    public static Integer getIpPort(@Nullable final InetSocketAddress addr) {
+        return Optional.ofNullable(addr)
+                .map(InetSocketAddress::getPort)
+                .orElse(null);
+    }
+
+    /**
      * 根据地址获取IP和端口
      *
      * @param addr    地址
