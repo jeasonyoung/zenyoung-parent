@@ -92,8 +92,8 @@ public class NettyUtils {
      * @param channel 通道
      * @return 通道ID
      */
-    public static String getChannelId(@Nonnull final Channel channel) {
-        return Optional.of(channel)
+    public static String getChannelId(@Nullable final Channel channel) {
+        return Optional.ofNullable(channel)
                 .map(Channel::id)
                 .map(ChannelId::asShortText)
                 .orElse(null);
@@ -105,8 +105,11 @@ public class NettyUtils {
      * @param ctx 通道上下文
      * @return 通道ID
      */
-    public static String getChannelId(@Nonnull final ChannelHandlerContext ctx) {
-        return getChannelId(ctx.channel());
+    public static String getChannelId(@Nullable final ChannelHandlerContext ctx) {
+        return Optional.ofNullable(ctx)
+                .map(ChannelHandlerContext::channel)
+                .map(NettyUtils::getChannelId)
+                .orElse(null);
     }
 
     /**
