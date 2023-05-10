@@ -1,7 +1,6 @@
 package top.zenyoung.netty;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -86,18 +85,10 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
      *
      * @return 日志级别
      */
-    protected LogLevel getLogLevel() {
-        return Optional.ofNullable(getProperties().getLogLevel())
-                .filter(level -> !Strings.isNullOrEmpty(level))
-                .map(level -> {
-                    try {
-                        return Enum.valueOf(LogLevel.class, level);
-                    } catch (Throwable e) {
-                        log.warn("getLogLevel(level: {})-exp: {}", level, e.getMessage());
-                        return null;
-                    }
-                })
-                .orElse(LogLevel.DEBUG);
+    protected LogLevel getNettyLogLevel() {
+        return Optional.ofNullable(getProperties())
+                .map(BaseProperties::getNettyLogLevel)
+                .orElse(LogLevel.INFO);
     }
 
     /**
@@ -267,7 +258,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> {
      */
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
         //0.挂载日志处理器
-        pipeline.addLast("log", new LoggingHandler(getLogLevel()));
+        pipeline.addLast("log", new LoggingHandler(getNettyLogLevel()));
         //1.挂载流量统计处理器
         Optional.ofNullable(globalTrafficHandler)
                 .ifPresent(handler -> pipeline.addLast("globalTraffic", handler));

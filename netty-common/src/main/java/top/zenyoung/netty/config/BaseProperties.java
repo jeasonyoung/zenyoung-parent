@@ -1,11 +1,14 @@
 package top.zenyoung.netty.config;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import io.netty.handler.logging.LogLevel;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 配置基类
@@ -14,6 +17,7 @@ import java.time.Duration;
  */
 @Data
 public abstract class BaseProperties implements Serializable {
+    private final Map<String, LogLevel> logLevelMap = Maps.newHashMap();
     /**
      * Netty日志级别
      */
@@ -33,14 +37,16 @@ public abstract class BaseProperties implements Serializable {
      * @return Netty日志级别
      */
     public LogLevel getNettyLogLevel() {
-        final String logLevel = this.getLogLevel();
-        if (!Strings.isNullOrEmpty(logLevel)) {
-            for (final LogLevel level : LogLevel.values()) {
-                if (logLevel.equalsIgnoreCase(level.name())) {
-                    return level;
-                }
-            }
-        }
-        return LogLevel.INFO;
+        return Optional.ofNullable(getLogLevel())
+                .filter(level -> !Strings.isNullOrEmpty(level))
+                .map(level -> logLevelMap.computeIfAbsent(level, k -> {
+                    for (final LogLevel ll : LogLevel.values()) {
+                        if (logLevel.equalsIgnoreCase(ll.name())) {
+                            return ll;
+                        }
+                    }
+                    return null;
+                }))
+                .orElse(LogLevel.INFO);
     }
 }
