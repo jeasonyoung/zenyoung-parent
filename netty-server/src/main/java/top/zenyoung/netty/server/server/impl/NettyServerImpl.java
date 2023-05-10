@@ -50,17 +50,6 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         return Optional.ofNullable(getProperties().getCodec()).orElse(Maps.newHashMap());
     }
 
-    /**
-     * 获取Bean对象
-     *
-     * @param cls Bean类型
-     * @param <T> Bean对象类型
-     * @return Bean对象
-     */
-    protected final <T> T getBean(@Nonnull final Class<T> cls) {
-        return context.getBean(cls);
-    }
-
     @Override
     protected int getBacklog() {
         return Math.max(this.properites.getBacklog(), 50);
@@ -123,9 +112,11 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
      * @param pipeline 通道管道
      */
     protected void addBizSocketHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        final BaseServerSocketHandler<?> srvSocketHandler = getBean(BaseServerSocketHandler.class);
-        srvSocketHandler.supportedPort(port);
-        pipeline.addLast("biz", srvSocketHandler);
+        Optional.of(context.getBean(BaseServerSocketHandler.class))
+                .ifPresent(socketHandler -> {
+                    socketHandler.supportedPort(port);
+                    pipeline.addLast("biz", socketHandler);
+                });
     }
 
     @Override

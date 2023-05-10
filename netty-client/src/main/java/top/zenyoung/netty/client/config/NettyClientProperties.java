@@ -15,7 +15,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ConfigurationProperties("top.zenyoung.netty.server")
+@ConfigurationProperties("top.zenyoung.netty.client")
 public class NettyClientProperties extends BaseProperties {
     /**
      * Netty服务器IP地址
