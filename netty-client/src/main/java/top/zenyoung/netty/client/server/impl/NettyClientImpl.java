@@ -13,6 +13,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.client.config.NettyClientProperties;
@@ -146,6 +147,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
 
     protected void addBizSocketHandler(@Nonnull final ChannelPipeline pipeline) {
         final BaseClientSocketHandler<?> handler = context.getBean(BaseClientSocketHandler.class);
+        Assert.notNull(handler, "'BaseClientSocketHandler'子类对象不存在!");
         //检查注解
         ScopeUtils.checkPrototype(handler.getClass());
         //添加到管道
