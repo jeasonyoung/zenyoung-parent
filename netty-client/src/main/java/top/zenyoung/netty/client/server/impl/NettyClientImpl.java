@@ -20,6 +20,7 @@ import top.zenyoung.netty.client.handler.BaseClientSocketHandler;
 import top.zenyoung.netty.client.server.NettyClient;
 import top.zenyoung.netty.handler.HeartbeatHandler;
 import top.zenyoung.netty.util.CodecUtils;
+import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import java.time.Duration;
@@ -144,8 +145,11 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     }
 
     protected void addBizSocketHandler(@Nonnull final ChannelPipeline pipeline) {
-        Optional.of(context.getBean(BaseClientSocketHandler.class))
-                .ifPresent(socketHandler -> pipeline.addLast("biz", socketHandler));
+        final BaseClientSocketHandler<?> handler = context.getBean(BaseClientSocketHandler.class);
+        //检查注解
+        ScopeUtils.checkPrototype(handler.getClass());
+        //添加到管道
+        pipeline.addLast("biz", handler);
     }
 
     private ChannelFuture connect(@Nonnull final Bootstrap bootstrap) {
