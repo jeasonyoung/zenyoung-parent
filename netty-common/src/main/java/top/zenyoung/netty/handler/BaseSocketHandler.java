@@ -106,8 +106,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                             }
                         }
                         //心跳处理
-                        Optional.ofNullable(session)
-                                .ifPresent(ses -> heartbeatIdleHandle(ctx, ses, state));
+                        this.heartbeatIdleHandle(ctx, session, state);
                     });
         }
         super.userEventTriggered(ctx, evt);
