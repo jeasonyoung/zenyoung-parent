@@ -18,12 +18,14 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.client.handler.BaseClientSocketHandler;
+import top.zenyoung.netty.client.handler.PreStartHandler;
 import top.zenyoung.netty.client.server.NettyClient;
 import top.zenyoung.netty.handler.HeartbeatHandler;
 import top.zenyoung.netty.util.CodecUtils;
 import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
@@ -88,10 +90,30 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                 .orElse(Duration.ZERO);
     }
 
+    /**
+     * 启动前置处理
+     *
+     * @param args 启动参数
+     */
+    private void preStartHandler(@Nullable final ApplicationArguments args) {
+        Optional.of(context.getBeansOfType(PreStartHandler.class))
+                .filter(map -> !CollectionUtils.isEmpty(map))
+                .ifPresent(map -> map.forEach((name, handler) -> {
+                    try {
+                        log.info("开始调用 启动前置: {}", name);
+                        handler.preHandler(args);
+                    } catch (Throwable e) {
+                        log.warn("调用启动前置[{}]-exp: {}", name, e.getMessage());
+                    }
+                }));
+    }
+
     @Override
     public void run(final ApplicationArguments args) {
         try {
             log.info("Netty-Client 启动...");
+            //启动前置处理
+            preStartHandler(args);
             //创建客户端启动对象
             final Bootstrap bootstrap = new Bootstrap();
             //构建Bootstrap配置
