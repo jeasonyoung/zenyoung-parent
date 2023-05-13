@@ -146,6 +146,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
 
     @Override
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
+        super.initChannelPipelineHandler(port, pipeline);
         //1.挂载空闲检查处理器
         Optional.ofNullable(getProperties())
                 .map(NettyClientProperties::getHeartbeatInterval)
@@ -159,9 +160,9 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                     final Map<String, String> codecMap = Optional.ofNullable(getProperties())
                             .map(NettyClientProperties::getCodec)
                             .orElse(null);
+                    Assert.notEmpty(codecMap, "未加载到编解码器!");
                     return CodecUtils.getCodecMap(ctx, codecMap, true);
                 })
-                .filter(map -> !CollectionUtils.isEmpty(map))
                 .ifPresent(map -> map.forEach(pipeline::addLast));
         //3.挂载业务处理器
         addBizSocketHandler(pipeline);

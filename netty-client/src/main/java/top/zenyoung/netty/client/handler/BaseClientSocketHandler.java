@@ -13,6 +13,7 @@ import top.zenyoung.netty.handler.StrategyFactory;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * Socket客户端-业务处理接口实现
@@ -33,12 +34,16 @@ public class BaseClientSocketHandler<T extends Message> extends BaseSocketHandle
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
-        return properites.getHeartbeatTimeoutTotal();
+        return Optional.ofNullable(properites)
+                .map(NettyClientProperties::getHeartbeatTimeoutTotal)
+                .filter(total -> total > 0)
+                .orElse(3);
     }
 
     @Override
     protected StrategyFactory getStrategyFactory() {
-        return this.strategyFactory;
+        return Optional.ofNullable(this.strategyFactory)
+                .orElseThrow(() -> new IllegalArgumentException("未加载到'clientStrategyFactory'策略处理工厂"));
     }
 
     @Override
