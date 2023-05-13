@@ -41,7 +41,7 @@ import java.util.stream.Stream;
  * @author young
  */
 @Slf4j
-public abstract class BaseNettyImpl<T extends BaseProperties> {
+public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelHandlerAdapter {
     protected static final boolean IS_EPOLL;
     protected static final EventLoopGroup BOSS_GROUP;
     protected static final EventLoopGroup WORKER_GROUP;
