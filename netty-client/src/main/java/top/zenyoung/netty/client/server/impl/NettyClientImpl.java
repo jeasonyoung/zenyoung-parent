@@ -1,7 +1,9 @@
 package top.zenyoung.netty.client.server.impl;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -142,6 +144,13 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         } catch (Throwable e) {
             log.warn("Netty-Client 启动失败: {}", e.getMessage());
         }
+    }
+
+    @Override
+    protected void initChannel(@Nonnull final Channel channel) {
+        final ChannelPipeline pipeline = channel.pipeline();
+        initChannelPipelineHandler(-1, pipeline);
+        log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
     }
 
     @Override

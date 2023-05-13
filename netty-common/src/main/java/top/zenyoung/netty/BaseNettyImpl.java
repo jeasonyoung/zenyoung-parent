@@ -222,11 +222,9 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
                 .orElse(-1);
         log.info("Netty[{}]新设备连接: {}", port, NettyUtils.getChannelId(channel));
         //获取通信管道
-        Optional.ofNullable(channel.pipeline())
-                .ifPresent(pipeline -> {
-                    initChannelPipelineHandler(port, pipeline);
-                    log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
-                });
+        final ChannelPipeline pipeline = channel.pipeline();
+        initChannelPipelineHandler(port, pipeline);
+        log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
     }
 
     protected void startMbean() {
