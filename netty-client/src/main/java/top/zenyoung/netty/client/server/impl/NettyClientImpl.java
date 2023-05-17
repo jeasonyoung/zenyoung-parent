@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.client.handler.BaseClientSocketHandler;
+import top.zenyoung.netty.client.handler.ConnectedHandler;
 import top.zenyoung.netty.client.handler.PreStartHandler;
 import top.zenyoung.netty.client.server.NettyClient;
 import top.zenyoung.netty.handler.HeartbeatHandler;
@@ -110,6 +111,24 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                 }));
     }
 
+    /**
+     * 连接成功处理
+     *
+     * @param channel 连接通道
+     */
+    private void connectedHandler(@Nonnull final Channel channel) {
+        Optional.of(context.getBeansOfType(ConnectedHandler.class))
+                .filter(map -> !CollectionUtils.isEmpty(map))
+                .ifPresent(map -> map.forEach((name, handler) -> {
+                    try {
+                        log.info("开始调用连接成功处理器: {}", name);
+                        handler.handler(channel);
+                    } catch (Throwable e) {
+                        log.warn("调用连接成功处理器[{}]-exp: {}", name, e.getMessage());
+                    }
+                }));
+    }
+
     @Override
     public void run(final ApplicationArguments args) {
         try {
@@ -129,6 +148,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                     final Integer port = getServerPort();
                     if (ret) {
                         log.info("连接服务器({}:{})=>成功", host, port);
+                        connectedHandler(future.channel());
                         return;
                     }
                     final Duration interval = getReconnectInterval();
