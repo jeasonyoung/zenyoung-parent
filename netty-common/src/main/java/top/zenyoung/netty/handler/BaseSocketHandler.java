@@ -1,7 +1,6 @@
 package top.zenyoung.netty.handler;
 
 import com.google.common.base.Strings;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -13,6 +12,7 @@ import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.ClosedEvent;
 import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.session.SessionFactory;
+import top.zenyoung.netty.util.NettyUtils;
 import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
@@ -188,12 +188,20 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         Optional.ofNullable(getStrategyFactory())
                 .filter(factory -> Objects.nonNull(session))
                 .map(factory -> factory.process(session, msg))
-                .map(ctx::writeAndFlush)
-                .ifPresent(future -> future.addListener(f -> {
-                    log.info("消息发送=> {}", f.isSuccess());
-                    //发送消息成功后,自动读取下一消息
-                    Optional.ofNullable(future.channel())
-                            .ifPresent(Channel::read);
+                .ifPresent(back -> NettyUtils.writeAndFlush(ctx, back, future -> {
+                    final boolean ret = future.isSuccess();
+                    log.info("消息发送[{}]=> {}: {}", ret, back.getCommand(), back.getDeviceId());
+                    if (ret) {
+                        //发送消息成功后,自动读取下一消息
+                        ctx.read();
+                        return;
+                    }
+                    //发送失败,打印失败信息
+                    log.warn("消息发送[{},{}]-失败原因: {}", back.getCommand(), back.getDeviceId(),
+                            Optional.ofNullable(future.cause())
+                                    .map(Throwable::getMessage)
+                                    .orElse("")
+                    );
                 }));
     }
 
