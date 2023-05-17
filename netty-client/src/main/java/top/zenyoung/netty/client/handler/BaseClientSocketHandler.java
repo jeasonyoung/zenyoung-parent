@@ -21,16 +21,16 @@ import java.util.Optional;
  * @author young
  */
 @Slf4j
-public class BaseClientSocketHandler<T extends Message> extends BaseSocketHandler<T> {
+public abstract class BaseClientSocketHandler<T extends Message> extends BaseSocketHandler<T> {
     /**
      * 注入客户端配置
      */
     @Autowired
-    private NettyClientProperties properites;
+    private volatile NettyClientProperties properites;
 
     @Autowired
     @Qualifier("clientStrategyFactory")
-    private StrategyFactory strategyFactory;
+    private volatile StrategyFactory strategyFactory;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
@@ -45,6 +45,25 @@ public class BaseClientSocketHandler<T extends Message> extends BaseSocketHandle
         return Optional.ofNullable(this.strategyFactory)
                 .orElseThrow(() -> new IllegalArgumentException("未加载到'clientStrategyFactory'策略处理工厂"));
     }
+
+    @Override
+    public final void handlerAdded(final ChannelHandlerContext ctx) {
+        this.addCodec(ctx);
+    }
+
+    @Override
+    public final void channelActive(final ChannelHandlerContext ctx) {
+        if (!ctx.channel().config().isAutoClose()) {
+            ctx.read();
+        }
+    }
+
+    /**
+     * 增加编解码器
+     *
+     * @param ctx 上下文
+     */
+    protected abstract void addCodec(@Nonnull final ChannelHandlerContext ctx);
 
     @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
