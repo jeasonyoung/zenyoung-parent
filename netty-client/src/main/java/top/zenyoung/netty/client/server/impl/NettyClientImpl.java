@@ -183,17 +183,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                     pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
                     log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
                 });
-        //2.挂载编解码器
-        Optional.ofNullable(context)
-                .map(ctx -> {
-                    final Map<String, String> codecMap = Optional.ofNullable(getProperties())
-                            .map(NettyClientProperties::getCodec)
-                            .orElse(null);
-                    Assert.notEmpty(codecMap, "未加载到编解码器!");
-                    return CodecUtils.getCodecMap(ctx, codecMap, true);
-                })
-                .ifPresent(map -> map.forEach(pipeline::addLast));
-        //3.挂载业务处理器
+        //2.挂载业务处理器
         addBizSocketHandler(pipeline);
     }
 
