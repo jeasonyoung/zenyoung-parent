@@ -8,12 +8,12 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.ScheduledFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +31,9 @@ import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -47,11 +50,13 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implements NettyClient, DisposableBean {
     private final NettyClientProperties properites;
     private final ApplicationContext context;
+    private final TaskExecutor executor;
 
     private final AtomicBoolean refConnect = new AtomicBoolean(false);
     private final AtomicBoolean refReconnectRun = new AtomicBoolean(false);
     private final AtomicLong refReconnectCount = new AtomicLong(0L);
     private final AtomicReference<ScheduledFuture<?>> refReconnectScheduled = new AtomicReference<>(null);
+    private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
     private Bootstrap bootstrap;
 
@@ -176,9 +181,14 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                             final Duration interval = getReconnectInterval();
                             log.info("连接服务器({}:{})=>失败,准备开始重连定时任务(interval: {})", host, port, interval);
                             if (Objects.nonNull(interval) && !interval.isZero()) {
-                                refReconnectScheduled.set(future.channel()
-                                        .eventLoop()
-                                        .schedule(this::reconnectHandler, interval.toMillis(), TimeUnit.MILLISECONDS));
+                                final long period = interval.toMillis();
+                                refReconnectScheduled.set(scheduledExecutorService.scheduleAtFixedRate(() -> {
+                                    try {
+                                        this.reconnectHandler();
+                                    } catch (Throwable e) {
+                                        log.warn("定时重连[{}]服务器-exp: {}", refReconnectCount.get(), e.getMessage());
+                                    }
+                                }, 0, period, TimeUnit.MILLISECONDS));
                             }
                         }
                     } finally {
@@ -195,6 +205,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     private void reconnectHandler() {
         //检查连接是否已成功,连接成功关闭重连任务
         if (refConnect.get()) {
+            log.info("重连成功,关闭定时重连=> {}", refReconnectCount.get());
             //关闭重连任务
             closeReconnectTask();
             return;
