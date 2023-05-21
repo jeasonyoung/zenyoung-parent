@@ -9,4 +9,8 @@ import org.springframework.boot.ApplicationRunner;
  */
 public interface NettyClient extends ApplicationRunner {
 
+    /**
+     * 连接服务器
+     */
+    void connectServer();
 }

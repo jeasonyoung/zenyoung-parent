@@ -217,7 +217,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     }
 
     @Override
-    public final void channelInactive(final ChannelHandlerContext ctx) {
+    public void channelInactive(final ChannelHandlerContext ctx) {
         log.warn("channelInactive:通道失效: {}", ctx);
         this.close();
     }

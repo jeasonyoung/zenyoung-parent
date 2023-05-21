@@ -24,13 +24,11 @@ import top.zenyoung.netty.client.handler.ConnectedHandler;
 import top.zenyoung.netty.client.handler.PreStartHandler;
 import top.zenyoung.netty.client.server.NettyClient;
 import top.zenyoung.netty.handler.HeartbeatHandler;
-import top.zenyoung.netty.util.CodecUtils;
 import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +52,8 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     private final AtomicBoolean refReconnectRun = new AtomicBoolean(false);
     private final AtomicLong refReconnectCount = new AtomicLong(0L);
     private final AtomicReference<ScheduledFuture<?>> refReconnectScheduled = new AtomicReference<>(null);
+
+    private Bootstrap bootstrap;
 
     @Override
     protected NettyClientProperties getProperties() {
@@ -136,34 +136,90 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
             //启动前置处理
             preStartHandler(args);
             //创建客户端启动对象
-            final Bootstrap bootstrap = new Bootstrap();
+            this.bootstrap = new Bootstrap();
             //构建Bootstrap配置
             this.buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollSocketChannel.class : NioSocketChannel.class);
-            //启动连接
-            final ChannelFuture future = connect(bootstrap);
+            //连接服务器
+            this.connectServer();
+        } catch (Throwable e) {
+            log.warn("Netty-Client 启动失败: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public void connectServer() {
+        try {
+            final String host = getServerHost();
+            final Integer port = getServerPort();
+            log.info("netty start[{}:{}]...", host, port);
+            if (Strings.isNullOrEmpty(host) || Objects.isNull(port)) {
+                log.error("未配置服务器: [host: {},port: {}]", host, port);
+                return;
+            }
+            Assert.notNull(bootstrap, "'bootstrap'不能为空");
+            //启动连接服务端
+            final ChannelFuture future = bootstrap.connect(host, port);
             if (Objects.nonNull(future)) {
                 future.addListener(f -> {
-                    final boolean ret = f.isSuccess();
-                    final String host = getServerHost();
-                    final Integer port = getServerPort();
-                    if (ret) {
-                        log.info("连接服务器({}:{})=>成功", host, port);
-                        connectedHandler(future.channel());
-                        return;
-                    }
-                    final Duration interval = getReconnectInterval();
-                    log.info("连接服务器({}:{})=>失败,准备开始重连(interval: {})", host, port, interval);
-                    if (Objects.nonNull(interval)) {
-                        refReconnectScheduled.set(future.channel().eventLoop()
-                                .schedule(() -> reconnectHandler(bootstrap),
-                                        interval.toMillis(), TimeUnit.MILLISECONDS
-                                ));
+                    try {
+                        //连接服务器结果
+                        final boolean ret = f.isSuccess();
+                        refConnect.set(ret);
+                        if (ret) {
+                            refReconnectCount.set(0);
+                            log.info("连接服务器({}:{})=>成功", host, port);
+                            connectedHandler(future.channel());
+                            return;
+                        }
+                        //判断是否为重连
+                        if (refReconnectCount.get() <= 0 && Objects.isNull(refReconnectScheduled.get())) {
+                            final Duration interval = getReconnectInterval();
+                            log.info("连接服务器({}:{})=>失败,准备开始重连定时任务(interval: {})", host, port, interval);
+                            if (Objects.nonNull(interval) && !interval.isZero()) {
+                                refReconnectScheduled.set(future.channel()
+                                        .eventLoop()
+                                        .schedule(this::reconnectHandler, interval.toMillis(), TimeUnit.MILLISECONDS));
+                            }
+                        }
+                    } finally {
+                        refReconnectRun.set(false);
                     }
                 });
             }
         } catch (Throwable e) {
-            log.warn("Netty-Client 启动失败: {}", e.getMessage());
+            refReconnectRun.set(false);
+            log.error("connectServer-exp: {}", e.getMessage());
         }
+    }
+
+    private void reconnectHandler() {
+        //检查连接是否已成功,连接成功关闭重连任务
+        if (refConnect.get()) {
+            //关闭重连任务
+            closeReconnectTask();
+            return;
+        }
+        //检查是否已在重连中
+        if (refReconnectRun.get()) {
+            log.info("已在重连中...");
+            return;
+        }
+        refReconnectRun.set(true);
+        log.info("准备第[{}]次开始重连服务器", refReconnectCount.incrementAndGet());
+        connectServer();
+    }
+
+    private void closeReconnectTask() {
+        Optional.ofNullable(refReconnectScheduled.get())
+                .ifPresent(f -> {
+                    try {
+                        f.cancel(false);
+                    } catch (Throwable e) {
+                        log.warn("closeReconnectTask-exp: {}", e.getMessage());
+                    } finally {
+                        refReconnectScheduled.set(null);
+                    }
+                });
     }
 
     @Override
@@ -184,78 +240,12 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                     log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
                 });
         //2.挂载业务处理器
-        addBizSocketHandler(pipeline);
-    }
-
-    protected void addBizSocketHandler(@Nonnull final ChannelPipeline pipeline) {
         final BaseClientSocketHandler<?> handler = context.getBean(BaseClientSocketHandler.class);
         Assert.notNull(handler, "'BaseClientSocketHandler'子类对象不存在!");
         //检查注解
         ScopeUtils.checkPrototype(handler.getClass());
         //添加到管道
         pipeline.addLast("biz", handler);
-    }
-
-    private ChannelFuture connect(@Nonnull final Bootstrap bootstrap) {
-        final String host = getServerHost();
-        final Integer port = getServerPort();
-        log.info("netty start[{}:{}]...", host, port);
-        if (Strings.isNullOrEmpty(host) || Objects.isNull(port)) {
-            log.error("未配置服务器: [host: {},port: {}]", host, port);
-            return null;
-        }
-        //启动客户端去连接服务端
-        return bootstrap.connect(host, port);
-    }
-
-    private void reconnectHandler(@Nonnull final Bootstrap bootstrap) {
-        //检查连接是否已成功,连接成功关闭重连任务
-        if (refConnect.get()) {
-            //关闭重连任务
-            closeReconnectTask();
-            return;
-        }
-        //检查是否已在重连中
-        if (refReconnectRun.get()) {
-            log.info("正在重连中...");
-            return;
-        }
-        refReconnectRun.set(true);
-        final long idx = refReconnectCount.incrementAndGet();
-        final String host = getServerHost();
-        final Integer port = getServerPort();
-        try {
-            log.info("开始重连[{}]服务器: {}:{}", idx, host, port);
-            final ChannelFuture future = connect(bootstrap);
-            if (future == null) {
-                log.info("重连[{}]服务器({}:{}) => 失败", idx, host, port);
-                //重连完成标识
-                refReconnectRun.set(false);
-                return;
-            }
-            //连接回调处理
-            future.addListener(f -> {
-                //重连结果
-                final boolean ret;
-                refConnect.set(ret = f.isSuccess());
-                log.info("重连[{}]服务器({}:{}) => {}", idx, host, port, (ret ? "成功" : "失败"));
-                //重连完成标识
-                refReconnectRun.set(false);
-            });
-        } catch (Throwable e) {
-            log.warn("重连服务器({}:{})[{}]-exp: {}", host, port, idx, e.getMessage());
-        }
-    }
-
-    private void closeReconnectTask() {
-        Optional.ofNullable(refReconnectScheduled.get())
-                .ifPresent(f -> {
-                    try {
-                        f.cancel(false);
-                    } catch (Throwable e) {
-                        log.warn("closeReconnectTask-exp: {}", e.getMessage());
-                    }
-                });
     }
 
     @Override
