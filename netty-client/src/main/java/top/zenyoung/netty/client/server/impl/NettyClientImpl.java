@@ -188,7 +188,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
                                     } catch (Throwable e) {
                                         log.warn("定时重连[{}]服务器-exp: {}", refReconnectCount.get(), e.getMessage());
                                     }
-                                }, 0, period, TimeUnit.MILLISECONDS));
+                                }, period, period, TimeUnit.MILLISECONDS));
                             }
                         }
                     } finally {
