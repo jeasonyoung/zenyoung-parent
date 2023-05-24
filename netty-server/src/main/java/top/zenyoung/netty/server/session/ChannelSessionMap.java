@@ -84,7 +84,7 @@ public class ChannelSessionMap {
                     synchronized (LOCKS.computeIfAbsent(deviceId, k -> new Object())) {
                         try {
                             final Session s = SESSIONS.remove(deviceId);
-                            if (Objects.nonNull(s) && s.getStatus()) {
+                            if (Objects.nonNull(s) && s.isActive()) {
                                 s.close();
                             }
                             log.info("移除Session:" + session);
