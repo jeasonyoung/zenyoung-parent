@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -26,7 +25,6 @@ import java.util.function.Consumer;
 public class SessionFactory implements Session {
     private final Channel channel;
     private final String deviceId, clientIp;
-    private final AtomicBoolean refStatus = new AtomicBoolean(false);
 
     private final Consumer<Info> closeEventListenter;
 
@@ -34,7 +32,6 @@ public class SessionFactory implements Session {
         this.channel = channel;
         this.deviceId = deviceId;
         this.clientIp = Optional.ofNullable(NettyUtils.getRemoteAddr(channel)).map(InetSocketAddress::toString).orElse(null);
-        this.setStatus(true);
         this.closeEventListenter = closeEventListenter;
     }
 
@@ -70,18 +67,11 @@ public class SessionFactory implements Session {
         return this.clientIp;
     }
 
-    /**
-     * 获取会话状态
-     *
-     * @return 会话状态
-     */
     @Override
-    public boolean getStatus() {
-        return this.refStatus.get();
-    }
-
-    private void setStatus(final boolean status) {
-        this.refStatus.set(status);
+    public boolean isActive() {
+        return Optional.ofNullable(channel)
+                .map(Channel::isActive)
+                .orElse(false);
     }
 
     @Override
@@ -112,8 +102,6 @@ public class SessionFactory implements Session {
                 .ifPresent(future -> {
                     future.addListener(f -> {
                         if (f.isSuccess()) {
-                            //关闭成功
-                            setStatus(false);
                             //关闭后通知
                             if (Objects.nonNull(closeEventListenter)) {
                                 closeEventListenter.accept(Info.of(getDeviceId(), getClientIp()));

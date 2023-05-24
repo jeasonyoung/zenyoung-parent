@@ -28,11 +28,11 @@ public interface Session extends Serializable {
     String getClientIp();
 
     /**
-     * 获取会话状态
+     * 获取是否可用
      *
-     * @return 会话状态
+     * @return 是否可用
      */
-    boolean getStatus();
+    boolean isActive();
 
     /**
      * 读取通道数据
