@@ -2,6 +2,8 @@ package top.zenyoung.netty.session;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +47,16 @@ public class SessionFactory implements Session {
      */
     public static Session create(@Nonnull final Channel channel, @Nonnull final String deviceId, @Nullable final Consumer<Info> closeEventListenter) {
         return new SessionFactory(channel, deviceId, closeEventListenter);
+    }
+
+    @Override
+    public <T> Attribute<T> attr(@Nonnull final AttributeKey<T> key) {
+        return channel.attr(key);
+    }
+
+    @Override
+    public <T> boolean hasAttr(@Nonnull final AttributeKey<T> key) {
+        return channel.hasAttr(key);
     }
 
     /**

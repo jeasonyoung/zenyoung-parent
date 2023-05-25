@@ -1,6 +1,7 @@
 package top.zenyoung.netty.session;
 
 import io.netty.channel.ChannelFutureListener;
+import io.netty.util.AttributeMap;
 import top.zenyoung.netty.codec.Message;
 
 import javax.annotation.Nonnull;
@@ -12,7 +13,7 @@ import java.io.Serializable;
  *
  * @author young
  */
-public interface Session extends Serializable {
+public interface Session extends AttributeMap, Serializable {
     /**
      * 获取客户端设备ID。
      *
