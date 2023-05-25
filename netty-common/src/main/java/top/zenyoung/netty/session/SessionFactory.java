@@ -100,9 +100,6 @@ public class SessionFactory implements Session {
                     if (Objects.nonNull(listener)) {
                         future.addListener(listener);
                     }
-                    future.addListener(f -> {
-                        log.info("send(data: {}) => {}", data, f.isSuccess());
-                    });
                 });
     }
 
@@ -125,7 +122,8 @@ public class SessionFactory implements Session {
 
     @Override
     public String toString() {
-        return String.format("deviceId: %1$s,clientIp: %2$s,channel: %3$s", this.deviceId, this.clientIp, this.channel);
+        return String.format("deviceId: %1$s,clientIp: %2$s,channel: %3$s",
+                this.deviceId, this.clientIp, NettyUtils.getChannelId(this.channel));
     }
 
     @Data
