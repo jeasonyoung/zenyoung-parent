@@ -223,7 +223,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     }
 
     @Override
-    public final void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         log.warn("exceptionCaught-发生异常({})-exp: {}", this.session, cause.getMessage());
         this.close();
     }
