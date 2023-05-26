@@ -15,6 +15,13 @@ import java.io.Serializable;
  */
 public interface Session extends AttributeMap, Serializable {
     /**
+     * 获取通道ID
+     *
+     * @return 通道ID
+     */
+    String getChannelId();
+
+    /**
      * 获取客户端设备ID。
      *
      * @return 客户端设备ID。

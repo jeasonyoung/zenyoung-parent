@@ -37,14 +37,6 @@ public class SessionFactory implements Session {
         this.closeEventListenter = closeEventListenter;
     }
 
-    /**
-     * 创建Socket会话
-     *
-     * @param channel             会话通道
-     * @param deviceId            设备ID
-     * @param closeEventListenter 关闭事件监听器
-     * @return Socket会话
-     */
     public static Session create(@Nonnull final Channel channel, @Nonnull final String deviceId, @Nullable final Consumer<Info> closeEventListenter) {
         return new SessionFactory(channel, deviceId, closeEventListenter);
     }
@@ -59,21 +51,16 @@ public class SessionFactory implements Session {
         return channel.hasAttr(key);
     }
 
-    /**
-     * 获取设备ID
-     *
-     * @return 设备ID
-     */
+    @Override
+    public String getChannelId() {
+        return NettyUtils.getChannelId(channel);
+    }
+
     @Override
     public String getDeviceId() {
         return this.deviceId;
     }
-
-    /**
-     * 获取客户端IP地址
-     *
-     * @return 客户端IP地址
-     */
+    
     @Override
     public String getClientIp() {
         return this.clientIp;
