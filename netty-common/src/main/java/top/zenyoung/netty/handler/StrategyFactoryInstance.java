@@ -63,7 +63,6 @@ public class StrategyFactoryInstance implements StrategyFactory {
     @Override
     @SuppressWarnings({"unchecked"})
     public <T extends Message> T process(@Nonnull final Session session, @Nonnull final T req) {
-        log.debug("process(session: {},req: {})", session, req);
         final AtomicBoolean refDo = new AtomicBoolean(false);
         return Optional.ofNullable(req.getCommand())
                 .filter(cmd -> !Strings.isNullOrEmpty(cmd) && !CollectionUtils.isEmpty(strategyMap))
@@ -80,7 +79,7 @@ public class StrategyFactoryInstance implements StrategyFactory {
                         )
                         .map(handler -> {
                             refDo.set(true);
-                            log.info("process(session: {},req: {})[cmd: {},命令策略处理器]=> {}", session, req, req.getCommand(), handler);
+                            log.info("process(session: {},req: {})[cmd: {},命令策略处理器]=> {}", session, req.getDeviceId(), req.getCommand(), handler);
                             return handler.process(session, req);
                         })
                 )
