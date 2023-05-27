@@ -6,16 +6,14 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import top.zenyoung.netty.codec.Message;
-import top.zenyoung.netty.event.ClosedEvent;
 import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.session.SessionFactory;
 import top.zenyoung.netty.util.NettyUtils;
 import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,8 +27,16 @@ import java.util.concurrent.atomic.AtomicLong;
 public abstract class BaseSocketHandler<T extends Message> extends ChannelInboundHandlerAdapter {
     private final AtomicLong heartbeatTotals = new AtomicLong(0L);
     private Session session;
-    @Autowired
-    private ApplicationContext context;
+
+    /**
+     * 获取会话对象
+     *
+     * @return 会话对象
+     */
+    @Nullable
+    protected Session getSession() {
+        return session;
+    }
 
     /**
      * 获取心跳超时次数
@@ -45,28 +51,6 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @return 策略工厂
      */
     protected abstract StrategyFactory getStrategyFactory();
-
-    /**
-     * 获取Bean对象
-     *
-     * @param cls bean类型
-     * @param <R> bean对象类型
-     * @return Bean对象
-     */
-    protected final <R> R getBean(@Nonnull final Class<R> cls) {
-        return context.getBean(cls);
-    }
-
-    /**
-     * 发布Spring事件
-     *
-     * @param event 事件数据
-     * @param <E>   事件类型
-     */
-    protected <E> void publishContextEvent(@Nonnull final E event) {
-        Optional.ofNullable(context)
-                .ifPresent(ctx -> ctx.publishEvent(event));
-    }
 
     /**
      * 检查是否需要支持Scope prototype
@@ -145,10 +129,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                         final String sessionDeviceId = buildSessionBefore(rawDeviceId);
                         if (!Strings.isNullOrEmpty(sessionDeviceId)) {
                             //创建会话
-                            this.session = SessionFactory.create(ctx.channel(), sessionDeviceId, info -> {
-                                //发送设备通道关闭消息
-                                context.publishEvent(ClosedEvent.of(info.getDeviceId(), info.getClientIp()));
-                            });
+                            this.session = SessionFactory.of(ctx.channel(), sessionDeviceId);
                             //存储会话
                             this.buildSessionAfter(this.session);
                         }
@@ -232,12 +213,9 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * 关闭通道
      */
     protected void close() {
+        //移除会话
         Optional.ofNullable(session)
-                .ifPresent(sess -> {
-                    //移除会话
-                    this.close(sess);
-                    this.session = null;
-                });
+                .ifPresent(this::close);
     }
 
     /**

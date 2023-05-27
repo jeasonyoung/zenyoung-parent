@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.codec.Message;
@@ -12,11 +11,8 @@ import top.zenyoung.netty.util.NettyUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Serializable;
-import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Socket通讯会话工厂
@@ -24,22 +20,10 @@ import java.util.function.Consumer;
  * @author young
  */
 @Slf4j
+@RequiredArgsConstructor(staticName = "of")
 public class SessionFactory implements Session {
     private final Channel channel;
-    private final String deviceId, clientIp;
-
-    private final Consumer<Info> closeEventListenter;
-
-    private SessionFactory(@Nonnull final Channel channel, @Nonnull final String deviceId, @Nullable final Consumer<Info> closeEventListenter) {
-        this.channel = channel;
-        this.deviceId = deviceId;
-        this.clientIp = Optional.ofNullable(NettyUtils.getRemoteAddr(channel)).map(InetSocketAddress::toString).orElse(null);
-        this.closeEventListenter = closeEventListenter;
-    }
-
-    public static Session create(@Nonnull final Channel channel, @Nonnull final String deviceId, @Nullable final Consumer<Info> closeEventListenter) {
-        return new SessionFactory(channel, deviceId, closeEventListenter);
-    }
+    private final String deviceId;
 
     @Override
     public <T> Attribute<T> attr(@Nonnull final AttributeKey<T> key) {
@@ -60,10 +44,13 @@ public class SessionFactory implements Session {
     public String getDeviceId() {
         return this.deviceId;
     }
-    
+
     @Override
     public String getClientIp() {
-        return this.clientIp;
+        return Optional.ofNullable(channel)
+                .map(NettyUtils::getRemoteAddr)
+                .map(NettyUtils::getIpAddr)
+                .orElse(null);
     }
 
     @Override
@@ -94,35 +81,11 @@ public class SessionFactory implements Session {
     public void close() {
         Optional.ofNullable(channel)
                 .filter(Channel::isActive)
-                .map(Channel::close)
-                .ifPresent(future -> {
-                    future.addListener(f -> {
-                        if (f.isSuccess()) {
-                            //关闭后通知
-                            if (Objects.nonNull(closeEventListenter)) {
-                                closeEventListenter.accept(Info.of(getDeviceId(), getClientIp()));
-                            }
-                        }
-                    });
-                });
+                .ifPresent(Channel::close);
     }
 
     @Override
     public String toString() {
-        return String.format("deviceId: %1$s,clientIp: %2$s,channel: %3$s",
-                this.deviceId, this.clientIp, NettyUtils.getChannelId(this.channel));
-    }
-
-    @Data
-    @RequiredArgsConstructor(staticName = "of")
-    public static class Info implements Serializable {
-        /**
-         * 设备ID
-         */
-        private final String deviceId;
-        /**
-         * IP地址
-         */
-        private final String clientIp;
+        return "session(channelId: " + getChannelId() + ",deviceId:" + getDeviceId() + ",clientIp:" + getClientIp() + ")";
     }
 }
