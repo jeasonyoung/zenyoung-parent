@@ -78,6 +78,12 @@ public class SessionFactory implements Session {
     }
 
     @Override
+    public void execute(@Nonnull final Runnable handler) {
+        Optional.ofNullable(channel)
+                .ifPresent(ch -> NettyUtils.execute(ch, handler));
+    }
+
+    @Override
     public void close() {
         Optional.ofNullable(channel)
                 .filter(Channel::isActive)

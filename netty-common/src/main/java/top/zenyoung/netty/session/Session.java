@@ -65,6 +65,13 @@ public interface Session extends AttributeMap, Serializable {
     }
 
     /**
+     * 异步执行
+     *
+     * @param handler 执行处理器
+     */
+    void execute(@Nonnull final Runnable handler);
+
+    /**
      * 关闭会话
      */
     void close();
