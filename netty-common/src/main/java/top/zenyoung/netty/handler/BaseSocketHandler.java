@@ -178,7 +178,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             //发送反馈消息
             NettyUtils.writeAndFlush(ctx, callback, f -> {
                 final boolean ret = f.isSuccess();
-                log.info("[{}]消息发送[cmd: {},deviceId: {}]=> {}", prefix, msg.getCommand(), msg.getDeviceId(),
+                log.info("[{}]发送消息反馈[cmd: {},deviceId: {}]=> {}", prefix, callback.getCommand(), callback.getDeviceId(),
                         (ret ? "成功" : "失败," + f.cause().getMessage()));
                 if (ret) {
                     f.channel().read();
