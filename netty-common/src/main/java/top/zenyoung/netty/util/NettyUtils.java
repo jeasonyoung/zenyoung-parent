@@ -2,6 +2,7 @@ package top.zenyoung.netty.util;
 
 import com.google.common.base.Strings;
 import io.netty.channel.*;
+import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -247,9 +248,9 @@ public class NettyUtils {
      * @param future 通道future
      * @return 失败消息
      */
-    public static String failMessage(@Nullable final ChannelFuture future) {
+    public static String failMessage(@Nullable final Future<?> future) {
         return Optional.ofNullable(future)
-                .map(ChannelFuture::cause)
+                .map(Future::cause)
                 .map(Throwable::getMessage)
                 .orElse("");
     }
