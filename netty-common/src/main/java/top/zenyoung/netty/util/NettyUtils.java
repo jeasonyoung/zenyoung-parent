@@ -265,7 +265,7 @@ public class NettyUtils {
      * @param ctx     通道上下文
      * @param handler 执行任务
      */
-    protected static void execute(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Runnable handler) {
+    public static void execute(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Runnable handler) {
         ctx.executor().execute(handler);
     }
 
@@ -275,7 +275,7 @@ public class NettyUtils {
      * @param channel 通道对象
      * @param handler 执行任务
      */
-    protected static void execute(@Nonnull final Channel channel, @Nonnull final Runnable handler) {
+    public static void execute(@Nonnull final Channel channel, @Nonnull final Runnable handler) {
         channel.eventLoop().execute(handler);
     }
 
@@ -287,8 +287,8 @@ public class NettyUtils {
      * @param delay 定时间隔
      * @return 任务句柄
      */
-    protected static ScheduledFuture<?> scheduleCreate(@Nonnull final ChannelHandlerContext ctx,
-                                                       @Nonnull final Runnable task, @Nonnull final Duration delay) {
+    public static ScheduledFuture<?> scheduleCreate(@Nonnull final ChannelHandlerContext ctx,
+                                                    @Nonnull final Runnable task, @Nonnull final Duration delay) {
         return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 
@@ -300,9 +300,9 @@ public class NettyUtils {
      * @param delay 定时间隔
      * @return 任务句柄
      */
-    protected static <R> ScheduledFuture<R> scheduleCreate(@Nonnull final ChannelHandlerContext ctx,
-                                                           @Nonnull final Callable<R> task,
-                                                           @Nonnull final Duration delay) {
+    public static <R> ScheduledFuture<R> scheduleCreate(@Nonnull final ChannelHandlerContext ctx,
+                                                        @Nonnull final Callable<R> task,
+                                                        @Nonnull final Duration delay) {
         return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 
@@ -311,7 +311,7 @@ public class NettyUtils {
      *
      * @param future 任务句柄
      */
-    protected static void scheduleCancel(@Nullable final ScheduledFuture<?> future) {
+    public static void scheduleCancel(@Nullable final ScheduledFuture<?> future) {
         if (Objects.nonNull(future)) {
             future.cancel(false);
         }
