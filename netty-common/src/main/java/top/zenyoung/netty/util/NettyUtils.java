@@ -3,15 +3,19 @@ package top.zenyoung.netty.util;
 import com.google.common.base.Strings;
 import io.netty.channel.*;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
@@ -253,5 +257,63 @@ public class NettyUtils {
                 .map(Future::cause)
                 .map(Throwable::getMessage)
                 .orElse("");
+    }
+
+    /**
+     * 开启异步执行
+     *
+     * @param ctx     通道上下文
+     * @param handler 执行任务
+     */
+    protected static void execute(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Runnable handler) {
+        ctx.executor().execute(handler);
+    }
+
+    /**
+     * 开启异步执行
+     *
+     * @param channel 通道对象
+     * @param handler 执行任务
+     */
+    protected static void execute(@Nonnull final Channel channel, @Nonnull final Runnable handler) {
+        channel.eventLoop().execute(handler);
+    }
+
+    /**
+     * 创建定时任务(无返回值)
+     *
+     * @param ctx   通道上下文
+     * @param task  定时任务
+     * @param delay 定时间隔
+     * @return 任务句柄
+     */
+    protected static ScheduledFuture<?> scheduleCreate(@Nonnull final ChannelHandlerContext ctx,
+                                                       @Nonnull final Runnable task, @Nonnull final Duration delay) {
+        return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 创建定时任务(有返回值)
+     *
+     * @param ctx   通道上下文
+     * @param task  定时任务
+     * @param delay 定时间隔
+     * @return 任务句柄
+     */
+    protected static <R> ScheduledFuture<R> scheduleCreate(@Nonnull final ChannelHandlerContext ctx,
+                                                           @Nonnull final Callable<R> task,
+                                                           @Nonnull final Duration delay) {
+        return ctx.executor().schedule(task, delay.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 取消定时任务
+     *
+     * @param future 任务句柄
+     */
+    protected static void scheduleCancel(@Nullable final ScheduledFuture<?> future) {
+        if (Objects.nonNull(future)) {
+            future.cancel(false);
+        }
     }
 }
