@@ -5,6 +5,7 @@ import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.IdleStateEvent;
@@ -31,6 +32,9 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
     @Autowired
     @Qualifier("clientStrategyFactory")
     private volatile StrategyFactory strategyFactory;
+
+    @Autowired
+    private volatile ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
@@ -67,10 +71,9 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
 
     @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
-        super.heartbeatIdleHandle(ctx, session, state);
         final IdleStateEvent event = new IdleStateEvent();
         event.setState(state);
-        this.publishContextEvent(event);
+        context.publishEvent(event);
     }
 
     @Override

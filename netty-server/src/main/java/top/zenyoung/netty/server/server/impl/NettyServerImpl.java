@@ -12,6 +12,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.handler.HeartbeatHandler;
@@ -21,12 +22,14 @@ import top.zenyoung.netty.server.handler.IpAddrFilter;
 import top.zenyoung.netty.server.handler.RequestLimitFilter;
 import top.zenyoung.netty.server.server.NettyServer;
 import top.zenyoung.netty.util.CodecUtils;
+import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -112,11 +115,20 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
      * @param pipeline 通道管道
      */
     protected void addBizSocketHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        Optional.of(context.getBean(BaseServerSocketHandler.class))
-                .ifPresent(socketHandler -> {
-                    socketHandler.supportedPort(port);
-                    pipeline.addLast("biz", socketHandler);
-                });
+        final Map<String, ?> handlerMap = context.getBeansOfType(BaseServerSocketHandler.class);
+        Assert.notEmpty(handlerMap, "未配置'BaseServerSocketHandler'处理器");
+        final AtomicBoolean ref = new AtomicBoolean(false);
+        handlerMap.forEach((name, handler) -> {
+            final BaseServerSocketHandler<?> socketHandler = (BaseServerSocketHandler<?>) handler;
+            ScopeUtils.checkPrototype(socketHandler.getClass());
+            if (socketHandler.supportedPort(port)) {
+                pipeline.addLast("biz_" + name, socketHandler);
+                ref.set(true);
+            }
+        });
+        if (!ref.get()) {
+            log.warn("[port: {}] 未有业务处理器", port);
+        }
     }
 
     @Override

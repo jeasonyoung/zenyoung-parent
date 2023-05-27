@@ -5,12 +5,12 @@ import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.handler.BaseSocketHandler;
 import top.zenyoung.netty.handler.StrategyFactory;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
-import top.zenyoung.netty.server.session.ChannelSessionMap;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
@@ -28,6 +28,9 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     @Autowired
     @Qualifier("serverStrategyFactory")
     private StrategyFactory strategyFactory;
+
+    @Autowired
+    private ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
@@ -48,8 +51,8 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
      *
      * @param port 端口
      */
-    public void supportedPort(final int port) {
-
+    public boolean supportedPort(final int port) {
+        return true;
     }
 
     @Override
@@ -64,17 +67,7 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
         final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
         event.setSession(session);
         event.setState(state);
-        this.publishContextEvent(event);
-    }
-
-    @Override
-    protected void buildSessionAfter(@Nonnull final Session session) {
-        ChannelSessionMap.put(session);
-    }
-
-    @Override
-    protected void close(@Nonnull final Session session) {
-        ChannelSessionMap.remove(session);
+        context.publishEvent(event);
     }
 
     /**
