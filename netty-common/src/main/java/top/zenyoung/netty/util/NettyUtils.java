@@ -240,4 +240,17 @@ public class NettyUtils {
                 .map(ChannelHandlerContext::channel)
                 .ifPresent(ch -> writeAndFlush(ch, data, null));
     }
+
+    /**
+     * 获取通道失败消息
+     *
+     * @param future 通道future
+     * @return 失败消息
+     */
+    public static String failMessage(@Nullable final ChannelFuture future) {
+        return Optional.ofNullable(future)
+                .map(ChannelFuture::cause)
+                .map(Throwable::getMessage)
+                .orElse("");
+    }
 }
