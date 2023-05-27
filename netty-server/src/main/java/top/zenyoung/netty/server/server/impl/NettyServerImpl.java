@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
-import top.zenyoung.netty.handler.HeartbeatHandler;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.handler.BaseServerSocketHandler;
 import top.zenyoung.netty.server.handler.IpAddrFilter;
@@ -88,22 +87,16 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         Optional.ofNullable(getProperties())
                 .map(NettyServerProperties::getLimit)
                 .ifPresent(limit -> pipeline.addLast("limitFilter", new RequestLimitFilter(properites)));
-        //3.挂载空闲检查处理器
-        Optional.ofNullable(getProperties())
-                .map(NettyServerProperties::getHeartbeatInterval)
-                .ifPresent(heartbeat -> pipeline.addLast("idle", new HeartbeatHandler(heartbeat)));
-        //4.挂载编解码器
+        //3.挂载编解码器
         final Map<String, String> codecMap = getPortCodecs().getOrDefault(port, Maps.newHashMap());
+        Assert.notEmpty(codecMap, port + ",未配置编解码器,请检查配置");
         final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
                 .map(ctx -> CodecUtils.getCodecMap(ctx, codecMap, true))
                 .orElse(null);
-        if (CollectionUtils.isEmpty(codecHandlerMap)) {
-            log.error("端口[{}]未挂载编解码器,请检查配置!", port);
-        } else {
-            codecHandlerMap.forEach(pipeline::addLast);
-            log.info("端口[{}]挂载编解码器: {}", port, codecHandlerMap.keySet());
-        }
-        //5.挂载业务处理器
+        Assert.notNull(codecHandlerMap, port + ",编解码器配置无效!");
+        codecHandlerMap.forEach(pipeline::addLast);
+        log.info("端口[{}]挂载编解码器: {}", port, codecHandlerMap.keySet());
+        //4.挂载业务处理器
         addBizSocketHandler(port, pipeline);
     }
 
@@ -126,7 +119,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
             }
         });
         if (!ref.get()) {
-            log.warn("[port: {}] 未有业务处理器", port);
+            log.warn("[port: {}] 未配置业务处理器", port);
         }
     }
 
