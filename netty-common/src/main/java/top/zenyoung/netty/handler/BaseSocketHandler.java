@@ -1,11 +1,11 @@
 package top.zenyoung.netty.handler;
 
-import com.google.common.base.Strings;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.session.SessionFactory;
@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 
 /**
  * Socket处理器基类
@@ -50,12 +51,13 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      *
      * @return 策略工厂
      */
+    @Nonnull
     protected abstract StrategyFactory getStrategyFactory();
 
     /**
      * 检查是否需要支持Scope prototype
      */
-    protected final void ensureHasScope() {
+    public final void ensureHasScope() {
         ScopeUtils.checkPrototype(this.getClass());
     }
 
@@ -116,31 +118,41 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         return rawDeviceId;
     }
 
+    @Nullable
+    @SuppressWarnings("unchecked")
+    protected T receivedMessageConvert(@Nonnull final Object msg) {
+        return (T) msg;
+    }
+
     @Override
-    @SuppressWarnings({"unchecked"})
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         final long start = System.currentTimeMillis();
-        this.heartbeatTotals.set(0L);
-        Optional.ofNullable((T) msg)
-                .ifPresent(data -> {
-                    //检查是否已建立会话
-                    final String rawDeviceId;
-                    if (Objects.isNull(this.session) && !Strings.isNullOrEmpty(rawDeviceId = data.getDeviceId())) {
-                        final String sessionDeviceId = buildSessionBefore(rawDeviceId);
-                        if (!Strings.isNullOrEmpty(sessionDeviceId)) {
+        try {
+            this.heartbeatTotals.set(0L);
+            Optional.ofNullable(receivedMessageConvert(msg))
+                    .ifPresent(data -> {
+                        //设备ID转换
+                        final String deviceId = buildSessionBefore(data.getDeviceId());
+                        Assert.hasText(deviceId, "'deviceId'不能为空");
+                        //检查是否已创建会话
+                        if (Objects.isNull(session)) {
                             //创建会话
-                            this.session = SessionFactory.of(ctx.channel(), sessionDeviceId);
+                            this.session = SessionFactory.of(ctx.channel(), deviceId);
                             //存储会话
                             this.buildSessionAfter(this.session);
+                            //调用业务处理
+                            this.messageReceived(ctx, data);
+                            return;
                         }
-                    }
-                    try {
+                        //检查会话设备与当前请求设备ID是否一致
+                        Assert.isTrue(deviceId.equalsIgnoreCase(session.getDeviceId()),
+                                "当前请求数据设备ID[" + deviceId + "]与会话设备ID[" + session.getDeviceId() + "]不一致,请求非法!");
                         //调用业务处理
                         this.messageReceived(ctx, data);
-                    } finally {
-                        log.info("业务[session: {},ctx: {}]执行耗时: {}ms", this.session, ctx, (System.currentTimeMillis() - start));
-                    }
-                });
+                    });
+        } finally {
+            log.info("[消息处理耗时: {}ms]", (System.currentTimeMillis() - start));
+        }
     }
 
     /**
@@ -158,32 +170,34 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param msg 消息数据
      */
     protected final void messageReceived(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T msg) {
+        //结果消息处理
+        final BiConsumer<String, T> callbackSendHandler = (prefix, callback) -> {
+            if (Objects.isNull(callback)) {
+                return;
+            }
+            //发送反馈消息
+            NettyUtils.writeAndFlush(ctx, callback, f -> {
+                final boolean ret = f.isSuccess();
+                log.info("[{}]消息发送[cmd: {},deviceId: {}]=> {}", prefix, msg.getCommand(), msg.getDeviceId(),
+                        (ret ? "成功" : "失败," + f.cause().getMessage()));
+                if (ret) {
+                    f.channel().read();
+                }
+            });
+        };
         //全局策略处理器
-        final T callback = globalStrategyProcess(session, msg);
+        T callback = globalStrategyProcess(session, msg);
         if (Objects.nonNull(callback)) {
-            Optional.ofNullable(ctx.writeAndFlush(callback))
-                    .ifPresent(future -> future.addListener(f -> log.info("消息发送=> {}", f.isSuccess())));
+            callbackSendHandler.accept("global", callback);
             return;
         }
         //根据消息执行策略命令
-        Optional.ofNullable(getStrategyFactory())
-                .filter(factory -> Objects.nonNull(session))
-                .map(factory -> factory.process(session, msg))
-                .ifPresent(back -> NettyUtils.writeAndFlush(ctx, back, future -> {
-                    final boolean ret = future.isSuccess();
-                    log.info("消息发送[{}]=> {}: {}", ret, back.getCommand(), back.getDeviceId());
-                    if (ret) {
-                        //发送消息成功后,自动读取下一消息
-                        ctx.read();
-                        return;
-                    }
-                    //发送失败,打印失败信息
-                    log.warn("消息发送[{},{}]-失败原因: {}", back.getCommand(), back.getDeviceId(),
-                            Optional.ofNullable(future.cause())
-                                    .map(Throwable::getMessage)
-                                    .orElse("")
-                    );
-                }));
+        final StrategyFactory factory = getStrategyFactory();
+        Assert.notNull(factory, "'strategyFactory'不能为空");
+        callback = factory.process(session, msg);
+        if (Objects.nonNull(callback)) {
+            callbackSendHandler.accept("factory", callback);
+        }
     }
 
     /**

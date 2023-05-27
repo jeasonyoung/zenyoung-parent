@@ -22,7 +22,6 @@ import top.zenyoung.netty.server.handler.IpAddrFilter;
 import top.zenyoung.netty.server.handler.RequestLimitFilter;
 import top.zenyoung.netty.server.server.NettyServer;
 import top.zenyoung.netty.util.CodecUtils;
-import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -120,7 +119,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         final AtomicBoolean ref = new AtomicBoolean(false);
         handlerMap.forEach((name, handler) -> {
             final BaseServerSocketHandler<?> socketHandler = (BaseServerSocketHandler<?>) handler;
-            ScopeUtils.checkPrototype(socketHandler.getClass());
+            socketHandler.ensureHasScope();
             if (socketHandler.supportedPort(port)) {
                 pipeline.addLast("biz_" + name, socketHandler);
                 ref.set(true);

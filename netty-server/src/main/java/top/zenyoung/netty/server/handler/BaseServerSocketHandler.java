@@ -14,6 +14,7 @@ import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * Socket服务端-业务处理接口实现
@@ -23,23 +24,25 @@ import javax.annotation.Nonnull;
 @Slf4j
 public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> {
     @Autowired
-    private NettyServerProperties properties;
+    private volatile NettyServerProperties properties;
 
     @Autowired
     @Qualifier("serverStrategyFactory")
-    private StrategyFactory strategyFactory;
+    private volatile StrategyFactory strategyFactory;
 
     @Autowired
-    private ApplicationContext context;
+    private volatile ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
         return this.properties.getHeartbeatTimeoutTotal();
     }
 
+    @Nonnull
     @Override
     protected StrategyFactory getStrategyFactory() {
-        return this.strategyFactory;
+        return Optional.ofNullable(strategyFactory)
+                .orElseThrow(() -> new IllegalArgumentException("未加载到'serverStrategyFactory'策略处理工厂"));
     }
 
     public BaseServerSocketHandler() {
@@ -56,8 +59,7 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     }
 
     @Override
-    public void channelActive(@Nonnull final ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
+    public void channelActive(@Nonnull final ChannelHandlerContext ctx) {
         //触发读取消息
         ctx.read();
     }

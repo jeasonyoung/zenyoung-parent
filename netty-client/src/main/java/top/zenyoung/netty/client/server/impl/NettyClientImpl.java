@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -24,7 +23,6 @@ import top.zenyoung.netty.client.handler.ConnectedHandler;
 import top.zenyoung.netty.client.handler.PreStartHandler;
 import top.zenyoung.netty.client.server.NettyClient;
 import top.zenyoung.netty.handler.HeartbeatHandler;
-import top.zenyoung.netty.util.ScopeUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,7 +48,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implements NettyClient, DisposableBean {
     private final NettyClientProperties properites;
     private final ApplicationContext context;
-    private final TaskExecutor executor;
 
     private final AtomicBoolean refConnect = new AtomicBoolean(false);
     private final AtomicBoolean refReconnectRun = new AtomicBoolean(false);
@@ -254,7 +251,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         final BaseClientSocketHandler<?> handler = context.getBean(BaseClientSocketHandler.class);
         Assert.notNull(handler, "'BaseClientSocketHandler'子类对象不存在!");
         //检查注解
-        ScopeUtils.checkPrototype(handler.getClass());
+        handler.ensureHasScope();
         //添加到管道
         pipeline.addLast("biz", handler);
     }

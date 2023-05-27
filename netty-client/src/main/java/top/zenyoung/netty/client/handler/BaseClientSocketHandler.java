@@ -44,10 +44,15 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
                 .orElse(3);
     }
 
+    @Nonnull
     @Override
     protected StrategyFactory getStrategyFactory() {
         return Optional.ofNullable(this.strategyFactory)
                 .orElseThrow(() -> new IllegalArgumentException("未加载到'clientStrategyFactory'策略处理工厂"));
+    }
+
+    public BaseClientSocketHandler() {
+        this.ensureHasScope();
     }
 
     @Override
