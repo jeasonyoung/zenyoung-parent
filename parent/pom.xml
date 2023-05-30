@@ -84,6 +84,7 @@
         <guava.version>30.1.1-jre</guava.version>
         <commons-io.version>2.8.0</commons-io.version>
         <zxing.version>3.5.1</zxing.version>
+        <easypoi.version>4.4.0</easypoi.version>
 
         <!-- swagger -->
         <swagger.version>1.5.20</swagger.version>
@@ -236,6 +237,23 @@
                 <groupId>com.google.zxing</groupId>
                 <artifactId>core</artifactId>
                 <version>${zxing.version}</version>
+            </dependency>
+
+            <!-- easy-poi -->
+            <dependency>
+                <groupId>cn.afterturn</groupId>
+                <artifactId>easypoi-base</artifactId>
+                <version>${easypoi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.afterturn</groupId>
+                <artifactId>easypoi-web</artifactId>
+                <version>${easypoi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.afterturn</groupId>
+                <artifactId>easypoi-annotation</artifactId>
+                <version>${easypoi.version}</version>
             </dependency>
 
             <!-- swagger -->

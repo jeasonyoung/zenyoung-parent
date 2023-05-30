@@ -13,11 +13,14 @@ import top.zenyoung.boot.util.matcher.AntPathRequestMatcher;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 /**
@@ -35,18 +38,25 @@ public class HttpUtils {
         }
     };
 
+    public static void servlet(@Nonnull final BiConsumer<HttpServletRequest, HttpServletResponse> handler) {
+        final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (Objects.nonNull(attrs)) {
+                handler.accept(attrs.getRequest(), attrs.getResponse());
+            }
+        }
+    }
+
     /**
      * 获取当前请求
      *
      * @return 当前请求
      */
     public static HttpServletRequest getWebRequest() {
-        final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes instanceof ServletRequestAttributes) {
-            final ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            return attrs.getRequest();
-        }
-        return null;
+        final AtomicReference<HttpServletRequest> refReq = new AtomicReference<>(null);
+        servlet((req, res) -> refReq.set(req));
+        return refReq.get();
     }
 
     public static Optional<HttpServletRequest> getWebRequestOpt() {
@@ -129,5 +139,18 @@ public class HttpUtils {
                 .filter(pattern -> !Strings.isNullOrEmpty(pattern))
                 .map(AntPathRequestMatcher::new)
                 .anyMatch(p -> p.matches(request));
+    }
+
+    /**
+     * 判断是否为IE浏览器
+     *
+     * @param request 请求对象
+     * @return 是否为IE浏览器
+     */
+    public static boolean isIE(@Nonnull final HttpServletRequest request) {
+        return (request.getHeader("USER-AGENT").toLowerCase().indexOf("msie") > 0
+                || request.getHeader("USER-AGENT").toLowerCase().indexOf("rv:11.0") > 0
+                || request.getHeader("USER-AGENT").toLowerCase().indexOf("edge") > 0) ? true
+                : false;
     }
 }

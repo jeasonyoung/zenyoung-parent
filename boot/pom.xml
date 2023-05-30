@@ -71,6 +71,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- easypoi -->
+        <dependency>
+            <groupId>cn.afterturn</groupId>
+            <artifactId>easypoi-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- 模块依赖 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
