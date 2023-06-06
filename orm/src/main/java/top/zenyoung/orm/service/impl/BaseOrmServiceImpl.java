@@ -91,7 +91,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
                         return cls.cast(id);
                     }
                     if (cls == String.class) {
-                        return cls.cast(id + "");
+                        return cls.cast(String.valueOf(id));
                     }
                     return cls.cast(id);
                 })
@@ -195,7 +195,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
      *
      * @param po 实体
      */
-    protected void patchData(@Nonnull final PO po) {
+    protected <T extends Model<ID>> void patchData(@Nonnull final T po) {
         this.setAutoId(po);
         this.setCreate(po);
         this.setUpdate(po);
@@ -203,7 +203,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
         this.setLogicDel(po);
     }
 
-    protected void setAutoId(@Nonnull final PO po) {
+    protected <T extends Model<ID>> void setAutoId(@Nonnull final T po) {
         if (Objects.isNull(po.getId()) || "".equals(po.getId())) {
             po.setId(genId());
         }
