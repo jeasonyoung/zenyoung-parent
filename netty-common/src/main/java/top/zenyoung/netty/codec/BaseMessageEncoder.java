@@ -1,5 +1,6 @@
 package top.zenyoung.netty.codec;
 
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
@@ -15,7 +16,7 @@ import java.util.Objects;
  * @author young
  */
 @ChannelHandler.Sharable
-public abstract class BaseMessageEncoder<T extends Message> extends ChannelOutboundHandlerAdapter implements MessageEncoder<T> {
+public abstract class BaseMessageEncoder<T extends Message> extends ChannelOutboundHandlerAdapter {
 
     @Override
     @SuppressWarnings({"unchecked"})
@@ -41,4 +42,13 @@ public abstract class BaseMessageEncoder<T extends Message> extends ChannelOutbo
             ctx.write(out, promise);
         }
     }
+
+    /**
+     * 消息编码
+     *
+     * @param allocator 内存分配器
+     * @param message   消息数据
+     * @return 编码后的字节
+     */
+    protected abstract Object encode(@Nonnull final ByteBufAllocator allocator, @Nonnull final T message);
 }

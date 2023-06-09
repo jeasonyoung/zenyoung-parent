@@ -4,17 +4,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.handler.BaseSocketHandler;
-import top.zenyoung.netty.handler.StrategyFactory;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 /**
  * Socket服务端-业务处理接口实现
@@ -27,22 +24,11 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     private volatile NettyServerProperties properties;
 
     @Autowired
-    @Qualifier("serverStrategyFactory")
-    private volatile StrategyFactory strategyFactory;
-
-    @Autowired
     private volatile ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
         return this.properties.getHeartbeatTimeoutTotal();
-    }
-
-    @Nonnull
-    @Override
-    protected StrategyFactory getStrategyFactory() {
-        return Optional.ofNullable(strategyFactory)
-                .orElseThrow(() -> new IllegalArgumentException("未加载到'serverStrategyFactory'策略处理工厂"));
     }
 
     public BaseServerSocketHandler() {

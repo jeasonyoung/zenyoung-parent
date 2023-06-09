@@ -4,13 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import top.zenyoung.netty.client.config.NettyClientProperties;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.IdleStateEvent;
 import top.zenyoung.netty.handler.BaseSocketHandler;
-import top.zenyoung.netty.handler.StrategyFactory;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
@@ -23,32 +21,16 @@ import java.util.Optional;
  */
 @Slf4j
 public abstract class BaseClientSocketHandler<T extends Message> extends BaseSocketHandler<T> {
-    /**
-     * 注入客户端配置
-     */
-    @Autowired
-    private volatile NettyClientProperties properites;
-
-    @Autowired
-    @Qualifier("clientStrategyFactory")
-    private volatile StrategyFactory strategyFactory;
 
     @Autowired
     private volatile ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
-        return Optional.ofNullable(properites)
+        return Optional.of(context.getBean(NettyClientProperties.class))
                 .map(NettyClientProperties::getHeartbeatTimeoutTotal)
                 .filter(total -> total > 0)
                 .orElse(3);
-    }
-
-    @Nonnull
-    @Override
-    protected StrategyFactory getStrategyFactory() {
-        return Optional.ofNullable(this.strategyFactory)
-                .orElseThrow(() -> new IllegalArgumentException("未加载到'clientStrategyFactory'策略处理工厂"));
     }
 
     public BaseClientSocketHandler() {

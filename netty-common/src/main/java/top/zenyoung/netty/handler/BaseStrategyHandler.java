@@ -1,22 +1,26 @@
 package top.zenyoung.netty.handler;
 
+import com.google.common.base.Strings;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
+import top.zenyoung.netty.util.StrategyHandlerUtils;
 
 import javax.annotation.Nonnull;
 
 /**
- * 策略处理器基接口
+ * 策略处理器基类
  *
  * @author young
  */
-public interface BaseStrategyHandler<T extends Message> {
+public abstract class BaseStrategyHandler<T extends Message> implements InitializingBean {
     /**
      * 获取命令名称
      *
      * @return 命令名称
      */
-    String[] getCommands();
+    protected abstract String[] getCommands();
 
     /**
      * 是否支持处理消息
@@ -24,7 +28,7 @@ public interface BaseStrategyHandler<T extends Message> {
      * @param req 消息数据
      * @return 是否支持处理
      */
-    default boolean supported(@Nonnull final T req) {
+    public boolean supported(@Nonnull final T req) {
         return true;
     }
 
@@ -33,7 +37,7 @@ public interface BaseStrategyHandler<T extends Message> {
      *
      * @return 优先级
      */
-    default int priority() {
+    public int priority() {
         return 0;
     }
 
@@ -44,5 +48,17 @@ public interface BaseStrategyHandler<T extends Message> {
      * @param req     请求数据
      * @return 响应数据
      */
-    T process(@Nonnull final Session session, @Nonnull final T req);
+    public abstract T process(@Nonnull final Session session, @Nonnull final T req);
+
+    @Override
+    public final void afterPropertiesSet() {
+        final String[] commands;
+        Assert.notEmpty(commands = getCommands(), "'getCommands'不能返回为空!");
+        for (final String command : commands) {
+            if (Strings.isNullOrEmpty(command)) {
+                continue;
+            }
+            StrategyHandlerUtils.register(command, this);
+        }
+    }
 }

@@ -11,6 +11,7 @@ import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.session.SessionFactory;
 import top.zenyoung.netty.util.NettyUtils;
 import top.zenyoung.netty.util.ScopeUtils;
+import top.zenyoung.netty.util.StrategyHandlerUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,14 +46,6 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @return 心跳超时次数
      */
     protected abstract Integer getHeartbeatTimeoutTotal();
-
-    /**
-     * 获取策略工厂
-     *
-     * @return 策略工厂
-     */
-    @Nonnull
-    protected abstract StrategyFactory getStrategyFactory();
 
     /**
      * 检查是否需要支持Scope prototype
@@ -125,31 +118,33 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     }
 
     @Override
-    public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
+    public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+        final T data = receivedMessageConvert(msg);
+        if (Objects.isNull(data)) {
+            super.channelRead(ctx, msg);
+            return;
+        }
         final long start = System.currentTimeMillis();
         try {
             this.heartbeatTotals.set(0L);
-            Optional.ofNullable(receivedMessageConvert(msg))
-                    .ifPresent(data -> {
-                        //设备ID转换
-                        final String deviceId = buildSessionBefore(data.getDeviceId());
-                        Assert.hasText(deviceId, "'deviceId'不能为空");
-                        //检查是否已创建会话
-                        if (Objects.isNull(session)) {
-                            //创建会话
-                            this.session = SessionFactory.of(ctx.channel(), deviceId);
-                            //存储会话
-                            this.buildSessionAfter(this.session);
-                            //调用业务处理
-                            this.messageReceived(ctx, data);
-                            return;
-                        }
-                        //检查会话设备与当前请求设备ID是否一致
-                        Assert.isTrue(deviceId.equalsIgnoreCase(session.getDeviceId()),
-                                "当前请求数据设备ID[" + deviceId + "]与会话设备ID[" + session.getDeviceId() + "]不一致,请求非法!");
-                        //调用业务处理
-                        this.messageReceived(ctx, data);
-                    });
+            //设备ID转换
+            final String deviceId = buildSessionBefore(data.getDeviceId());
+            Assert.hasText(deviceId, "'deviceId'不能为空");
+            //检查是否已创建会话
+            if (Objects.isNull(session)) {
+                //创建会话
+                this.session = SessionFactory.of(ctx.channel(), deviceId);
+                //存储会话
+                this.buildSessionAfter(this.session);
+                //调用业务处理
+                this.messageReceived(ctx, data);
+                return;
+            }
+            //检查会话设备与当前请求设备ID是否一致
+            Assert.isTrue(deviceId.equalsIgnoreCase(session.getDeviceId()),
+                    "当前请求数据设备ID[" + deviceId + "]与会话设备ID[" + session.getDeviceId() + "]不一致,请求非法!");
+            //调用业务处理
+            this.messageReceived(ctx, data);
         } finally {
             log.info("[消息处理耗时: {}ms]", (System.currentTimeMillis() - start));
         }
@@ -186,18 +181,13 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             });
         };
         //全局策略处理器
-        T callback = globalStrategyProcess(session, msg);
+        final T callback = globalStrategyProcess(session, msg);
         if (Objects.nonNull(callback)) {
-            callbackSendHandler.accept("global", callback);
+            callbackSendHandler.accept("global-strategy-handler", callback);
             return;
         }
         //根据消息执行策略命令
-        final StrategyFactory factory = getStrategyFactory();
-        Assert.notNull(factory, "'strategyFactory'不能为空");
-        callback = factory.process(session, msg);
-        if (Objects.nonNull(callback)) {
-            callbackSendHandler.accept("factory", callback);
-        }
+        StrategyHandlerUtils.process(session, msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
     }
 
     /**

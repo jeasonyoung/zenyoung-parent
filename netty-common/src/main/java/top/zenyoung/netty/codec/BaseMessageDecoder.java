@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author young
  */
-public abstract class BaseMessageDecoder<T extends Message> extends ChannelInboundHandlerAdapter implements MessageDecoder<T> {
+public abstract class BaseMessageDecoder<T extends Message> extends ChannelInboundHandlerAdapter {
 
     @Override
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
@@ -34,4 +34,12 @@ public abstract class BaseMessageDecoder<T extends Message> extends ChannelInbou
             ctx.fireChannelRead(out);
         }
     }
+
+    /**
+     * 消息解码
+     *
+     * @param in 消息缓存
+     * @return 解码后的对象
+     */
+    protected abstract T decoder(@Nonnull final Object in);
 }
