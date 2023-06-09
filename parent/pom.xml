@@ -65,7 +65,7 @@
         <!-- protobuf -->
         <protobuf-java.version>3.21.12</protobuf-java.version>
         <!-- kryo -->
-        <kryo.version>4.0.2</kryo.version>
+        <kryo.version>5.5.0</kryo.version>
         <!-- snappy -->
         <snappy-java.version>1.1.9.1</snappy-java.version>
         <!-- bouncycastle -->
