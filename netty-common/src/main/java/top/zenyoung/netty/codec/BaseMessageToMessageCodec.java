@@ -22,7 +22,7 @@ public abstract class BaseMessageToMessageCodec<R, T extends Message> extends Me
         }
     }
 
-    protected abstract R encode(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T msg);
+    protected abstract R encode(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T in);
 
     @Override
     protected final void decode(final ChannelHandlerContext ctx, final R msg, final List<Object> out) {
@@ -32,5 +32,5 @@ public abstract class BaseMessageToMessageCodec<R, T extends Message> extends Me
         }
     }
 
-    protected abstract T decode(@Nonnull final ChannelHandlerContext ctx, @Nonnull final R msg);
+    protected abstract T decode(@Nonnull final ChannelHandlerContext ctx, @Nonnull final R in);
 }
