@@ -35,10 +35,6 @@ public class NettyServerProperties extends BaseProperties {
      */
     private List<String> ipAddrWhiteList = Lists.newArrayList();
     /**
-     * 请求访问限制
-     */
-    private RequestLimit limit = new RequestLimit();
-    /**
      * 配置编解码器(支持多端口,多协议监听)
      * 端口号: (编解码器名称,编解码器类或Bean名)
      */

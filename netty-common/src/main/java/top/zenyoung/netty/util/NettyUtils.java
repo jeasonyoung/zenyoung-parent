@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -315,5 +317,20 @@ public class NettyUtils {
         if (Objects.nonNull(future)) {
             future.cancel(false);
         }
+    }
+
+    /**
+     * 获取异常栈信息打印
+     *
+     * @param cause 异常类
+     * @return 栈信息打印
+     */
+    public static String getPrintStackTrace(@Nonnull final Throwable cause) {
+        final StringWriter sw = new StringWriter();
+        try (final PrintWriter printWriter = new PrintWriter(sw)) {
+            cause.printStackTrace(printWriter);
+            printWriter.flush();
+        }
+        return sw.toString();
     }
 }

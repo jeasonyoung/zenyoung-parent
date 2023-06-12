@@ -18,7 +18,6 @@ import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.handler.BaseServerSocketHandler;
 import top.zenyoung.netty.server.handler.IpAddrFilter;
-import top.zenyoung.netty.server.handler.RequestLimitFilter;
 import top.zenyoung.netty.server.server.NettyServer;
 import top.zenyoung.netty.util.CodecUtils;
 
@@ -83,11 +82,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
         //1.挂载IP地址过滤器
         pipeline.addLast("ipFilter", new IpAddrFilter(properites));
-        //2.挂载请求限制过滤器
-        Optional.ofNullable(getProperties())
-                .map(NettyServerProperties::getLimit)
-                .ifPresent(limit -> pipeline.addLast("limitFilter", new RequestLimitFilter(properites)));
-        //3.挂载编解码器
+        //2.挂载编解码器
         final Map<String, String> codecMap = getPortCodecs().getOrDefault(port, Maps.newHashMap());
         Assert.notEmpty(codecMap, port + ",未配置编解码器,请检查配置");
         final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
@@ -96,7 +91,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         Assert.notNull(codecHandlerMap, port + ",编解码器配置无效!");
         codecHandlerMap.forEach(pipeline::addLast);
         log.info("端口[{}]挂载编解码器: {}", port, codecHandlerMap.keySet());
-        //4.挂载业务处理器
+        //3.挂载业务处理器
         addBizSocketHandler(port, pipeline);
     }
 
