@@ -89,7 +89,7 @@ public class StrategyHandlerFactory {
                         }
                     });
         } finally {
-            log.warn("process[command: {}]-处理[耗时: {}ms].", command, (System.currentTimeMillis() - start));
+            log.info("process[command: {}]-处理[耗时: {}ms].", command, (System.currentTimeMillis() - start));
         }
     }
 }
