@@ -244,6 +244,8 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
         }
     }
 
+    private final LoggingHandler loggingHandler = new LoggingHandler(getNettyLogLevel());
+
     /**
      * 通信管道初始化
      *
@@ -252,7 +254,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
      */
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
         //0.挂载日志处理器
-        pipeline.addLast("log", new LoggingHandler(getNettyLogLevel()));
+        pipeline.addLast("log", loggingHandler);
         //1.挂载流量统计处理器
         Optional.ofNullable(globalTrafficHandler)
                 .ifPresent(handler -> pipeline.addLast("globalTraffic", handler));

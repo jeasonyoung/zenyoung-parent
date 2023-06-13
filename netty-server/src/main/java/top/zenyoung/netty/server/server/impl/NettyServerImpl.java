@@ -80,6 +80,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
 
     @Override
     protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
+        super.initChannelPipelineHandler(port, pipeline);
         //1.挂载IP地址过滤器
         pipeline.addLast("ipFilter", new IpAddrFilter(properites));
         //2.挂载编解码器
