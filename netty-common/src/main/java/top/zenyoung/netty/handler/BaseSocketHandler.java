@@ -150,7 +150,9 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             //调用业务处理
             this.messageReceived(ctx, data);
         } finally {
-            log.info("[{}]消息处理耗时: {}ms", data.getCommand(), (System.currentTimeMillis() - start));
+            final long totals = System.currentTimeMillis() - start;
+            final String channelId = NettyUtils.getChannelId(ctx);
+            log.info("[{}][{}]消息通道[{}]处理耗时: {}ms", data.getCommand(), data.getDeviceId(), channelId, totals);
         }
     }
 
