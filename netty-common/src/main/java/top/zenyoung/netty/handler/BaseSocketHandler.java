@@ -5,13 +5,14 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.session.SessionFactory;
+import top.zenyoung.netty.strategy.StrategyHandlerFactory;
 import top.zenyoung.netty.util.NettyUtils;
 import top.zenyoung.netty.util.ScopeUtils;
-import top.zenyoung.netty.util.StrategyHandlerUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,6 +40,9 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     protected Session getSession() {
         return session;
     }
+
+    @Autowired
+    private StrategyHandlerFactory handlerFactory;
 
     /**
      * 获取心跳超时次数
@@ -187,7 +191,8 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             return;
         }
         //根据消息执行策略命令
-        StrategyHandlerUtils.process(session, msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
+        Assert.notNull(handlerFactory, "未注册策略处理器工厂");
+        handlerFactory.process(session, msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
     }
 
     /**

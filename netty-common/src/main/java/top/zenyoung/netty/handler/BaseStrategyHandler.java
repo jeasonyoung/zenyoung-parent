@@ -1,11 +1,7 @@
 package top.zenyoung.netty.handler;
 
-import com.google.common.base.Strings;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
-import top.zenyoung.netty.util.StrategyHandlerUtils;
 
 import javax.annotation.Nonnull;
 
@@ -14,13 +10,14 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
-public abstract class BaseStrategyHandler<T extends Message> implements InitializingBean {
+public abstract class BaseStrategyHandler<T extends Message> {
     /**
      * 获取命令名称
      *
      * @return 命令名称
      */
-    protected abstract String[] getCommands();
+    @Nonnull
+    public abstract String[] getCommands();
 
     /**
      * 是否支持处理消息
@@ -49,16 +46,4 @@ public abstract class BaseStrategyHandler<T extends Message> implements Initiali
      * @return 响应数据
      */
     public abstract T process(@Nonnull final Session session, @Nonnull final T req);
-
-    @Override
-    public final void afterPropertiesSet() {
-        final String[] commands;
-        Assert.notEmpty(commands = getCommands(), "'getCommands'不能返回为空!");
-        for (final String command : commands) {
-            if (Strings.isNullOrEmpty(command)) {
-                continue;
-            }
-            StrategyHandlerUtils.register(command, this);
-        }
-    }
 }
