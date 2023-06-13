@@ -65,18 +65,18 @@ public class StrategyHandlerFactory {
                                             @Nonnull final Consumer<T> callbackHandler) {
         final String command = req.getCommand();
         Assert.hasText(command, "'req.command'不能为空");
+        final long start = System.currentTimeMillis();
         final List<BaseStrategyHandler<? extends Message>> handlers = commandStrategyHandlers.getOrDefault(command, null);
         if (CollectionUtils.isEmpty(handlers)) {
             log.warn("process[command: {}]- 未找到命令处理器.", command);
             return;
         }
-        handlers.stream()
-                .sorted(Comparator.comparing(BaseStrategyHandler::priority, Comparator.reverseOrder()))
-                .map(handler -> (BaseStrategyHandler<T>) handler)
-                .distinct()
-                .forEach(handler -> {
-                    final long start = System.currentTimeMillis();
-                    try {
+        try {
+            handlers.stream()
+                    .sorted(Comparator.comparing(BaseStrategyHandler::priority, Comparator.reverseOrder()))
+                    .map(handler -> (BaseStrategyHandler<T>) handler)
+                    .distinct()
+                    .forEach(handler -> {
                         //判断是否支持
                         if (!handler.supported(req)) {
                             log.warn("process[command: {}]-不支持处理=> {}", command, handler);
@@ -87,9 +87,9 @@ public class StrategyHandlerFactory {
                         if (Objects.nonNull(callback)) {
                             callbackHandler.accept(callback);
                         }
-                    } finally {
-                        log.warn("process[command: {}]-处理[耗时: {}ms]=> {}", command, (System.currentTimeMillis() - start), handler);
-                    }
-                });
+                    });
+        } finally {
+            log.warn("process[command: {}]-处理[耗时: {}ms].", command, (System.currentTimeMillis() - start));
+        }
     }
 }
