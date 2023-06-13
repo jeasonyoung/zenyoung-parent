@@ -150,7 +150,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             //调用业务处理
             this.messageReceived(ctx, data);
         } finally {
-            log.info("[消息处理耗时: {}ms]", (System.currentTimeMillis() - start));
+            log.info("[{}]消息处理耗时: {}ms", data.getCommand(), (System.currentTimeMillis() - start));
         }
     }
 
@@ -177,7 +177,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             //发送反馈消息
             NettyUtils.writeAndFlush(ctx, callback, f -> {
                 final boolean ret = f.isSuccess();
-                log.info("[{}]发送消息反馈[cmd: {},deviceId: {}]=> {}", prefix, callback.getCommand(), callback.getDeviceId(),
+                log.info("[{}][{}]发送消息反馈[deviceId: {}]=> {}", callback.getCommand(), prefix, callback.getDeviceId(),
                         (ret ? "成功" : "失败," + f.cause().getMessage()));
                 if (ret) {
                     f.channel().read();
@@ -187,7 +187,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         //全局策略处理器
         final T callback = globalStrategyProcess(session, msg);
         if (Objects.nonNull(callback)) {
-            callbackSendHandler.accept("global-strategy-handler", callback);
+            callbackSendHandler.accept("global-strategy", callback);
             return;
         }
         //根据消息执行策略命令

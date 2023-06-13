@@ -71,25 +71,22 @@ public class StrategyHandlerFactory {
             log.warn("process[command: {}]- 未找到命令处理器.", command);
             return;
         }
-        try {
-            handlers.stream()
-                    .sorted(Comparator.comparing(BaseStrategyHandler::priority, Comparator.reverseOrder()))
-                    .map(handler -> (BaseStrategyHandler<T>) handler)
-                    .distinct()
-                    .forEach(handler -> {
-                        //判断是否支持
-                        if (!handler.supported(req)) {
-                            log.warn("process[command: {}]-不支持处理=> {}", command, handler);
-                            return;
-                        }
-                        //业务处理
-                        final T callback = handler.process(session, req);
-                        if (Objects.nonNull(callback)) {
-                            callbackHandler.accept(callback);
-                        }
-                    });
-        } finally {
-            log.info("process[command: {}]-处理[耗时: {}ms].", command, (System.currentTimeMillis() - start));
-        }
+        handlers.stream()
+                .sorted(Comparator.comparing(BaseStrategyHandler::priority, Comparator.reverseOrder()))
+                .map(handler -> (BaseStrategyHandler<T>) handler)
+                .distinct()
+                .forEach(handler -> {
+                    //判断是否支持
+                    if (!handler.supported(req)) {
+                        log.warn("process[command: {}]-不支持处理=> {}", command, handler);
+                        return;
+                    }
+                    //业务处理
+                    log.info("process[command: {}]-策略处理器开始处理业务=> {}", command, handler);
+                    final T callback = handler.process(session, req);
+                    if (Objects.nonNull(callback)) {
+                        callbackHandler.accept(callback);
+                    }
+                });
     }
 }
