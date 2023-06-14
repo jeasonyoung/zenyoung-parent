@@ -29,6 +29,22 @@ public interface Session extends AttributeMap, Serializable {
     String getDeviceId();
 
     /**
+     * 添加属性键值
+     *
+     * @param key 属性键
+     * @param val 属性值
+     */
+    void addProperty(@Nonnull final String key, @Nonnull final Object val);
+
+    /**
+     * 获取属性值
+     *
+     * @param key 属性键
+     * @return 属性值
+     */
+    Object getProperty(@Nonnull final String key);
+
+    /**
      * 获取客户端IP地址。
      *
      * @return 客户端IP地址。

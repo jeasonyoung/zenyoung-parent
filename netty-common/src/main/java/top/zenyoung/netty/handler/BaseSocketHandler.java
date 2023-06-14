@@ -1,5 +1,6 @@
 package top.zenyoung.netty.handler;
 
+import com.google.common.base.Strings;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -133,7 +134,6 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             this.heartbeatTotals.set(0L);
             //设备ID转换
             final String deviceId = buildSessionBefore(data.getDeviceId());
-            Assert.hasText(deviceId, "'deviceId'不能为空");
             //检查是否已创建会话
             if (Objects.isNull(session)) {
                 //创建会话
@@ -145,8 +145,10 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 return;
             }
             //检查会话设备与当前请求设备ID是否一致
-            Assert.isTrue(deviceId.equalsIgnoreCase(session.getDeviceId()),
-                    "当前请求数据设备ID[" + deviceId + "]与会话设备ID[" + session.getDeviceId() + "]不一致,请求非法!");
+            if (!Strings.isNullOrEmpty(deviceId)) {
+                Assert.isTrue(deviceId.equalsIgnoreCase(session.getDeviceId()),
+                        "当前请求数据设备ID[" + deviceId + "]与会话设备ID[" + session.getDeviceId() + "]不一致,请求非法!");
+            }
             //调用业务处理
             this.messageReceived(ctx, data);
         } finally {
