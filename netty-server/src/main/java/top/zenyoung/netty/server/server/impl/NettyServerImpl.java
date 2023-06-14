@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
+import top.zenyoung.netty.handler.HeartbeatHandler;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.handler.BaseServerSocketHandler;
 import top.zenyoung.netty.server.handler.IpAddrFilter;
@@ -83,7 +84,15 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         super.initChannelPipelineHandler(port, pipeline);
         //1.挂载IP地址过滤器
         pipeline.addLast("ipFilter", new IpAddrFilter(properites));
-        //2.挂载编解码器
+        //2.挂载空闲检查处理器
+        Optional.ofNullable(getProperties())
+                .map(NettyServerProperties::getHeartbeatInterval)
+                .filter(duration -> !duration.isZero())
+                .ifPresent(heartbeat -> {
+                    pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
+                    log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
+                });
+        //3.挂载编解码器
         final Map<String, String> codecMap = getPortCodecs().getOrDefault(port, Maps.newHashMap());
         Assert.notEmpty(codecMap, port + ",未配置编解码器,请检查配置");
         final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)

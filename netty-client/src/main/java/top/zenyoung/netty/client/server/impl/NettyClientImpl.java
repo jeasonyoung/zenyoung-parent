@@ -243,6 +243,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
         //1.挂载空闲检查处理器
         Optional.ofNullable(getProperties())
                 .map(NettyClientProperties::getHeartbeatInterval)
+                .filter(duration -> !duration.isZero())
                 .ifPresent(heartbeat -> {
                     pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
                     log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
