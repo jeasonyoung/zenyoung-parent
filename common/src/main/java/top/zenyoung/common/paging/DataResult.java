@@ -4,9 +4,13 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 数据结果
@@ -26,6 +30,66 @@ public class DataResult<T> implements PagingResult<T> {
      */
     private final List<T> rows;
 
+    private static <T, R> List<R> convertHandler(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
+        return Optional.ofNullable(rows)
+                .filter(items -> items.size() > 0)
+                .map(items -> items.stream()
+                        .filter(Objects::nonNull)
+                        .map(convert)
+                        .collect(Collectors.toList())
+                )
+                .orElse(Lists.newArrayList());
+    }
+
+    /**
+     * 构建分页数据
+     *
+     * @param data    分页数据
+     * @param convert 数据转换
+     * @param <T>     转换前数据类型
+     * @param <R>     转换后数据类型
+     * @return 构建结果
+     */
+    public static <T, R> DataResult<R> of(@Nullable final PagingResult<T> data, @Nonnull final Function<T, R> convert) {
+        if (Objects.nonNull(data)) {
+            return of(data.getTotal(), convertHandler(data.getRows(), convert));
+        }
+        return empty();
+    }
+
+    /**
+     * 构建分页数据处理
+     *
+     * @param data    分页数据
+     * @param handler 数据处理
+     * @param <T>     转换前数据类型
+     * @param <R>     转换后数据类型
+     * @return 构建结果
+     */
+    public static <T, R> DataResult<R> ofHandler(@Nullable final PagingResult<T> data, @Nonnull final Function<List<T>, List<R>> handler) {
+        if (Objects.nonNull(data)) {
+            return of(data.getTotal(), handler.apply(data.getRows()));
+        }
+        return empty();
+    }
+
+    /**
+     * 构建分页数据
+     *
+     * @param rows    数据集合
+     * @param convert 数据转换
+     * @param <T>     转换前数据类型
+     * @param <R>     转换后数据类型
+     * @return 构建结果
+     */
+    public static <T, R> DataResult<R> of(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
+        if (Objects.nonNull(rows) && rows.size() > 0) {
+            final List<R> items = convertHandler(rows, convert);
+            return of((long) items.size(), items);
+        }
+        return empty();
+    }
+
     /**
      * 创建数据结果
      *
@@ -34,11 +98,7 @@ public class DataResult<T> implements PagingResult<T> {
      * @return 数据结果
      */
     public static <T> DataResult<T> of(@Nullable final PagingResult<T> data) {
-        if (Objects.nonNull(data)) {
-            final List<T> items = data.getRows();
-            return of(data.getTotal(), Objects.nonNull(items) ? items : Lists.newArrayList());
-        }
-        return empty();
+        return of(data, Function.identity());
     }
 
     /**
@@ -49,10 +109,7 @@ public class DataResult<T> implements PagingResult<T> {
      * @return 数据结果
      */
     public static <T> DataResult<T> of(@Nullable final List<T> items) {
-        if (Objects.nonNull(items)) {
-            return of((long) items.size(), items);
-        }
-        return empty();
+        return of(items, Function.identity());
     }
 
     /**

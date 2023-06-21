@@ -8,7 +8,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1</version>
+    <version>3.1.0</version>
 
     <name>parent</name>
     <description>zenyoung tools for Springboot2</description>
@@ -44,7 +44,7 @@
         <alibaba-cloud.version>2021.0.4.0</alibaba-cloud.version>
 
         <!-- zenyoung -->
-        <zenyoung.version>3.0.1</zenyoung.version>
+        <zenyoung.version>3.1.0</zenyoung.version>
 
         <!-- modelmapper -->
         <modelmapper.version>3.1.0</modelmapper.version>
