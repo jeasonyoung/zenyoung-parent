@@ -44,15 +44,15 @@ public class DataResult<T> implements PagingResult<T> {
     /**
      * 构建分页数据
      *
-     * @param data    分页数据
-     * @param convert 数据转换
-     * @param <T>     转换前数据类型
-     * @param <R>     转换后数据类型
+     * @param pageList 分页数据
+     * @param convert  数据转换
+     * @param <T>      转换前数据类型
+     * @param <R>      转换后数据类型
      * @return 构建结果
      */
-    public static <T, R> DataResult<R> of(@Nullable final PagingResult<T> data, @Nonnull final Function<T, R> convert) {
-        if (Objects.nonNull(data)) {
-            return of(data.getTotal(), convertHandler(data.getRows(), convert));
+    public static <T, R> DataResult<R> of(@Nullable final PageList<T> pageList, @Nonnull final Function<T, R> convert) {
+        if (Objects.nonNull(pageList)) {
+            return of(pageList.getTotal(), convertHandler(pageList.getRows(), convert));
         }
         return empty();
     }
@@ -60,15 +60,15 @@ public class DataResult<T> implements PagingResult<T> {
     /**
      * 构建分页数据处理
      *
-     * @param data    分页数据
-     * @param handler 数据处理
-     * @param <T>     转换前数据类型
-     * @param <R>     转换后数据类型
+     * @param pageList 分页数据
+     * @param handler  数据处理
+     * @param <T>      转换前数据类型
+     * @param <R>      转换后数据类型
      * @return 构建结果
      */
-    public static <T, R> DataResult<R> ofHandler(@Nullable final PagingResult<T> data, @Nonnull final Function<List<T>, List<R>> handler) {
-        if (Objects.nonNull(data)) {
-            return of(data.getTotal(), handler.apply(data.getRows()));
+    public static <T, R> DataResult<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<List<T>, List<R>> handler) {
+        if (Objects.nonNull(pageList)) {
+            return of(pageList.getTotal(), handler.apply(pageList.getRows()));
         }
         return empty();
     }
@@ -93,12 +93,12 @@ public class DataResult<T> implements PagingResult<T> {
     /**
      * 创建数据结果
      *
-     * @param data 分页数据结果
-     * @param <T>  数据类型
+     * @param pageList 分页数据
+     * @param <T>      数据类型
      * @return 数据结果
      */
-    public static <T> DataResult<T> of(@Nullable final PagingResult<T> data) {
-        return of(data, Function.identity());
+    public static <T> DataResult<T> of(@Nullable final PageList<T> pageList) {
+        return of(pageList, Function.identity());
     }
 
     /**
