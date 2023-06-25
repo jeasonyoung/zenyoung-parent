@@ -33,6 +33,8 @@
         <module>redis</module>
         <!-- sms -->
         <module>sms</module>
+        <!-- segment -->
+        <module>segment</module>
         <!-- 定时任务 -->
         <module>quartz</module>
         <!-- jpa -->

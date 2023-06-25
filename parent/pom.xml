@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.14</version>
+        <version>2.6.15</version>
         <relativePath/>
     </parent>
 
@@ -40,8 +40,8 @@
 
     <properties>
         <!-- spring -->
-        <spring-cloud.version>2021.0.4</spring-cloud.version>
-        <alibaba-cloud.version>2021.0.4.0</alibaba-cloud.version>
+        <spring-cloud.version>2021.0.5</spring-cloud.version>
+        <alibaba-cloud.version>2021.0.5.0</alibaba-cloud.version>
 
         <!-- zenyoung -->
         <zenyoung.version>3.1.0</zenyoung.version>
@@ -347,6 +347,12 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>sms</artifactId>
+                <version>${zenyoung.version}</version>
+            </dependency>
+            <!-- segment -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>segment</artifactId>
                 <version>${zenyoung.version}</version>
             </dependency>
             <!-- quartz -->
