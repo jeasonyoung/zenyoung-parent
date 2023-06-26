@@ -21,7 +21,6 @@ import java.sql.SQLException;
 @Slf4j
 public class JdbcIdSegmentDistributor implements IdSegmentDistributor {
     public static final Integer MAX_STEP = 5000;
-
     public static final String INCREMENT_MAX_ID_SQL = "update segment_id set max_id=(max_id + ?), step = ?, version=unix_timestamp() where biz_type = ?";
     public static final String FETCH_MAX_ID_SQL = "select max_id from segment_id where biz_type = ?";
 

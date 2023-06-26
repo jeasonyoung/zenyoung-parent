@@ -12,8 +12,6 @@ import top.zenyoung.segment.exception.NextIdSegmentExpiredException;
 
 import javax.annotation.Nonnull;
 
-import static top.zenyoung.segment.IdSegment.TIME_TO_LIVE_FOREVER;
-
 /**
  * 分段ID实现
  *
@@ -28,10 +26,6 @@ public class SegmentChainId implements SegmentIdGenerator {
     private final PrefetchJob prefetchJob;
     @Getter
     private volatile IdSegmentChain headChain = IdSegmentChain.newRoot();
-
-    public SegmentChainId(@Nonnull final IdSegmentDistributor maxIdDistributor) {
-        this(TIME_TO_LIVE_FOREVER, DEFAULT_SAFE_DISTANCE, maxIdDistributor, PrefetchWorkerExecutorService.DEFAULT);
-    }
 
     public SegmentChainId(final long idSegmentTtl, final int safeDistance,
                           @Nonnull final IdSegmentDistributor maxIdDistributor,
@@ -58,28 +52,28 @@ public class SegmentChainId implements SegmentIdGenerator {
 
     @Override
     public Long nextId() {
-        while (true){
+        while (true) {
             IdSegmentChain chain = headChain;
-            while (chain != null){
-                if(chain.isAvailable()){
+            while (chain != null) {
+                if (chain.isAvailable()) {
                     long nextSeq = chain.incrementAndGet();
-                    if(!chain.isOverflow(nextSeq)){
+                    if (!chain.isOverflow(nextSeq)) {
                         forward(chain);
                         return nextSeq;
                     }
                 }
                 chain = chain.getNext();
             }
-            try{
+            try {
                 final IdSegmentChain preIdSegmentChain = headChain;
-                if(preIdSegmentChain.trySetNext(preChain-> generateNext(preChain, safeDistance))){
+                if (preIdSegmentChain.trySetNext(preChain -> generateNext(preChain, safeDistance))) {
                     final IdSegmentChain nextChain = preIdSegmentChain.getNext();
                     forward(nextChain);
                     log.debug("generate - [{}] - headChain.version:[{}->{}].",
                             maxIdDistributor.getNamespace(), preIdSegmentChain.getVersion(), nextChain.getVersion());
                 }
 
-            }catch (NextIdSegmentExpiredException e){
+            } catch (NextIdSegmentExpiredException e) {
                 log.warn("generate - [{}] - gave up this next IdSegmentChain.", maxIdDistributor.getNamespace(), e);
             }
             this.prefetchJob.hungry();

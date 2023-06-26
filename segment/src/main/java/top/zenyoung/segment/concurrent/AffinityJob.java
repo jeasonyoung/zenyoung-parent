@@ -17,10 +17,6 @@ public interface AffinityJob extends Runnable {
      */
     String getJobId();
 
-    default String affinity() {
-        return getJobId();
-    }
-
     /**
      * 执行饥饿策略
      */

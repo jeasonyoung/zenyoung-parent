@@ -21,10 +21,6 @@ public class DefaultIdSegment implements IdSegment {
     private final long fetchTime;
     private final long ttl;
 
-    public DefaultIdSegment(final long maxId, final long step) {
-        this(maxId, step, System.currentTimeMillis() / 1000, TIME_TO_LIVE_FOREVER);
-    }
-
     public DefaultIdSegment(final long maxId, final long step, final long fetchTime, final long ttl) {
         Preconditions.checkArgument(ttl > 0, "ttl:[%s] must be greater than 0.", ttl);
         this.maxId = maxId;
@@ -35,7 +31,7 @@ public class DefaultIdSegment implements IdSegment {
         this.ttl = ttl;
     }
 
-    public static final DefaultIdSegment OVERFLOW = new DefaultIdSegment(SEQUENCE_OVERFLOW, 0, System.currentTimeMillis() / 1000, TIME_TO_LIVE_FOREVER);
+    public static final DefaultIdSegment OVERFLOW = new DefaultIdSegment(SEQUENCE_OVERFLOW, 0, Clock.CACHE.secondTime(), TIME_TO_LIVE_FOREVER);
 
     private static final AtomicLongFieldUpdater<DefaultIdSegment> S = AtomicLongFieldUpdater.newUpdater(DefaultIdSegment.class, "sequence");
 

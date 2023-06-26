@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class PrefetchWorkerExecutorService {
     public static final Duration DEFAULT_PREFETCH_PERIOD = Duration.ofSeconds(1);
-
     public static final PrefetchWorkerExecutorService DEFAULT;
 
     static {

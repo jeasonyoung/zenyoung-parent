@@ -4,10 +4,10 @@
 drop table if exists segment_id;
 create table segment_id (
     `biz_type`  varchar(64) not null comment '业务类型',
-    `max_id`    bigint unsigned default 0 comment '最大分段ID',
-    `step`      bigint unsigned default 0 comment '步长',
-    `delta`     int unsigned default 0 comment '安全距离',
-    `version`   bigint unsigned default 0 comment '更新版本',
+    `max_id`    bigint unsigned default 0 comment '当前最大ID',
+    `step`      bigint unsigned default 1 comment '步长',
+    `delta`     int unsigned default 1 comment 'ID每次增量',
+    `version`   bigint unsigned default 0 comment '版本号',
 
     `created_at` timestamp default current_timestamp comment '创建时间',
     `updated_at` timestamp default current_timestamp on update current_timestamp comment '更新时间',

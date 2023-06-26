@@ -56,7 +56,7 @@ public interface IdSegment extends Comparable<IdSegment> {
         if (TIME_TO_LIVE_FOREVER == getTtl()) {
             return false;
         }
-        return (System.currentTimeMillis() / 1000) - getFetchTime() > getTtl();
+        return Clock.CACHE.secondTime() - getFetchTime() > getTtl();
     }
 
     default boolean isOverflow() {

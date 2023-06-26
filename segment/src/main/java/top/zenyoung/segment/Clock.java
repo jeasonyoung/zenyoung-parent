@@ -12,20 +12,10 @@ public interface Clock {
 
     Clock CACHE = new CacheClock();
 
-    Clock SYSTEM = new SystemClock();
-
     long secondTime();
 
     static long getSystemSecondTime() {
         return System.currentTimeMillis() / 1000;
-    }
-
-    class SystemClock implements Clock {
-
-        @Override
-        public long secondTime() {
-            return getSystemSecondTime();
-        }
     }
 
     class CacheClock implements Clock, Runnable {

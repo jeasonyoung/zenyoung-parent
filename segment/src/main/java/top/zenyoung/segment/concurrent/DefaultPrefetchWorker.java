@@ -38,12 +38,6 @@ public class DefaultPrefetchWorker extends Thread implements PrefetchWorker {
     }
 
     @Override
-    public void cancel(@Nonnull final AffinityJob job) {
-        log.info("cancel - [{}] jobSize: [{}].", job.getJobId(), affinityJobs.size());
-        affinityJobs.remove(job);
-    }
-
-    @Override
     public void wakeup(@Nonnull final AffinityJob job) {
         log.debug("wakeup - [{}] state: [{}]", job.getJobId(), getState());
         if (shutdown) {
