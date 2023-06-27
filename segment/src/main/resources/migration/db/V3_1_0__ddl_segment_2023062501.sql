@@ -1,8 +1,8 @@
 -- ------------------------------------------------------------------------------------------------------------------
 -- 创建_分段ID配置表-数据库脚本
 -- ------------------------------------------------------------------------------------------------------------------
-drop table if exists segment_id;
-create table segment_id (
+drop table if exists tbl_segment_id;
+create table tbl_segment_id (
     `biz_type`  varchar(64) not null comment '业务类型',
     `max_id`    bigint unsigned default 0 comment '当前最大ID',
     `step`      bigint unsigned default 1 comment '步长',

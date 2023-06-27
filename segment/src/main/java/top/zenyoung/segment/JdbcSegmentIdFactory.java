@@ -30,7 +30,7 @@ import static top.zenyoung.segment.IdSegment.TIME_TO_LIVE_FOREVER;
 public class JdbcSegmentIdFactory implements SegmentIdFactory {
     private static final Map<String, Object> LOCKS = Maps.newHashMap();
     private static final Map<String, SegmentIdGenerator> GENERATORS = Maps.newConcurrentMap();
-    public static final String FETCH_STEP_SQL = "select max_id, step, delta from segment_id where biz_type = ?";
+    public static final String FETCH_STEP_SQL = "select max_id, step, delta from tbl_segment_id where biz_type = ?";
 
     private final DataSource dataSource;
     private final PrefetchWorkerExecutorService prefetchWorkerExecutorService;
