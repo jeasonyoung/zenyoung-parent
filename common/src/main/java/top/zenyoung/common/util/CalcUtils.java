@@ -1,5 +1,6 @@
 package top.zenyoung.common.util;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -8,7 +9,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -47,5 +52,16 @@ public class CalcUtils {
                     .collect(Collectors.groupingBy(keyConvert, Collectors.mapping(valConvert, Collectors.toList())));
         }
         return Maps.newHashMap();
+    }
+
+    public static <V> void assign(@Nonnull final Supplier<String> keyHandler, @Nonnull final Map<String, V> valMap, @Nonnull final Consumer<V> assignHandler) {
+        Optional.ofNullable(keyHandler.get())
+                .filter(key -> !Strings.isNullOrEmpty(key))
+                .map(key -> valMap.getOrDefault(key, null))
+                .ifPresent(assignHandler);
+    }
+
+    public static <V> CompletableFuture<?> async(@Nonnull final Supplier<V> valHandler, @Nonnull final Consumer<V> assignHandler) {
+        return CompletableFuture.supplyAsync(valHandler).thenAccept(assignHandler);
     }
 }
