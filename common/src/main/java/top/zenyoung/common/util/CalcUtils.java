@@ -54,9 +54,14 @@ public class CalcUtils {
         return Maps.newHashMap();
     }
 
-    public static <V> void assign(@Nonnull final Supplier<String> keyHandler, @Nonnull final Map<String, V> valMap, @Nonnull final Consumer<V> assignHandler) {
+    public static <K,V> void assign(@Nonnull final Supplier<K> keyHandler, @Nonnull final Map<K, V> valMap, @Nonnull final Consumer<V> assignHandler) {
         Optional.ofNullable(keyHandler.get())
-                .filter(key -> !Strings.isNullOrEmpty(key))
+                .filter(key -> {
+                    if(key instanceof String){
+                        return !Strings.isNullOrEmpty((String)key);
+                    }
+                    return true;
+                })
                 .map(key -> valMap.getOrDefault(key, null))
                 .ifPresent(assignHandler);
     }
