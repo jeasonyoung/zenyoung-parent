@@ -6,10 +6,7 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class CalcUtils {
 
-    public static <T, R> List<R> split(@Nullable final List<T> items, @Nonnull final Function<T, R> convert) {
+    public static <T, R> List<R> split(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
         if (items != null && items.size() > 0) {
             return items.stream()
                     .map(convert)
@@ -34,7 +31,7 @@ public class CalcUtils {
         return Lists.newArrayList();
     }
 
-    public static <T, K, V> Map<K, V> map(@Nullable final List<T> items, @Nonnull final Function<T, K> keyConvert,
+    public static <T, K, V> Map<K, V> map(@Nullable final Collection<T> items, @Nonnull final Function<T, K> keyConvert,
                                           @Nonnull final Function<T, V> valConvert) {
         if (items != null && items.size() > 0) {
             return items.stream()
@@ -44,7 +41,7 @@ public class CalcUtils {
         return Maps.newHashMap();
     }
 
-    public static <T, K, V> Map<K, List<V>> group(@Nullable final List<T> items, @Nonnull final Function<T, K> keyConvert,
+    public static <T, K, V> Map<K, List<V>> group(@Nullable final Collection<T> items, @Nonnull final Function<T, K> keyConvert,
                                                   @Nonnull final Function<T, V> valConvert) {
         if (items != null && items.size() > 0) {
             return items.stream()
