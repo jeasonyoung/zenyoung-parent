@@ -1,5 +1,6 @@
 package top.zenyoung.boot.interceptor;
 
+import com.google.common.collect.Lists;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
@@ -33,7 +34,7 @@ public interface RequestMappingInterceptor extends HandlerInterceptor {
      * @return 执行模型集合
      */
     default List<String> getIncludePatterns() {
-        return null;
+        return Lists.newArrayList();
     }
 
     /**
@@ -42,7 +43,7 @@ public interface RequestMappingInterceptor extends HandlerInterceptor {
      * @return 非执行模型集合
      */
     default List<String> getExcludePatterns() {
-        return null;
+        return Lists.newArrayList();
     }
 
     /**

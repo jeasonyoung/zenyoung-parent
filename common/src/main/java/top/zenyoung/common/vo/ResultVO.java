@@ -60,11 +60,11 @@ public class ResultVO<T> implements Serializable {
      *
      * @param enumValue 枚举接口
      * @param data      数据对象
-     * @param <R>       数据类型
+     * @param <T>       数据类型
      * @return 响应数据
      */
-    public static <R extends Serializable> ResultVO<DataResult<R>> of(@Nonnull final EnumValue enumValue, @Nullable final DataResult<R> data) {
-        final ResultVO<DataResult<R>> ret = of(enumValue);
+    public static <T> ResultVO<DataResult<T>> of(@Nonnull final EnumValue enumValue, @Nullable final DataResult<T> data) {
+        final ResultVO<DataResult<T>> ret = of(enumValue);
         if (data != null) {
             ret.setData(data);
         }
@@ -75,11 +75,11 @@ public class ResultVO<T> implements Serializable {
      * 成功响应数据
      *
      * @param data 业务数据
-     * @param <R>  数据类型
+     * @param <T>  数据类型
      * @return 响应数据
      */
-    public static <R extends Serializable> ResultVO<DataResult<R>> ofSuccess(@Nullable final DataResult<R> data) {
-        return of(ResultCode.Success, data);
+    public static <T> ResultVO<DataResult<T>> ofSuccess(@Nullable final DataResult<T> data) {
+        return of(ResultCode.SUCCESS, data);
     }
 
     /**
@@ -90,7 +90,7 @@ public class ResultVO<T> implements Serializable {
      * @return 响应数据
      */
     public static <T> ResultVO<T> ofSuccess(@Nullable final T data) {
-        final ResultVO<T> ret = of(ResultCode.Success);
+        final ResultVO<T> ret = of(ResultCode.SUCCESS);
         if (Objects.nonNull(data)) {
             ret.setData(data);
         }
@@ -104,7 +104,7 @@ public class ResultVO<T> implements Serializable {
      * @return 响应数据
      */
     public static <T> ResultVO<T> ofFail(@Nullable final String message) {
-        final ResultVO<T> ret = of(ResultCode.Fail);
+        final ResultVO<T> ret = of(ResultCode.FAIL);
         if (!Strings.isNullOrEmpty(message)) {
             ret.setMessage(message);
         }

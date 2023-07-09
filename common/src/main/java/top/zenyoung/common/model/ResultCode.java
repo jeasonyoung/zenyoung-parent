@@ -23,15 +23,15 @@ public enum ResultCode implements EnumValue {
     /**
      * 成功
      */
-    Success(0, "成功"),
+    SUCCESS(0, "成功"),
     /**
      * 失败
      */
-    Fail(-1, "失败"),
+    FAIL(-1, "失败"),
     /**
      * 错误
      */
-    Error(500, "错误");
+    ERROR(500, "错误");
 
     @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;

@@ -1,9 +1,9 @@
 package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.Maps;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,13 +35,12 @@ public interface EnumValue extends Serializable {
      * @return Map对象
      */
     default Map<String, Serializable> toMap() {
-        return new HashMap<String, Serializable>(2) {
-            {
-                //枚举值
-                put("val", getVal());
-                //枚举标题
-                put("title", getTitle());
-            }
-        };
+        final Map<String, Serializable> vals = Maps.newHashMap();
+        //枚举值
+        vals.put("val", getVal());
+        //枚举标题
+        vals.put("title", getTitle());
+        //返回
+        return vals;
     }
 }

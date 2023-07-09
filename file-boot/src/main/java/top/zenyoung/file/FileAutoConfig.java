@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import top.zenyoung.common.util.SpiUtils;
-import top.zenyoung.file.config.FileProperties;
+import top.zenyoung.file.config.FileStorageProperties;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -19,12 +19,12 @@ import java.util.Objects;
  */
 @Configuration
 @ComponentScan({"top.zenyoung.file.service"})
-@EnableConfigurationProperties({FileProperties.class})
+@EnableConfigurationProperties({FileStorageProperties.class})
 public class FileAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public FileService createFileService(@Nonnull final FileProperties properties) {
+    public FileService createFileService(@Nonnull final FileStorageProperties properties) {
         final String typeName = properties.getType();
         if (!Strings.isNullOrEmpty(typeName)) {
             final FileServiceFactory factory = SpiUtils.load(FileServiceFactory.class, srv -> typeName.equalsIgnoreCase(srv.getType()));

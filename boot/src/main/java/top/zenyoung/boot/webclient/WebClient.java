@@ -1,10 +1,12 @@
 package top.zenyoung.boot.webclient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,6 +16,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -37,8 +40,7 @@ public interface WebClient {
      * @return 返回数据
      * @throws IOException 异常
      */
-    <R> R sendRequest(@Nonnull final String method, @Nonnull final String url,
-                      @Nullable final Map<String, Serializable> headers,
+    <R> R sendRequest(@Nonnull final String method, @Nonnull final String url, @Nullable final Map<String, Serializable> headers,
                       @Nonnull final Supplier<RequestBody> bodyConvert, @Nonnull final Function<String, R> respBodyConvert) throws IOException;
 
     /**
@@ -55,16 +57,15 @@ public interface WebClient {
      * @return 响应数据
      * @throws IOException 异常
      */
-    default <T, R> R sendJson(@Nonnull final String method, @Nonnull final String url,
-                              @Nullable final Map<String, Serializable> headers, @Nullable final T body,
-                              @Nonnull final ObjectMapper objMapper, @Nonnull final Class<R> respClass) throws IOException {
+    default <T, R> R sendJson(@Nonnull final String method, @Nonnull final String url, @Nullable final Map<String, Serializable> headers,
+                              @Nullable final T body, @Nonnull final ObjectMapper objMapper, @Nonnull final Class<R> respClass) throws IOException {
         return sendRequest(method, url, headers, () -> {
             if (body != null) {
                 try {
                     final String bodyJson = objMapper.writeValueAsString(body);
                     return RequestBody.create(MediaType.parse("application/json;charset=utf-8"), bodyJson);
-                } catch (Throwable ex) {
-                    throw new RuntimeException(ex);
+                } catch (JsonProcessingException e) {
+                    throw new ServiceException(e.getMessage());
                 }
             }
             return null;
@@ -72,8 +73,8 @@ public interface WebClient {
             if (!Strings.isNullOrEmpty(resp)) {
                 try {
                     return objMapper.readValue(resp, respClass);
-                } catch (Throwable ex) {
-                    throw new RuntimeException(ex);
+                } catch (JsonProcessingException e) {
+                    throw new ServiceException(e.getMessage());
                 }
             }
             return null;
@@ -155,7 +156,7 @@ public interface WebClient {
      * @param outputStream 存储流
      * @param progress     下载进度
      */
-    void downloadFile(@Nonnull final String url, @Nonnull final OutputStream outputStream, @Nullable final Consumer<Integer> progress);
+    void downloadFile(@Nonnull final String url, @Nonnull final OutputStream outputStream, @Nullable final IntConsumer progress);
 
     /**
      * 上传文件

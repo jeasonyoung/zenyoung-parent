@@ -4,6 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  **/
 @Slf4j
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SignUtils {
     private static final String KK_JOIN = ".", KV_JOIN = "=", KV_KV_JOIN = "&", COLLECTION_JOIN = ",";
 
@@ -32,7 +35,7 @@ public class SignUtils {
         final Serializable val = entry.getValue();
         //检查键名或键值是否为空
         if (Strings.isNullOrEmpty(key) || val == null) {
-            return null;
+            return Lists.newArrayList();
         }
         //检查键值是否为Map
         if (val instanceof Map) {
@@ -52,7 +55,7 @@ public class SignUtils {
         if (val instanceof Number) {
             //排除数值小于等于0
             if (((Number) val).doubleValue() <= 0) {
-                return null;
+                return Lists.newArrayList();
             }
             //数值处理
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + val);
@@ -60,8 +63,8 @@ public class SignUtils {
         //检查键值为布尔值
         if (val instanceof Boolean) {
             //排除布尔值为false
-            if (!((Boolean) val)) {
-                return null;
+            if (!((boolean) val)) {
+                return Lists.newArrayList();
             }
             //布尔值处理
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + val);
@@ -70,7 +73,7 @@ public class SignUtils {
         if (val instanceof String) {
             //排除空字符串
             if (Strings.isNullOrEmpty((String) val)) {
-                return null;
+                return Lists.newArrayList();
             }
             //字符串处理
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + val);
@@ -80,7 +83,7 @@ public class SignUtils {
         if (!Strings.isNullOrEmpty(strVal)) {
             return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + strVal);
         }
-        return null;
+        return Lists.newArrayList();
     }
 
     @SuppressWarnings({"unchecked"})
@@ -120,7 +123,7 @@ public class SignUtils {
                 return Lists.newArrayList((Strings.isNullOrEmpty(parentKey) ? key : parentKey + KK_JOIN + key) + KV_JOIN + strVal);
             }
         }
-        return null;
+        return Lists.newArrayList();
     }
 
     /**

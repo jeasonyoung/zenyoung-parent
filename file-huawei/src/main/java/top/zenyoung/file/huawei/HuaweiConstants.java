@@ -9,5 +9,5 @@ public class HuaweiConstants {
     /**
      * 文件类型
      */
-    public final static String TYPE = "huawei";
+    public static final String TYPE = "huawei";
 }

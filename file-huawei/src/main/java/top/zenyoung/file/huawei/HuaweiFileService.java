@@ -1,6 +1,7 @@
 package top.zenyoung.file.huawei;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.obs.services.ObsClient;
 import com.obs.services.model.*;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
 public class HuaweiFileService implements FileService {
-    private final static long MAX_FILE_SIZE = 1048576000L;
+    private static final long MAX_FILE_SIZE = 1048576000L;
     private final ObsClient client;
     private final Map<String, Map<String, String>> extHeaders;
 
@@ -49,7 +50,7 @@ public class HuaweiFileService implements FileService {
     @Override
     public DirectVO directUploadSignature(@Nonnull final DirectDTO dto) {
         //上传有效期
-        final long d = Math.max(Objects.isNull(dto.getDuration()) ? 0 : dto.getDuration().toMillis(), 10 * 1000);
+        final long d = Math.max(Objects.isNull(dto.getDuration()) ? 0 : dto.getDuration().toMillis(), 10000);
         final long expire = System.currentTimeMillis() + d;
         final Date expiration = new Date(expire);
         //
@@ -60,23 +61,22 @@ public class HuaweiFileService implements FileService {
         signatureRequest.setBucketName(dto.getBucket());
         signatureRequest.setExpires(expire);
         signatureRequest.setExpiryDate(expiration);
-        signatureRequest.setConditions(new LinkedList<String>() {
-            {
-                //bucket
-                add("{\"bucket\":\"" + dto.getBucket() + "\"}");
-                //文件大小
-                add("[\"content-length-range\", 0, " + MAX_FILE_SIZE + "]");
-                //上传目录
-                add("[\"starts-with\", \"$key\", \"" + dir + "\"]");
-                //content-type
-                add("[\"starts-with\",\"$content-type\",\"\"]");
-                //返回状态
-                add("[\"starts-with\",\"$success_action_status\",\"\"]");
-                if (!Strings.isNullOrEmpty(callback)) {
-                    add("[\"starts-with\", \"$success_action_redirect\",\"" + callback + "\"]");
-                }
-            }
-        });
+        //
+        final List<String> conditions = Lists.newLinkedList();
+        //bucket
+        conditions.add("{\"bucket\":\"" + dto.getBucket() + "\"}");
+        //文件大小
+        conditions.add("[\"content-length-range\", 0, " + MAX_FILE_SIZE + "]");
+        //上传目录
+        conditions.add("[\"starts-with\", \"$key\", \"" + dir + "\"]");
+        //content-type
+        conditions.add("[\"starts-with\",\"$content-type\",\"\"]");
+        //返回状态
+        conditions.add("[\"starts-with\",\"$success_action_status\",\"\"]");
+        if (!Strings.isNullOrEmpty(callback)) {
+            conditions.add("[\"starts-with\", \"$success_action_redirect\",\"" + callback + "\"]");
+        }
+        signatureRequest.setConditions(conditions);
         final PostSignatureResponse signatureRes = client.createPostSignature(signatureRequest);
         return DirectVO.builder()
                 .type(HuaweiConstants.TYPE).accessId(dto.getAccessKeyId()).host(dto.getHost())
@@ -119,7 +119,6 @@ public class HuaweiFileService implements FileService {
         }
         metadata.setContentEncoding("utf-8");
         metadata.setCacheControl("no-cache");
-        //metadata.setHeader("Pragma", "no-cache");
         //设置Content-disposition的内容模板格式，基于base64编码格式
         final String fileNameTemplate = "inline;filename=\"=?UTF8?B?%s?=\"";
         //对真正文件名称进行base64编码

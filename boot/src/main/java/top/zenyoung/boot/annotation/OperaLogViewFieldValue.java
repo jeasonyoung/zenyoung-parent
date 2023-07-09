@@ -18,7 +18,7 @@ public @interface OperaLogViewFieldValue {
      *
      * @return 字段类型
      */
-    LogViewFieldType type() default LogViewFieldType.Biz;
+    LogViewFieldType type() default LogViewFieldType.BIZ;
 
     /**
      * 处理Bean类名

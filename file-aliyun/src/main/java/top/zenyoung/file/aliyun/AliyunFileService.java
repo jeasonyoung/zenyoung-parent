@@ -34,7 +34,7 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
 public class AliyunFileService implements FileService {
-    private final static long MAX_FILE_SIZE = 1048576000L;
+    private static final long MAX_FILE_SIZE = 1048576000L;
     private final OSS client;
     private final Map<String, Map<String, String>> extHeaders;
 
@@ -49,7 +49,7 @@ public class AliyunFileService implements FileService {
     @Override
     public DirectVO directUploadSignature(@Nonnull final DirectDTO dto) {
         //上传有效期
-        final long d = Math.max(Objects.isNull(dto.getDuration()) ? 0 : dto.getDuration().toMillis(), 10 * 1000);
+        final long d = Math.max(Objects.isNull(dto.getDuration()) ? 0 : dto.getDuration().toMillis(), 10000);
         final long expire = System.currentTimeMillis() + d;
         final Date expiration = new Date(expire);
         //

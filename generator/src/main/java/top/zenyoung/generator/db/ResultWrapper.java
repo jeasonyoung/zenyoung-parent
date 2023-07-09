@@ -67,6 +67,6 @@ public class ResultWrapper {
      * @return 格式化后注释
      */
     private String formatComment(final String comment) {
-        return Strings.isNullOrEmpty(comment) ? "" : comment.replaceAll("\r\n", "\t");
+        return Strings.isNullOrEmpty(comment) ? "" : comment.replace("\r\n", "\t");
     }
 }

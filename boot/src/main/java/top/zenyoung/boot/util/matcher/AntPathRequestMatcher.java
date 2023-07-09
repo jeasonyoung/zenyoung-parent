@@ -73,7 +73,7 @@ public class AntPathRequestMatcher implements RequestMatcher {
     public AntPathRequestMatcher(String pattern, final String httpMethod, final boolean caseSensitive,
                                  @Nullable final UrlPathHelper urlPathHelper) {
         Assert.hasText(pattern, "Pattern cannot be null or empty");
-        if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
+        if (pattern.equals(MATCH_ALL) || "**".equals(pattern)) {
             pattern = MATCH_ALL;
             this.matcher = null;
         } else {

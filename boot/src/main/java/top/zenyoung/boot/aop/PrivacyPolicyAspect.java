@@ -14,6 +14,7 @@ import top.zenyoung.boot.annotation.PrivacyPolicyType;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -74,8 +75,8 @@ public class PrivacyPolicyAspect extends BaseAspect {
                                     fCls.getMethod("remove", Object.class).invoke(fVal, v);
                                     //添加新值处理
                                     fCls.getMethod("add", Object.class).invoke(fVal, n);
-                                } catch (Throwable ex) {
-                                    log.warn("buildPrivacyPolicy(cls: {},privacyPolicy: {})[{}=> {}]-exp: {}", cls, privacyPolicy, v, n, ex.getMessage());
+                                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+                                    log.warn("buildPrivacyPolicy(cls: {},privacyPolicy: {})[{}=> {}]-exp: {}", cls, privacyPolicy, v, n, e.getMessage());
                                 }
                             }
                         });

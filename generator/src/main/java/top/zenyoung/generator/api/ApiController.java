@@ -74,13 +74,7 @@ public class ApiController extends BaseController {
      */
     @GetMapping("/get-databases")
     public ResultVO<List<String>> getDatabases() {
-        try {
-            final List<String> databases = generator.getDatabases();
-            return success(databases);
-        } catch (Throwable e) {
-            log.error("getDatabases-exp: {}", e.getMessage());
-            return failed(e.getMessage());
-        }
+        return success(generator.getDatabases());
     }
 
     /**
@@ -91,12 +85,7 @@ public class ApiController extends BaseController {
      */
     @GetMapping("/{dbName}/tables")
     public ResultVO<List<TableVO>> getAllTables(@PathVariable final String dbName) {
-        try {
-            return success(generator.getTables(dbName));
-        } catch (Throwable e) {
-            log.error("getAllTables(dbName: {})-exp: {}", dbName, e.getMessage());
-            return failed(e.getMessage());
-        }
+        return success(generator.getTables(dbName));
     }
 
     /**
@@ -107,12 +96,7 @@ public class ApiController extends BaseController {
      */
     @PostMapping("/preview")
     public ResultVO<List<FileVO>> buildPreviewFiles(@RequestBody final GeneratorDTO dto) {
-        try {
-            return success(generator.build(merge(this.properties, dto)));
-        } catch (Throwable e) {
-            log.error("buildPreviewFiles(dto: {})-exp: {}", dto, e.getMessage());
-            return failed(e.getMessage());
-        }
+        return success(generator.build(merge(this.properties, dto)));
     }
 
     /**

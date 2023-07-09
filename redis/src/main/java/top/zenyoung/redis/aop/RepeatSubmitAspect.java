@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.RepeatSubmit;
 import top.zenyoung.boot.aop.BaseAspect;
 import top.zenyoung.boot.config.RepeatSubmitProperties;
-import top.zenyoung.boot.exception.ServiceException;
+import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.boot.util.HttpUtils;
 import top.zenyoung.common.util.JsonUtils;
 

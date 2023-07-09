@@ -96,7 +96,7 @@ public class OperaLogAspect extends BaseAspect {
                 //执行时间
                 final Long takeUpTime = getTakeUpTime();
                 //日志数据
-                final OperaLogDTO operLog = OperaLogDTO.builder().status(Status.Enable).takeUpTime(takeUpTime).createTime(new Date()).build();
+                final OperaLogDTO operLog = OperaLogDTO.builder().status(Status.ENABLE).takeUpTime(takeUpTime).createTime(new Date()).build();
                 //执行方法
                 operLog.setMethod(getFullMethod(joinPoint) + "()");
                 try {
@@ -118,7 +118,7 @@ public class OperaLogAspect extends BaseAspect {
                 });
                 //异常处理
                 if (e != null) {
-                    operLog.setStatus(Status.Disable);
+                    operLog.setStatus(Status.DISABLE);
                     Optional.ofNullable(e.getMessage())
                             .ifPresent(err -> {
                                 if (!Strings.isNullOrEmpty(err)) {
@@ -151,7 +151,7 @@ public class OperaLogAspect extends BaseAspect {
             final String resJson = JsonUtils.toJson(objMapper, jsonResult);
             operLog.setRespResult(resJson);
             //主键处理
-            if (!Strings.isNullOrEmpty(resJson) && log.operaType() == OperaType.Add && !Strings.isNullOrEmpty(log.primaryKey())) {
+            if (!Strings.isNullOrEmpty(resJson) && log.operaType() == OperaType.ADD && !Strings.isNullOrEmpty(log.primaryKey())) {
                 final Map<String, Object> retMap = JsonUtils.fromJsonToMap(objMapper, resJson, Object.class);
                 if (!CollectionUtils.isEmpty(retMap)) {
                     final Object val = recursionSearch(retMap, log.primaryKey());
@@ -259,7 +259,7 @@ public class OperaLogAspect extends BaseAspect {
     private void buildParamArgValHandler(@Nonnull final String argName, @Nullable final String argTitle, @Nonnull final Object argVal,
                                          @Nullable final Annotation[] argAnnos, @Nonnull final OperaLog log, @Nonnull final OperaLogDTO operLog,
                                          @Nonnull final Map<String, LogReqParamVal> argParamValMaps) {
-        final List<OperaType> types = Lists.newArrayList(OperaType.Add, OperaType.Modify, OperaType.Del);
+        final List<OperaType> types = Lists.newArrayList(OperaType.ADD, OperaType.MODIFY, OperaType.DEL);
         //是否为主键记录
         final boolean hasPrimary = types.contains(log.operaType());
         final String primaryKey = Strings.isNullOrEmpty(log.primaryKey()) ? "id" : log.primaryKey();

@@ -1,5 +1,7 @@
 package top.zenyoung.common.util;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import top.zenyoung.common.model.DateRange;
 
 import javax.annotation.Nonnull;
@@ -10,7 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * 日期-工具类
@@ -19,6 +21,7 @@ import java.util.function.Function;
  * @version 1.0
  * date 2020/6/28 1:43 下午
  **/
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
 
     /**
@@ -56,7 +59,7 @@ public class DateUtils {
      * @param endDateHandler 结束时间处理
      * @return 限期时间段
      */
-    public static DateRange createWithinAfter(@Nonnull final Function<LocalDate, LocalDate> endDateHandler) {
+    public static DateRange createWithinAfter(@Nonnull final UnaryOperator<LocalDate> endDateHandler) {
         final LocalDate start = LocalDate.now();
         final LocalDate end = endDateHandler.apply(start);
         return DateRange.of(start, end);
@@ -68,7 +71,7 @@ public class DateUtils {
      * @param startDateHandler 开始时间处理
      * @return 限期时间段
      */
-    public static DateRange createWithinBefore(@Nonnull final Function<LocalDate, LocalDate> startDateHandler) {
+    public static DateRange createWithinBefore(@Nonnull final UnaryOperator<LocalDate> startDateHandler) {
         final LocalDate end = LocalDate.now();
         final LocalDate start = startDateHandler.apply(end);
         return DateRange.of(start, end);

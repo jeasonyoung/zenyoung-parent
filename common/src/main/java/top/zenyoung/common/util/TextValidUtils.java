@@ -1,6 +1,8 @@
 package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -11,17 +13,18 @@ import java.util.regex.Pattern;
  *
  * @author young
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TextValidUtils {
     private static final Pattern REGEX_MOBILE = Pattern.compile("^1\\d{10}$");
     private static final Pattern REGEX_TEL = Pattern.compile("^(\\d{3,4}-)?\\d{6,8}$");
     private static final Pattern REGEX_ID_CARD15 = Pattern.compile("^[1-9]\\d{7}((0\\d)|(1[0-2]))(([0-2]\\d)|3[0-1])\\d{3}$");
     private static final Pattern REGEX_ID_CARD18 = Pattern.compile("^[1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0-2]\\d)|3[0-1])\\d{3}(\\d|[X|x])$");
     private static final Pattern REGEX_EMAIL = Pattern.compile("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$");
-    private static final Pattern REGEX_URL = Pattern.compile("[a-zA-z]+://[^\\s]*");
+    private static final Pattern REGEX_URL = Pattern.compile("[a-zA-Z]+://[^\\s]*");
     /**
      * 正则：yyyy-MM-dd格式的日期校验，已考虑平闰年
      */
-    private static final Pattern REGEX_DATE = Pattern.compile("^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:\\d{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$");
+    private static final Pattern REGEX_DATE = Pattern.compile("^(?:(?!0000)[\\d]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[\\d]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:\\d{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$");
     /**
      * 正则：yyyy-MM-dd HH:mm:ss格式的时间校验，已考虑平闰年
      */

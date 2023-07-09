@@ -1,4 +1,4 @@
-package top.zenyoung.boot.exception;
+package top.zenyoung.common.exception;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

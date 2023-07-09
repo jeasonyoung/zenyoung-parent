@@ -39,5 +39,5 @@ public @interface RateLimiter {
      *
      * @return 限流策略
      */
-    LimitPolicy policy() default LimitPolicy.Global;
+    LimitPolicy policy() default LimitPolicy.GLOBAL;
 }

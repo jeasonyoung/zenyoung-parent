@@ -3,6 +3,7 @@ package top.zenyoung.file.config;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.zenyoung.file.FileProperties;
 
 /**
  * 文件配置属性
@@ -12,7 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ConfigurationProperties(prefix = "top.zenyoung.file")
-public class FileProperties extends top.zenyoung.file.FileProperties {
+public class FileStorageProperties extends FileProperties {
     /**
      * 默认存储类型
      */

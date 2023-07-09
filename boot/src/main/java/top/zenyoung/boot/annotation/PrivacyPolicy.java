@@ -23,5 +23,5 @@ public @interface PrivacyPolicy {
      *
      * @return 策略类型
      */
-    PrivacyPolicyType policy() default PrivacyPolicyType.Mobile;
+    PrivacyPolicyType policy() default PrivacyPolicyType.MOBILE;
 }

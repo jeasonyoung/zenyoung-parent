@@ -13,7 +13,7 @@ import java.util.Objects;
  * @author young
  */
 public class EnvUtils {
-    private final static List<String> DEV_TEST_PROFILES = Lists.newArrayList("local", "dev", "test");
+    private static final List<String> DEV_TEST_PROFILES = Lists.newArrayList("local", "dev", "test");
 
     /**
      * 获取是否是测试或开发环境

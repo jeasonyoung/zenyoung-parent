@@ -2,6 +2,8 @@ package top.zenyoung.boot.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  *
  * @author young
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SecurityUtils {
     /**
      * 创建认证存储对象

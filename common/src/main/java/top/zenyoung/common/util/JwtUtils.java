@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.text.ParseException;
 import java.util.Objects;
 
 /**
@@ -17,8 +21,9 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class JwtUtils {
-    private final static ObjectMapper MAPPER;
+    private static final ObjectMapper MAPPER;
 
     static {
         MAPPER = new ObjectMapper();
@@ -38,9 +43,9 @@ public class JwtUtils {
                 jws.sign(signer);
             }
             return jws.serialize();
-        } catch (Throwable e) {
+        } catch (JOSEException e) {
             log.error("create(algorithm: {},signer: {},data: {})-exp: {}", algorithm, signer, data, e.getMessage());
-            throw new RuntimeException(e);
+            throw new ServiceException(e.getMessage());
         }
     }
 
@@ -58,9 +63,9 @@ public class JwtUtils {
             }
             final String json = obj.getPayload().toString();
             return JsonUtils.fromJson(MAPPER, json, cls);
-        } catch (Throwable e) {
+        } catch (ParseException | JOSEException e) {
             log.error("parse(verifier: {},cls: {},jwt: {})-exp: {}", verifier, cls, jwt, e.getMessage());
-            throw new RuntimeException(e);
+            throw new ServiceException(e.getMessage());
         }
     }
 

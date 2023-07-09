@@ -42,7 +42,7 @@ public class RequestBodyReaderWrapper extends HttpServletRequestWrapper {
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        if (Objects.isNull(this.body)) {
+        if (Objects.isNull(this.body) || this.body.length == 0) {
             return super.getInputStream();
         }
         final ByteArrayInputStream bis = new ByteArrayInputStream(this.body);
@@ -94,11 +94,11 @@ public class RequestBodyReaderWrapper extends HttpServletRequestWrapper {
                         }
                     }
                     return bos.toByteArray();
-                } catch (Throwable e) {
+                } catch (IOException e) {
                     log.error("读取Body失败: {}", e.getMessage());
                 }
             }
         }
-        return null;
+        return new byte[0];
     }
 }

@@ -258,7 +258,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
     protected <T> void setStatus(@Nonnull final T po) {
         //状态
         setFieldValue(po, PoConstant.Status, cls -> {
-            final Status enable = Status.Enable;
+            final Status enable = Status.ENABLE;
             if (cls == Status.class) {
                 return enable;
             }

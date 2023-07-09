@@ -8,11 +8,13 @@ import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -92,7 +94,7 @@ public class FtlUtils {
             try {
                 final Template template = this.config.getTemplate(templateName);
                 template.process(params, out);
-            } catch (Throwable e) {
+            } catch (TemplateException | IOException e) {
                 log.error("process(templateName: {})-exp: {}", templateName, e.getMessage());
             } finally {
                 log.info("生成模板[{}]耗时: {}ms", templateName, (System.currentTimeMillis() - start));
@@ -112,7 +114,7 @@ public class FtlUtils {
             process(templateName, params, writer);
             writer.flush();
             return writer.toString();
-        } catch (Throwable e) {
+        } catch (IOException e) {
             log.warn("process(templateName: {},params: {})-exp: {}", templateName, params, e.getMessage());
         }
         return "";
@@ -132,7 +134,7 @@ public class FtlUtils {
                 final String name = String.format("tmp-%s.ftl", DigestUtils.md5Hex(bytes));
                 this.dynamicLoader.putTemplate(name, bytes);
                 process(name, params, out);
-            } catch (Throwable e) {
+            } catch (NullPointerException e) {
                 log.error("dynamicProcess(content: {},params: {})-exp: {}", content, params, e.getMessage());
             }
         }
@@ -150,7 +152,7 @@ public class FtlUtils {
             dynamicProcess(content, params, writer);
             writer.flush();
             return writer.toString();
-        } catch (Throwable e) {
+        } catch (IOException e) {
             log.warn("dynamicProcess(content: {},params: {})-exp: {}", content, params, e.getMessage());
         }
         return "";

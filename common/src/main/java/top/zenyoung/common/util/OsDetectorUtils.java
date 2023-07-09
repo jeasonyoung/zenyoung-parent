@@ -2,16 +2,19 @@ package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,7 +117,7 @@ public class OsDetectorUtils {
         //
         setProperty(props, DETECTED_NAME, detectedName);
         setProperty(props, DETECTED_ARCH, detectedArch);
-        setProperty(props, DETECTED_BITNESS, "" + detectedBitness);
+        setProperty(props, DETECTED_BITNESS, String.valueOf(detectedBitness));
         //
         final Matcher versionMatcher = VERSION_REGEX.matcher(osVersion);
         if (versionMatcher.matches()) {
@@ -126,10 +129,10 @@ public class OsDetectorUtils {
         final String failOnUnknownOs = propertyOperationProvider.getSystemProperty("failOnUnknownOS");
         if (!"false".equalsIgnoreCase(failOnUnknownOs)) {
             if (UNKNOWN.equals(detectedName)) {
-                throw new RuntimeException("unknown os.name: " + osName);
+                throw new ServiceException("unknown os.name: " + osName);
             }
             if (UNKNOWN.equals(detectedArch)) {
-                throw new RuntimeException("unknown os.arch: " + osArch);
+                throw new ServiceException("unknown os.arch: " + osArch);
             }
         }
         // Assume the default classifier, without any os "like" extension.
@@ -171,53 +174,50 @@ public class OsDetectorUtils {
     private static String normalizeOs(@Nonnull final String val) {
         final String value = normalize(val);
         if (!Strings.isNullOrEmpty(value)) {
-            final Map<List<String>, Function<String, String>> osMapHandlers = new HashMap<List<String>, Function<String, String>>(11) {
-                {
-                    //1.aix
-                    final String aix = "aix";
-                    put(Lists.newArrayList(aix), v -> aix);
-                    //2.hpux
-                    final String hpux = "hpux";
-                    put(Lists.newArrayList(hpux), v -> hpux);
-                    //3.os400
-                    final String os400 = "os400";
-                    put(Lists.newArrayList(os400), v -> {
-                        final int idx = 5;
-                        if (v.length() <= idx || !Character.isDigit(v.charAt(idx))) {
-                            return os400;
-                        }
-                        return null;
-                    });
-                    //4.linux
-                    final String linux = "linux";
-                    put(Lists.newArrayList(linux), v -> linux);
-                    //5.mac/osx
-                    final String mac = "mac", osx = "osx";
-                    put(Lists.newArrayList(mac, osx), v -> osx);
-                    //6.freebsd
-                    final String freebsd = "freebsd";
-                    put(Lists.newArrayList(freebsd), v -> freebsd);
-                    //7.openbsd
-                    final String openbsd = "openbsd";
-                    put(Lists.newArrayList(openbsd), v -> openbsd);
-                    //8.netbsd
-                    final String netbsd = "netbsd";
-                    put(Lists.newArrayList(netbsd), v -> netbsd);
-                    //9.solaris/sunos
-                    final String solaris = "solaris", sunos = "sunos";
-                    put(Lists.newArrayList(solaris, sunos), v -> sunos);
-                    //10.windows
-                    final String windows = "windows";
-                    put(Lists.newArrayList(windows), v -> windows);
-                    //11.zos
-                    final String zos = "zos";
-                    put(Lists.newArrayList(zos), v -> zos);
+            final Map<List<String>, UnaryOperator<String>> osMapHandlers = Maps.newHashMap();
+            //1.aix
+            final String aix = "aix";
+            osMapHandlers.put(Lists.newArrayList(aix), v -> aix);
+            //2.hpux
+            final String hpux = "hpux";
+            osMapHandlers.put(Lists.newArrayList(hpux), v -> hpux);
+            //3.os400
+            final String os400 = "os400";
+            osMapHandlers.put(Lists.newArrayList(os400), v -> {
+                final int idx = 5;
+                if (v.length() <= idx || !Character.isDigit(v.charAt(idx))) {
+                    return os400;
                 }
-            };
+                return null;
+            });
+            //4.linux
+            final String linux = "linux";
+            osMapHandlers.put(Lists.newArrayList(linux), v -> linux);
+            //5.mac/osx
+            final String mac = "mac", osx = "osx";
+            osMapHandlers.put(Lists.newArrayList(mac, osx), v -> osx);
+            //6.freebsd
+            final String freebsd = "freebsd";
+            osMapHandlers.put(Lists.newArrayList(freebsd), v -> freebsd);
+            //7.openbsd
+            final String openbsd = "openbsd";
+            osMapHandlers.put(Lists.newArrayList(openbsd), v -> openbsd);
+            //8.netbsd
+            final String netbsd = "netbsd";
+            osMapHandlers.put(Lists.newArrayList(netbsd), v -> netbsd);
+            //9.solaris/sunos
+            final String solaris = "solaris", sunos = "sunos";
+            osMapHandlers.put(Lists.newArrayList(solaris, sunos), v -> sunos);
+            //10.windows
+            final String windows = "windows";
+            osMapHandlers.put(Lists.newArrayList(windows), v -> windows);
+            //11.zos
+            final String zos = "zos";
+            osMapHandlers.put(Lists.newArrayList(zos), v -> zos);
             //
-            for (final Map.Entry<List<String>, Function<String, String>> entry : osMapHandlers.entrySet()) {
+            for (final Map.Entry<List<String>, UnaryOperator<String>> entry : osMapHandlers.entrySet()) {
                 final List<String> targets = entry.getKey();
-                final Function<String, String> fn = entry.getValue();
+                final UnaryOperator<String> fn = entry.getValue();
                 for (final String target : targets) {
                     if (value.startsWith(target)) {
                         final String ret = fn.apply(value);
@@ -234,77 +234,74 @@ public class OsDetectorUtils {
     private static String normalizeArch(@Nonnull final String val) {
         final String value = normalize(val);
         if (!Strings.isNullOrEmpty(value)) {
-            final Map<Function<String, Boolean>, String> archMapHandlers = new HashMap<Function<String, Boolean>, String>() {
-                {
-                    //1.x86_64
-                    final String x8664Regx = "^(x8664|amd64|ia32e|em64t|x64)$", x8664 = "x86_64";
-                    put(v -> v.matches(x8664Regx), x8664);
-                    //2.x86_32
-                    final String x8632Regx = "^(x8632|x86|i[3-6]86|ia32|x32)$", x8632 = "x86_32";
-                    put(v -> v.matches(x8632Regx), x8632);
-                    //3.itanium_64
-                    final String itanium64Regx = "^(ia64w?|itanium64)$", itanium64 = "itanium_64";
-                    put(v -> v.matches(itanium64Regx), itanium64);
-                    //4.ia64n
-                    final String itanium32Regx = "ia64n", itanium32 = "itanium_32";
-                    put(v -> v.equalsIgnoreCase(itanium32Regx), itanium32);
-                    //5.sparc_32
-                    final String sparc32Regx = "^(sparc|sparc32)$", sparc32 = "sparc_32";
-                    put(v -> v.matches(sparc32Regx), sparc32);
-                    //6.sparc_64
-                    final String sparc64Regx = "^(sparcv9|sparc64)$", sparc64 = "sparc_64";
-                    put(v -> v.matches(sparc64Regx), sparc64);
-                    //7.arm_32
-                    final String arm32Regx = "^(arm|arm32)$", arm32 = "arm_32";
-                    put(v -> v.matches(arm32Regx), arm32);
-                    //8.aarch_64
-                    final String aarch64Regx = "aarch64", aarch64 = "aarch_64";
-                    put(v -> v.equalsIgnoreCase(aarch64Regx), aarch64);
-                    //9.mips_32
-                    final String mips32Regx = "^(mips|mips32)$", mips32 = "mips_32";
-                    put(v -> v.matches(mips32Regx), mips32);
-                    //10.mips_64
-                    final String mips64Regx = "mips64", mips64 = "mips_64";
-                    put(v -> v.equalsIgnoreCase(mips64Regx), mips64);
-                    //11.mipsel_64
-                    final String mipsel64Regx = "mips64el", mipsel64 = "mipsel_64";
-                    put(v -> v.equalsIgnoreCase(mipsel64Regx), mipsel64);
-                    //12.ppc_32
-                    final String ppc32Regx = "^(ppc|ppc32)$", ppc32 = "ppc_32";
-                    put(v -> v.matches(ppc32Regx), ppc32);
-                    //13.ppcle_32
-                    final String ppcle32Regex = "^(ppcle|ppc32le)$", ppcle32 = "ppcle_32";
-                    put(v -> v.matches(ppcle32Regex), ppcle32);
-                    //14.ppc_64
-                    final String ppc64Regex = "ppc64", ppc64 = "ppc_64";
-                    put(v -> v.equalsIgnoreCase(ppc64Regex), ppc64);
-                    //15.ppcle_64
-                    final String ppcle64Regex = "ppc64le", ppcle64 = "ppcle_64";
-                    put(v -> v.equalsIgnoreCase(ppcle64Regex), ppcle64);
-                    //16.s390_32
-                    final String s39032Regex = "s390", s39032 = "s390_32";
-                    put(v -> v.equalsIgnoreCase(s39032Regex), s39032);
-                    //17.s390_64
-                    final String s39064Regex = "s390x", s39064 = "s390_64";
-                    put(v -> v.equalsIgnoreCase(s39064Regex), s39064);
-                    //18.riscv
-                    final String riscvRegex = "^(riscv|riscv32)$", riscv = "riscv";
-                    put(v -> v.matches(riscvRegex), riscv);
-                    //19.riscv64
-                    final String riscv64Regex = "riscv64", riscv64 = "riscv64";
-                    put(v -> v.equalsIgnoreCase(riscv64Regex), riscv64);
-                    //20.e2k
-                    final String e2k = "e2k";
-                    put(v -> v.equalsIgnoreCase(e2k), e2k);
-                    //21.loongarch64
-                    final String loongarch64Regex = "loongarch64", loongarch64 = "loongarch_64";
-                    put(v -> v.equalsIgnoreCase(loongarch64Regex), loongarch64);
-                }
-            };
+            final Map<Predicate<String>, String> archMapHandlers = Maps.newHashMap();
+            //1.x86_64
+            final String x8664Regx = "^(x8664|amd64|ia32e|em64t|x64)$", x8664 = "x86_64";
+            archMapHandlers.put(v -> v.matches(x8664Regx), x8664);
+            //2.x86_32
+            final String x8632Regx = "^(x8632|x86|i[3-6]86|ia32|x32)$", x8632 = "x86_32";
+            archMapHandlers.put(v -> v.matches(x8632Regx), x8632);
+            //3.itanium_64
+            final String itanium64Regx = "^(ia64w?|itanium64)$", itanium64 = "itanium_64";
+            archMapHandlers.put(v -> v.matches(itanium64Regx), itanium64);
+            //4.ia64n
+            final String itanium32Regx = "ia64n", itanium32 = "itanium_32";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(itanium32Regx), itanium32);
+            //5.sparc_32
+            final String sparc32Regx = "^(sparc|sparc32)$", sparc32 = "sparc_32";
+            archMapHandlers.put(v -> v.matches(sparc32Regx), sparc32);
+            //6.sparc_64
+            final String sparc64Regx = "^(sparcv9|sparc64)$", sparc64 = "sparc_64";
+            archMapHandlers.put(v -> v.matches(sparc64Regx), sparc64);
+            //7.arm_32
+            final String arm32Regx = "^(arm|arm32)$", arm32 = "arm_32";
+            archMapHandlers.put(v -> v.matches(arm32Regx), arm32);
+            //8.aarch_64
+            final String aarch64Regx = "aarch64", aarch64 = "aarch_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(aarch64Regx), aarch64);
+            //9.mips_32
+            final String mips32Regx = "^(mips|mips32)$", mips32 = "mips_32";
+            archMapHandlers.put(v -> v.matches(mips32Regx), mips32);
+            //10.mips_64
+            final String mips64Regx = "mips64", mips64 = "mips_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(mips64Regx), mips64);
+            //11.mipsel_64
+            final String mipsel64Regx = "mips64el", mipsel64 = "mipsel_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(mipsel64Regx), mipsel64);
+            //12.ppc_32
+            final String ppc32Regx = "^(ppc|ppc32)$", ppc32 = "ppc_32";
+            archMapHandlers.put(v -> v.matches(ppc32Regx), ppc32);
+            //13.ppcle_32
+            final String ppcle32Regex = "^(ppcle|ppc32le)$", ppcle32 = "ppcle_32";
+            archMapHandlers.put(v -> v.matches(ppcle32Regex), ppcle32);
+            //14.ppc_64
+            final String ppc64Regex = "ppc64", ppc64 = "ppc_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(ppc64Regex), ppc64);
+            //15.ppcle_64
+            final String ppcle64Regex = "ppc64le", ppcle64 = "ppcle_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(ppcle64Regex), ppcle64);
+            //16.s390_32
+            final String s39032Regex = "s390", s39032 = "s390_32";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(s39032Regex), s39032);
+            //17.s390_64
+            final String s39064Regex = "s390x", s39064 = "s390_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(s39064Regex), s39064);
+            //18.riscv
+            final String riscvRegex = "^(riscv|riscv32)$", riscv = "riscv";
+            archMapHandlers.put(v -> v.matches(riscvRegex), riscv);
+            //19.riscv64
+            final String riscv64Regex = "riscv64", riscv64 = "riscv64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(riscv64Regex), riscv64);
+            //20.e2k
+            final String e2k = "e2k";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(e2k), e2k);
+            //21.loongarch64
+            final String loongarch64Regex = "loongarch64", loongarch64 = "loongarch_64";
+            archMapHandlers.put(v -> v.equalsIgnoreCase(loongarch64Regex), loongarch64);
             //
-            for (final Map.Entry<Function<String, Boolean>, String> entry : archMapHandlers.entrySet()) {
-                final Function<String, Boolean> handler = entry.getKey();
-                if (handler.apply(value)) {
+            for (final Map.Entry<Predicate<String>, String> entry : archMapHandlers.entrySet()) {
+                final Predicate<String> handler = entry.getKey();
+                if (handler.test(value)) {
                     return entry.getValue();
                 }
             }
@@ -336,10 +333,9 @@ public class OsDetectorUtils {
      * Parses a file in the format of {@code /etc/os-release} and return a {@link LinuxRelease}
      * based on the {@code ID}, {@code ID_LIKE}, and {@code VERSION_ID} entries.
      */
-    private LinuxRelease parseLinuxOsReleaseFile(String fileName) {
+    private LinuxRelease parseLinuxOsReleaseFile(@Nonnull final String fileName) {
         BufferedReader reader = null;
-        try {
-            InputStream in = fileOperationProvider.readFile(fileName);
+        try (final InputStream in = fileOperationProvider.readFile(fileName)) {
             reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String id = null, version = null;
             final Set<String> likeSet = Sets.newLinkedHashSet();
@@ -385,8 +381,7 @@ public class OsDetectorUtils {
      */
     private LinuxRelease parseLinuxRedhatReleaseFile() {
         BufferedReader reader = null;
-        try {
-            final InputStream in = fileOperationProvider.readFile(REDHAT_RELEASE_FILE);
+        try (final InputStream in = fileOperationProvider.readFile(REDHAT_RELEASE_FILE)) {
             reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             // There is only a single line in this file.
             String line = reader.readLine();
@@ -428,12 +423,12 @@ public class OsDetectorUtils {
     private int determineBitness(final String architecture) {
         // try the widely adopted sun specification first.
         String bitness = propertyOperationProvider.getSystemProperty("sun.arch.data.model", "");
-        if (!bitness.isEmpty() && bitness.matches("[0-9]+")) {
+        if (!bitness.isEmpty() && bitness.matches("\\d+")) {
             return Integer.parseInt(bitness, 10);
         }
         // bitness from sun.arch.data.model cannot be used. Try the IBM specification.
         bitness = propertyOperationProvider.getSystemProperty("com.ibm.vm.bitmode", "");
-        if (!bitness.isEmpty() && bitness.matches("[0-9]+")) {
+        if (!bitness.isEmpty() && bitness.matches("\\d+")) {
             return Integer.parseInt(bitness, 10);
         }
         // as a last resort, try to determine the bitness from the architecture.
@@ -475,9 +470,8 @@ public class OsDetectorUtils {
          *
          * @param name  the name of the system property.
          * @param value the value of the system property.
-         * @return the previous value of the system property, or {@code null} if it did not have one.
          */
-        String setSystemProperty(final String name, final String value);
+        void setSystemProperty(final String name, final String value);
     }
 
     /**
@@ -508,8 +502,8 @@ public class OsDetectorUtils {
         }
 
         @Override
-        public String setSystemProperty(final String name, final String value) {
-            return System.setProperty(name, value);
+        public void setSystemProperty(final String name, final String value) {
+            System.setProperty(name, value);
         }
     }
 

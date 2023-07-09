@@ -26,11 +26,11 @@ public enum Status implements EnumValue {
     /**
      * 停用
      */
-    Disable(0, "停用"),
+    DISABLE(0, "停用"),
     /**
      * 启用
      */
-    Enable(1, "启用");
+    ENABLE(1, "启用");
 
     @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;

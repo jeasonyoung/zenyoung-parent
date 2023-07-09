@@ -12,6 +12,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.boot.util.HttpUtils;
@@ -30,7 +31,7 @@ import java.util.List;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class RequestLogAspect extends BaseAspect {
+public class RequestLogAspect extends BaseAspect implements DisposableBean {
     private static final ThreadLocal<Long> LOCAL = ThreadLocal.withInitial(() -> 0L);
     private static final ThreadLocal<List<String>> LOG = ThreadLocal.withInitial(Lists::newLinkedList);
     private static final String SPACE_LINE = Strings.repeat("-", 50);
@@ -102,10 +103,15 @@ public class RequestLogAspect extends BaseAspect {
     private List<String> getReqParams(final JoinPoint joinPoint) {
         return getReqArgs(joinPoint, arg -> {
             if (isPrimitive(arg.getClass())) {
-                return arg + "";
+                return arg.toString();
             }
             return JsonUtils.toJson(objMapper, arg);
         });
     }
 
+    @Override
+    public void destroy() throws Exception {
+        LOCAL.remove();
+        LOG.remove();
+    }
 }

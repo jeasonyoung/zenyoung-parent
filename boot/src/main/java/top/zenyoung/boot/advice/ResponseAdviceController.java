@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import top.zenyoung.boot.controller.BaseController;
-import top.zenyoung.boot.exception.BaseException;
-import top.zenyoung.boot.exception.ServiceException;
+import top.zenyoung.common.exception.BaseException;
+import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nonnull;
@@ -48,13 +48,13 @@ public class ResponseAdviceController extends BaseController implements Response
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResultVO<?> handleMethodArgumentNotValidException(@Nonnull final MethodArgumentNotValidException e) {
+    public ResultVO<String> handleMethodArgumentNotValidException(@Nonnull final MethodArgumentNotValidException e) {
         log.warn("handleMethodArgumentNotValidException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({BindException.class})
-    public ResultVO<?> handlerBindException(@Nonnull final BindException e) {
+    public ResultVO<String> handlerBindException(@Nonnull final BindException e) {
         log.warn("handlerBindException(e: {})...", e.getMessage());
         final StringBuilder builder = new StringBuilder("Validation failed for ");
         BindingResult bindingResult = e.getBindingResult();
@@ -69,37 +69,37 @@ public class ResponseAdviceController extends BaseController implements Response
     }
 
     @ExceptionHandler({ValidationException.class})
-    public ResultVO<?> handleValidationException(@Nonnull final ValidationException e) {
+    public ResultVO<String> handleValidationException(@Nonnull final ValidationException e) {
         log.warn("handleValidationException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({ConstraintViolationException.class})
-    public ResultVO<?> handleConstraintViolationException(@Nonnull final ConstraintViolationException e) {
+    public ResultVO<String> handleConstraintViolationException(@Nonnull final ConstraintViolationException e) {
         log.warn("handleConstraintViolationException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({ServiceException.class})
-    public ResultVO<?> handleException(@Nonnull final ServiceException e) {
+    public ResultVO<String> handleException(@Nonnull final ServiceException e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e.getVal(), e.getMessage());
     }
 
     @ExceptionHandler({BaseException.class})
-    public ResultVO<?> handleException(@Nonnull final BaseException e) {
+    public ResultVO<String> handleException(@Nonnull final BaseException e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e.getVal(), e.getMessage());
     }
 
     @ExceptionHandler({Exception.class})
-    public ResultVO<?> handleException(@Nonnull final Exception e) {
+    public ResultVO<String> handleException(@Nonnull final Exception e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({RuntimeException.class})
-    public ResultVO<?> handleException(@Nonnull final RuntimeException e) {
+    public ResultVO<String> handleException(@Nonnull final RuntimeException e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e);
     }

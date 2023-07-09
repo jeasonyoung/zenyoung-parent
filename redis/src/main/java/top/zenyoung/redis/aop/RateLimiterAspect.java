@@ -17,7 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.RateLimiter;
 import top.zenyoung.boot.aop.BaseAspect;
-import top.zenyoung.boot.exception.ServiceException;
+import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.boot.model.LimitPolicy;
 import top.zenyoung.boot.util.HttpUtils;
 
@@ -59,7 +59,7 @@ public class RateLimiterAspect extends BaseAspect {
             final RRateLimiter rateLimiter = redissonClient.getRateLimiter(limitKey);
             if (rateLimiter != null) {
                 RateType rateType = RateType.OVERALL;
-                if (LimitPolicy.User == policy) {
+                if (LimitPolicy.USER == policy) {
                     rateType = RateType.PER_CLIENT;
                 }
                 rateLimiter.trySetRate(rateType, max, time, RateIntervalUnit.SECONDS);
@@ -89,7 +89,7 @@ public class RateLimiterAspect extends BaseAspect {
             if (!Strings.isNullOrEmpty(ipAddr)) {
                 builder.append(ipAddr).append(SEP);
             }
-        } else if (LimitPolicy.User == policy) {
+        } else if (LimitPolicy.USER == policy) {
             //用户标识
             final HttpServletRequest request = HttpUtils.getWebRequest();
             if (request != null) {

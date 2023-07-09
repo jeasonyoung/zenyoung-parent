@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import top.zenyoung.file.FileService;
-import top.zenyoung.file.config.FileProperties;
+import top.zenyoung.file.config.FileStorageProperties;
 import top.zenyoung.file.dto.DirectDTO;
 import top.zenyoung.file.service.BucketFileService;
 import top.zenyoung.file.vo.DirectVO;
@@ -26,7 +26,7 @@ public class BucketFileServiceImpl implements BucketFileService {
     @Autowired(required = false)
     private FileService service;
     @Autowired(required = false)
-    private FileProperties fileProperties;
+    private FileStorageProperties fileProperties;
 
     private <R> R handler(@Nonnull final BiFunction<FileService, String, R> handler) {
         Assert.notNull(fileProperties, "'fileProperties未注入");

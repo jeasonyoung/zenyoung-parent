@@ -1,6 +1,7 @@
 package top.zenyoung.boot.util;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -15,7 +16,6 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,14 +29,7 @@ import java.util.stream.Stream;
  * @author young
  */
 public class HttpUtils {
-    private static final List<String> HTTP_CLIENT_IP_HEAD = new LinkedList<String>() {
-        {
-            add("x-forwarded-for");
-            add("Proxy-Client-IP");
-            add("WL-Proxy-Client-IP");
-            add("X-Real-IP");
-        }
-    };
+    private static final List<String> HTTP_CLIENT_IP_HEAD = Lists.newArrayList("x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "X-Real-IP");
 
     public static void servlet(@Nonnull final BiConsumer<HttpServletRequest, HttpServletResponse> handler) {
         final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -147,10 +140,17 @@ public class HttpUtils {
      * @param request 请求对象
      * @return 是否为IE浏览器
      */
-    public static boolean isIE(@Nonnull final HttpServletRequest request) {
-        return (request.getHeader("USER-AGENT").toLowerCase().indexOf("msie") > 0
-                || request.getHeader("USER-AGENT").toLowerCase().indexOf("rv:11.0") > 0
-                || request.getHeader("USER-AGENT").toLowerCase().indexOf("edge") > 0) ? true
-                : false;
+    public static boolean isIe(@Nonnull final HttpServletRequest request) {
+        final String agent = request.getHeader("USER-AGENT");
+        if (!Strings.isNullOrEmpty(agent)) {
+            final String lowerCaseAgent = agent.toLowerCase();
+            final List<String> targets = Lists.newArrayList("msie", "rv:11.0", "edge");
+            for (final String target : targets) {
+                if (lowerCaseAgent.contains(target)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -3,6 +3,8 @@ package top.zenyoung.common.util;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -20,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  **/
 @Slf4j
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class CacheUtils {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final Duration DEF_DURATION = Duration.ofMinutes(30);

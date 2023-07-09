@@ -4,11 +4,15 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
@@ -23,6 +27,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProcessUtils {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final String SEP = " ";
@@ -54,7 +59,7 @@ public class ProcessUtils {
                         builder.append(line);
                     }
                 }
-            } catch (Throwable e) {
+            } catch (IOException e) {
                 log.warn("getProcessOutput-exp: {}", e.getMessage());
             }
             return builder.toString().replace("\u0000", "");
@@ -71,7 +76,7 @@ public class ProcessUtils {
      */
     public static String exec(@Nonnull final List<String> argments) throws Exception {
         final List<String> cmds = buildArgments(argments);
-        if (cmds.size() == 0) {
+        if (cmds.isEmpty()) {
             throw new IllegalArgumentException("'argments'为空或不合法!");
         }
         final String key = Joiner.on(SEP).join(cmds);
@@ -85,7 +90,7 @@ public class ProcessUtils {
                 final String err = getProcessOutput(p.getErrorStream());
                 if (!Strings.isNullOrEmpty(err)) {
                     log.error("exec(argment: {})-exp: {}", key, err);
-                    throw new Exception(err);
+                    throw new ServiceException(err);
                 }
                 //执行结果输出
                 return getProcessOutput(p.getInputStream());

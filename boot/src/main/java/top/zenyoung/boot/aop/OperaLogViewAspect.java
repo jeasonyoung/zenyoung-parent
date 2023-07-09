@@ -156,13 +156,13 @@ public class OperaLogViewAspect extends BaseAspect {
 
     private LogReqParamVal convertDataVal(@Nonnull final String key, @Nonnull final OperaLogViewFieldValue fieldValue, @Nonnull final LogReqParamVal paramVal) {
         final LogViewFieldType fieldType = fieldValue.type();
-        if (fieldType == LogViewFieldType.Ignore) {
+        if (fieldType == LogViewFieldType.IGNORE) {
             return null;
         }
         final String cacheKey = key + "_" + paramVal.getVal();
         return cacheHandler(fieldValue.cache(), cacheKey, () -> {
             //日期格式
-            if (fieldType == LogViewFieldType.Date) {
+            if (fieldType == LogViewFieldType.DATE) {
                 final int maxLen = 10;
                 final String strVal = paramVal.getVal() + "";
                 if (!Strings.isNullOrEmpty(strVal) && strVal.length() > maxLen) {
@@ -171,15 +171,15 @@ public class OperaLogViewAspect extends BaseAspect {
                 return paramVal;
             }
             //字典
-            if (fieldType == LogViewFieldType.Dict) {
+            if (fieldType == LogViewFieldType.DICT) {
                 ///TODO: 字典处理
             }
             //上传
-            if (fieldType == LogViewFieldType.Download) {
+            if (fieldType == LogViewFieldType.DOWNLOAD) {
                 ///TODO: 文件上传处理
             }
             //业务数据
-            if (fieldType == LogViewFieldType.Biz) {
+            if (fieldType == LogViewFieldType.BIZ) {
                 final String methodName;
                 final Class<?> beanCls;
                 if ((beanCls = fieldValue.beanClass()) != null && !Strings.isNullOrEmpty(methodName = fieldValue.method())) {

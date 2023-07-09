@@ -30,17 +30,6 @@ public class DataResult<T> implements PagingResult<T> {
      */
     private final List<T> rows;
 
-    private static <T, R> List<R> convertHandler(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
-        return Optional.ofNullable(rows)
-                .filter(items -> items.size() > 0)
-                .map(items -> items.stream()
-                        .filter(Objects::nonNull)
-                        .map(convert)
-                        .collect(Collectors.toList())
-                )
-                .orElse(Lists.newArrayList());
-    }
-
     /**
      * 构建分页数据
      *
@@ -52,7 +41,16 @@ public class DataResult<T> implements PagingResult<T> {
      */
     public static <T, R> DataResult<R> of(@Nullable final PageList<T> pageList, @Nonnull final Function<T, R> convert) {
         if (Objects.nonNull(pageList)) {
-            return of(pageList.getTotal(), convertHandler(pageList.getRows(), convert));
+            final List<R> rows = Optional.ofNullable(pageList.getRows())
+                    .filter(items -> !items.isEmpty())
+                    .map(items -> items.stream()
+                            .filter(Objects::nonNull)
+                            .map(convert)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList())
+                    )
+                    .orElse(Lists.newArrayList());
+            return of(pageList.getTotal(), rows);
         }
         return empty();
     }
@@ -83,8 +81,12 @@ public class DataResult<T> implements PagingResult<T> {
      * @return 构建结果
      */
     public static <T, R> DataResult<R> of(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
-        if (Objects.nonNull(rows) && rows.size() > 0) {
-            final List<R> items = convertHandler(rows, convert);
+        if (Objects.nonNull(rows) && !rows.isEmpty()) {
+            final List<R> items = rows.stream()
+                    .filter(Objects::nonNull)
+                    .map(convert)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
             return of((long) items.size(), items);
         }
         return empty();

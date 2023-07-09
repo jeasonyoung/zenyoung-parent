@@ -1,7 +1,6 @@
 package top.zenyoung.boot.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
@@ -24,11 +23,10 @@ import java.util.List;
  * @author young
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-    @Autowired(required = false)
-    private List<RequestMappingInterceptor> interceptors;
-    @Autowired(required = false)
-    private List<ArgumentResolver> argumentResolvers;
+    private final List<RequestMappingInterceptor> interceptors;
+    private final List<ArgumentResolver> argumentResolvers;
 
     @Override
     public void addInterceptors(@Nonnull final InterceptorRegistry registry) {
@@ -36,14 +34,15 @@ public class WebConfig implements WebMvcConfigurer {
         if (!CollectionUtils.isEmpty(this.interceptors)) {
             this.interceptors.forEach(interceptor -> {
                 final int order = interceptor.getOrder();
-                final List<String> includePatterns = interceptor.getIncludePatterns(), excludePatterns = interceptor.getExcludePatterns();
                 final InterceptorRegistration ir = registry.addInterceptor(interceptor);
                 if (order != 0) {
                     ir.order(order);
                 }
+                final List<String> includePatterns = interceptor.getIncludePatterns();
                 if (!CollectionUtils.isEmpty(includePatterns)) {
                     ir.addPathPatterns(includePatterns);
                 }
+                final List<String> excludePatterns = interceptor.getExcludePatterns();
                 if (!CollectionUtils.isEmpty(excludePatterns)) {
                     ir.excludePathPatterns(excludePatterns);
                 }

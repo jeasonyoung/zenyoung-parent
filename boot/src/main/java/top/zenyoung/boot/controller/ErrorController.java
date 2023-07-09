@@ -33,10 +33,10 @@ public class ErrorController extends AbstractErrorController {
         this.objMapper = objMapper;
     }
 
-    private ResultVO<?> buildResult(final HttpServletRequest req) {
+    private ResultVO<Map<String, Object>> buildResult(final HttpServletRequest req) {
         final HttpStatus httpStatus = super.getStatus(req);
         final Map<String, Object> body = super.getErrorAttributes(req, ErrorAttributeOptions.defaults());
-        final ResultVO<?> vo = ResultVO.ofSuccess(body);
+        final ResultVO<Map<String, Object>> vo = ResultVO.ofSuccess(body);
         if (Objects.nonNull(httpStatus)) {
             vo.setCode(httpStatus.value());
             vo.setMessage(httpStatus.getReasonPhrase());
@@ -52,12 +52,12 @@ public class ErrorController extends AbstractErrorController {
     }
 
     @RequestMapping
-    public ResultVO<?> error(final HttpServletRequest req) {
+    public ResultVO<Map<String, Object>> error(final HttpServletRequest req) {
         return buildResult(req);
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    public ResultVO<?> mediaTypeNotAcceptable(final HttpServletRequest req) {
+    public ResultVO<Map<String, Object>> mediaTypeNotAcceptable(final HttpServletRequest req) {
         return buildResult(req);
     }
 }

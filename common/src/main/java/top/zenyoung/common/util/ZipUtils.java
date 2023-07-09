@@ -1,8 +1,11 @@
 package top.zenyoung.common.util;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import java.io.*;
@@ -20,6 +23,7 @@ import java.util.zip.ZipOutputStream;
  * date 2020/8/11 10:55 上午
  **/
 @Slf4j
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ZipUtils {
 
     /**
@@ -65,13 +69,15 @@ public class ZipUtils {
             log.info("toZipHandler(outputStreamConsumer: {})-压缩耗时: {}", outputStreamConsumer, (System.currentTimeMillis() - start));
         } catch (IOException ex) {
             log.error("toZipHandler(outputStreamConsumer: {})-exp: {}", outputStreamConsumer, ex.getMessage());
-            throw new RuntimeException(ex);
+            throw new ServiceException(ex.getMessage());
         }
 
     }
 
     @SneakyThrows({IOException.class})
-    private static void compress(@Nonnull final File sourceFile, @Nonnull final String name, @Nonnull final ZipOutputStream zipOutputStream, @Nonnull final Boolean keepDirStructure) {
+    private static void compress(@Nonnull final File sourceFile, @Nonnull final String name,
+                                 @Nonnull final ZipOutputStream zipOutputStream, @Nonnull final Boolean keepDirStructure) {
+        final boolean iskeepDirStructure = Boolean.TRUE.equals(keepDirStructure);
         //文件处理
         if (sourceFile.isFile()) {
             //向zip输出流中添加一个zip实体，构造器中name为zip实体的文件的名字
@@ -88,7 +94,7 @@ public class ZipUtils {
             //空文件夹处理
             if (childs == null || childs.length == 0) {
                 //是否需要保留文件目录结构
-                if (keepDirStructure) {
+                if (iskeepDirStructure) {
                     //空文件夹处理
                     zipOutputStream.putNextEntry(new ZipEntry(name + File.separator));
                     //没有文件不需要复制文件内容
@@ -102,7 +108,7 @@ public class ZipUtils {
                     continue;
                 }
                 final String childName = child.getName();
-                compress(child, keepDirStructure ? name + File.separator + childName : childName, zipOutputStream, keepDirStructure);
+                compress(child, iskeepDirStructure ? name + File.separator + childName : childName, zipOutputStream, keepDirStructure);
             }
         }
     }

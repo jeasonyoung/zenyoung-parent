@@ -10,7 +10,7 @@ import com.aliyuncs.profile.IClientProfile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import top.zenyoung.boot.exception.ServiceException;
+import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.util.JsonUtils;
 import top.zenyoung.sms.service.SmsChannelService;
 

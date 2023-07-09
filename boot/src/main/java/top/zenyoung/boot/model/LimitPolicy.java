@@ -9,7 +9,7 @@ public enum LimitPolicy {
     /**
      * 全局限流
      */
-    Global,
+    GLOBAL,
     /**
      * 按IP限流
      */
@@ -17,5 +17,5 @@ public enum LimitPolicy {
     /**
      * 按用户限流
      */
-    User
+    USER
 }
