@@ -63,10 +63,9 @@ public interface RequestMappingInterceptor extends HandlerInterceptor {
      * @param res     响应对象
      * @param handler 拦截函数处理
      * @return 处理结果
-     * @throws Exception 异常
      */
     @Override
-    default boolean preHandle(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final Object handler) throws Exception {
+    default boolean preHandle(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final Object handler) {
         if (handler instanceof HandlerMethod) {
             final HandlerMethod handlerMethod = (HandlerMethod) handler;
             final MediaType contentType = HttpUtils.getContentType(req);
