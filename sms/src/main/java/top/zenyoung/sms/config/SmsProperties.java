@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @ConfigurationProperties("top.zenyoung.sms")
-public class SmsChannelProperty implements Serializable {
+public class SmsProperties implements Serializable {
     /**
      * 通道类型
      */
@@ -25,4 +25,12 @@ public class SmsChannelProperty implements Serializable {
      * 接入秘钥
      */
     private String secret;
+    /**
+     * 回调消息队列名称
+     */
+    private String callbackQueue;
+    /**
+     * 是否DEBUG开关
+     */
+    private boolean callbackQueueDebug = false;
 }

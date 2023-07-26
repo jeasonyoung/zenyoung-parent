@@ -24,6 +24,10 @@
             <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.aliyun.mns</groupId>
+            <artifactId>aliyun-sdk-mns</artifactId>
+        </dependency>
         <!-- 阿里短信  -->
 
         <!-- 模块依赖 -->

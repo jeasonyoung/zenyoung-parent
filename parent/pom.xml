@@ -75,6 +75,7 @@
         <aliyun-core.version>4.6.1</aliyun-core.version>
         <!-- 阿里云 短信 -->
         <aliyun-dysmsapi.version>2.2.1</aliyun-dysmsapi.version>
+        <aliyun-sdk-mns.version>1.1.9.2</aliyun-sdk-mns.version>
         <!-- 阿里云-oss -->
         <aliyun-oss.version>3.16.1</aliyun-oss.version>
         <!-- 华为-obs -->
@@ -210,6 +211,11 @@
                 <groupId>com.aliyun</groupId>
                 <artifactId>aliyun-java-sdk-dysmsapi</artifactId>
                 <version>${aliyun-dysmsapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun.mns</groupId>
+                <artifactId>aliyun-sdk-mns</artifactId>
+                <version>${aliyun-sdk-mns.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.aliyun.oss</groupId>
