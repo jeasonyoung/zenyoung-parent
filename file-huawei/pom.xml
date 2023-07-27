@@ -4,16 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>file-huawei</artifactId>
-    <packaging>jar</packaging>
-    <description>文件存储-华为云</description>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
         <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>file-huawei</artifactId>
+    <version>${zenyoung-file-huawei.version}</version>
+    <packaging>jar</packaging>
+    <description>文件存储-华为云</description>
 
     <dependencies>
         <!-- 文件公共 -->

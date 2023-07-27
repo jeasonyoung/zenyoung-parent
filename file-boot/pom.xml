@@ -4,16 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>file-boot</artifactId>
-    <packaging>jar</packaging>
-    <description>文件存储-boot</description>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
         <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>file-boot</artifactId>
+    <version>${zenyoung-file-boot.version}</version>
+    <packaging>jar</packaging>
+    <description>文件存储-boot</description>
 
     <dependencies>
         <!-- spring boot -->

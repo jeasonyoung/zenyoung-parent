@@ -56,6 +56,8 @@
         <module>jfx-validator</module>
         <!-- fc-runtime -->
         <module>fc-runtime-huawei</module>
+        <!-- opencv -->
+        <module>opencv</module>
         <!-- 代码生成器 -->
         <module>generator</module>
     </modules>

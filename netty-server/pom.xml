@@ -4,15 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>netty-server</artifactId>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
         <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>netty-server</artifactId>
+    <version>${zenyoung-netty-server.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <!-- spring -->

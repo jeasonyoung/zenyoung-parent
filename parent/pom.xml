@@ -106,6 +106,31 @@
         <javafx-maven-plugin.version>8.8.3</javafx-maven-plugin.version>
         <!-- gpg -->
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+
+        <!-- 模块 -->
+        <zenyoung-common.version>3.1.0</zenyoung-common.version>
+        <zenyoung-boot.version>3.1.0</zenyoung-boot.version>
+        <zenyoung-micro.version>3.1.0</zenyoung-micro.version>
+        <zenyoung-orm.version>3.1.0</zenyoung-orm.version>
+        <zenyoung-graphics-utils.version>3.1.0</zenyoung-graphics-utils.version>
+        <zenyoung-graphics-captcha.version>3.1.0</zenyoung-graphics-captcha.version>
+        <zenyoung-graphics-boot.version>3.1.0</zenyoung-graphics-boot.version>
+        <zenyoung-redis.version>3.1.0</zenyoung-redis.version>
+        <zenyoung-sms.version>3.1.0</zenyoung-sms.version>
+        <zenyoung-segment.version>3.1.0</zenyoung-segment.version>
+        <zenyoung-quartz.version>3.1.0</zenyoung-quartz.version>
+        <zenyoung-file-common.version>3.1.0</zenyoung-file-common.version>
+        <zenyoung-file-aliyun.version>3.1.0</zenyoung-file-aliyun.version>
+        <zenyoung-file-huawei.version>3.1.0</zenyoung-file-huawei.version>
+        <zenyoung-file-boot.version>3.1.0</zenyoung-file-boot.version>
+        <zenyoung-netty-common.version>3.1.0</zenyoung-netty-common.version>
+        <zenyoung-netty-server.version>3.1.0</zenyoung-netty-server.version>
+        <zenyoung-netty-client.version>3.1.0</zenyoung-netty-client.version>
+        <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>
+        <zenyoung-jfx-validator.version>3.1.0</zenyoung-jfx-validator.version>
+        <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>
+        <zenyoung-opencv.version>1.0.0</zenyoung-opencv.version>
+        <zenyoung-generator.version>3.1.0</zenyoung-generator.version>
     </properties>
 
     <dependencyManagement>
@@ -310,122 +335,128 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>common</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-common.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>boot</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>micro</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-micro.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>orm</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-orm.version}</version>
             </dependency>
             <!-- graphics -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>graphics-utils</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-graphics-utils.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>graphics-captcha</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-graphics-captcha.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>graphics-boot</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-graphics-boot.version}</version>
             </dependency>
             <!-- redis -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>redis</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-redis.version}</version>
             </dependency>
             <!-- sms -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>sms</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-sms.version}</version>
             </dependency>
             <!-- segment -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>segment</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-segment.version}</version>
             </dependency>
             <!-- quartz -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>quartz</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-quartz.version}</version>
             </dependency>
             <!-- file -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>file-common</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-file-common.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>file-aliyun</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-file-aliyun.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>file-huawei</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-file-huawei.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>file-boot</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-file-boot.version}</version>
             </dependency>
             <!-- netty -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>netty-common</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-netty-common.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>netty-server</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-netty-server.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>netty-client</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-netty-client.version}</version>
             </dependency>
             <!-- jfx -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>jfx-boot</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-jfx-boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>jfx-validator</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-jfx-validator.version}</version>
             </dependency>
             <!-- fc-runtime -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>fc-runtime-huawei</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-fc-runtime-huawei.version}</version>
+            </dependency>
+            <!-- opencv -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>opencv</artifactId>
+                <version>1.0.0</version>
             </dependency>
             <!-- generator -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>generator</artifactId>
-                <version>${zenyoung.version}</version>
+                <version>${zenyoung-generator.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
