@@ -3,7 +3,6 @@ package top.zenyoung.sms;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.zenyoung.sms.aliyun.AliSmsServiceFactory;
 import top.zenyoung.sms.config.SmsProperties;
 
 import javax.annotation.Nonnull;
@@ -21,7 +20,7 @@ public class SmsAutoConfiguration {
     @Bean
     public SmsServiceFactory getServiceFactory(@Nonnull final SmsProperties smsProperties,
                                                @Nullable final List<SmsUpCallbackListener> callbacks) {
-        final SmsServiceFactory factory = AliSmsServiceFactory.of(smsProperties, callbacks);
+        final SmsServiceFactory factory = SmsServiceFactoryDefault.of(smsProperties, callbacks);
         factory.init();
         return factory;
     }
