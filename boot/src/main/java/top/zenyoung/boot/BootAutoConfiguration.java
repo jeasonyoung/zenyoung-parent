@@ -1,6 +1,5 @@
 package top.zenyoung.boot;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +19,6 @@ import top.zenyoung.common.sequence.IdSequence;
  *
  * @author young
  */
-@Slf4j
 @Configuration
 @ComponentScan({
         "top.zenyoung.boot.aop",
