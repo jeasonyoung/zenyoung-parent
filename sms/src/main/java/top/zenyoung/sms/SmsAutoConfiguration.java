@@ -8,6 +8,7 @@ import top.zenyoung.sms.config.SmsProperties;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 短信-自动配置
@@ -32,8 +33,10 @@ public class SmsAutoConfiguration {
      * @return 签名管理
      */
     @Bean
-    public SmsSignManageService getSignManageService(@Nonnull final SmsServiceFactory factory) {
-        return factory.getSignManageService();
+    public SmsSignManageService getSignManageService(@Nullable final SmsServiceFactory factory) {
+        return Optional.ofNullable(factory)
+                .map(SmsServiceFactory::getSignManageService)
+                .orElse(null);
     }
 
     /**
@@ -43,8 +46,10 @@ public class SmsAutoConfiguration {
      * @return 模板管理
      */
     @Bean
-    public SmsTemplateManageService getTemplateManageService(@Nonnull final SmsServiceFactory factory) {
-        return factory.getTemplateManageService();
+    public SmsTemplateManageService getTemplateManageService(@Nullable final SmsServiceFactory factory) {
+        return Optional.ofNullable(factory)
+                .map(SmsServiceFactory::getTemplateManageService)
+                .orElse(null);
     }
 
     /**
@@ -54,8 +59,10 @@ public class SmsAutoConfiguration {
      * @return 短信发送
      */
     @Bean
-    public SmsSenderService getSenderService(@Nonnull final SmsServiceFactory factory) {
-        return factory.getSenderService();
+    public SmsSenderService getSenderService(@Nullable final SmsServiceFactory factory) {
+        return Optional.ofNullable(factory)
+                .map(SmsServiceFactory::getSenderService)
+                .orElse(null);
     }
 
     /**
@@ -65,7 +72,9 @@ public class SmsAutoConfiguration {
      * @return 发送统计
      */
     @Bean
-    public SmsSenderStatisticsService getSenderStatisticsService(@Nonnull final SmsServiceFactory factory) {
-        return factory.getSenderStatisticsService();
+    public SmsSenderStatisticsService getSenderStatisticsService(@Nullable final SmsServiceFactory factory) {
+        return Optional.ofNullable(factory)
+                .map(SmsServiceFactory::getSenderStatisticsService)
+                .orElse(null);
     }
 }
