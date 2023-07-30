@@ -1,5 +1,7 @@
 package top.zenyoung.sms;
 
+import com.google.common.base.Strings;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +21,15 @@ import java.util.Optional;
 @EnableConfigurationProperties({SmsProperties.class})
 public class SmsAutoConfiguration {
     @Bean
-    public SmsServiceFactory getServiceFactory(@Nonnull final SmsProperties smsProperties,
+    @ConditionalOnMissingBean
+    public SmsServiceFactory getServiceFactory(@Nonnull final SmsProperties prop,
                                                @Nullable final List<SmsUpCallbackListener> callbacks) {
-        final SmsServiceFactory factory = SmsServiceFactoryDefault.of(smsProperties, callbacks);
-        factory.init();
-        return factory;
+        if (!Strings.isNullOrEmpty(prop.getType()) && !Strings.isNullOrEmpty(prop.getAppKey())) {
+            final SmsServiceFactory factory = SmsServiceFactoryDefault.of(prop, callbacks);
+            factory.init();
+            return factory;
+        }
+        return null;
     }
 
     /**
@@ -33,6 +39,7 @@ public class SmsAutoConfiguration {
      * @return 签名管理
      */
     @Bean
+    @ConditionalOnMissingBean
     public SmsSignManageService getSignManageService(@Nullable final SmsServiceFactory factory) {
         return Optional.ofNullable(factory)
                 .map(SmsServiceFactory::getSignManageService)
@@ -46,6 +53,7 @@ public class SmsAutoConfiguration {
      * @return 模板管理
      */
     @Bean
+    @ConditionalOnMissingBean
     public SmsTemplateManageService getTemplateManageService(@Nullable final SmsServiceFactory factory) {
         return Optional.ofNullable(factory)
                 .map(SmsServiceFactory::getTemplateManageService)
@@ -59,6 +67,7 @@ public class SmsAutoConfiguration {
      * @return 短信发送
      */
     @Bean
+    @ConditionalOnMissingBean
     public SmsSenderService getSenderService(@Nullable final SmsServiceFactory factory) {
         return Optional.ofNullable(factory)
                 .map(SmsServiceFactory::getSenderService)
@@ -72,6 +81,7 @@ public class SmsAutoConfiguration {
      * @return 发送统计
      */
     @Bean
+    @ConditionalOnMissingBean
     public SmsSenderStatisticsService getSenderStatisticsService(@Nullable final SmsServiceFactory factory) {
         return Optional.ofNullable(factory)
                 .map(SmsServiceFactory::getSenderStatisticsService)
