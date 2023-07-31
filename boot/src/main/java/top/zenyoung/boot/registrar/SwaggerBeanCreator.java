@@ -53,7 +53,7 @@ public class SwaggerBeanCreator {
     public void create() {
         final DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) context.getAutowireCapableBeanFactory();
         this.properties = context.getBean(SwaggerProperties.class);
-        this.knife4jEnable = this.properties.getKnife4j();
+        this.knife4jEnable = this.properties.isKnife4j();
         final String simpleName = Docket.class.getSimpleName();
         final List<SwaggerProperties.SwaggerItemProperties> dockets = properties.getDockets();
         if (!CollectionUtils.isEmpty(dockets)) {
@@ -155,7 +155,7 @@ public class SwaggerBeanCreator {
             for (Map.Entry<String, Object> entry : annMap.entrySet()) {
                 final String key = entry.getKey();
                 final Class<?> cls = entry.getValue().getClass();
-                if (!Strings.isNullOrEmpty(key) && Objects.nonNull(cls)) {
+                if (!Strings.isNullOrEmpty(key)) {
                     for (String suffix : suffixs) {
                         if (key.endsWith(suffix)) {
                             return cls.getPackage().getName();

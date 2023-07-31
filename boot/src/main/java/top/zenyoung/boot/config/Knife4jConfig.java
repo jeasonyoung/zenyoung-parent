@@ -28,7 +28,7 @@ public class Knife4jConfig {
     @ConditionalOnMissingBean
     @ConditionalOnKnife4jEnable
     public Knife4jProperties knife4jProperties(final SwaggerProperties properties) {
-        final Boolean knife4j = properties.getKnife4j();
+        final boolean knife4j = properties.isKnife4j();
         final Knife4jProperties knife4jProperties = new Knife4jProperties();
         knife4jProperties.setEnable(knife4j);
         final List<SwaggerProperties.SwaggerItemProperties> dockets = properties.getDockets();
