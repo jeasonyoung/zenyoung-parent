@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Swagger Bean 创建
@@ -150,10 +152,13 @@ public class SwaggerBeanCreator {
     private String defaultApiPath() {
         String path = "top.zenyoung";
         final Map<String, Object> annMap = context.getBeansWithAnnotation(ComponentScan.class);
-        if (CollectionUtils.isEmpty(annMap)) {
-            final List<String> suffixs = Lists.newArrayList("App", "Application");
+        if (!CollectionUtils.isEmpty(annMap)) {
+            final List<String> suffixs = Stream.of("App", "Application", "AppMain")
+                    .map(String::toLowerCase)
+                    .filter(s-> !Strings.isNullOrEmpty(s))
+                    .collect(Collectors.toList());
             for (Map.Entry<String, Object> entry : annMap.entrySet()) {
-                final String key = entry.getKey();
+                final String key = entry.getKey().toLowerCase();
                 final Class<?> cls = entry.getValue().getClass();
                 if (!Strings.isNullOrEmpty(key)) {
                     for (String suffix : suffixs) {
