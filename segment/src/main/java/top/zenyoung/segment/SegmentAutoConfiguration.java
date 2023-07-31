@@ -1,7 +1,6 @@
 package top.zenyoung.segment;
 
 import com.google.common.base.Preconditions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -21,13 +20,11 @@ import javax.sql.DataSource;
 @Configuration
 @EnableConfigurationProperties({SegmentProperties.class})
 public class SegmentAutoConfiguration {
-    @Autowired
-    private SegmentProperties properties;
 
     @Bean
     @ConditionalOnMissingBean
-    public PrefetchWorkerExecutorService prefetchWorkerExecutorService() {
-        final SegmentProperties.PrefetchWorker prefetchWorker = properties.getChain().getPrefetchWorker();
+    public PrefetchWorkerExecutorService prefetchWorkerExecutorService(@Nonnull final SegmentProperties prop) {
+        final SegmentProperties.PrefetchWorker prefetchWorker = prop.getChain().getPrefetchWorker();
         Preconditions.checkNotNull(prefetchWorker, "segment.chain.prefetch-worker can not be null!");
         return new PrefetchWorkerExecutorService(prefetchWorker.getPrefetchPeriod(),
                 prefetchWorker.getCorePoolSize(), prefetchWorker.isShutdownHook());
@@ -35,13 +32,13 @@ public class SegmentAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public PrefetchWorkerExecutorServiceLifecycle prefetchWorkerExecutorServiceLifecycle(final PrefetchWorkerExecutorService prefetchWorkerExecutorService) {
-        return new PrefetchWorkerExecutorServiceLifecycle(prefetchWorkerExecutorService);
+    public PrefetchWorkerExecutorServiceLifecycle prefetchWorkerExecutorServiceLifecycle(@Nonnull final PrefetchWorkerExecutorService pwes) {
+        return new PrefetchWorkerExecutorServiceLifecycle(pwes);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public SegmentIdFactory segmentIdFactory(@Nonnull final DataSource dataSource, @Nonnull final PrefetchWorkerExecutorService prefetchWorkerExecutorService) {
-        return new JdbcSegmentIdFactory(dataSource, prefetchWorkerExecutorService);
+    public SegmentIdFactory segmentIdFactory(@Nonnull final DataSource dataSource, @Nonnull final PrefetchWorkerExecutorService pwes) {
+        return new JdbcSegmentIdFactory(dataSource, pwes);
     }
 }
