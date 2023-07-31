@@ -1,25 +1,18 @@
 package top.zenyoung.boot.advice;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.MethodParameter;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import top.zenyoung.boot.controller.BaseController;
 import top.zenyoung.common.exception.BaseException;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
@@ -30,22 +23,7 @@ import javax.validation.ValidationException;
  */
 @Slf4j
 @RestControllerAdvice
-public class ResponseAdviceController extends BaseController implements ResponseBodyAdvice<Object> {
-
-    @Override
-    public boolean supports(@Nonnull final MethodParameter returnType, @Nonnull final Class<? extends HttpMessageConverter<?>> converterType) {
-        return returnType.getParameterType() != Void.class;
-    }
-
-    @Override
-    public Object beforeBodyWrite(@Nullable final Object body, @Nonnull final MethodParameter returnType, @Nonnull final MediaType selectedContentType,
-                                  @Nonnull final Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  @Nonnull final ServerHttpRequest req, @Nonnull final ServerHttpResponse res) {
-        if (body instanceof ResultVO<?>) {
-            return body;
-        }
-        return success(body);
-    }
+public class ResponseAdviceController extends BaseController {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResultVO<String> handleMethodArgumentNotValidException(@Nonnull final MethodArgumentNotValidException e) {
