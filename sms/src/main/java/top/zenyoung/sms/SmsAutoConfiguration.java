@@ -1,5 +1,6 @@
 package top.zenyoung.sms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,12 +21,15 @@ import java.util.Optional;
 @Configuration
 @EnableConfigurationProperties({SmsProperties.class})
 public class SmsAutoConfiguration {
+
     @Bean
     @ConditionalOnMissingBean
     public SmsServiceFactory getServiceFactory(@Nonnull final SmsProperties prop,
-                                               @Nullable final List<SmsUpCallbackListener> callbacks) {
+                                               @Nonnull final ObjectMapper objMapper,
+                                               @Nullable final List<SmsUpCallbackListener> smsUpCallbacks,
+                                               @Nullable final List<SmsReportCallbackListener> smsReportCallbacks) {
         if (!Strings.isNullOrEmpty(prop.getType()) && !Strings.isNullOrEmpty(prop.getAppKey())) {
-            final SmsServiceFactory factory = SmsServiceFactoryDefault.of(prop, callbacks);
+            final SmsServiceFactory factory = SmsServiceFactoryDefault.of(prop, objMapper, smsUpCallbacks, smsReportCallbacks);
             factory.init();
             return factory;
         }

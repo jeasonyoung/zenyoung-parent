@@ -1,5 +1,6 @@
 package top.zenyoung.sms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import top.zenyoung.sms.aliyun.AliSmsServiceFactory;
 import top.zenyoung.sms.config.SmsProperties;
@@ -15,13 +16,15 @@ import java.util.Optional;
 @RequiredArgsConstructor(staticName = "of")
 public class SmsServiceFactoryDefault implements SmsServiceFactory {
     private final SmsProperties smsProperties;
-    private final List<SmsUpCallbackListener> callbacks;
+    private final ObjectMapper objectMapper;
+    private final List<SmsUpCallbackListener> smsUpCallbacks;
+    private final List<SmsReportCallbackListener> smsReportCallbacks;
 
     private SmsServiceFactory factory;
 
     @Override
     public void init() {
-        factory = AliSmsServiceFactory.of(smsProperties, callbacks);
+        factory = AliSmsServiceFactory.of(smsProperties, objectMapper, smsUpCallbacks, smsReportCallbacks);
         factory.init();
     }
 

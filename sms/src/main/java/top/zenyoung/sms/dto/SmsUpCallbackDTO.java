@@ -1,7 +1,8 @@
 package top.zenyoung.sms.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -9,29 +10,34 @@ import java.util.Date;
 /**
  * 上行短信消息
  *
- * @author yangyong
+ * @author young
  */
 @Data
-@RequiredArgsConstructor(staticName = "of")
 public class SmsUpCallbackDTO implements Serializable {
     /**
      * 短信扩展号码
      */
-    private final String destCode;
+    @JsonAlias({"dest_code"})
+    private String destCode;
     /**
      * 短信发送时间
      */
-    private final Date sendTime;
+    @JsonAlias({"send_time"})
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendTime;
     /**
      * 消息序列ID
      */
-    private final String sequenceId;
+    @JsonAlias({"sequence_id"})
+    private String sequenceId;
     /**
      * 短信接收号码
      */
-    private final String mobile;
+    @JsonAlias({"phone_number"})
+    private String mobile;
     /**
      * 短信内容
      */
-    private final String content;
+    @JsonAlias({"content"})
+    private String content;
 }

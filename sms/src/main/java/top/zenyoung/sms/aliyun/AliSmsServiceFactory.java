@@ -1,6 +1,7 @@
 package top.zenyoung.sms.aliyun;
 
 import com.alicom.mns.tools.DefaultAlicomMessagePuller;
+import com.aliyun.mns.model.Message;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.profile.DefaultProfile;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,13 +18,17 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.sms.*;
 import top.zenyoung.sms.config.SmsProperties;
+import top.zenyoung.sms.dto.SmsReportCallbackDTO;
 import top.zenyoung.sms.dto.SmsUpCallbackDTO;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * 阿里云-短信服务工厂实现
@@ -35,9 +41,9 @@ import java.util.function.UnaryOperator;
 public class AliSmsServiceFactory extends BaseAliSmsService implements SmsServiceFactory {
     private static final String REGION_ID = "cn-hangzhou";
     private final SmsProperties smsProperties;
-    private final List<SmsUpCallbackListener> callbacks;
-
-    private final ObjectMapper objMapper = new ObjectMapper();
+    private final ObjectMapper objMapper;
+    private final List<SmsUpCallbackListener> smsUpCallbacks;
+    private final List<SmsReportCallbackListener> smsReportCallbacks;
 
     private IAcsClient client;
     private SmsSenderService senderService;
@@ -57,10 +63,11 @@ public class AliSmsServiceFactory extends BaseAliSmsService implements SmsServic
         //模板管理
         this.templateManageService = AliSmsTemplateManageService.of(this.client);
         //扫描回调集合
-        log.info("短信上行回调集合=> {}", callbacks);
+        log.info("短信上行回调集合=> {}", smsUpCallbacks);
+        log.info("短信发送回执回调集合=> {}", smsReportCallbacks);
         //初始化回调处理
         final String callbackQueue;
-        if (!Strings.isNullOrEmpty(callbackQueue = smsProperties.getCallbackQueue()) && !CollectionUtils.isEmpty(callbacks)) {
+        if (!Strings.isNullOrEmpty(callbackQueue = smsProperties.getCallbackQueue())) {
             this.initCallbackHandler(callbackQueue);
         }
     }
@@ -83,14 +90,6 @@ public class AliSmsServiceFactory extends BaseAliSmsService implements SmsServic
 
     private void initCallbackHandler(@Nonnull final String callbackQueue) {
         Assert.hasText(callbackQueue, "'callbackQueue'不能为空");
-        final DefaultAlicomMessagePuller puller = new DefaultAlicomMessagePuller();
-        //设置异步线程池大小及任务队列的大小，还有无数据线程休眠时间
-        puller.setConsumeMinThreadSize(6);
-        puller.setConsumeMaxThreadSize(16);
-        puller.setThreadQueueSize(200);
-        puller.setPullMsgThreadSize(1);
-        //和服务端联调问题时开启,平时无需开启，消耗性能
-        puller.openDebugLog(smsProperties.isCallbackQueueDebug());
         // 云通信产品下所有的回执消息类型:
         // 短信服务
         // 1:短信回执：SmsReport，
@@ -120,58 +119,120 @@ public class AliSmsServiceFactory extends BaseAliSmsService implements SmsServic
         // 5.融合通信呼叫记录消息：ArtcCdrReport
         // 6.融合通信呼叫中间状态：ArtcTempStatusReport
         //启动队列监听
-        final String messageType = "SmsUp";
-        puller.startReceiveMsg(smsProperties.getAppKey(), smsProperties.getSecret(),
-                messageType, callbackQueue, message -> {
-                    final String json = message.getMessageBodyAsString();
-                    try {
-                        if (!Strings.isNullOrEmpty(json)) {
-                            final JavaType javaType = objMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class);
-                            final Map<String, Object> data = objMapper.readValue(json, javaType);
-                            if (!CollectionUtils.isEmpty(data)) {
-                                final SmsUpCallbackDTO dto = parseSmsUpCallback(data);
-                                if (Objects.nonNull(dto)) {
-                                    callbacks.parallelStream()
-                                            .filter(Objects::nonNull)
-                                            .forEach(callback -> callback.receiveHandler(dto));
-                                }
-                            }
-                        }
-                    } catch (JacksonException e) {
-                        log.warn("startReceiveMsg(json: {})-exp: {}", json, e.getMessage());
-                        return false;
-                    }
-                    //消息处理成功，返回true, SDK将调用MNS的delete方法将消息从队列中删除掉
-                    return true;
-                }
-        );
-        log.info("initCallbackHandler(callbackQueue: {})[回调加载完成]=> {}", callbackQueue, callbacks);
+        //上行短信
+        final String smsUpMessageType = "SmsUp", smsReportMessageType = "SmsReport";
+        if (!CollectionUtils.isEmpty(smsUpCallbacks)) {
+            final String queue = buildCallbackQueue(callbackQueue, smsUpMessageType, smsReportMessageType);
+            createMessagePullerHandler(queue, smsUpMessageType, SmsUpCallbackDTO.class, smsUpCallbacks);
+            log.info("完成[queue: {},type: {}]回调加载初始化: {}", queue, smsUpMessageType, smsUpCallbacks);
+        }
+        //短信发送报告
+        if (!CollectionUtils.isEmpty(smsReportCallbacks)) {
+            final String queue = buildCallbackQueue(callbackQueue, smsReportMessageType, smsUpMessageType);
+            createMessagePullerHandler(queue, smsReportMessageType, SmsReportCallbackDTO.class, smsReportCallbacks);
+            log.info("完成[queue: {},type: {}]回调加载初始化: {}", queue, smsReportMessageType, smsReportCallbacks);
+        }
     }
 
-    private SmsUpCallbackDTO parseSmsUpCallback(@Nonnull final Map<String, Object> data) {
-        final UnaryOperator<String> keyValHandler = key -> {
-            if (!Strings.isNullOrEmpty(key)) {
-                final Object val = data.getOrDefault(key, null);
-                if (Objects.nonNull(val)) {
-                    if (val instanceof String) {
-                        return (String) val;
+    private String buildCallbackQueue(@Nonnull final String queue, @Nonnull final String messageType, @Nonnull final String... types) {
+        final List<String> suffixItems = Lists.newArrayList(types);
+        suffixItems.add(messageType);
+        final String sep = "-";
+        final String prefix = suffixItems.stream()
+                .map(s -> {
+                    if (queue.endsWith(sep + s)) {
+                        final int idx = queue.lastIndexOf(sep + s);
+                        return queue.substring(0, idx);
                     }
-                    return val.toString();
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(queue);
+        return (prefix.endsWith(sep) ? prefix : prefix + sep) + messageType;
+    }
+
+    private <T, K extends CallbackListener<T>> void createMessagePullerHandler(@Nonnull final String callbackQueue,
+                                                                               @Nonnull final String messageType,
+                                                                               @Nonnull final Class<T> payloadClass,
+                                                                               @Nonnull final List<K> callbacks) {
+        if (CollectionUtils.isEmpty(callbacks)) {
+            log.warn("createMessagePullerHandler: callbacks不能为空");
+            return;
+        }
+        Assert.hasText(callbackQueue, "'callbackQueue'不能为空");
+        Assert.hasText(messageType, "'messageType'不能为空");
+        final DefaultAlicomMessagePuller puller = new DefaultAlicomMessagePuller();
+        //设置异步线程池大小及任务队列的大小，还有无数据线程休眠时间
+        puller.setConsumeMinThreadSize(6);
+        puller.setConsumeMaxThreadSize(16);
+        puller.setThreadQueueSize(200);
+        puller.setPullMsgThreadSize(1);
+        //和服务端联调问题时开启,平时无需开启，消耗性能
+        puller.openDebugLog(smsProperties.isCallbackQueueDebug());
+        //回调处理
+        final Consumer<T> payloadHandler = payload -> {
+            //检查回调处理器
+            if (CollectionUtils.isEmpty(callbacks)) {
+                return;
+            }
+            //遍历回调处理器
+            callbacks.forEach(callback -> {
+                //检查回调是否存在
+                if (Objects.nonNull(callback)) {
+                    try {
+                        //回调处理
+                        callback.receiveHandler(payload);
+                    } finally {
+                        log.info("已完成消息回调处理 [{}]=> {}", callback, payload);
+                    }
+                }
+            });
+        };
+        //消息接收初始化
+        puller.startReceiveMsg(smsProperties.getAppKey(), smsProperties.getSecret(), messageType, callbackQueue,
+                message -> parseCallbackPayload(message, payloadClass, payloadHandler)
+        );
+    }
+
+    private <T> boolean parseCallbackPayload(@Nullable final Message message, @Nonnull final Class<T> payloadClass,
+                                             @Nonnull final Consumer<T> handler) {
+        log.debug("parseCallback(message: {},payloadClass: {})", message, payloadClass);
+        if (Objects.nonNull(message)) {
+            final String body = message.getMessageBodyAsString();
+            if (!Strings.isNullOrEmpty(body)) {
+                try {
+                    log.info("parseCallbackPayload[body]=> {}", body);
+                    final JavaType javaType = objMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class);
+                    final Map<String, Object> bodyMap = objMapper.readValue(body, javaType);
+                    if (!CollectionUtils.isEmpty(bodyMap)) {
+                        //解析处理
+                        final Function<String, T> parseHandler = val -> {
+                            if (!Strings.isNullOrEmpty(val)) {
+                                try {
+                                    return objMapper.readValue(val, payloadClass);
+                                } catch (JacksonException ex) {
+                                    log.info("parseCallbackPayload(payloadClass: {})[{}]=> {}", payloadClass, ex.getMessage(), val);
+                                }
+                            }
+                            return null;
+                        };
+                        //解析处理
+                        final T payload = Optional.ofNullable((String) bodyMap.getOrDefault("arg", null))
+                                .map(parseHandler)
+                                .orElse(parseHandler.apply(body));
+                        if (Objects.nonNull(payload)) {
+                            handler.accept(payload);
+                            //消息处理成功，返回true, SDK将调用MNS的delete方法将消息从队列中删除掉
+                            return true;
+                        }
+                    }
+                } catch (JacksonException e) {
+                    log.error("parseCallbackPayload-exp: {}  {}", e.getMessage(), body);
+                    return true;
                 }
             }
-            return null;
-        };
-        //短信扩展号码
-        final String destCode = keyValHandler.apply("dest_code");
-        //短信发送时间
-        final String sendTime = keyValHandler.apply("send_time");
-        //消息序列ID
-        final String sequenceId = keyValHandler.apply("sequence_id");
-        //短信接收号码
-        final String mobile = keyValHandler.apply("phone_number");
-        //短信内容
-        final String content = keyValHandler.apply("content");
-        //创建
-        return SmsUpCallbackDTO.of(destCode, parseTime(sendTime), sequenceId, mobile, content);
+        }
+        return false;
     }
 }
