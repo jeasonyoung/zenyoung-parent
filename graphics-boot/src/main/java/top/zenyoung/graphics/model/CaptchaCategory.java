@@ -17,19 +17,19 @@ public enum CaptchaCategory implements EnumValue {
     /**
      * 干扰线图形验证码
      */
-    Line(0, "干扰线图形验证码", LineCaptcha.class),
+    LINE(0, "干扰线图形验证码", LineCaptcha.class),
     /**
      * 圆圈干扰图形验证码
      */
-    Circle(1, "圆圈干扰图形验证码", CircleCaptcha.class),
+    CIRCLE(1, "圆圈干扰图形验证码", CircleCaptcha.class),
     /**
      * 扭曲干扰图形验证码
      */
-    Shear(2, "扭曲干扰图形验证码", ShearCaptcha.class),
+    SHEAR(2, "扭曲干扰图形验证码", ShearCaptcha.class),
     /**
      * Gif动画图形验证码
      */
-    Gif(3, "Gif动画图形验证码", GifCaptcha.class);
+    GIF(3, "Gif动画图形验证码", GifCaptcha.class);
 
     private final int val;
     private final String title;

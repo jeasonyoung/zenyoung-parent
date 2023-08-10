@@ -13,7 +13,7 @@ import top.zenyoung.common.vo.CaptchaVO;
 import top.zenyoung.graphics.captcha.BaseCaptcha;
 import top.zenyoung.graphics.captcha.Captcha;
 import top.zenyoung.graphics.captcha.generator.CodeGenerator;
-import top.zenyoung.graphics.config.CaptchaProperties;
+import top.zenyoung.graphics.config.GraphicsProperties;
 import top.zenyoung.graphics.model.CaptchaCategory;
 import top.zenyoung.graphics.model.CaptchaType;
 import top.zenyoung.graphics.service.CaptchaService;
@@ -26,9 +26,7 @@ import java.awt.*;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * 认证验证码-服务接口实现
@@ -40,7 +38,7 @@ import java.util.Properties;
 public class CaptchaServiceImpl implements CaptchaService {
     private static final Map<Long, Object> LOCKS = Maps.newConcurrentMap();
     private final ApplicationContext context;
-    private final CaptchaProperties captchaProperties;
+    private final GraphicsProperties.Captcha captchaProperties;
 
     private Captcha captcha;
     private CaptchaStorageService storageService;
@@ -53,11 +51,25 @@ public class CaptchaServiceImpl implements CaptchaService {
             //参数配置
             final Properties props = captchaProperties.getProperties();
             //验证码文字生成器
-            final CodeGenerator codeGenerator = createCodeGenerator(captchaProperties.getType(), props);
+            final CaptchaType type = parseEnumByName(captchaProperties.getType(), CaptchaType.class, CaptchaType.MATH);
+            final CodeGenerator codeGenerator = createCodeGenerator(type, props);
             //验证码类型
-            this.captcha = createCaptcha(captchaProperties.getCategory(), codeGenerator, captchaProperties.getWidth(), captchaProperties.getHeight(), props);
+            final CaptchaCategory category = parseEnumByName(captchaProperties.getCategory(), CaptchaCategory.class, CaptchaCategory.GIF);
+            this.captcha = createCaptcha(category, codeGenerator, captchaProperties.getWidth(), captchaProperties.getHeight(), props);
         }
         return this;
+    }
+
+    private static <T extends Enum<T>> T parseEnumByName(@Nullable final String name, @Nonnull final Class<T> cls, @Nonnull final T defVal) {
+        T val = null;
+        if (!Strings.isNullOrEmpty(name)) {
+            try {
+                val = Enum.valueOf(cls, name.toUpperCase());
+            } catch (RuntimeException e) {
+                log.error("parseEnumByName(name: {},cls: {})-exp: {}", name, cls, e.getMessage());
+            }
+        }
+        return Optional.ofNullable(val).orElse(defVal);
     }
 
     private Long nextId() {
@@ -70,7 +82,7 @@ public class CaptchaServiceImpl implements CaptchaService {
         final Class<? extends CodeGenerator> typeClass;
         if (Objects.nonNull(typeClass = type.getTypeClass())) {
             try {
-                if (type == CaptchaType.Math) {
+                if (type == CaptchaType.MATH) {
                     //数学计算类型
                     final int numberLength = Integer.parseInt(props.getProperty("numberLength", "1"));
                     return ReflectionUtils.accessibleConstructor(typeClass, int.class).newInstance(numberLength);
@@ -79,7 +91,7 @@ public class CaptchaServiceImpl implements CaptchaService {
                     final int charLength = Integer.parseInt(props.getProperty("charLength", "4"));
                     return ReflectionUtils.accessibleConstructor(typeClass, int.class).newInstance(charLength);
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 log.error("createCodeGenerator(type: {},props: {})-exp: {}", type, props, e.getMessage());
             }
         }
@@ -91,10 +103,10 @@ public class CaptchaServiceImpl implements CaptchaService {
         final Class<? extends Captcha> captchaClass;
         if (Objects.nonNull(captchaClass = category.getCategoryClass())) {
             try {
-                final Captcha captcha = ReflectionUtils.accessibleConstructor(captchaClass, int.class, int.class).newInstance(width, height);
+                final Captcha c = ReflectionUtils.accessibleConstructor(captchaClass, int.class, int.class).newInstance(width, height);
                 final List<String> excludes = Lists.newArrayList("font", "background", "generator");
-                if (captcha instanceof BaseCaptcha) {
-                    final BaseCaptcha baseCaptcha = (BaseCaptcha) captcha;
+                if (c instanceof BaseCaptcha) {
+                    final BaseCaptcha baseCaptcha = (BaseCaptcha) c;
                     if (generator != null) {
                         baseCaptcha.setGenerator(generator);
                     }
@@ -118,9 +130,10 @@ public class CaptchaServiceImpl implements CaptchaService {
                     }
                 }, field -> !excludes.contains(field.getName()));
                 //返回对象
-                return captcha;
-            } catch (Throwable e) {
-                log.error("createCaptcha(category: {},generator: {},width: {},height: {},props: {})-exp: {}", category, generator, width, height, props, e.getMessage());
+                return c;
+            } catch (Exception e) {
+                log.error("createCaptcha(category: {},generator: {},width: {},height: {},props: {})-exp: {}",
+                        category, generator, width, height, props, e.getMessage());
             }
         }
         return null;

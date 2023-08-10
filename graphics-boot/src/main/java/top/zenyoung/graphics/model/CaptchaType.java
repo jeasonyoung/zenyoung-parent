@@ -19,12 +19,11 @@ public enum CaptchaType implements EnumValue {
     /**
      * 数学计算类型
      */
-    Math(0, "数学计算类型", MathGenerator.class),
-
+    MATH(0, "数学计算类型", MathGenerator.class),
     /**
      * 随机字符类型
      */
-    Random(1, "随机字符类型", RandomGenerator.class);
+    RANDOM(1, "随机字符类型", RandomGenerator.class);
 
     private final int val;
     private final String title;
