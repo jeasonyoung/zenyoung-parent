@@ -25,10 +25,6 @@ public class GraphicsProperties {
     @Data
     public static class Captcha implements Serializable {
         /**
-         * 是否启用图像验证
-         */
-        private Boolean enable = true;
-        /**
          * 验证码类别
          */
         private String category = "GIF";
