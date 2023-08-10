@@ -1,14 +1,13 @@
 package top.zenyoung.sms.aliyun;
 
-import com.aliyuncs.IAcsClient;
 import com.aliyuncs.dysmsapi.model.v20170525.SendBatchSmsRequest;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsRequest;
 import com.aliyuncs.http.MethodType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.Assert;
@@ -32,9 +31,11 @@ import java.util.stream.Collectors;
  * @author yangyong
  */
 @Slf4j
-@RequiredArgsConstructor(staticName = "of")
 public class AliSmsSenderService extends BaseAliSmsService implements SmsSenderService {
-    private final IAcsClient client;
+
+    public AliSmsSenderService(@Nonnull final ObjectMapper mapper) {
+        super(mapper);
+    }
 
     @Override
     public SmsSenderVO sender(@Nonnull final SmsSenderDTO dto) throws SmsException {
@@ -67,7 +68,7 @@ public class AliSmsSenderService extends BaseAliSmsService implements SmsSenderS
                 .ifPresent(req::setOutId);
         //发送请求处理
         final SmsSenderVO vo = new SmsSenderVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setBizId(res.getBizId());
             vo.setMsg(res.getMessage());
@@ -77,11 +78,11 @@ public class AliSmsSenderService extends BaseAliSmsService implements SmsSenderS
         return vo;
     }
 
-    private static <T> String toJsonHandler(@Nonnull final Collection<T> items) {
+    private <T> String toJsonHandler(@Nonnull final Collection<T> items) {
         return toJson(items);
     }
 
-    private static <T, R> String toJsonHandler(@Nonnull final Collection<T> items, @Nonnull final Function<T, R> splitHandler) {
+    private <T, R> String toJsonHandler(@Nonnull final Collection<T> items, @Nonnull final Function<T, R> splitHandler) {
         return toJsonHandler(items.stream()
                 .map(splitHandler)
                 .collect(Collectors.toList())
@@ -149,7 +150,7 @@ public class AliSmsSenderService extends BaseAliSmsService implements SmsSenderS
             req.setOutId(outIds.get(0));
         }
         final SmsSenderVO vo = new SmsSenderVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setBizId(res.getBizId());
             vo.setMsg(res.getMessage());

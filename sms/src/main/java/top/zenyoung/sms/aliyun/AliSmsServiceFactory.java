@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -36,32 +35,47 @@ import java.util.function.Function;
  * @author yangyong
  */
 @Slf4j
-@Getter
-@RequiredArgsConstructor(staticName = "of")
-public class AliSmsServiceFactory extends BaseAliSmsService implements SmsServiceFactory {
+public class AliSmsServiceFactory implements SmsServiceFactory {
     private static final String REGION_ID = "cn-hangzhou";
     private final SmsProperties smsProperties;
     private final ObjectMapper objMapper;
     private final List<SmsUpCallbackListener> smsUpCallbacks;
     private final List<SmsReportCallbackListener> smsReportCallbacks;
 
-    private IAcsClient client;
-    private SmsSenderService senderService;
-    private SmsSenderStatisticsService senderStatisticsService;
-    private SmsSignManageService signManageService;
-    private SmsTemplateManageService templateManageService;
+    @Getter
+    private final SmsSenderService senderService;
+    @Getter
+    private final SmsSenderStatisticsService senderStatisticsService;
+    @Getter
+    private final SmsSignManageService signManageService;
+    @Getter
+    private final SmsTemplateManageService templateManageService;
+
+    public AliSmsServiceFactory(@Nonnull final SmsProperties props, @Nonnull final ObjectMapper objMapper,
+                                @Nullable final List<SmsUpCallbackListener> smsUpCallbacks,
+                                @Nullable final List<SmsReportCallbackListener> smsReportCallbacks) {
+        this.smsProperties = props;
+        this.objMapper = objMapper;
+        this.smsUpCallbacks = smsUpCallbacks;
+        this.smsReportCallbacks = smsReportCallbacks;
+        //
+        this.senderService = new AliSmsSenderService(objMapper);
+        this.senderStatisticsService = new AliSmsSenderStatisticsService(objMapper);
+        this.signManageService = new AliSmsSignManageService(objMapper);
+        this.templateManageService = new AliSmsTemplateManageService(objMapper);
+    }
 
     @Override
     public void init() {
-        this.client = getAcsClient(smsProperties);
+        final IAcsClient client = getAcsClient(smsProperties);
         //发送短信
-        this.senderService = AliSmsSenderService.of(this.client);
+        ((AliSmsSenderService) this.senderService).init(client);
         //发送统计
-        this.senderStatisticsService = AliSmsSenderStatisticsService.of(this.client);
+        ((AliSmsSenderStatisticsService) this.senderStatisticsService).init(client);
         //签名管理
-        this.signManageService = AliSmsSignManageService.of(this.client);
+        ((AliSmsSignManageService) this.signManageService).init(client);
         //模板管理
-        this.templateManageService = AliSmsTemplateManageService.of(this.client);
+        ((AliSmsTemplateManageService) this.templateManageService).init(client);
         //扫描回调集合
         log.info("短信上行回调集合=> {}", smsUpCallbacks);
         log.info("短信发送回执回调集合=> {}", smsReportCallbacks);

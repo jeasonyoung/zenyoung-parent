@@ -1,18 +1,16 @@
 package top.zenyoung.sms.aliyun;
 
-import com.aliyuncs.IAcsClient;
 import com.aliyuncs.dysmsapi.model.v20170525.QuerySendDetailsRequest;
 import com.aliyuncs.dysmsapi.model.v20170525.QuerySendStatisticsRequest;
 import com.aliyuncs.dysmsapi.model.v20170525.QuerySendStatisticsResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.dto.BasePageDTO;
-import top.zenyoung.common.paging.PageList;
 import top.zenyoung.sms.SmsSenderStatisticsService;
 import top.zenyoung.sms.dto.SmsSendQueryDetailDTO;
 import top.zenyoung.sms.dto.SmsSendQueryStatisticDTO;
@@ -27,8 +25,6 @@ import top.zenyoung.sms.vo.SmsSendQueryStatisticVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.text.ParseException;
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,10 +37,7 @@ import java.util.stream.Collectors;
  * @author yangyong
  */
 @Slf4j
-@RequiredArgsConstructor(staticName = "of")
 public class AliSmsSenderStatisticsService extends BaseAliSmsService implements SmsSenderStatisticsService {
-    private final IAcsClient client;
-
     private static final Map<SmsSendRange, Integer> RANGE_VAL_MAP = Maps.newHashMap();
     private static final Map<SmsTemplateType, Integer> TYPE_VAL_MAP = Maps.newHashMap();
     private static final Map<Integer, SmsSendStatus> STATUS_VAL_MAP = Maps.newHashMap();
@@ -72,6 +65,10 @@ public class AliSmsSenderStatisticsService extends BaseAliSmsService implements 
         STATUS_VAL_MAP.put(3, SmsSendStatus.SUCCESS);
     }
 
+    public AliSmsSenderStatisticsService(@Nonnull final ObjectMapper mapper) {
+        super(mapper);
+    }
+
     @Override
     public SmsSendQueryStatisticVO queryStatistics(@Nonnull final SmsSendQueryStatisticDTO dto) throws SmsException {
         Assert.notNull(dto.getStart(), "'dto.start'不能为空");
@@ -97,7 +94,7 @@ public class AliSmsSenderStatisticsService extends BaseAliSmsService implements 
         }
         //发送处理
         final SmsSendQueryStatisticVO vo = new SmsSendQueryStatisticVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -151,7 +148,7 @@ public class AliSmsSenderStatisticsService extends BaseAliSmsService implements 
         req.setPageSize((long) Optional.ofNullable(dto.getPageSize()).orElse(BasePageDTO.DEF_PAGE_SIZE));
         //发送请求
         final SmsSendQueryDetailVO vo = new SmsSendQueryDetailVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());

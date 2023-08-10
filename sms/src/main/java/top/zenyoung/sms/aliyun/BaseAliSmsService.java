@@ -7,6 +7,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.sms.exption.SmsException;
 import top.zenyoung.sms.vo.BaseQueryVO;
@@ -27,19 +28,25 @@ import java.util.function.Consumer;
  * @author yangyong
  */
 @Slf4j
+@RequiredArgsConstructor
 abstract class BaseAliSmsService {
-    private static final ObjectMapper OBJ_MAPPER = new ObjectMapper();
     private static final ThreadLocal<DateFormat> LOCAL_TIME_FORMAT = ThreadLocal.withInitial(
             () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     );
     private static final ThreadLocal<DateFormat> LOCAL_DATE_FORMAT = ThreadLocal.withInitial(
             () -> new SimpleDateFormat("yyyy-MM-dd")
     );
-
     public static final String SUCCESS = "ok";
 
-    protected <T extends AcsResponse> void handler(@Nonnull final IAcsClient client, @Nonnull final AcsRequest<T> req,
-                                                   @Nonnull final Consumer<T> resHandler) throws SmsException {
+    private final ObjectMapper objMapper;
+
+    private IAcsClient client;
+
+    public void init(@Nonnull final IAcsClient client) {
+        this.client = client;
+    }
+
+    protected <T extends AcsResponse> void handler(@Nonnull final AcsRequest<T> req, @Nonnull final Consumer<T> resHandler) throws SmsException {
         try {
             final T res = client.getAcsResponse(req);
             resHandler.accept(res);
@@ -57,9 +64,9 @@ abstract class BaseAliSmsService {
         vo.setStatus(SUCCESS.equalsIgnoreCase(vo.getCode()));
     }
 
-    protected static <T> String toJson(@Nonnull final T data) throws SmsException {
+    protected <T> String toJson(@Nonnull final T data) throws SmsException {
         try {
-            return OBJ_MAPPER.writeValueAsString(data);
+            return objMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             log.warn("toJson(data: {})-exp: {}", data, e.getMessage());
             throw new SmsException(e.getMessage());

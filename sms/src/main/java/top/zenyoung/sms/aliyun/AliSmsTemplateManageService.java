@@ -1,12 +1,11 @@
 package top.zenyoung.sms.aliyun;
 
-import com.aliyuncs.IAcsClient;
 import com.aliyuncs.dysmsapi.model.v20170525.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import top.zenyoung.common.dto.BasePageDTO;
@@ -33,10 +32,7 @@ import java.util.stream.Collectors;
  * @author yangyong
  */
 @Slf4j
-@RequiredArgsConstructor(staticName = "of")
 public class AliSmsTemplateManageService extends BaseAliSmsService implements SmsTemplateManageService {
-    private final IAcsClient client;
-
     private static final Map<SmsTemplateType, Integer> TYPE_VAL_MAP = Maps.newHashMap();
     private static final Map<Integer, SmsTemplateType> VAL_TYPE_MAP;
     private static final Map<Integer, SmsAuditStatus> VAL_STATUS_MAP = Maps.newHashMap();
@@ -68,6 +64,10 @@ public class AliSmsTemplateManageService extends BaseAliSmsService implements Sm
         TXT_STATUS_MAP.put("AUDIT_SATE_CANCEL", SmsAuditStatus.CANCEL);
     }
 
+    public AliSmsTemplateManageService(@Nonnull final ObjectMapper mapper) {
+        super(mapper);
+    }
+
     @Override
     public SmsTemplateQueryVO query(@Nonnull final SmsTemplateQueryDTO dto) throws SmsException {
         //初始化
@@ -78,7 +78,7 @@ public class AliSmsTemplateManageService extends BaseAliSmsService implements Sm
         req.setPageSize(Optional.ofNullable(dto.getPageSize()).orElse(BasePageDTO.DEF_PAGE_SIZE));
         //发送处理
         final SmsTemplateQueryVO vo = new SmsTemplateQueryVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -164,7 +164,7 @@ public class AliSmsTemplateManageService extends BaseAliSmsService implements Sm
         );
         final SmsTemplateAddVO vo = new SmsTemplateAddVO();
         //发送处理
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -182,7 +182,7 @@ public class AliSmsTemplateManageService extends BaseAliSmsService implements Sm
         req.setTemplateCode(templateCode);
         //发送处理
         final SmsTemplateAddStatusVO vo = new SmsTemplateAddStatusVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -217,7 +217,7 @@ public class AliSmsTemplateManageService extends BaseAliSmsService implements Sm
         req.setTemplateCode(templateCode);
         //发送处理
         final SmsTemplateModifyVO vo = new SmsTemplateModifyVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -234,7 +234,7 @@ public class AliSmsTemplateManageService extends BaseAliSmsService implements Sm
         //模板Code
         req.setTemplateCode(templateCode);
         final SmsTemplateDelVO vo = new SmsTemplateDelVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());

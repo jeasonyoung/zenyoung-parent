@@ -1,11 +1,10 @@
 package top.zenyoung.sms.aliyun;
 
-import com.aliyuncs.IAcsClient;
 import com.aliyuncs.dysmsapi.model.v20170525.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.RequiredArgsConstructor;
 import org.springframework.util.Assert;
 import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.sms.SmsSignManageService;
@@ -28,10 +27,7 @@ import java.util.stream.Collectors;
  *
  * @author yangyong
  */
-@RequiredArgsConstructor(staticName = "of")
 public class AliSmsSignManageService extends BaseAliSmsService implements SmsSignManageService {
-    private final IAcsClient client;
-
     private static final Map<String, SmsAuditStatus> STATUS_VAL_MAP = Maps.newHashMap();
 
     static {
@@ -39,6 +35,10 @@ public class AliSmsSignManageService extends BaseAliSmsService implements SmsSig
         STATUS_VAL_MAP.put("AUDIT_STATE_PASS", SmsAuditStatus.PASS);
         STATUS_VAL_MAP.put("AUDIT_STATE_NOT_PASS", SmsAuditStatus.NOT_PASS);
         STATUS_VAL_MAP.put("AUDIT_STATE_CANCEL", SmsAuditStatus.CANCEL);
+    }
+
+    public AliSmsSignManageService(@Nonnull final ObjectMapper mapper) {
+        super(mapper);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class AliSmsSignManageService extends BaseAliSmsService implements SmsSig
         req.setPageSize(Optional.ofNullable(dto.getPageSize()).orElse(BasePageDTO.DEF_PAGE_SIZE));
         //发送处理
         final SmsSignQueryVO vo = new SmsSignQueryVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -124,7 +124,7 @@ public class AliSmsSignManageService extends BaseAliSmsService implements SmsSig
         );
         //发送
         final SmsSignAddVO vo = new SmsSignAddVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -145,7 +145,7 @@ public class AliSmsSignManageService extends BaseAliSmsService implements SmsSig
         auditStatusMap.put(1, SmsAuditStatus.PASS);
         auditStatusMap.put(2, SmsAuditStatus.NOT_PASS);
         auditStatusMap.put(10, SmsAuditStatus.CANCEL);
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -180,7 +180,7 @@ public class AliSmsSignManageService extends BaseAliSmsService implements SmsSig
         );
         //发送
         final SmsSignModifyVO vo = new SmsSignModifyVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
@@ -198,7 +198,7 @@ public class AliSmsSignManageService extends BaseAliSmsService implements SmsSig
         req.setSignName(sign);
         //发送
         final SmsSignDelVO vo = new SmsSignDelVO();
-        handler(client, req, res -> {
+        handler(req, res -> {
             vo.setCode(res.getCode());
             vo.setMsg(res.getMessage());
             vo.setRequestId(res.getRequestId());
