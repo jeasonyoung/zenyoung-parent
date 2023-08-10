@@ -1,5 +1,6 @@
 package top.zenyoung.orm;
 
+import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
@@ -24,9 +25,8 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({MybatisPlusConfig.class})
+@Import({MybatisPlusConfig.class, MybatisPlusAutoConfiguration.AutoConfiguredMapperScannerRegistrar.class})
 public class OrmAutoConfiguration {
-
     @Bean
     public ISqlInjector sqlInjector() {
         return new DefaultSqlInjector() {
