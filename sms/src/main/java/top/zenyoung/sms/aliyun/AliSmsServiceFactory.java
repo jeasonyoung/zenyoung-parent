@@ -36,7 +36,6 @@ import java.util.function.Function;
  */
 @Slf4j
 public class AliSmsServiceFactory implements SmsServiceFactory {
-    private static final String REGION_ID = "cn-hangzhou";
     private final SmsProperties smsProperties;
     private final ObjectMapper objMapper;
     private final List<SmsUpCallbackListener> smsUpCallbacks;
@@ -65,9 +64,15 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
         this.templateManageService = new AliSmsTemplateManageService(objMapper);
     }
 
+    private String getExtendPropVal(@Nonnull final String propName, @Nullable final String defPropVal) {
+        return Optional.ofNullable(this.smsProperties.getExtend())
+                .map(p -> p.getProperty(propName, defPropVal))
+                .orElse(defPropVal);
+    }
+
     @Override
     public void init() {
-        final IAcsClient client = getAcsClient(smsProperties);
+        final IAcsClient client = getAcsClient();
         //发送短信
         ((AliSmsSenderService) this.senderService).init(client);
         //发送统计
@@ -80,13 +85,13 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
         log.info("短信上行回调集合=> {}", smsUpCallbacks);
         log.info("短信发送回执回调集合=> {}", smsReportCallbacks);
         //初始化回调处理
-        final String callbackQueue;
-        if (!Strings.isNullOrEmpty(callbackQueue = smsProperties.getCallbackQueue())) {
+        final String callbackQueue = getExtendPropVal("callbackQueue", null);
+        if (!Strings.isNullOrEmpty(callbackQueue)) {
             this.initCallbackHandler(callbackQueue);
         }
     }
 
-    private static IAcsClient getAcsClient(final SmsProperties prop) {
+    private IAcsClient getAcsClient() {
         //设置超时时间-可自行调整
         System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
         System.setProperty("sun.net.client.defaultReadTimeout", "10000");
@@ -97,8 +102,10 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
         //短信API产品域名（接口地址固定，无需修改）
         //你的accessKeySecret，参考本文档步骤2
         //初始化ascClient,暂时不支持多region
-        final IClientProfile profile = DefaultProfile.getProfile(REGION_ID, prop.getAppKey(), prop.getSecret());
-        DefaultProfile.addEndpoint(REGION_ID, product, domain);
+        final String defRegionId = "cn-hangzhou";
+        final String regionId = getExtendPropVal("regionId", defRegionId);
+        final IClientProfile profile = DefaultProfile.getProfile(regionId, smsProperties.getAppKey(), smsProperties.getSecret());
+        DefaultProfile.addEndpoint(regionId, product, domain);
         return new DefaultAcsClient(profile);
     }
 
@@ -183,7 +190,8 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
         puller.setThreadQueueSize(200);
         puller.setPullMsgThreadSize(1);
         //和服务端联调问题时开启,平时无需开启，消耗性能
-        puller.openDebugLog(smsProperties.isCallbackQueueDebug());
+        final boolean callbackQueueDebug = Boolean.parseBoolean(getExtendPropVal("callbackQueueDebug", "false"));
+        puller.openDebugLog(callbackQueueDebug);
         //回调处理
         final Consumer<T> payloadHandler = payload -> {
             //检查回调处理器
