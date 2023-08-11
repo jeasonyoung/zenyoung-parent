@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.zenyoung.sms.aliyun.AliSmsServiceFactory;
 import top.zenyoung.sms.config.SmsProperties;
 
 import javax.annotation.Nonnull;
@@ -41,7 +40,7 @@ public class SmsAutoConfiguration implements CommandLineRunner {
                                                @Nullable final List<SmsUpCallbackListener> smsUpCallbacks,
                                                @Nullable final List<SmsReportCallbackListener> smsReportCallbacks) {
         if (!Strings.isNullOrEmpty(prop.getType()) && !Strings.isNullOrEmpty(prop.getAppKey())) {
-            final SmsServiceFactory factory = new AliSmsServiceFactory(prop, objMapper, smsUpCallbacks, smsReportCallbacks);
+            final SmsServiceFactory factory = new SmsServiceFactoryDefault(prop, objMapper, smsUpCallbacks, smsReportCallbacks);
             refFactory.set(factory);
             return factory;
         }
