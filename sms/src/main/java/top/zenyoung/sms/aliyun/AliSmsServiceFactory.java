@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -35,11 +36,12 @@ import java.util.function.Function;
  * @author yangyong
  */
 @Slf4j
+@Setter
 public class AliSmsServiceFactory implements SmsServiceFactory {
-    private final SmsProperties smsProperties;
     private final ObjectMapper objMapper;
-    private final List<SmsUpCallbackListener> smsUpCallbacks;
-    private final List<SmsReportCallbackListener> smsReportCallbacks;
+    private SmsProperties smsProps;
+    private List<SmsUpCallbackListener> smsUpCallbacks;
+    private List<SmsReportCallbackListener> smsReportCallbacks;
 
     @Getter
     private final SmsSenderService senderService;
@@ -50,13 +52,8 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
     @Getter
     private final SmsTemplateManageService templateManageService;
 
-    public AliSmsServiceFactory(@Nonnull final SmsProperties props, @Nonnull final ObjectMapper objMapper,
-                                @Nullable final List<SmsUpCallbackListener> smsUpCallbacks,
-                                @Nullable final List<SmsReportCallbackListener> smsReportCallbacks) {
-        this.smsProperties = props;
+    public AliSmsServiceFactory(@Nonnull final ObjectMapper objMapper) {
         this.objMapper = objMapper;
-        this.smsUpCallbacks = smsUpCallbacks;
-        this.smsReportCallbacks = smsReportCallbacks;
         //
         this.senderService = new AliSmsSenderService(objMapper);
         this.senderStatisticsService = new AliSmsSenderStatisticsService(objMapper);
@@ -65,7 +62,7 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
     }
 
     private String getExtendPropVal(@Nonnull final String propName, @Nullable final String defPropVal) {
-        return Optional.ofNullable(this.smsProperties.getExtend())
+        return Optional.ofNullable(this.smsProps.getExtend())
                 .map(p -> p.getProperty(propName, defPropVal))
                 .orElse(defPropVal);
     }
@@ -104,7 +101,7 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
         //初始化ascClient,暂时不支持多region
         final String defRegionId = "cn-hangzhou";
         final String regionId = getExtendPropVal("regionId", defRegionId);
-        final IClientProfile profile = DefaultProfile.getProfile(regionId, smsProperties.getAppKey(), smsProperties.getSecret());
+        final IClientProfile profile = DefaultProfile.getProfile(regionId, smsProps.getAppKey(), smsProps.getSecret());
         DefaultProfile.addEndpoint(regionId, product, domain);
         return new DefaultAcsClient(profile);
     }
@@ -212,7 +209,7 @@ public class AliSmsServiceFactory implements SmsServiceFactory {
             });
         };
         //消息接收初始化
-        puller.startReceiveMsg(smsProperties.getAppKey(), smsProperties.getSecret(), messageType, callbackQueue,
+        puller.startReceiveMsg(smsProps.getAppKey(), smsProps.getSecret(), messageType, callbackQueue,
                 message -> parseCallbackPayload(message, payloadClass, payloadHandler)
         );
     }

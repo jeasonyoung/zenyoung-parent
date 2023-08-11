@@ -5,7 +5,6 @@ import top.zenyoung.sms.aliyun.AliSmsServiceFactory;
 import top.zenyoung.sms.config.SmsProperties;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -19,15 +18,25 @@ public class SmsServiceFactoryDefault implements SmsServiceFactory {
     /**
      * 构造函数
      *
-     * @param props              短信通道配置
-     * @param objMapper          ObjectMapper
-     * @param smsUpCallbacks     上行短信回调
-     * @param smsReportCallbacks 短信发送状态报告
+     * @param objMapper ObjectMapper
      */
-    public SmsServiceFactoryDefault(@Nonnull final SmsProperties props, @Nonnull final ObjectMapper objMapper,
-                                    @Nullable final List<SmsUpCallbackListener> smsUpCallbacks,
-                                    @Nullable final List<SmsReportCallbackListener> smsReportCallbacks) {
-        this.factory = new AliSmsServiceFactory(props, objMapper, smsUpCallbacks, smsReportCallbacks);
+    public SmsServiceFactoryDefault(@Nonnull final ObjectMapper objMapper) {
+        this.factory = new AliSmsServiceFactory(objMapper);
+    }
+
+    @Override
+    public void setSmsProps(@Nonnull final SmsProperties smsProps) {
+        this.factory.setSmsProps(smsProps);
+    }
+
+    @Override
+    public void setSmsUpCallbacks(@Nonnull final List<SmsUpCallbackListener> smsUpCallbacks) {
+        this.factory.setSmsUpCallbacks(smsUpCallbacks);
+    }
+
+    @Override
+    public void setSmsReportCallbacks(@Nonnull final List<SmsReportCallbackListener> smsReportCallbacks) {
+        this.factory.setSmsReportCallbacks(smsReportCallbacks);
     }
 
     @Override

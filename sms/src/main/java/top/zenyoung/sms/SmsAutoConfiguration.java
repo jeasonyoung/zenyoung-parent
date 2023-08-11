@@ -2,6 +2,7 @@ package top.zenyoung.sms;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,27 +25,32 @@ import java.util.concurrent.atomic.AtomicReference;
 @EnableConfigurationProperties({SmsProperties.class})
 public class SmsAutoConfiguration implements CommandLineRunner {
     private final AtomicReference<SmsServiceFactory> refFactory = new AtomicReference<>(null);
+    @Autowired
+    private SmsProperties props;
 
     @Override
     public void run(final String... args) {
         final SmsServiceFactory factory = refFactory.get();
-        if (Objects.nonNull(factory)) {
+        if (Objects.nonNull(factory) && Objects.nonNull(props) && !Strings.isNullOrEmpty(props.getAppKey())) {
             factory.init();
         }
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public SmsServiceFactory getServiceFactory(@Nonnull final SmsProperties prop,
-                                               @Nonnull final ObjectMapper objMapper,
+    public SmsServiceFactory getServiceFactory(@Nonnull final ObjectMapper objMapper,
                                                @Nullable final List<SmsUpCallbackListener> smsUpCallbacks,
                                                @Nullable final List<SmsReportCallbackListener> smsReportCallbacks) {
-        if (!Strings.isNullOrEmpty(prop.getType()) && !Strings.isNullOrEmpty(prop.getAppKey())) {
-            final SmsServiceFactory factory = new SmsServiceFactoryDefault(prop, objMapper, smsUpCallbacks, smsReportCallbacks);
-            refFactory.set(factory);
-            return factory;
+        final SmsServiceFactory factory = new SmsServiceFactoryDefault(objMapper);
+        factory.setSmsProps(this.props);
+        if (Objects.nonNull(smsUpCallbacks)) {
+            factory.setSmsUpCallbacks(smsUpCallbacks);
         }
-        return null;
+        if (Objects.nonNull(smsReportCallbacks)) {
+            factory.setSmsReportCallbacks(smsReportCallbacks);
+        }
+        refFactory.set(factory);
+        return factory;
     }
 
     /**

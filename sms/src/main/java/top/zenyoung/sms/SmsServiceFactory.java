@@ -1,11 +1,37 @@
 package top.zenyoung.sms;
 
+import top.zenyoung.sms.config.SmsProperties;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+
 /**
  * 短信-服务工厂接口
  *
  * @author yangyong
  */
 public interface SmsServiceFactory {
+    /**
+     * 设置短信配置
+     *
+     * @param smsProps 短信配置
+     */
+    void setSmsProps(@Nonnull final SmsProperties smsProps);
+
+    /**
+     * 设置短信上行回调集合
+     *
+     * @param smsUpCallbacks 上行回调集合
+     */
+    void setSmsUpCallbacks(@Nonnull final List<SmsUpCallbackListener> smsUpCallbacks);
+
+    /**
+     * 设置短信发送状态回调集合
+     *
+     * @param smsReportCallbacks 发送状态回调集合
+     */
+    void setSmsReportCallbacks(@Nonnull final List<SmsReportCallbackListener> smsReportCallbacks);
+
     /**
      * 初始化
      */
