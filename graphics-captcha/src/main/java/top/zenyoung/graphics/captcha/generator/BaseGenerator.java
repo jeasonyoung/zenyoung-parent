@@ -2,10 +2,11 @@ package top.zenyoung.graphics.captcha.generator;
 
 import com.google.common.base.Strings;
 import lombok.Data;
+import top.zenyoung.common.util.RandomUtils;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 随机字符验证码生成器<br>
@@ -52,9 +53,7 @@ public abstract class BaseGenerator implements CodeGenerator {
      * @see Random#nextInt(int)
      */
     protected final int randomInt(final int limit) {
-        final Random random = ThreadLocalRandom.current();
-        random.setSeed(System.currentTimeMillis());
-        return random.nextInt(limit);
+        return RandomUtils.randomInt(0, limit);
     }
 
     /**
@@ -65,9 +64,9 @@ public abstract class BaseGenerator implements CodeGenerator {
      * @since 3.1.2
      */
     protected final char randomChar(@Nonnull final String baseString) {
-        final Random random = ThreadLocalRandom.current();
-        random.setSeed(System.currentTimeMillis());
-        return baseString.charAt(random.nextInt(baseString.length()));
+        final int limit = Optional.of(baseString.length()).orElse(1);
+        final int idx = RandomUtils.randomInt(0, limit);
+        return baseString.charAt(idx);
     }
 
     /**
