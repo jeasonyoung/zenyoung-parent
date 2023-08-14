@@ -1,5 +1,6 @@
 package top.zenyoung.graphics.captcha;
 
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.graphics.image.gif.AnimatedGifEncoder;
 import top.zenyoung.graphics.util.ImageUtils;
@@ -18,6 +19,7 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
+@EqualsAndHashCode(callSuper = true)
 public class GifCaptcha extends BaseCaptcha {
     /**
      * 量化器取样间隔 - 默认是10ms

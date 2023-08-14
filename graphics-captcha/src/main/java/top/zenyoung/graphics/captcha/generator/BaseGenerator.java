@@ -25,16 +25,11 @@ public abstract class BaseGenerator implements CodeGenerator {
     private int len;
 
     /**
-     * 获取随机处理器
-     */
-    private final Random random = ThreadLocalRandom.current();
-
-    /**
      * 构造，使用字母+数字做为基础
      *
      * @param len 生成验证码长度
      */
-    public BaseGenerator(final int len) {
+    protected BaseGenerator(final int len) {
         this("0123456789abcdefghijklmnopqrstuvwxyz", len);
     }
 
@@ -44,7 +39,7 @@ public abstract class BaseGenerator implements CodeGenerator {
      * @param baseStr 基础字符集合，用于随机获取字符串的字符集合
      * @param length  生成验证码长度
      */
-    public BaseGenerator(final String baseStr, final int length) {
+    protected BaseGenerator(final String baseStr, final int length) {
         this.baseStr = baseStr;
         this.len = length;
     }
@@ -57,6 +52,8 @@ public abstract class BaseGenerator implements CodeGenerator {
      * @see Random#nextInt(int)
      */
     protected final int randomInt(final int limit) {
+        final Random random = ThreadLocalRandom.current();
+        random.setSeed(System.currentTimeMillis());
         return random.nextInt(limit);
     }
 
@@ -68,6 +65,8 @@ public abstract class BaseGenerator implements CodeGenerator {
      * @since 3.1.2
      */
     protected final char randomChar(@Nonnull final String baseString) {
+        final Random random = ThreadLocalRandom.current();
+        random.setSeed(System.currentTimeMillis());
         return baseString.charAt(random.nextInt(baseString.length()));
     }
 
@@ -82,9 +81,9 @@ public abstract class BaseGenerator implements CodeGenerator {
         if (Strings.isNullOrEmpty(baseString)) {
             return "";
         }
-        final int len = Math.max(length, 1), baseLength = baseString.length();
-        final StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
+        final int mLen = Math.max(length, 1), baseLength = baseString.length();
+        final StringBuilder sb = new StringBuilder(mLen);
+        for (int i = 0; i < mLen; i++) {
             final int number = randomInt(baseLength);
             sb.append(baseString.charAt(number));
         }
