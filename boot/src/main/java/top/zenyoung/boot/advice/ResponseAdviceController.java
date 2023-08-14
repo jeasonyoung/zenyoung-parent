@@ -1,5 +1,6 @@
 package top.zenyoung.boot.advice;
 
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -15,6 +16,7 @@ import top.zenyoung.common.vo.ResultVO;
 import javax.annotation.Nonnull;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
+import java.util.Optional;
 
 /**
  * 统一异常处理控制器
@@ -78,7 +80,10 @@ public class ResponseAdviceController extends BaseController {
 
     @ExceptionHandler({RuntimeException.class})
     public ResultVO<String> handleException(@Nonnull final RuntimeException e) {
-        log.warn("handleException(e: {})...", e.getMessage());
-        return failed(e);
+        final String err = Optional.ofNullable(e.getMessage())
+                .filter(msg -> !Strings.isNullOrEmpty(msg))
+                .orElse(e.getClass().getName());
+        log.warn("handleException(e: {})...", err);
+        return failed(err);
     }
 }
