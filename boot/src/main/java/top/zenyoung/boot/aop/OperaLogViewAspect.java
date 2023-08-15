@@ -11,7 +11,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.annotation.OperaLogView;
@@ -39,13 +38,12 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Aspect
-@Component
-@RequiredArgsConstructor
+@RequiredArgsConstructor(staticName = "of")
 public class OperaLogViewAspect extends BaseAspect {
     private static final Cache<String, LogReqParamVal> VAL_CACHE = CacheUtils.createCache(500, Duration.ofMinutes(5));
     private static final String METHOD_KEY = "method";
-    private final ObjectMapper objMapper;
 
+    private final ObjectMapper objMapper;
     private final ApplicationContext context;
 
     @AfterReturning(pointcut = "@annotation(controllerLogView)", returning = "jsonResult")

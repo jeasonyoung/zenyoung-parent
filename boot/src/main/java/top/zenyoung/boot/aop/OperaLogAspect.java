@@ -16,7 +16,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BindingResult;
@@ -46,8 +45,7 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Aspect
-@Component
-@RequiredArgsConstructor
+@RequiredArgsConstructor(staticName = "of")
 public class OperaLogAspect extends BaseAspect {
     private static final ThreadLocal<Long> LOCAL_CACHE = ThreadLocal.withInitial(() -> 0L);
 

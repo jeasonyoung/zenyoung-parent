@@ -4,11 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import top.zenyoung.boot.advice.ResponseAdviceController;
+import top.zenyoung.boot.aop.OperaLogAspect;
+import top.zenyoung.boot.aop.OperaLogViewAspect;
+import top.zenyoung.boot.aop.PrivacyPolicyAspect;
 import top.zenyoung.boot.aop.RequestLogAspect;
 import top.zenyoung.boot.config.*;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
@@ -46,6 +50,24 @@ public class BootAutoConfiguration {
     @ConditionalOnMissingBean
     public RequestLogAspect requestLogAspect(@Nonnull final ObjectMapper objMapper) {
         return RequestLogAspect.of(objMapper);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public OperaLogAspect operaLogAspect(@Nonnull final ObjectMapper objMapper, @Nonnull final ApplicationContext ctx) {
+        return OperaLogAspect.of(objMapper, ctx);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public OperaLogViewAspect operaLogViewAspect(@Nonnull final ObjectMapper objMapper, @Nonnull final ApplicationContext ctx) {
+        return OperaLogViewAspect.of(objMapper, ctx);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public PrivacyPolicyAspect privacyPolicyAspect() {
+        return new PrivacyPolicyAspect();
     }
 
     @Bean
