@@ -8,12 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.boot.util.HttpUtils;
 import top.zenyoung.common.util.JsonUtils;
@@ -29,22 +25,26 @@ import java.util.List;
  */
 @Slf4j
 @Aspect
-@Component
-@RequiredArgsConstructor
+@RequiredArgsConstructor(staticName = "of")
 public class RequestLogAspect extends BaseAspect implements DisposableBean {
     private static final ThreadLocal<Long> LOCAL = ThreadLocal.withInitial(() -> 0L);
     private static final ThreadLocal<List<String>> LOG = ThreadLocal.withInitial(Lists::newLinkedList);
-    private static final String SPACE_LINE = Strings.repeat("-", 50);
+
+    private static final String NEW_LINE = "\n";
+    private static final String SPACE_LINE = Strings.repeat("-", 50) + NEW_LINE;
 
     private final ObjectMapper objMapper;
 
-    private static final String ALL_POINT_CUT = "@annotation(org.springframework.web.bind.annotation.RequestMapping) ||" +
-            "@annotation(org.springframework.web.bind.annotation.GetMapping) ||" +
-            "@annotation(org.springframework.web.bind.annotation.PostMapping) ||" +
-            "@annotation(org.springframework.web.bind.annotation.PutMapping) ||" +
-            "@annotation(org.springframework.web.bind.annotation.DeleteMapping)";
+    private static final String POINT_CUT = "(within(top.zenyoung.boot.controller.ErrorController) || " +
+            "within(top.zenyoung.boot.controller.BaseController+)) && " +
+            "@target(org.springframework.web.bind.annotation.RestController)";
 
-    @Before(ALL_POINT_CUT)
+    @Pointcut(POINT_CUT)
+    public void logPointcut() {
+        log.info("日志 AOP: {}", POINT_CUT);
+    }
+
+    @Before("logPointcut()")
     public void doBefore(final JoinPoint joinPoint) {
         LOCAL.set(System.currentTimeMillis());
         final List<String> logs = Lists.newLinkedList();
@@ -66,7 +66,7 @@ public class RequestLogAspect extends BaseAspect implements DisposableBean {
         LOG.set(logs);
     }
 
-    @AfterReturning(pointcut = ALL_POINT_CUT, returning = "jsonResult")
+    @AfterReturning(pointcut = "logPointcut()", returning = "jsonResult")
     public void doAfterReturning(final JoinPoint joinPoint, final Object jsonResult) {
         final List<String> prev = LOG.get();
         final List<String> logs = prev == null ? Lists.newLinkedList() : prev;
@@ -77,7 +77,7 @@ public class RequestLogAspect extends BaseAspect implements DisposableBean {
         printLogsHandler(logs);
     }
 
-    @AfterThrowing(pointcut = ALL_POINT_CUT, throwing = "e")
+    @AfterThrowing(pointcut = "logPointcut()", throwing = "e")
     public void doAfterThrowing(final JoinPoint joinPoint, final Exception e) {
         final List<String> prev = LOG.get();
         final List<String> logs = prev == null ? Lists.newLinkedList() : prev;
@@ -96,8 +96,7 @@ public class RequestLogAspect extends BaseAspect implements DisposableBean {
         }
         logs.add(SPACE_LINE);
         //打印日志处理
-        log.info(Joiner.on("\n").skipNulls().join(logs));
-        log.info("\n");
+        log.info(Joiner.on(NEW_LINE).skipNulls().join(logs));
     }
 
     private List<String> getReqParams(final JoinPoint joinPoint) {

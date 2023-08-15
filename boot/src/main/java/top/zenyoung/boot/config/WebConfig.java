@@ -1,7 +1,9 @@
 package top.zenyoung.boot.config;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
@@ -26,6 +28,9 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
     private final List<RequestMappingInterceptor> interceptors;
     private final List<ArgumentResolver> argumentResolvers;
+
+    @Value("${server.error.path:${error.path:/error}}")
+    private String errorPage;
 
     private final List<String> swaggerExcludes = Lists.newArrayList(
             "/swagger-resources/**",
@@ -52,7 +57,12 @@ public class WebConfig implements WebMvcConfigurer {
                     ir.addPathPatterns(includePatterns);
                 }
                 final List<String> excludePatterns = interceptor.getExcludePatterns();
-                excludePatterns.addAll(swaggerExcludes);
+                if (!CollectionUtils.isEmpty(swaggerExcludes)) {
+                    excludePatterns.addAll(swaggerExcludes);
+                }
+                if (!Strings.isNullOrEmpty(errorPage)) {
+                    excludePatterns.add(errorPage);
+                }
                 if (!CollectionUtils.isEmpty(excludePatterns)) {
                     ir.excludePathPatterns(excludePatterns);
                 }
