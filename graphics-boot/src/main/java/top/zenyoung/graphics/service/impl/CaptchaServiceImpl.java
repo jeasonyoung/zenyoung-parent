@@ -168,18 +168,16 @@ public class CaptchaServiceImpl implements CaptchaService {
     @Override
     public CaptchaVO createCaptcha(final Integer len, final Duration expire) {
         Assert.notNull(this.captcha, "Captcha初始化失败!");
-        final CaptchaVO vo = new CaptchaVO();
         synchronized (this) {
             final long captchaId = nextId();
-            vo.setCaptchaId(captchaId);
             this.captcha.createCode(len);
             final String captchaCode = this.captcha.getCode();
             final String base64Data = this.captcha.getImageBase64Data();
-            vo.setBase64Data(base64Data);
             //缓存数据
             addCaptchaCodeCache(captchaId, captchaCode, expire);
+            //返回
+            return CaptchaVO.of(captchaId, base64Data);
         }
-        return vo;
     }
 
     @Override
