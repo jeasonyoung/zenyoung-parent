@@ -2,6 +2,7 @@ package top.zenyoung.graphics.captcha.generator;
 
 import com.google.common.base.Strings;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.graphics.captcha.Calculator;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@Slf4j
 @EqualsAndHashCode(callSuper = true)
 public class MathGenerator extends BaseGenerator {
     private static final String OPERATORS = "+-*";
@@ -56,8 +58,9 @@ public class MathGenerator extends BaseGenerator {
     public boolean verify(@Nonnull final String captchaCode, @Nonnull final String inputCode) {
         int result;
         try {
-            result = Integer.parseInt(captchaCode);
+            result = Integer.parseInt(inputCode);
         } catch (NumberFormatException e) {
+            log.error("verify(captchaCode: {},inputCode: {})[inputCode: {}]-exp: {}", captchaCode, inputCode, inputCode, e.getMessage());
             // 用户输入非数字
             return false;
         }

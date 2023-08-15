@@ -1,26 +1,30 @@
 package top.zenyoung.common.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 
 /**
- * 验证码数据
+ * 验证码VO
  *
  * @author young
  */
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-@RequiredArgsConstructor(staticName = "of")
+@ApiModel("验证码VO")
 public class CaptchaVO implements Serializable {
     /**
      * 验证码ID
      */
-    private final Long captchaId;
+    @ApiModelProperty("验证码ID")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long captchaId;
     /**
      * 验证码图片(base64)
      */
-    private final String base64Data;
+    @ApiModelProperty("验证码图片(base64)")
+    private String base64Data;
 }
