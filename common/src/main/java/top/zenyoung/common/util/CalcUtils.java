@@ -73,4 +73,13 @@ public class CalcUtils {
     public static <V> CompletableFuture<Void> async(@Nonnull final Supplier<V> valHandler, @Nonnull final Consumer<V> assignHandler) {
         return CompletableFuture.supplyAsync(valHandler).thenAccept(assignHandler);
     }
+
+    public static void syncJoin(@Nonnull final List<CompletableFuture<?>> futures) {
+        //检查是否存在
+        if (futures.isEmpty()) {
+            return;
+        }
+        //同步等待
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    }
 }
