@@ -3,7 +3,7 @@ package top.zenyoung.common.util;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author young
  */
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ThreadUtils {
     private static final AtomicLong REF_COUNT = new AtomicLong(0L);
     private static final Duration KEEP_ALIVE = Duration.ofSeconds(300);

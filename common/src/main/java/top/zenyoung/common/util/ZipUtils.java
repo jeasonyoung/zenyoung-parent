@@ -1,7 +1,7 @@
 package top.zenyoung.common.util;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -23,7 +23,7 @@ import java.util.zip.ZipOutputStream;
  * date 2020/8/11 10:55 上午
  **/
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ZipUtils {
 
     /**

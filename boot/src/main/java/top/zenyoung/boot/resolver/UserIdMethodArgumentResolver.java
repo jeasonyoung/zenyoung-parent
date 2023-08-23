@@ -25,7 +25,7 @@ public class UserIdMethodArgumentResolver implements ArgumentResolver {
 
     @Override
     public Object resolveArgument(@Nonnull final MethodParameter parameter, @Nonnull final HttpServletRequest req) {
-        final UserPrincipal principal = SecurityUtils.getUser();
+        final UserPrincipal principal = SecurityUtils.getPrincipal();
         if (Objects.nonNull(principal)) {
             log.info("获取当前用户信息: {}", principal);
             return principal.getId();

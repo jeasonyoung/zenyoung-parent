@@ -90,48 +90,41 @@ public class OperaLogAspect extends BaseAspect {
             log.debug("handleLog(joinPoint: {},controllerLog: {},e: {},jsonResult: {})...", joinPoint, controllerLog, e, jsonResult);
         }
         if (joinPoint != null && controllerLog != null) {
-            try {
-                //执行时间
-                final Long takeUpTime = getTakeUpTime();
-                //日志数据
-                final OperaLogDTO operLog = OperaLogDTO.builder().status(Status.ENABLE).takeUpTime(takeUpTime).createTime(new Date()).build();
-                //执行方法
-                operLog.setMethod(getFullMethod(joinPoint) + "()");
-                try {
-                    //操作用户
-                    SecurityUtils.getUserOpt().ifPresent(u -> {
-                        operLog.setOperaUserId(u.getId());
+            //执行时间
+            final Long takeUpTime = getTakeUpTime();
+            //日志数据
+            final OperaLogDTO operLog = OperaLogDTO.builder().status(Status.ENABLE).takeUpTime(takeUpTime).createTime(new Date()).build();
+            //执行方法
+            operLog.setMethod(getFullMethod(joinPoint) + "()");
+            //操作用户
+            Optional.ofNullable(SecurityUtils.getPrincipal())
+                    .ifPresent(u -> {
+                        operLog.setOperaUserId(String.valueOf(u.getId()));
                         operLog.setOperaUserName(u.getAccount());
                     });
-                } catch (Throwable ex) {
-                    log.warn("handleLog-exp: {}", ex.getMessage());
-                }
-                //获取IP地址
-                operLog.setOperaUserIpAddr(HttpUtils.getClientIpAddr());
-                HttpUtils.getWebRequestOpt().ifPresent(web -> {
-                    //请求地址
-                    operLog.setReqUrl(web.getRequestURI());
-                    //请求方式
-                    operLog.setReqMethod(web.getMethod());
-                });
-                //异常处理
-                if (e != null) {
-                    operLog.setStatus(Status.DISABLE);
-                    Optional.ofNullable(e.getMessage())
-                            .ifPresent(err -> {
-                                if (!Strings.isNullOrEmpty(err)) {
-                                    final int len = err.length(), max = 2000;
-                                    operLog.setErrorMsg(len < max ? err : err.substring(0, max));
-                                }
-                            });
-                }
-                //按注解处理操作日志
-                handleAnnoMethod(joinPoint, controllerLog, operLog, jsonResult);
-                //保存数据处理
-                context.publishEvent(operLog);
-            } catch (Throwable ex) {
-                log.error("handleLog(joinPoint: {},controllerLog: {},jsonResult: {})-exp: {}", joinPoint, controllerLog, jsonResult, ex.getMessage());
+            //获取IP地址
+            operLog.setOperaUserIpAddr(HttpUtils.getClientIpAddr());
+            HttpUtils.getWebRequestOpt().ifPresent(web -> {
+                //请求地址
+                operLog.setReqUrl(web.getRequestURI());
+                //请求方式
+                operLog.setReqMethod(web.getMethod());
+            });
+            //异常处理
+            if (e != null) {
+                operLog.setStatus(Status.DISABLE);
+                Optional.ofNullable(e.getMessage())
+                        .ifPresent(err -> {
+                            if (!Strings.isNullOrEmpty(err)) {
+                                final int len = err.length(), max = 2000;
+                                operLog.setErrorMsg(len < max ? err : err.substring(0, max));
+                            }
+                        });
             }
+            //按注解处理操作日志
+            handleAnnoMethod(joinPoint, controllerLog, operLog, jsonResult);
+            //保存数据处理
+            context.publishEvent(operLog);
         }
     }
 
@@ -225,7 +218,7 @@ public class OperaLogAspect extends BaseAspect {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (n, o) -> n));
             }
         }
-        return null;
+        return Maps.newHashMap();
     }
 
     private boolean isNotFilterObject(@Nonnull final Object o) {
@@ -238,7 +231,9 @@ public class OperaLogAspect extends BaseAspect {
         if (Collection.class.isAssignableFrom(cls)) {
             final Collection<?> collection = (Collection<?>) o;
             for (Object val : collection) {
-                return !(val instanceof MultipartFile);
+                if(val instanceof MultipartFile){
+                    return false;
+                }
             }
         }
         //Map
@@ -248,7 +243,9 @@ public class OperaLogAspect extends BaseAspect {
                 if (entry.getKey() instanceof MultipartFile) {
                     return false;
                 }
-                return !(entry.getValue() instanceof MultipartFile);
+                if(entry.getValue() instanceof MultipartFile){
+                    return false;
+                }
             }
         }
         return !(o instanceof MultipartFile) && !(o instanceof HttpServletRequest) && !(o instanceof HttpServletResponse) && !(o instanceof BindingResult);
@@ -297,7 +294,7 @@ public class OperaLogAspect extends BaseAspect {
                     if (val != null && isNotFilterObject(val)) {
                         buildParamArgValHandler(field.getName(), null, val, field.getAnnotations(), log, operLog, argParamValMaps);
                     }
-                } catch (Throwable ex) {
+                } catch (Exception ex) {
                     OperaLogAspect.log.warn("buildParamArgVal[arg: {},field: {}]-exp: {}", argVal, field, ex.getMessage());
                 }
             });

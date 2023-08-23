@@ -35,7 +35,7 @@ public abstract class BaseException extends RuntimeException implements EnumValu
      * @param code    异常代码
      * @param message 异常消息
      */
-    public BaseException(final Integer code, final String message) {
+    protected BaseException(final Integer code, final String message) {
         super(message);
         this.code = code;
     }
@@ -45,7 +45,7 @@ public abstract class BaseException extends RuntimeException implements EnumValu
      *
      * @param ev 枚举异常
      */
-    public BaseException(@Nonnull final EnumValue ev) {
+    protected BaseException(@Nonnull final EnumValue ev) {
         this(ev.getVal(), ev.getTitle());
     }
 }

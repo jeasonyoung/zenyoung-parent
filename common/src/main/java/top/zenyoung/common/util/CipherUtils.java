@@ -2,7 +2,7 @@ package top.zenyoung.common.util;
 
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -31,7 +31,7 @@ import java.util.List;
  * 2020/3/30 10:00 上午
  **/
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CipherUtils {
     private static final String AES = "AES";
     private static final String AES_CBC = "AES/CBC/PKCS5Padding";

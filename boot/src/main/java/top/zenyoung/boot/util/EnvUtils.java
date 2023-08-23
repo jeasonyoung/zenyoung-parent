@@ -2,6 +2,8 @@ package top.zenyoung.boot.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnvUtils {
     private static final List<String> DEV_TEST_PROFILES = Lists.newArrayList("local", "dev", "test");
 

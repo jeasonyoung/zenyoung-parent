@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
@@ -104,7 +105,7 @@ public class WebClientUtils implements WebClient {
         log.debug("sendRequest(method: {},url: {},headers: {},bodyConvert: {},respBodyConvert: {})...", method, url, headers, bodyConvert, respBodyConvert);
         final Request.Builder builder = new Request.Builder().url(url);
         //headers
-        if (headers != null && headers.size() > 0) {
+        if (!CollectionUtils.isEmpty(headers)) {
             headers.forEach((key, value) -> {
                 if (!Strings.isNullOrEmpty(key) && value != null) {
                     builder.addHeader(key, value.toString());

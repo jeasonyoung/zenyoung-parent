@@ -6,7 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
@@ -22,7 +22,7 @@ import java.util.Map;
  * @version 1.0
  * date 2020/6/30 2:38 下午
  **/
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
 
     /**

@@ -2,7 +2,7 @@ package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  *
  * @author young
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TextValidUtils {
     private static final Pattern REGEX_MOBILE = Pattern.compile("^1\\d{10}$");
     private static final Pattern REGEX_TEL = Pattern.compile("^(\\d{3,4}-)?\\d{6,8}$");

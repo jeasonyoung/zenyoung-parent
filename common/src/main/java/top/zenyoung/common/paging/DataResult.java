@@ -1,5 +1,6 @@
 package top.zenyoung.common.paging;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  **/
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @RequiredArgsConstructor(staticName = "of")
 public class DataResult<T> implements PagingResult<T> {
     /**

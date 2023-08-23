@@ -25,8 +25,8 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
+@Getter
 public class RequestBodyReaderWrapper extends HttpServletRequestWrapper {
-    @Getter
     private final byte[] body;
 
     public RequestBodyReaderWrapper(final HttpServletRequest request) {

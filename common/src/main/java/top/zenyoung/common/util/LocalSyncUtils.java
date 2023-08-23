@@ -1,7 +1,7 @@
 package top.zenyoung.common.util;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  *
  * @author young
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LocalSyncUtils {
     /**
      * 同步处理

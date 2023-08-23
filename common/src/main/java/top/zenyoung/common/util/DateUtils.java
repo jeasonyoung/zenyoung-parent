@@ -1,15 +1,12 @@
 package top.zenyoung.common.util;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import top.zenyoung.common.model.DateRange;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.function.UnaryOperator;
@@ -21,7 +18,7 @@ import java.util.function.UnaryOperator;
  * @version 1.0
  * date 2020/6/28 1:43 下午
  **/
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
 
     /**
@@ -137,7 +134,7 @@ public class DateUtils {
      * @return 去过一天内
      */
     public static DateRange createWithinBeforeDay() {
-        return createWithinBefore(end -> end.plusDays(-1).plus(-1, ChronoUnit.HOURS));
+        return createWithinBefore(end -> end.plusDays(-1).plus(Duration.of(-1, ChronoUnit.HOURS)));
     }
 
     /**
@@ -146,6 +143,6 @@ public class DateUtils {
      * @return 将来一天内
      */
     public static DateRange createWithinAfterDay() {
-        return createWithinAfter(start -> start.plusDays(1).plus(-1, ChronoUnit.HOURS));
+        return createWithinAfter(start -> start.plusDays(1).plus(Duration.of(-1, ChronoUnit.HOURS)));
     }
 }

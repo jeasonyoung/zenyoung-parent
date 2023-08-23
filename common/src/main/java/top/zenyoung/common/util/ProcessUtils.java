@@ -5,7 +5,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.common.exception.ServiceException;
 
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProcessUtils {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final String SEP = " ";

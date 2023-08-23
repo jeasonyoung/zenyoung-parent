@@ -19,5 +19,5 @@ public @interface PoField {
      *
      * @return 表字段
      */
-    DbField fill() default DbField.Default;
+    DbField fill() default DbField.DEFAULT;
 }

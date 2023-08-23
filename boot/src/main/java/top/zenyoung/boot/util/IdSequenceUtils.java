@@ -1,7 +1,7 @@
 package top.zenyoung.boot.util;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import top.zenyoung.boot.config.IdSequenceProperties;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.common.sequence.SnowFlake;
@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author young
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IdSequenceUtils {
     private static final int CPUS;
 

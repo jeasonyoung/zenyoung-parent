@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  *
  * @author young
  */
-public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<PO> {
+public interface ModelMapper<M extends Model<K>, K extends Serializable> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<M> {
 
     /**
      * 获取当前数据模型类型
@@ -29,8 +29,8 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @return 数据模型类型
      */
     @SuppressWarnings({"unchecked"})
-    default Class<PO> getModelClass() {
-        return (Class<PO>) ReflectionKit.getSuperClassGenericType(getClass(), BaseMapper.class, 0);
+    default Class<M> getModelClass() {
+        return (Class<M>) ReflectionKit.getSuperClassGenericType(getClass(), ModelMapper.class, 0);
     }
 
     /**
@@ -39,9 +39,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 删除条件处理
      * @return 删除结果
      */
-    default int delete(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default int delete(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return delete(queryWrapper);
     }
@@ -52,9 +52,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 更新条件处理
      * @return 更新结果
      */
-    default int update(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaUpdateWrapper<PO> updateWrapper = Wrappers.lambdaUpdate(cls);
+    default int update(@Nonnull final Consumer<LambdaUpdateWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaUpdateWrapper<M> updateWrapper = Wrappers.lambdaUpdate(cls);
         consumer.accept(updateWrapper);
         return update(null, updateWrapper);
     }
@@ -65,9 +65,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 查询条件处理
      * @return 查询结果
      */
-    default PO selectOne(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default M selectOne(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectOne(queryWrapper);
     }
@@ -78,9 +78,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 查询条件处理
      * @return 是否存在记录
      */
-    default boolean exists(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default boolean exists(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return exists(queryWrapper);
     }
@@ -91,9 +91,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 查询条件处理
      * @return 总记录数
      */
-    default Long selectCount(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default Long selectCount(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectCount(queryWrapper);
     }
@@ -104,9 +104,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 查询条件处理
      * @return 查询结果
      */
-    default List<PO> selectList(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default List<M> selectList(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectList(queryWrapper);
     }
@@ -117,9 +117,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 查询条件处理
      * @return 查询结果
      */
-    default List<Map<String, Object>> selectMaps(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default List<Map<String, Object>> selectMaps(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectMaps(queryWrapper);
     }
@@ -130,9 +130,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param consumer 查询条件处理
      * @return 查询结果
      */
-    default List<Object> selectObjs(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default List<Object> selectObjs(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectObjs(queryWrapper);
     }
@@ -145,9 +145,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param <P>      分页类型
      * @return 查询结果
      */
-    default <P extends IPage<PO>> P selectPage(@Nonnull final P page, @Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default <P extends IPage<M>> P selectPage(@Nonnull final P page, @Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectPage(page, queryWrapper);
     }
@@ -160,9 +160,9 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param <P>      分页类型
      * @return 查询结果
      */
-    default <P extends IPage<Map<String, Object>>> P selectMapsPage(@Nonnull final P page, @Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final Class<PO> cls = getModelClass();
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(cls);
+    default <P extends IPage<Map<String, Object>>> P selectMapsPage(@Nonnull final P page, @Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final Class<M> cls = getModelClass();
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(cls);
         consumer.accept(queryWrapper);
         return selectMapsPage(page, queryWrapper);
     }
@@ -173,7 +173,7 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param id ID
      * @return 加载数据
      */
-    PO selectPhysicalById(@Nonnull final ID id);
+    M selectPhysicalById(@Nonnull final K id);
 
     /**
      * 根据ID集合查询数据(包括被逻辑删除的)
@@ -181,7 +181,7 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param ids ID集合
      * @return 数据集合
      */
-    List<PO> selectPhysicalByIds(@Nonnull @Param(Constants.COLL) final Collection<ID> ids);
+    List<M> selectPhysicalByIds(@Nonnull @Param(Constants.COLL) final Collection<K> ids);
 
     /**
      * 批量插入,主键相同则更新
@@ -189,7 +189,7 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param pos 批量插入数据集合
      * @return 批量插入结果
      */
-    int batchAddOrUpdate(@Nonnull @Param(Constants.COLL) final Collection<PO> pos);
+    int batchAddOrUpdate(@Nonnull @Param(Constants.COLL) final Collection<M> pos);
 
     /**
      * 物理删除数据
@@ -197,5 +197,5 @@ public interface BaseMapper<PO extends Model<ID>, ID extends Serializable> exten
      * @param ids ID集合
      * @return 删除结果
      */
-    int physicalDelete(@Nonnull @Param(Constants.COLL) final Collection<ID> ids);
+    int physicalDelete(@Nonnull @Param(Constants.COLL) final Collection<K> ids);
 }

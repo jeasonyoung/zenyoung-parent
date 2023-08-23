@@ -78,7 +78,7 @@ public class OperaLogViewAspect extends BaseAspect {
                     }
                 }
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             log.error("doAfterReturning(joinPoint: {},controllerLogView: {},jsonResult: {})-exp: {}", joinPoint, controllerLogView, jsonResult, ex.getMessage());
         } finally {
             log.info("doAfterReturning-执行时长: {}ms", (System.currentTimeMillis() - start));
@@ -138,7 +138,7 @@ public class OperaLogViewAspect extends BaseAspect {
         return paramVal;
     }
 
-    private LogReqParamVal cacheHandler(@Nonnull final Boolean isCache, @Nonnull final String key, @Nonnull final Supplier<LogReqParamVal> handler) {
+    private LogReqParamVal cacheHandler(final boolean isCache, @Nonnull final String key, @Nonnull final Supplier<LogReqParamVal> handler) {
         if (isCache && !Strings.isNullOrEmpty(key)) {
             LogReqParamVal data = VAL_CACHE.getIfPresent(key);
             if (data == null) {
@@ -191,7 +191,7 @@ public class OperaLogViewAspect extends BaseAspect {
                                 paramVal.setVal(data);
                                 return paramVal;
                             }
-                        } catch (Throwable ex) {
+                        } catch (Exception ex) {
                             log.error("convertDataVal(key: {},fieldValue: {}, paramVal: {})-exp: {}", key, fieldValue, paramVal, ex.getMessage());
                         }
                     }

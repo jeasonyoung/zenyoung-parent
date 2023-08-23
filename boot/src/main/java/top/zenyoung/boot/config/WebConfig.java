@@ -47,19 +47,20 @@ public class WebConfig implements WebMvcConfigurer {
         //拦截器
         if (!CollectionUtils.isEmpty(this.interceptors)) {
             this.interceptors.forEach(interceptor -> {
-                final int order = interceptor.getOrder();
                 final InterceptorRegistration ir = registry.addInterceptor(interceptor);
-                if (order != 0) {
-                    ir.order(order);
-                }
+                //排序
+                ir.order(interceptor.getOrder());
+                //包括匹配
                 final List<String> includePatterns = interceptor.getIncludePatterns();
                 if (!CollectionUtils.isEmpty(includePatterns)) {
                     ir.addPathPatterns(includePatterns);
                 }
+                //排除匹配
                 final List<String> excludePatterns = interceptor.getExcludePatterns();
                 if (!CollectionUtils.isEmpty(swaggerExcludes)) {
                     excludePatterns.addAll(swaggerExcludes);
                 }
+                //排除错误
                 if (!Strings.isNullOrEmpty(errorPage)) {
                     excludePatterns.add(errorPage);
                 }

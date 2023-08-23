@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.ColumnCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.CollectionUtils;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MybatisPlusUtils {
 
     private static <T> Map<String, Object> from(@Nonnull final T dto) {
@@ -118,10 +121,8 @@ public class MybatisPlusUtils {
 
     public static <R> void buildFieldMap(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls,
                                          @Nonnull final LambdaUpdateWrapper<R> updateWrapper, @Nullable final List<String> excludes) {
-        buildFieldMap(params, cls, excludes, (p, val) -> {
-            //更新处理
-            buildUpdateFieldMap(updateWrapper, p.getRight(), val);
-        });
+        //更新处理
+        buildFieldMap(params, cls, excludes, (p, val) -> buildUpdateFieldMap(updateWrapper, p.getRight(), val));
     }
 
     private static <R> String formatSqlHandler(@Nonnull final AbstractLambdaWrapper<R, ?> queryWrapper, @Nonnull final Object val) {
@@ -132,7 +133,7 @@ public class MybatisPlusUtils {
                 formatSqlMethod.setAccessible(true);
                 return (String) formatSqlMethod.invoke(queryWrapper, "{0}", new Object[]{val});
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("formatSqlHandler(val: {})-exp: {}", val, e.getMessage());
         }
         return null;
@@ -150,24 +151,21 @@ public class MybatisPlusUtils {
                     method.setAccessible(true);
                     method.invoke(queryWrapper, true, new ISqlSegment[]{col, op, colVal});
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 log.warn("buildQueryFieldMap(queryWrapper: {},colCache: {})-exp: {}", queryWrapper, colName, e.getMessage());
             }
         }
     }
 
-    private static <R> void buildUpdateFieldMap(@Nonnull final LambdaUpdateWrapper<R> updateWrapper, @Nonnull final String colName, @Nonnull final Object val) {
-        try {
-            final String formatSql = formatSqlHandler(updateWrapper, val);
-            if (!Strings.isNullOrEmpty(formatSql)) {
-                updateWrapper.setSql(true, String.format("%s=%s", colName, formatSql));
-            }
-        } catch (Throwable e) {
-            log.warn("buildUpdateFieldMap(updateWrapper: {},colName: {},val: {})-exp: {}", updateWrapper, colName, val, e.getMessage());
+    private static <R> void buildUpdateFieldMap(@Nonnull final LambdaUpdateWrapper<R> updateWrapper,
+                                                @Nonnull final String colName, @Nonnull final Object val) {
+        final String formatSql = formatSqlHandler(updateWrapper, val);
+        if (!Strings.isNullOrEmpty(formatSql)) {
+            updateWrapper.setSql(true, String.format("%s=%s", colName, formatSql));
         }
     }
 
-    public static <T, R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls) {
+    public static <R> LambdaQueryWrapper<R> buildQueryWrapper(@Nonnull final Map<String, Object> params, @Nonnull final Class<R> cls) {
         return buildQueryWrapper(params, cls, (List<String>) null);
     }
 

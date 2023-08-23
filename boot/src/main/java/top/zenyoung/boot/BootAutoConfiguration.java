@@ -15,6 +15,7 @@ import top.zenyoung.boot.aop.OperaLogViewAspect;
 import top.zenyoung.boot.aop.PrivacyPolicyAspect;
 import top.zenyoung.boot.aop.RequestLogAspect;
 import top.zenyoung.boot.config.*;
+import top.zenyoung.boot.interceptor.RequestAuthorizeInterceptor;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 import top.zenyoung.boot.service.BeanMappingService;
 import top.zenyoung.boot.service.impl.BeanMappingServiceImpl;
@@ -44,6 +45,12 @@ public class BootAutoConfiguration {
     @ConditionalOnMissingBean
     public BeanMappingService beanMappingService() {
         return new BeanMappingServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RequestAuthorizeInterceptor requestAuthorizeInterceptor() {
+        return new RequestAuthorizeInterceptor();
     }
 
     @Bean
