@@ -3,10 +3,10 @@ package top.zenyoung.boot.interceptor;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.HandlerMethod;
 import top.zenyoung.boot.annotation.authorize.*;
+import top.zenyoung.boot.enums.ExceptionEnums;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.model.UserPrincipal;
@@ -83,7 +83,7 @@ public class RequestAuthorizeInterceptor implements RequestMappingInterceptor {
                 return true;
             }
         }
-        throw new ServiceException(HttpStatus.FORBIDDEN.value(), "无授权访问");
+        throw new ServiceException(ExceptionEnums.FORBIDDEN);
     }
 
     private <T> boolean checkHandler(@Nullable final Set<String> sources, @Nullable final T ann,
