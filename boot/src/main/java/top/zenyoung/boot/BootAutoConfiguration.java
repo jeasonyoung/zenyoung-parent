@@ -3,6 +3,7 @@ package top.zenyoung.boot;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -48,7 +49,7 @@ public class BootAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "top.zenyoung", name = "request-authorize-check", matchIfMissing = true)
     public RequestAuthorizeInterceptor requestAuthorizeInterceptor() {
         return new RequestAuthorizeInterceptor();
     }
