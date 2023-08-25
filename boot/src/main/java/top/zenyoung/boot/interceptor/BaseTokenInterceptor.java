@@ -1,9 +1,6 @@
 package top.zenyoung.boot.interceptor;
 
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -20,8 +17,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,10 +33,6 @@ import java.util.stream.Collectors;
 public abstract class BaseTokenInterceptor implements RequestMappingInterceptor {
     private static final String TOKEN_NAME = HttpHeaders.AUTHORIZATION;
     private static final String AUTH_BEARER_PREFIX = "Bearer ";
-    protected static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
-    protected static final Cache<Long, UserPrincipal> USER_PRINCIPAL_CACHE = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofSeconds(300))
-            .build();
 
     @Override
     public int getOrder() {

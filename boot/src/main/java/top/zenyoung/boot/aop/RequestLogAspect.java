@@ -11,6 +11,7 @@ import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import top.zenyoung.boot.util.HttpUtils;
 import top.zenyoung.common.util.JsonUtils;
 
@@ -72,7 +73,8 @@ public class RequestLogAspect extends BaseAspect implements DisposableBean {
         final List<String> logs = prev == null ? Lists.newLinkedList() : prev;
         //检查响应数据
         if (jsonResult != null) {
-            logs.add("响应数据: " + JsonUtils.toJson(objMapper, jsonResult));
+            final String json = JsonUtils.toJson(objMapper, jsonResult);
+            logs.add("响应数据: " + StringUtils.truncate(json));
         }
         printLogsHandler(logs);
     }
