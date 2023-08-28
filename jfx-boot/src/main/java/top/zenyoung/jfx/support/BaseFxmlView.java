@@ -161,7 +161,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
     /**
      * Sets up the first view using the primary {@link Stage}
      */
-    protected void initFirstView() {
+    public void initFirstView() {
         this.isPrimaryStageView = true;
         this.stage = GUIState.getStage();
         final Scene scene = getView().getScene() != null ? getView().getScene() : new Scene(getView());
