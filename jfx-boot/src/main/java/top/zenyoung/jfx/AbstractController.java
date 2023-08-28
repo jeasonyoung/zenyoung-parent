@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 /**
  * jfx-控制器基类
  */
-public abstract class BaseController implements Controller {
+public abstract class AbstractController implements Controller {
     private static final Executor POOLS = ThreadUtils.createPools();
 
     @Getter(AccessLevel.PROTECTED)
