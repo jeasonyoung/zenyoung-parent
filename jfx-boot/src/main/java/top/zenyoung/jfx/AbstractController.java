@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import lombok.AccessLevel;
 import lombok.Getter;
 import top.zenyoung.common.util.ThreadUtils;
+import top.zenyoung.jfx.util.SpringContextHolder;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executor;
@@ -21,6 +22,17 @@ public abstract class AbstractController implements Controller {
     @Override
     public void setRoot(@Nonnull final Node root) {
         this.root = root;
+    }
+
+    /**
+     * 获取Bean对象
+     *
+     * @param beanClass Bean类型
+     * @param <T>       Bean类型
+     * @return Bean对象
+     */
+    protected <T> T getBean(@Nonnull final Class<T> beanClass) {
+        return SpringContextHolder.getBean(beanClass);
     }
 
     /**
