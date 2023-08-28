@@ -22,7 +22,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.common.util.JfxUtils;
+import top.zenyoung.jfx.Constant;
+import top.zenyoung.jfx.GUIState;
+import top.zenyoung.jfx.util.JfxUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

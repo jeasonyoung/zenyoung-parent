@@ -1,4 +1,4 @@
-package top.zenyoung.jfx.support;
+package top.zenyoung.jfx;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;

@@ -1,4 +1,4 @@
-package top.zenyoung.common.util;
+package top.zenyoung.jfx.util;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Parent;

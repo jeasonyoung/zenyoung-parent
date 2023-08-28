@@ -4,7 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import top.zenyoung.common.util.JfxUtils;
+import top.zenyoung.jfx.util.JfxUtils;
 
 import java.util.Objects;
 

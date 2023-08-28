@@ -15,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import top.zenyoung.common.util.JfxUtils;
+import top.zenyoung.jfx.Constant;
+import top.zenyoung.jfx.GUIState;
+import top.zenyoung.jfx.util.JfxUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

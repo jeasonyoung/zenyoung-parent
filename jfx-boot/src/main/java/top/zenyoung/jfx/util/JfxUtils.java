@@ -1,4 +1,4 @@
-package top.zenyoung.common.util;
+package top.zenyoung.jfx.util;
 
 import com.google.common.base.Strings;
 import javafx.scene.image.Image;
