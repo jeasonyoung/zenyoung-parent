@@ -1,6 +1,7 @@
 package top.zenyoung.jfx.util;
 
 import com.google.common.base.Strings;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lombok.AccessLevel;
@@ -18,6 +19,21 @@ import java.util.Objects;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JfxUtils {
+    /**
+     * 主函数处理
+     *
+     * @param handler 业务处理器
+     */
+    public static void mainRun(@Nonnull final Runnable handler) {
+        //检查是否为UI线程
+        if (Platform.isFxApplicationThread()) {
+            handler.run();
+            return;
+        }
+        //UI线程处理
+        Platform.runLater(handler);
+    }
+
     /**
      * 获取资源文件路径
      *

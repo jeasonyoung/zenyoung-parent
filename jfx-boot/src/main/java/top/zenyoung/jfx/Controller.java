@@ -1,7 +1,7 @@
 package top.zenyoung.jfx;
 
 import javafx.scene.Node;
-import top.zenyoung.jfx.util.ThreadUtils;
+import top.zenyoung.jfx.util.JfxUtils;
 
 import javax.annotation.Nonnull;
 
@@ -32,6 +32,6 @@ public interface Controller {
      * @param handler 执行处理器
      */
     default void mainRun(@Nonnull final Runnable handler) {
-        ThreadUtils.mainRun(handler);
+        JfxUtils.mainRun(handler);
     }
 }
