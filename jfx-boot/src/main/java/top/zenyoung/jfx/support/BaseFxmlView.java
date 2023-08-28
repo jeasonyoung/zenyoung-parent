@@ -72,7 +72,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
     /**
      * Instantiates a new abstract fxml view.
      */
-    public BaseFxmlView() {
+    protected BaseFxmlView() {
         log.debug("AbstractFxmlView construction");
         // Set the root path to package path
         this.fxmlRoot = PropertyReaderHelper.determineFilePathFromPackageName(getClass());
@@ -240,15 +240,15 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
 
     private Stage createStage(@Nonnull final Modality modality) {
         currentStageModality = modality;
-        final Stage stage = new Stage();
-        stage.initModality(modality);
-        stage.setTitle(getDefaultTitle());
-        stage.initStyle(getDefaultStyle());
+        final Stage s = new Stage();
+        s.initModality(modality);
+        s.setTitle(getDefaultTitle());
+        s.initStyle(getDefaultStyle());
         final List<Image> primaryStageIcons = GUIState.getStage().getIcons();
-        stage.getIcons().addAll(primaryStageIcons);
+        s.getIcons().addAll(primaryStageIcons);
         final Scene scene = getView().getScene() != null ? getView().getScene() : new Scene(getView());
-        stage.setScene(scene);
-        return stage;
+        s.setScene(scene);
+        return s;
     }
 
     /**
@@ -363,6 +363,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
 
     /**
      * Gets the default title for to be shown in a (un)modal window.
+     *
      * @return default title
      */
     protected String getDefaultTitle() {
@@ -437,14 +438,14 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
      * @return the bundle name
      */
     private String getBundleName() {
-        final String bundle;
-        if (Strings.isNullOrEmpty(bundle = annotation.bundle())) {
+        final String sBundle;
+        if (Strings.isNullOrEmpty(sBundle = annotation.bundle())) {
             final String lbundle = getClass().getPackage().getName() + "." + getConventionalName();
             log.debug("Bundle: {} based on conventional name.", lbundle);
             return lbundle;
         }
-        log.debug("Annotated bundle: {}", bundle);
-        return bundle;
+        log.debug("Annotated bundle: {}", sBundle);
+        return sBundle;
     }
 
     /**

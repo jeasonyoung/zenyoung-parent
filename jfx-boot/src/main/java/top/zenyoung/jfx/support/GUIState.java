@@ -2,9 +2,10 @@ package top.zenyoung.jfx.support;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 
 /**
@@ -14,38 +15,99 @@ import java.awt.*;
  * @author Felix Roske
  * @author Andreas Jay
  */
-@Getter
-public enum GUIState {
-    /**
-     * 实例
-     */
-    INSTANCE;
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class GUIState {
+    private static final GUIState state = new GUIState();
     /**
      * 场景
      */
-    @Getter
-    @Setter
-    private static Scene scene;
-
+    private Scene scene;
     /**
      * 舞台
      */
-    @Getter
-    @Setter
-    private static Stage stage;
-
+    private Stage stage;
     /**
      * 标题
      */
-    @Getter
-    @Setter
-    private static String title;
-
+    private String title;
     /**
      * 系统托盘
      */
-    @Getter
-    @Setter
-    private static SystemTray systemTray;
+    private SystemTray systemTray;
+
+    private static GUIState getInstance() {
+        return state;
+    }
+
+    /**
+     * 获取场景
+     *
+     * @return 场景
+     */
+    public static Scene getScene() {
+        return getInstance().scene;
+    }
+
+    /**
+     * 设置场景
+     *
+     * @param scene 场景
+     */
+    public static void setScene(@Nonnull final Scene scene) {
+        getInstance().scene = scene;
+    }
+
+    /**
+     * 获取舞台
+     *
+     * @return 舞台
+     */
+    public static Stage getStage() {
+        return getInstance().stage;
+    }
+
+    /**
+     * 设置舞台
+     *
+     * @param stage 舞台
+     */
+    public static void setStage(@Nonnull final Stage stage) {
+        getInstance().stage = stage;
+    }
+
+    /**
+     * 获取标题
+     *
+     * @return 标题
+     */
+    public static String getTitle() {
+        return getInstance().title;
+    }
+
+    /**
+     * 设置标题
+     *
+     * @param title 标题
+     */
+    public static void setTitle(@Nonnull final String title) {
+        getInstance().title = title;
+    }
+
+    /**
+     * 获取系统托盘
+     *
+     * @return 系统托盘
+     */
+    public static SystemTray getSystemTray() {
+        return getInstance().systemTray;
+    }
+
+    /**
+     * 设置系统托盘
+     *
+     * @param systemTray 系统托盘
+     */
+    public static void setSystemTray(@Nonnull final SystemTray systemTray) {
+        getInstance().systemTray = systemTray;
+    }
 }

@@ -17,8 +17,7 @@ import java.util.Objects;
  * @author Andreas Jay
  */
 public class SplashScreen {
-    private final static String RES_PREFIX = "/top/zenyoung/jfx/support";
-
+    private static final String RES_PREFIX = "/top/zenyoung/jfx/support";
     /**
      * 宽度
      */

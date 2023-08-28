@@ -41,7 +41,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
     private static ConfigurableApplicationContext applicationContext;
     private static Consumer<Throwable> errorAction = defaultErrorAction();
 
-    private final static List<Image> ICONS = Lists.newArrayList();
+    private static final List<Image> ICONS = Lists.newArrayList();
 
     private final List<Image> defaultIcons = Lists.newArrayList();
     private final CompletableFuture<Runnable> splashIsShowing;
@@ -82,7 +82,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
             final List<String> fsImages = PropertyReaderHelper.get(ctx.getEnvironment(), Constant.KEY_APPICONS);
             if (!fsImages.isEmpty()) {
                 final Class<?> cls = getClass();
-                fsImages.forEach((s) -> {
+                fsImages.forEach(s -> {
                     final Image img = JfxUtils.fromResourceToImage(cls, s);
                     if (Objects.nonNull(img)) {
                         ICONS.add(img);
@@ -154,7 +154,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
     /**
      * Launch application view.
      */
-    private void launchApplicationView(@Nonnull final ConfigurableApplicationContext ctx) {
+    private static void launchApplicationView(@Nonnull final ConfigurableApplicationContext ctx) {
         applicationContext = ctx;
     }
 

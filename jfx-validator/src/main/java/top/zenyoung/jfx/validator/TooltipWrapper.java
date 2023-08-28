@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 
@@ -19,6 +20,7 @@ import javax.annotation.Nonnull;
  */
 public class TooltipWrapper<T extends Node> extends HBox {
     private final T node;
+    @Getter
     private final Tooltip disabledTooltip;
     private final ObservableValue<Boolean> disabledProperty;
 
@@ -45,10 +47,6 @@ public class TooltipWrapper<T extends Node> extends HBox {
 
     public T getWrappedNode() {
         return node;
-    }
-
-    public Tooltip getDisabledTooltip() {
-        return disabledTooltip;
     }
 
     private void updateTooltip() {

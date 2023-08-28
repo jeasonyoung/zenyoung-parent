@@ -20,12 +20,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- 框架模块 -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>top.zenyoung</groupId>
             <artifactId>common</artifactId>
         </dependency>
 

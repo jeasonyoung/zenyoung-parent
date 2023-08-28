@@ -1,25 +1,22 @@
 package top.zenyoung.common.util;
 
 import com.google.common.base.Strings;
-import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.URL;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Jfx 工具类
  *
  * @author young
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JfxUtils {
     /**
      * 获取资源文件路径

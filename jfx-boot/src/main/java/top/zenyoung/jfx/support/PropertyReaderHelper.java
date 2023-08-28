@@ -1,6 +1,8 @@
 package top.zenyoung.jfx.support;
 
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.Nonnull;
@@ -13,11 +15,8 @@ import java.util.function.Consumer;
  * @author Felix Roske
  * @author Andreas Jay
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PropertyReaderHelper {
-
-    private PropertyReaderHelper() {
-    }
-
     /**
      * Lookup in {@link Environment} a certain property or a list of properties.
      *

@@ -9,6 +9,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -23,6 +25,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IconUtils {
 
     /**

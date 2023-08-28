@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -50,8 +51,8 @@ public final class ResourceBundleControl extends ResourceBundle.Control {
             stream = loader.getResourceAsStream(resourceName);
         }
         if (Objects.nonNull(stream)) {
-            try {
-                bundle = new PropertyResourceBundle(new InputStreamReader(stream, charset));
+            try (final Reader reader = new InputStreamReader(stream, charset)) {
+                bundle = new PropertyResourceBundle(reader);
             } finally {
                 stream.close();
             }
