@@ -1,15 +1,22 @@
 package top.zenyoung.jfx.util;
 
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Maps;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.kordamp.bootstrapfx.scene.layout.Panel;
+import top.zenyoung.jfx.Controller;
+import top.zenyoung.jfx.Ui;
 
 import javax.annotation.Nonnull;
 import java.net.URL;
+import java.time.Duration;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -19,6 +26,37 @@ import java.util.Objects;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JfxUtils {
+    private static final Map<Class<?>, Object> LOCKS = Maps.newConcurrentMap();
+    private static final Cache<Class<? extends Controller>, Ui<? extends Controller>> UI_CACHE = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
+
+    /**
+     * 构建UI对象
+     *
+     * @param ctrClass 控制器Class
+     * @param fxml     xml文件
+     * @param <C>      控制器类型
+     * @return UI对象
+     */
+    @SuppressWarnings({"unchecked"})
+    public static <C extends Controller> Ui<C> buildUi(@Nonnull final Class<C> ctrClass, @Nonnull final String fxml) {
+        Ui<C> ui = (Ui<C>) UI_CACHE.getIfPresent(ctrClass);
+        if (ui != null) {
+            ui.reInitializable();
+            return ui;
+        }
+        synchronized (LOCKS.computeIfAbsent(ctrClass, k -> new Object())) {
+            try {
+                ui = new Ui<>(fxml);
+                UI_CACHE.put(ctrClass, ui);
+            } finally {
+                LOCKS.remove(ctrClass);
+            }
+        }
+        return ui;
+    }
+
     /**
      * 主函数处理
      *
