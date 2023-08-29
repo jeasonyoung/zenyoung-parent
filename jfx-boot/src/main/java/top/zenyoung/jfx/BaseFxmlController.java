@@ -1,11 +1,11 @@
 package top.zenyoung.jfx;
 
 import javafx.concurrent.Task;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import top.zenyoung.common.util.ThreadUtils;
@@ -18,7 +18,7 @@ import java.util.concurrent.Executor;
 /**
  * jfx-控制器基类
  */
-public abstract class BaseFxmlController implements ApplicationContextAware, InitializingBean {
+public abstract class BaseFxmlController implements ApplicationContextAware, Initializable {
     private static final Executor POOLS = ThreadUtils.createPools();
     private ApplicationContext context;
 
@@ -58,11 +58,6 @@ public abstract class BaseFxmlController implements ApplicationContextAware, Ini
         return Optional.ofNullable(context)
                 .map(c -> c.getBean(beanClass))
                 .orElse(null);
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-
     }
 
     /**

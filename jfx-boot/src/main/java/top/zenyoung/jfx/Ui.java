@@ -2,7 +2,6 @@ package top.zenyoung.jfx;
 
 import com.google.common.base.Strings;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -47,7 +46,6 @@ public class Ui<C extends BaseFxmlController> {
         this.root = this.fxmlLoader.load(url.openStream());
         this.controller = this.fxmlLoader.getController();
         this.controller.setRoot(this.root);
-        this.controller.afterPropertiesSet();
     }
 
     private URL getFxmlUrl(@Nonnull final String fxml) {
@@ -90,11 +88,7 @@ public class Ui<C extends BaseFxmlController> {
     public void reInitializable() {
         if (fxmlLoader != null && controller != null) {
             //初始化
-            if ((controller instanceof Initializable)) {
-                ((Initializable) controller).initialize(fxmlLoader.getLocation(), fxmlLoader.getResources());
-            }
-            //初始化之后执行
-            controller.afterPropertiesSet();
+            controller.initialize(fxmlLoader.getLocation(), fxmlLoader.getResources());
         }
     }
 }

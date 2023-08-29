@@ -19,6 +19,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.CollectionUtils;
@@ -59,7 +60,7 @@ import java.util.stream.Stream;
  * @author Andreas Jay
  */
 @Slf4j
-public abstract class BaseFxmlView implements ApplicationContextAware {
+public abstract class BaseFxmlView implements ApplicationContextAware, InitializingBean {
     private final AtomicBoolean refEnableResize = new AtomicBoolean(false);
     private final AtomicReference<DragResize> refResize = new AtomicReference<>(null);
     private final String fxmlRoot;
@@ -176,9 +177,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
         this.stage.setScene(scene);
         GUIState.setScene(scene);
         //添加界面拖动效果
-        if (this.stage != null) {
-            JfxUtils.addDragHandler(stage, scene, refResize.get());
-        }
+        JfxUtils.addDragHandler(stage, scene, refResize.get());
     }
 
     /**
