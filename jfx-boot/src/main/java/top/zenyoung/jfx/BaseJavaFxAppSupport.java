@@ -16,6 +16,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import top.zenyoung.jfx.support.BaseFxmlView;
+import top.zenyoung.jfx.support.BaseIndexFxmlView;
 import top.zenyoung.jfx.support.PropertyReaderHelper;
 import top.zenyoung.jfx.support.SplashScreen;
 import top.zenyoung.jfx.util.JfxUtils;
@@ -102,7 +103,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
     }
 
     @Override
-    public void init() {
+    public final void init() {
         // Load in JavaFx Thread and reused by Completable Future, but should no be a big deal.
         defaultIcons.addAll(loadDefaultIcons());
         CompletableFuture.supplyAsync(() -> SpringApplication.run(this.getClass(), savedArgs))
@@ -121,7 +122,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
     }
 
     @Override
-    public void start(@Nonnull final Stage stage) {
+    public final void start(@Nonnull final Stage stage) {
         GUIState.setStage(stage);
         final Stage splashStage = new Stage(StageStyle.TRANSPARENT);
         if (splashScreen.visible()) {
@@ -210,7 +211,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
     }
 
     @Override
-    public void stop() throws Exception {
+    public final void stop() throws Exception {
         super.stop();
         if (applicationContext != null) {
             applicationContext.close();
@@ -225,6 +226,10 @@ public abstract class BaseJavaFxAppSupport extends Application {
      */
     protected static void setTitle(@Nonnull final String title) {
         GUIState.getStage().setTitle(title);
+    }
+
+    public static void launch(@Nonnull final Class<? extends Application> appClass, @Nonnull final String[] args) {
+        launch(appClass, BaseIndexFxmlView.class, args);
     }
 
     /**
