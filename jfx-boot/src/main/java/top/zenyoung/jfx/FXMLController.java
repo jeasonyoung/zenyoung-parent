@@ -1,4 +1,4 @@
-package top.zenyoung.jfx.support;
+package top.zenyoung.jfx;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
