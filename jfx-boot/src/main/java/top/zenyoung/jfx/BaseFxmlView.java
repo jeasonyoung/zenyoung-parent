@@ -1,4 +1,4 @@
-package top.zenyoung.jfx.support;
+package top.zenyoung.jfx;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -22,8 +22,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.jfx.Constant;
-import top.zenyoung.jfx.GUIState;
+import top.zenyoung.jfx.model.DragResize;
+import top.zenyoung.jfx.support.PropertyReaderHelper;
+import top.zenyoung.jfx.support.ResourceBundleControl;
 import top.zenyoung.jfx.util.JfxUtils;
 
 import javax.annotation.Nonnull;
@@ -33,11 +34,11 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.ResourceBundle.getBundle;
 
 /**
  * Base class for fxml-based view classes.
@@ -59,6 +60,8 @@ import static java.util.ResourceBundle.getBundle;
  */
 @Slf4j
 public abstract class BaseFxmlView implements ApplicationContextAware {
+    private final AtomicBoolean refEnableResize = new AtomicBoolean(false);
+    private final AtomicReference<DragResize> refResize = new AtomicReference<>(null);
     private final String fxmlRoot;
     private final FXMLView annotation;
     private final URL resource;
@@ -155,7 +158,12 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
             return;
         }
         fxmlLoader = loadSynchronously(resource, bundle);
-        presenterProperty.set(fxmlLoader.getController());
+        //获取控制器处理
+        final Object controller = fxmlLoader.getController();
+        if (controller instanceof BaseFxmlController) {
+            ((BaseFxmlController) controller).setRoot(fxmlLoader.getRoot());
+        }
+        presenterProperty.set(controller);
     }
 
     /**
@@ -167,6 +175,25 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
         final Scene scene = getView().getScene() != null ? getView().getScene() : new Scene(getView());
         this.stage.setScene(scene);
         GUIState.setScene(scene);
+        //添加界面拖动效果
+        if (this.stage != null) {
+            JfxUtils.addDragHandler(stage, scene, refResize.get());
+        }
+    }
+
+    /**
+     * 添加界面拉伸效果
+     */
+    public void enableResize() {
+        if (!refEnableResize.get() && Objects.nonNull(stage)) {
+            final Scene scene = GUIState.getScene();
+            if (Objects.nonNull(scene)) {
+                //添加界面拉伸效果
+                JfxUtils.addResizeDrawHandler(stage, scene, refResize::set);
+                //标记
+                refEnableResize.set(true);
+            }
+        }
     }
 
     public void hide() {
@@ -485,7 +512,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware {
     private ResourceBundle getResourceBundle(@Nonnull final String name) {
         try {
             log.debug("Resource bundle: " + name);
-            return getBundle(name, new ResourceBundleControl(getResourceBundleCharset()));
+            return ResourceBundle.getBundle(name, new ResourceBundleControl(getResourceBundleCharset()));
         } catch (final MissingResourceException ex) {
             log.debug("No resource bundle could be determined: " + ex.getMessage());
             return null;

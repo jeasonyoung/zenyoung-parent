@@ -1,4 +1,4 @@
-package top.zenyoung.jfx.support;
+package top.zenyoung.jfx;
 
 import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;

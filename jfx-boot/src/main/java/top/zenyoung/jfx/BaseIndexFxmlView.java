@@ -1,4 +1,4 @@
-package top.zenyoung.jfx.support;
+package top.zenyoung.jfx;
 
 /**
  * 首页View基类

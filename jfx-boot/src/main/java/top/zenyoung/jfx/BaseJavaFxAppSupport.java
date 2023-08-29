@@ -15,12 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
-import top.zenyoung.jfx.support.BaseFxmlView;
-import top.zenyoung.jfx.support.BaseIndexFxmlView;
 import top.zenyoung.jfx.support.PropertyReaderHelper;
-import top.zenyoung.jfx.support.SplashScreen;
 import top.zenyoung.jfx.util.JfxUtils;
-import top.zenyoung.jfx.util.SpringContextHolder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,7 +37,7 @@ import java.util.stream.Collectors;
 public abstract class BaseJavaFxAppSupport extends Application {
     private static String[] savedArgs = new String[0];
     private static Class<? extends BaseFxmlView> savedInitialView;
-    private static top.zenyoung.jfx.support.SplashScreen splashScreen;
+    private static SplashScreen splashScreen;
 
     private static ConfigurableApplicationContext applicationContext;
     private static Consumer<Throwable> errorAction = defaultErrorAction();
@@ -161,7 +157,6 @@ public abstract class BaseJavaFxAppSupport extends Application {
      */
     private static void launchApplicationView(@Nonnull final ConfigurableApplicationContext ctx) {
         applicationContext = ctx;
-        SpringContextHolder.setContext(ctx);
     }
 
     /**
@@ -242,7 +237,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
     public static void launch(@Nonnull final Class<? extends Application> appClass,
                               @Nonnull final Class<? extends BaseFxmlView> view,
                               @Nonnull final String[] args) {
-        launch(appClass, view, new top.zenyoung.jfx.support.SplashScreen(), args);
+        launch(appClass, view, new SplashScreen(), args);
     }
 
     /**
@@ -255,7 +250,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
      */
     public static void launch(@Nonnull final Class<? extends Application> appClass,
                               @Nonnull final Class<? extends BaseFxmlView> view,
-                              @Nullable final top.zenyoung.jfx.support.SplashScreen splash, @Nonnull final String[] args) {
+                              @Nullable final SplashScreen splash, @Nonnull final String[] args) {
         savedInitialView = view;
         savedArgs = args;
         if (Objects.nonNull(splash)) {
