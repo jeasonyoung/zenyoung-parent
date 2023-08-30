@@ -21,22 +21,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
         </dependency>
-
         <!-- 框架模块 -->
         <dependency>
             <groupId>top.zenyoung</groupId>
             <artifactId>common</artifactId>
         </dependency>
-
-        <!-- bootstrapfx -->
+        <!-- jipsy -->
         <dependency>
-            <groupId>org.kordamp.bootstrapfx</groupId>
-            <artifactId>bootstrapfx-core</artifactId>
-        </dependency>
-        <!--  ikonli -->
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-javafx</artifactId>
+            <groupId>org.kordamp.jipsy</groupId>
+            <artifactId>jipsy</artifactId>
         </dependency>
         <!-- log -->
         <dependency>
@@ -49,6 +42,14 @@
     <build>
         <finalName>${project.artifactId}</finalName>
         <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.class</include>
+                    <include>**/*.css</include>
+                    <include>**/*.css.map</include>
+                </includes>
+            </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
@@ -64,6 +65,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
