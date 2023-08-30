@@ -18,12 +18,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import lombok.extern.slf4j.Slf4j;
+import org.kordamp.bootstrapfx.BootstrapFX;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.jfx.model.DragResize;
 import top.zenyoung.jfx.support.PropertyReaderHelper;
 import top.zenyoung.jfx.support.ResourceBundleControl;
 import top.zenyoung.jfx.util.JfxUtils;
@@ -35,8 +35,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,8 +59,6 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public abstract class BaseFxmlView implements ApplicationContextAware, InitializingBean {
-    private final AtomicBoolean refEnableResize = new AtomicBoolean(false);
-    private final AtomicReference<DragResize> refResize = new AtomicReference<>(null);
     private final String fxmlRoot;
     private final FXMLView annotation;
     private final URL resource;
@@ -176,23 +172,6 @@ public abstract class BaseFxmlView implements ApplicationContextAware, Initializ
         final Scene scene = getView().getScene() != null ? getView().getScene() : new Scene(getView());
         this.stage.setScene(scene);
         GUIState.setScene(scene);
-        //添加界面拖动效果
-        JfxUtils.addDragHandler(stage, scene, refResize.get());
-    }
-
-    /**
-     * 添加界面拉伸效果
-     */
-    public void enableResize() {
-        if (!refEnableResize.get() && Objects.nonNull(stage)) {
-            final Scene scene = GUIState.getScene();
-            if (Objects.nonNull(scene)) {
-                //添加界面拉伸效果
-                JfxUtils.addResizeDrawHandler(stage, scene, refResize::set);
-                //标记
-                refEnableResize.set(true);
-            }
-        }
     }
 
     public void hide() {
@@ -353,7 +332,7 @@ public abstract class BaseFxmlView implements ApplicationContextAware, Initializ
                     .collect(Collectors.toList())
             );
         } else {
-            final String css = JfxUtils.getBootstrapFXStylesheet();
+            final String css = BootstrapFX.bootstrapFXStylesheet();
             if (!Strings.isNullOrEmpty(css)) {
                 globals.add(css);
             }
