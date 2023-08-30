@@ -1,5 +1,6 @@
 package top.zenyoung.jfx;
 
+import com.google.common.base.Strings;
 import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -13,6 +14,7 @@ import top.zenyoung.jfx.util.JfxUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 
 /**
@@ -21,6 +23,7 @@ import java.util.concurrent.Executor;
 public abstract class BaseFxmlController implements ApplicationContextAware, Initializable {
     private static final Executor POOLS = ThreadUtils.createPools();
     private ApplicationContext context;
+    private ResourceBundle resourceBundle;
 
     @Getter(AccessLevel.PROTECTED)
     private Node root;
@@ -28,6 +31,28 @@ public abstract class BaseFxmlController implements ApplicationContextAware, Ini
     @Override
     public void setApplicationContext(@Nonnull final ApplicationContext ctx) throws BeansException {
         this.context = ctx;
+    }
+
+    /**
+     * 设置i18n资源文件对象
+     *
+     * @param bundle i18n资源文件对象
+     */
+    public final void setResourceBundle(final ResourceBundle bundle) {
+        this.resourceBundle = bundle;
+    }
+
+    /**
+     * 根据资源键加载多语言值
+     *
+     * @param key 多语言键
+     * @return 多语言值
+     */
+    protected final String getResourceBundleByKey(@Nonnull final String key) {
+        return Optional.ofNullable(resourceBundle)
+                .filter(res -> !Strings.isNullOrEmpty(key))
+                .map(res -> res.getString(key))
+                .orElse(null);
     }
 
     /**

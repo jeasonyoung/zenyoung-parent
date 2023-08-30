@@ -158,7 +158,9 @@ public abstract class BaseFxmlView implements ApplicationContextAware, Initializ
         //获取控制器处理
         final Object controller = fxmlLoader.getController();
         if (controller instanceof BaseFxmlController) {
-            ((BaseFxmlController) controller).setRoot(fxmlLoader.getRoot());
+            final BaseFxmlController bfc = ((BaseFxmlController) controller);
+            bfc.setRoot(fxmlLoader.getRoot());
+            bfc.setResourceBundle(bundle);
         }
         presenterProperty.set(controller);
     }
