@@ -53,7 +53,6 @@
         <module>netty-client</module>
         <!-- jfx -->
         <module>jfx-boot</module>
-        <module>jfx-validator</module>
         <!-- fc-runtime -->
         <module>fc-runtime-huawei</module>
         <!-- opencv -->

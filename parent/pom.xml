@@ -128,7 +128,6 @@
         <zenyoung-netty-server.version>3.1.0</zenyoung-netty-server.version>
         <zenyoung-netty-client.version>3.1.0</zenyoung-netty-client.version>
         <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>
-        <zenyoung-jfx-validator.version>3.1.0</zenyoung-jfx-validator.version>
         <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>
         <zenyoung-opencv.version>1.0.0</zenyoung-opencv.version>
         <zenyoung-generator.version>3.1.0</zenyoung-generator.version>
@@ -442,11 +441,6 @@
                 <groupId>top.zenyoung</groupId>
                 <artifactId>jfx-boot</artifactId>
                 <version>${zenyoung-jfx-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>jfx-validator</artifactId>
-                <version>${zenyoung-jfx-validator.version}</version>
             </dependency>
             <!-- fc-runtime -->
             <dependency>
