@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
  * @author young
  */
 @Slf4j
-public abstract class PropertyValueFormatterFactory<S, T, R> implements Callback<TableColumn.CellDataFeatures<S, T>, ObservableValue<R>> {
+public abstract class BasePropertyValueFormatterFactory<S, T, R> implements Callback<TableColumn.CellDataFeatures<S, T>, ObservableValue<R>> {
     @Getter
     private final String property;
     private Class<?> columnClass;
@@ -30,7 +30,7 @@ public abstract class PropertyValueFormatterFactory<S, T, R> implements Callback
      *
      * @param property 属性名
      */
-    protected PropertyValueFormatterFactory(@NamedArg("property") @Nonnull final String property) {
+    protected BasePropertyValueFormatterFactory(@NamedArg("property") @Nonnull final String property) {
         this.property = property;
     }
 
