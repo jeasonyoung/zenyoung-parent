@@ -8,12 +8,12 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
- * 格式化TableCell值
+ * TableCell数据格式化基类
  *
  * @param <S> 数据模型类型
- * @param <T> 数据值类型
+ * @param <T> 字段数据类型
  */
-public abstract class BaseValueFormatTableCellFactory<S, T> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
+public abstract class BaseFormatTableCellFactory<S, T> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
 
     @Override
     public TableCell<S, T> call(final TableColumn<S, T> param) {
