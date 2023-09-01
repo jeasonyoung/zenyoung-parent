@@ -15,6 +15,7 @@ import javax.annotation.Nonnull;
  */
 @Getter
 public class ValueFormatTableCellFactory<S, T> extends BaseFormatTableCellFactory<S, T> {
+    private static final String PREFIX = "%";
     private final String format;
 
     public ValueFormatTableCellFactory(@NamedArg("format") @Nonnull final String format) {
@@ -24,7 +25,8 @@ public class ValueFormatTableCellFactory<S, T> extends BaseFormatTableCellFactor
     @Override
     protected String format(@Nonnull final T data) {
         if (!Strings.isNullOrEmpty(this.format)) {
-            return String.format(this.format, data);
+            final String f = this.format.startsWith(PREFIX) ? this.format : PREFIX + this.format;
+            return String.format(f, data);
         }
         return data.toString();
     }
