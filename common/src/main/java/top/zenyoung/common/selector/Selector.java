@@ -1,5 +1,6 @@
 package top.zenyoung.common.selector;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class Selector<P, T> {
     private final P param;
+    @Getter
     private boolean selected = false;
     private Function<P, T> factory;
 
@@ -65,15 +67,6 @@ public class Selector<P, T> {
      */
     public T or(final T t) {
         return or(() -> t);
-    }
-
-    /**
-     * 当前选择器是否已经选择事项
-     *
-     * @return 如果已经存在事项被击中，则返回 true；否则返回 false
-     */
-    public boolean isSelected() {
-        return this.selected;
     }
 
     @Override

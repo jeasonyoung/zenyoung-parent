@@ -9,5 +9,5 @@ public class AliyunConstants {
     /**
      * 文件类型
      */
-    public final static String TYPE = "ali";
+    public static final String TYPE = "ali";
 }

@@ -10,6 +10,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -23,10 +25,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-import top.zenyoung.boot.exception.ServiceException;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
@@ -42,6 +45,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExcelUtils {
     private static final String EXCEL_EXT = "xlsx";
 
@@ -222,7 +226,7 @@ public class ExcelUtils {
      */
     public static void createImportTemplate(@Nonnull final String templateName, @Nonnull final BiConsumer<Workbook, Sheet> renderTemplate) {
         HttpUtils.servlet((req, res) -> {
-            final boolean isIe = HttpUtils.isIE(req);
+            final boolean isIe = HttpUtils.isIe(req);
             final XSSFWorkbook wb = getDefaultWb();
             final XSSFSheet sheet = getDefaultSheet(wb);
             renderTemplate.accept(wb, sheet);
@@ -234,7 +238,7 @@ public class ExcelUtils {
                 res.setHeader("content-disposition", "attachment;filename=" + outFileName);
                 wb.write(output);
                 output.flush();
-            } catch (Throwable e) {
+            } catch (IOException e) {
                 throw new ServiceException(e.getMessage());
             }
         });
@@ -282,7 +286,7 @@ public class ExcelUtils {
             return handler.apply(rows);
         } catch (ServiceException e) {
             throw e;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("importParse(file: {},titleRows: {},cls: {})-exp: {}", file.getName(), titleRows, cls, e.getMessage());
             throw new ServiceException(e.getMessage());
         }
@@ -300,7 +304,7 @@ public class ExcelUtils {
                             if (Objects.nonNull(val) && !Strings.isNullOrEmpty(val.toString())) {
                                 return true;
                             }
-                        } catch (Throwable e) {
+                        } catch (IllegalArgumentException | IllegalAccessException e) {
                             log.warn("removeBlankRowHandler(row: {})-exp: {}", row, e.getMessage());
                         }
                     }
@@ -308,5 +312,4 @@ public class ExcelUtils {
                 })
                 .collect(Collectors.toList());
     }
-
 }

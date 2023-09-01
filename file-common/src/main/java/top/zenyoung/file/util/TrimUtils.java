@@ -1,6 +1,8 @@
 package top.zenyoung.file.util;
 
 import com.google.common.base.Strings;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 
@@ -9,11 +11,12 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class TrimUtils {
     /**
      * 径路分隔符
      */
-    public final static String PATH_SEP = "/";
+    public static final String PATH_SEP = "/";
 
     public static String trimPathPrefix(@Nonnull final String path) {
         return trimPrefix(path, PATH_SEP);
@@ -24,19 +27,15 @@ public class TrimUtils {
     }
 
     public static String trimPrefix(@Nonnull final String data, @Nonnull final String prefix) {
-        if (!Strings.isNullOrEmpty(data) && !Strings.isNullOrEmpty(prefix)) {
-            if (data.startsWith(prefix)) {
-                return trimPrefix(data.substring(prefix.length()), prefix);
-            }
+        if (!Strings.isNullOrEmpty(data) && !Strings.isNullOrEmpty(prefix) && data.startsWith(prefix)) {
+            return trimPrefix(data.substring(prefix.length()), prefix);
         }
         return data;
     }
 
     public static String trimSuffix(@Nonnull final String data, @Nonnull final String suffix) {
-        if (!Strings.isNullOrEmpty(data) && !Strings.isNullOrEmpty(suffix)) {
-            if (data.endsWith(suffix)) {
-                return trimSuffix(data.substring(0, data.length() - suffix.length()), suffix);
-            }
+        if (!Strings.isNullOrEmpty(data) && !Strings.isNullOrEmpty(suffix) && data.endsWith(suffix)) {
+            return trimSuffix(data.substring(0, data.length() - suffix.length()), suffix);
         }
         return data;
     }

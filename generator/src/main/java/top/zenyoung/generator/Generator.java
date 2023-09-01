@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.generator.db.DbQuery;
 import top.zenyoung.generator.db.Table;
@@ -64,6 +65,7 @@ public class Generator {
      * @return 表信息集合
      */
     public List<TableVO> getTables(@Nullable final String dbName) {
+        Assert.hasText(dbName, "'dbName'不能为空");
         return query.getAllTables(dbName);
     }
 
@@ -97,15 +99,14 @@ public class Generator {
         return files.stream()
                 .map(info -> {
                     final String content = info.buildFtlContent();
-                    return FileVO.of(info.getFileDir(), info.getFileName(), content);
-                })
-                .peek(vo -> {
+                    final FileVO vo = FileVO.of(info.getFileDir(), info.getFileName(), content);
                     if (!Strings.isNullOrEmpty(prefix) && !Strings.isNullOrEmpty(vo.getDir())) {
                         final String dir = PathUtils.removePrefix(vo.getDir(), prefix);
                         if (!Strings.isNullOrEmpty(dir)) {
                             vo.setDir(dir);
                         }
                     }
+                    return vo;
                 })
                 .sorted((o1, o2) -> {
                     final String dir1 = o1.getDir(), dir2 = o2.getDir();

@@ -1,7 +1,9 @@
 package top.zenyoung.graphics.captcha;
 
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.graphics.image.gif.AnimatedGifEncoder;
+import top.zenyoung.graphics.util.ImageUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,6 +19,7 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
+@EqualsAndHashCode(callSuper = true)
 public class GifCaptcha extends BaseCaptcha {
     /**
      * 量化器取样间隔 - 默认是10ms
@@ -158,7 +161,7 @@ public class GifCaptcha extends BaseCaptcha {
         g2d.setColor(Objects.isNull(this.background) ? Color.WHITE : this.background);
         g2d.fillRect(0, 0, width, height);
         // 字符的y坐标
-        final float y = (height >> 1) + (font.getSize() >> 1);
+        final float y = ((height >> 1) + (font.getSize() >> 1));
         final float m = 1.0f * (width - (chars.length * font.getSize())) / chars.length;
         //字符的x坐标
         final float x = Math.max(m / 2.0f, 2);
@@ -215,5 +218,10 @@ public class GifCaptcha extends BaseCaptcha {
             max = 255;
         }
         return new Color(randomInt(min, max), randomInt(min, max), randomInt(min, max));
+    }
+
+    @Override
+    public String getImageBase64Data() {
+        return ImageUtils.getDataUri("image/gif", null, "base64", getImageBase64());
     }
 }

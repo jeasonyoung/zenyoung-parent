@@ -8,7 +8,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 
     <name>zenyoung-parent</name>
     <description>zenyoung tools for Springboot2</description>
@@ -33,6 +33,8 @@
         <module>redis</module>
         <!-- sms -->
         <module>sms</module>
+        <!-- segment -->
+        <module>segment</module>
         <!-- 定时任务 -->
         <module>quartz</module>
         <!-- jpa -->
@@ -51,9 +53,10 @@
         <module>netty-client</module>
         <!-- jfx -->
         <module>jfx-boot</module>
-        <module>jfx-validator</module>
         <!-- fc-runtime -->
         <module>fc-runtime-huawei</module>
+        <!-- opencv -->
+        <module>opencv</module>
         <!-- 代码生成器 -->
         <module>generator</module>
     </modules>

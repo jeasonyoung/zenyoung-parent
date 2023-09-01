@@ -1,5 +1,8 @@
 package top.zenyoung.common.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -11,6 +14,7 @@ import java.util.function.Predicate;
  *
  * @author young
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SpiUtils {
 
     /**

@@ -4,16 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>graphics-boot</artifactId>
-    <packaging>jar</packaging>
-    <description>图形图像-springboot</description>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>graphics-boot</artifactId>
+    <version>${zenyoung-graphics-boot.version}</version>
+    <packaging>jar</packaging>
+    <description>图形图像-springboot</description>
 
     <dependencies>
         <!-- spring boot -->
@@ -36,6 +37,15 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

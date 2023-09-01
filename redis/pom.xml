@@ -4,15 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>redis</artifactId>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>redis</artifactId>
+    <version>${zenyoung-redis.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <!-- boot -->
@@ -66,6 +67,15 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -7,18 +7,18 @@ import java.io.Serializable;
  *
  * @author young
  */
-public interface Model<ID extends Serializable> extends Serializable {
+public interface Model<K extends Serializable> extends Serializable {
     /**
      * 获取主键ID
      *
      * @return 主键ID
      */
-    ID getId();
+    K getId();
 
     /**
      * 设置主键ID
      *
      * @param id 主键ID
      */
-    void setId(final ID id);
+    void setId(final K id);
 }

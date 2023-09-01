@@ -16,11 +16,11 @@ public enum PrivacyPolicyType {
     /**
      * 手机号码
      */
-    Mobile("^(\\d{3})\\d+(\\d{4})$", "$1****$2"),
+    MOBILE("^(\\d{3})\\d+(\\d{4})$", "$1****$2"),
     /**
      * 身份证号码
      */
-    IdNumber("^(\\d{6})\\d+([0-9|X]{4})$", "$1****$2");
+    IDNUMBER("^(\\d{6})\\d+([0-9|X]{4})$", "$1****$2");
 
     private final String regex;
     private final String replacement;

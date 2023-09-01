@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 /**
  * 实体字段注解工具类
  *
- * @param <PO> 实体主键类型
+ * @param <M> 实体主键类型
  * @author young
  */
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
-public class ModelFieldHelper<PO> {
+public class ModelFieldHelper<M> {
     private static final Map<Class<?>, Object> LOCKS = Maps.newConcurrentMap();
     private final Map<PoConstant, Field> fieldMap = Maps.newHashMap();
     private final Map<PoConstant, String> colMap = Maps.newHashMap();
     private final AtomicBoolean refInited = new AtomicBoolean(false);
-    private final Class<PO> poCls;
+    private final Class<M> poCls;
 
     /**
      * 实体类型初始化
@@ -78,10 +78,10 @@ public class ModelFieldHelper<PO> {
         PoConstant pc;
         //检测是否有逻辑删除注解
         if (field.isAnnotationPresent(TableLogic.class)) {
-            pc = PoConstant.DeletedAt;
+            pc = PoConstant.DELETED_AT;
         } else {
             pc = PoConstant.byFieldName(field.getName());
-            if (pc == PoConstant.DeletedAt) {
+            if (pc == PoConstant.DELETED_AT) {
                 return;
             }
         }
@@ -95,7 +95,7 @@ public class ModelFieldHelper<PO> {
 
     private void initPoFieldAnnoHandler(@Nonnull final Field field, @Nonnull final String col) {
         final PoField pf = field.getAnnotation(PoField.class);
-        if (Objects.nonNull(pf) && pf.fill() != DbField.Default && !Strings.isNullOrEmpty(col)) {
+        if (Objects.nonNull(pf) && pf.fill() != DbField.DEFAULT && !Strings.isNullOrEmpty(col)) {
             final PoConstant pc = PoConstant.byPoField(pf);
             if (Objects.nonNull(pc)) {
                 fieldMap.put(pc, field);

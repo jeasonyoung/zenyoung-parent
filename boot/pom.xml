@@ -4,15 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>boot</artifactId>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>boot</artifactId>
+    <version>${zenyoung-boot.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <!-- spring boot -->
@@ -37,13 +38,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- security -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -80,12 +74,21 @@
 
         <!-- 模块依赖 -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>top.zenyoung</groupId>
             <artifactId>common</artifactId>
         </dependency>
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

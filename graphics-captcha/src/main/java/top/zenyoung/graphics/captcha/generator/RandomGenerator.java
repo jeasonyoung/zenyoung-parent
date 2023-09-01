@@ -1,6 +1,7 @@
 package top.zenyoung.graphics.captcha.generator;
 
 import com.google.common.base.Strings;
+import lombok.EqualsAndHashCode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,6 +13,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@EqualsAndHashCode(callSuper = true)
 public class RandomGenerator extends BaseGenerator {
 
     /**

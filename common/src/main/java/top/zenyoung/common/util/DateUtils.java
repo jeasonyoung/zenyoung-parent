@@ -1,16 +1,15 @@
 package top.zenyoung.common.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import top.zenyoung.common.model.DateRange;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * 日期-工具类
@@ -19,6 +18,7 @@ import java.util.function.Function;
  * @version 1.0
  * date 2020/6/28 1:43 下午
  **/
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
 
     /**
@@ -56,7 +56,7 @@ public class DateUtils {
      * @param endDateHandler 结束时间处理
      * @return 限期时间段
      */
-    public static DateRange createWithinAfter(@Nonnull final Function<LocalDate, LocalDate> endDateHandler) {
+    public static DateRange createWithinAfter(@Nonnull final UnaryOperator<LocalDate> endDateHandler) {
         final LocalDate start = LocalDate.now();
         final LocalDate end = endDateHandler.apply(start);
         return DateRange.of(start, end);
@@ -68,7 +68,7 @@ public class DateUtils {
      * @param startDateHandler 开始时间处理
      * @return 限期时间段
      */
-    public static DateRange createWithinBefore(@Nonnull final Function<LocalDate, LocalDate> startDateHandler) {
+    public static DateRange createWithinBefore(@Nonnull final UnaryOperator<LocalDate> startDateHandler) {
         final LocalDate end = LocalDate.now();
         final LocalDate start = startDateHandler.apply(end);
         return DateRange.of(start, end);
@@ -134,7 +134,7 @@ public class DateUtils {
      * @return 去过一天内
      */
     public static DateRange createWithinBeforeDay() {
-        return createWithinBefore(end -> end.plusDays(-1).plus(-1, ChronoUnit.HOURS));
+        return createWithinBefore(end -> end.plusDays(-1).plus(Duration.of(-1, ChronoUnit.HOURS)));
     }
 
     /**
@@ -143,6 +143,6 @@ public class DateUtils {
      * @return 将来一天内
      */
     public static DateRange createWithinAfterDay() {
-        return createWithinAfter(start -> start.plusDays(1).plus(-1, ChronoUnit.HOURS));
+        return createWithinAfter(start -> start.plusDays(1).plus(Duration.of(-1, ChronoUnit.HOURS)));
     }
 }

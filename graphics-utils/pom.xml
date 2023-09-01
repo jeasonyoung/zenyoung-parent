@@ -4,16 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>graphics-utils</artifactId>
-    <packaging>jar</packaging>
-    <description>图形图像-工具类</description>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>graphics-utils</artifactId>
+    <version>${zenyoung-graphics-utils.version}</version>
+    <packaging>jar</packaging>
+    <description>图形图像-工具类</description>
 
     <dependencies>
         <!-- 框架模块 -->
@@ -30,6 +31,7 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

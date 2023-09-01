@@ -24,23 +24,23 @@ public enum OperaType implements EnumValue {
     /**
      * 查询
      */
-    Query(0, "查询"),
+    QUERY(0, "查询"),
     /**
      * 新增
      */
-    Add(1, "新增"),
+    ADD(1, "新增"),
     /**
      * 修改
      */
-    Modify(2, "修改"),
+    MODIFY(2, "修改"),
     /**
      * 删除
      */
-    Del(3, "删除"),
+    DEL(3, "删除"),
     /**
      * 其它
      */
-    Other(4, "其它");
+    OTHER(4, "其它");
 
     @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;

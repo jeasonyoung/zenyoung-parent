@@ -3,6 +3,8 @@ package top.zenyoung.boot.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
@@ -12,7 +14,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.PrimitiveIterator;
 import java.util.function.Function;
 
 /**
@@ -20,16 +21,17 @@ import java.util.function.Function;
  *
  * @author young
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MapUtils {
 
     /**
      * 获取Map键值
      *
-     * @param map      Map对象
-     * @param key      Map键
+     * @param map    Map对象
+     * @param key    Map键
      * @param valCls 值类型Class
-     * @param <V>      值类型
-     * @param <T>      键类型
+     * @param <V>    值类型
+     * @param <T>    键类型
      * @return Map值
      */
     public static <V, T> T getVal(@Nonnull final Map<String, V> map, @Nonnull final String key, @Nonnull final Class<T> valCls) {

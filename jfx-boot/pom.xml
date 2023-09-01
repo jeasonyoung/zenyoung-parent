@@ -4,39 +4,32 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jfx-boot</artifactId>
-    <packaging>jar</packaging>
-
     <parent>
         <groupId>top.zenyoung</groupId>
         <artifactId>parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
+
+    <artifactId>jfx-boot</artifactId>
+    <version>${zenyoung-jfx-boot.version}</version>
+    <packaging>jar</packaging>
 
     <dependencies>
         <!-- spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
-            <scope>provided</scope>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
-
         <!-- 框架模块 -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>top.zenyoung</groupId>
             <artifactId>common</artifactId>
         </dependency>
-
-        <!-- bootstrapfx -->
+        <!-- jipsy -->
         <dependency>
-            <groupId>org.kordamp.bootstrapfx</groupId>
-            <artifactId>bootstrapfx-core</artifactId>
-        </dependency>
-        <!--  ikonli -->
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-javafx</artifactId>
+            <groupId>org.kordamp.jipsy</groupId>
+            <artifactId>jipsy</artifactId>
         </dependency>
         <!-- log -->
         <dependency>
@@ -47,6 +40,23 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.class</include>
+                    <include>**/*.css</include>
+                    <include>**/*.css.map</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -55,6 +65,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

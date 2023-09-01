@@ -1,12 +1,17 @@
 package top.zenyoung.common.paging;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 数据结果
@@ -15,6 +20,7 @@ import java.util.Objects;
  * @version 1.0
  **/
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @RequiredArgsConstructor(staticName = "of")
 public class DataResult<T> implements PagingResult<T> {
     /**
@@ -27,18 +33,76 @@ public class DataResult<T> implements PagingResult<T> {
     private final List<T> rows;
 
     /**
-     * 创建数据结果
+     * 构建分页数据
      *
-     * @param data 分页数据结果
-     * @param <T>  数据类型
-     * @return 数据结果
+     * @param pageList 分页数据
+     * @param convert  数据转换
+     * @param <T>      转换前数据类型
+     * @param <R>      转换后数据类型
+     * @return 构建结果
      */
-    public static <T> DataResult<T> of(@Nullable final PagingResult<T> data) {
-        if (Objects.nonNull(data)) {
-            final List<T> items = data.getRows();
-            return of(data.getTotal(), Objects.nonNull(items) ? items : Lists.newArrayList());
+    public static <T, R> DataResult<R> of(@Nullable final PageList<T> pageList, @Nonnull final Function<T, R> convert) {
+        if (Objects.nonNull(pageList)) {
+            final List<R> rows = Optional.ofNullable(pageList.getRows())
+                    .filter(items -> !items.isEmpty())
+                    .map(items -> items.stream()
+                            .filter(Objects::nonNull)
+                            .map(convert)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList())
+                    )
+                    .orElse(Lists.newArrayList());
+            return of(pageList.getTotal(), rows);
         }
         return empty();
+    }
+
+    /**
+     * 构建分页数据处理
+     *
+     * @param pageList 分页数据
+     * @param handler  数据处理
+     * @param <T>      转换前数据类型
+     * @param <R>      转换后数据类型
+     * @return 构建结果
+     */
+    public static <T, R> DataResult<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<List<T>, List<R>> handler) {
+        if (Objects.nonNull(pageList)) {
+            return of(pageList.getTotal(), handler.apply(pageList.getRows()));
+        }
+        return empty();
+    }
+
+    /**
+     * 构建分页数据
+     *
+     * @param rows    数据集合
+     * @param convert 数据转换
+     * @param <T>     转换前数据类型
+     * @param <R>     转换后数据类型
+     * @return 构建结果
+     */
+    public static <T, R> DataResult<R> of(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
+        if (Objects.nonNull(rows) && !rows.isEmpty()) {
+            final List<R> items = rows.stream()
+                    .filter(Objects::nonNull)
+                    .map(convert)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            return of((long) items.size(), items);
+        }
+        return empty();
+    }
+
+    /**
+     * 创建数据结果
+     *
+     * @param pageList 分页数据
+     * @param <T>      数据类型
+     * @return 数据结果
+     */
+    public static <T> DataResult<T> of(@Nullable final PageList<T> pageList) {
+        return of(pageList, Function.identity());
     }
 
     /**
@@ -49,10 +113,7 @@ public class DataResult<T> implements PagingResult<T> {
      * @return 数据结果
      */
     public static <T> DataResult<T> of(@Nullable final List<T> items) {
-        if (Objects.nonNull(items)) {
-            return of((long) items.size(), items);
-        }
-        return empty();
+        return of(items, Function.identity());
     }
 
     /**

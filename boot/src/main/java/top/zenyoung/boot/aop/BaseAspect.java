@@ -27,9 +27,13 @@ import java.util.function.Function;
  */
 @Slf4j
 public abstract class BaseAspect {
-    private final static Class<?>[] PRIMITIVES = new Class<?>[]{
-            String.class, Number.class, BigDecimal.class,
-            Date.class, LocalDate.class, LocalTime.class
+    private static final Class<?>[] PRIMITIVES = new Class<?>[]{
+            String.class,
+            Number.class,
+            BigDecimal.class,
+            Date.class,
+            LocalDate.class,
+            LocalTime.class
     };
 
     /**
@@ -56,7 +60,7 @@ public abstract class BaseAspect {
             }
         } catch (NoSuchFieldException ex) {
             return false;
-        } catch (Throwable ex) {
+        } catch (IllegalArgumentException | IllegalAccessException ex) {
             log.warn("isPrimitive(cls: {})-exp: {}", cls, ex.getMessage());
         }
         return false;

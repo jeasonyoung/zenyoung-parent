@@ -179,7 +179,8 @@ public class BaseController {
      * @param exportHandler 导出业务处理
      * @throws IOException IO异常处理
      */
-    protected void exportExcel(@Nonnull final HttpServletResponse res, @Nonnull final String fileName, @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
+    protected void exportExcel(@Nonnull final HttpServletResponse res, @Nonnull final String fileName,
+                               @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
         final String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         this.export(res, fileName, contentType, "xlsx", exportHandler);
     }
@@ -192,7 +193,8 @@ public class BaseController {
      * @param exportHandler 导出业务处理
      * @throws IOException IO异常处理
      */
-    protected void exportZip(@Nonnull final HttpServletResponse res, @Nonnull final String fileName, @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
+    protected void exportZip(@Nonnull final HttpServletResponse res, @Nonnull final String fileName,
+                             @Nonnull final Consumer<OutputStream> exportHandler) throws IOException {
         final String contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         this.export(res, fileName, "zip", contentType, exportHandler);
     }
@@ -220,12 +222,12 @@ public class BaseController {
             } else if (!Strings.isNullOrEmpty(defExt)) {
                 ext = defExt.startsWith(sep) ? defExt : "." + defExt;
             }
-            final String exportFileName = URLEncoder.encode(FilenameUtils.getBaseName(fileName), enc).replaceAll("\\+", "%20");
+            final String exportFileName = URLEncoder.encode(FilenameUtils.getBaseName(fileName), enc).replace("\\+", "%20");
             res.setHeader("Content-disposition", "attachment;filename*=utf-8''" + exportFileName + ext);
             //业务处理
             exportHandler.accept(outputStream);
             res.flushBuffer();
-        } catch (Throwable e) {
+        } catch (IOException e) {
             res.reset();
             res.setContentType(MediaType.APPLICATION_JSON_VALUE);
             res.setCharacterEncoding(enc);

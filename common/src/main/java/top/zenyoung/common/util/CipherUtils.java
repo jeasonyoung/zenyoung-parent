@@ -1,11 +1,14 @@
 package top.zenyoung.common.util;
 
 import com.google.common.collect.Lists;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
@@ -28,6 +31,7 @@ import java.util.List;
  * 2020/3/30 10:00 上午
  **/
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CipherUtils {
     private static final String AES = "AES";
     private static final String AES_CBC = "AES/CBC/PKCS5Padding";
@@ -67,7 +71,7 @@ public class CipherUtils {
         if (!destFile.isFile()) {
             final boolean ret = destFile.createNewFile();
             if (!ret) {
-                throw new RuntimeException("创建临时文件失败!");
+                throw new ServiceException("创建临时文件失败!");
             }
         }
         //加密器处理
@@ -75,24 +79,20 @@ public class CipherUtils {
         final SecretKeySpec keySpec = new SecretKeySpec(secret, AES);
         final IvParameterSpec ivSpec = new IvParameterSpec(iv);
         cipher.init(cipherMode, keySpec, ivSpec);
-        final RandomAccessFile dest = new RandomAccessFile(destFile, "rw");
-        try (final CipherInputStream cin = new CipherInputStream(FileUtils.openInputStream(raw), cipher)) {
-            dest.seek(0);
-            final byte[] buf = new byte[1024];
-            int read;
-            while ((read = cin.read(buf, 0, buf.length)) != -1) {
-                dest.write(buf, 0, read);
+        try (final RandomAccessFile dest = new RandomAccessFile(destFile, "rw")) {
+            try (final CipherInputStream cin = new CipherInputStream(FileUtils.openInputStream(raw), cipher)) {
+                dest.seek(0);
+                final byte[] buf = new byte[1024];
+                int read;
+                while ((read = cin.read(buf, 0, buf.length)) != -1) {
+                    dest.write(buf, 0, read);
+                }
+            } finally {
+                //加密完成覆盖源文件
+                FileUtils.copyFile(destFile, raw);
+                //删除临时文件
+                destFile.deleteOnExit();
             }
-            //关闭写入
-            dest.close();
-        } catch (Throwable ex) {
-            log.error("aesEncrypt(secret: {},iv: {},raw: {})-exp: {}", secret, iv, raw, ex.getMessage());
-            throw ex;
-        } finally {
-            //加密完成覆盖源文件
-            FileUtils.copyFile(destFile, raw);
-            //删除临时文件
-            destFile.deleteOnExit();
         }
     }
 

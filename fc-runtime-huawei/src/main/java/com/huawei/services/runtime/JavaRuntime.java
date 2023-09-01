@@ -12,32 +12,32 @@ public final class JavaRuntime {
     private static final RuntimeLogger LOGGER = new RuntimeLogger() {
         @Override
         public void log(@Nonnull final String log) {
-            System.out.print(log);
+            System.out.println(log);
         }
 
         @Override
-        public void debug(@Nonnull String log) {
-
+        public void debug(@Nonnull final String log) {
+            System.out.println(log);
         }
 
         @Override
-        public void info(@Nonnull String log) {
-
+        public void info(@Nonnull final String log) {
+            System.out.println(log);
         }
 
         @Override
-        public void warn(@Nonnull String log) {
-
+        public void warn(@Nonnull final String log) {
+            System.out.println(log);
         }
 
         @Override
-        public void error(@Nonnull String log) {
-
+        public void error(@Nonnull final String log) {
+            System.out.println(log);
         }
 
         @Override
-        public void setLevel(@Nonnull String level) {
-
+        public void setLevel(@Nonnull final String level) {
+            
         }
     };
 

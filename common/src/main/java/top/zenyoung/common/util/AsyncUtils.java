@@ -106,6 +106,7 @@ public class AsyncUtils implements AutoCloseable {
             latch.await();
         } catch (InterruptedException e) {
             log.warn("sync()-exp: {}", e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -129,8 +130,6 @@ public class AsyncUtils implements AutoCloseable {
                 if (bizHandler != null) {
                     bizHandler.run();
                 }
-            } catch (Throwable ex) {
-                log.warn("asyncHandler(bizHandler: {})-exp: {}", bizHandler, ex.getMessage());
             } finally {
                 latch.countDown();
             }
@@ -145,13 +144,9 @@ public class AsyncUtils implements AutoCloseable {
      */
     public static void asyncHandler(@Nonnull final Executor executor, @Nullable final Runnable bizHandler) {
         executor.execute(() -> {
-            try {
-                //业务处理
-                if (bizHandler != null) {
-                    bizHandler.run();
-                }
-            } catch (Throwable ex) {
-                log.warn("asyncHandler(bizHandler: {})-exp: {}", bizHandler, ex.getMessage());
+            //业务处理
+            if (bizHandler != null) {
+                bizHandler.run();
             }
         });
     }
@@ -169,8 +164,6 @@ public class AsyncUtils implements AutoCloseable {
             try {
                 //多线程并发处理
                 bizHandlers.forEach(handler -> asyncHandler(executor, latch, handler));
-            } catch (Throwable ex) {
-                log.warn("asyncHandlers(executor: {},bizHandlers: {})-exp: {}", executor, bizHandlers, ex.getMessage());
             } finally {
                 //等待所有的线程执行完成
                 latch.await();

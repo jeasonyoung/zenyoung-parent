@@ -22,15 +22,15 @@ public enum Gender implements EnumValue {
     /**
      * 未知
      */
-    None(0, "未知"),
+    NONE(0, "未知"),
     /**
      * 男
      */
-    Male(1, "男"),
+    MALE(1, "男"),
     /**
      * 女
      */
-    Female(2, "女");
+    FEMALE(2, "女");
 
     @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
@@ -45,6 +45,6 @@ public enum Gender implements EnumValue {
                 }
             }
         }
-        return Gender.None;
+        return Gender.NONE;
     }
 }

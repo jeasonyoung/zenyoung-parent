@@ -20,27 +20,27 @@ public enum PoConstant {
     /**
      * 创建用户字段
      */
-    CreatedBy("createdBy"),
+    CREATED_BY("createdBy"),
     /**
      * 创建时间字段
      */
-    CreatedAt("createdAt"),
+    CREATED_AT("createdAt"),
     /**
      * 更新用户字段
      */
-    UpdatedBy("updatedBy"),
+    UPDATED_BY("updatedBy"),
     /**
      * 更新时间字段
      */
-    UpdatedAt("updatedAt"),
+    UPDATED_AT("updatedAt"),
     /**
      * 状态字段(0:禁用,1:启用)
      */
-    Status("status"),
+    STATUS("status"),
     /**
      * 逻辑删除字段(0:未删除,1:逻辑删除)
      */
-    DeletedAt("deletedAt");
+    DELETED_AT("deletedAt");
 
     /**
      * 字段名称
@@ -73,16 +73,16 @@ public enum PoConstant {
     public static PoConstant byPoField(@Nullable final PoField poField) {
         if (Objects.nonNull(poField)) {
             switch (poField.fill()) {
-                case CreatedBy:
-                    return PoConstant.CreatedBy;
-                case CreatedAt:
-                    return PoConstant.CreatedAt;
-                case UpdatedBy:
-                    return PoConstant.UpdatedBy;
-                case UpdatedAt:
-                    return PoConstant.UpdatedAt;
-                case Status:
-                    return PoConstant.Status;
+                case CREATED_BY:
+                    return PoConstant.CREATED_BY;
+                case CREATED_AT:
+                    return PoConstant.CREATED_AT;
+                case UPDATED_BY:
+                    return PoConstant.UPDATED_BY;
+                case UPDATED_AT:
+                    return PoConstant.UPDATED_AT;
+                case STATUS:
+                    return PoConstant.STATUS;
                 default:
                     return null;
             }

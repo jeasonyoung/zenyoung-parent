@@ -9,25 +9,25 @@ public enum DbField {
     /**
      * 默认字段
      */
-    Default,
+    DEFAULT,
     /**
      * 创建者字段
      */
-    CreatedBy,
+    CREATED_BY,
     /**
      * 创建日期字段
      */
-    CreatedAt,
+    CREATED_AT,
     /**
      * 更新者字段
      */
-    UpdatedBy,
+    UPDATED_BY,
     /**
      * 更新日期字段
      */
-    UpdatedAt,
+    UPDATED_AT,
     /**
      * 状态字段
      */
-    Status
+    STATUS
 }

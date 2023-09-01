@@ -20,7 +20,7 @@ public class SwaggerProperties implements Serializable {
     /**
      * 是否启用knife4j
      */
-    private Boolean knife4j = Boolean.TRUE;
+    private boolean knife4j = true;
     /**
      * 标题
      */

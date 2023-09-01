@@ -6,10 +6,7 @@ import top.zenyoung.file.vo.DirectVO;
 import top.zenyoung.file.vo.FileVO;
 
 import javax.annotation.Nonnull;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Objects;
 
 /**
@@ -40,9 +37,9 @@ public interface BucketFileService {
      * @param key  上传键
      * @param file 上传文件
      * @return 上传结果
-     * @throws Exception 上传异常
+     * @throws IOException 上传异常
      */
-    default FileVO upload(@Nonnull final String key, @Nonnull final File file) throws Exception {
+    default FileVO upload(@Nonnull final String key, @Nonnull final File file) throws IOException {
         try (final FileInputStream input = new FileInputStream(file)) {
             final String fileName = FilenameUtils.getName(file.getName());
             return upload(key, fileName, input);
@@ -73,7 +70,7 @@ public interface BucketFileService {
      * @param key 文件键
      * @return 文件字节数据
      */
-    default byte[] getFileBytes(@Nonnull final String key) throws Exception {
+    default byte[] getFileBytes(@Nonnull final String key) throws IOException {
         final InputStream input = getFileStream(key);
         if (Objects.nonNull(input)) {
             try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -85,7 +82,7 @@ public interface BucketFileService {
                 return output.toByteArray();
             }
         }
-        return null;
+        return new byte[0];
     }
 
     /**

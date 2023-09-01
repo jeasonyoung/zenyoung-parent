@@ -5,6 +5,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.springframework.util.CollectionUtils;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -62,7 +65,7 @@ public class WebClientUtils implements WebClient {
                 return new X509Certificate[0];
             }
         };
-        final SSLContext sslContext = SSLContext.getInstance("SSL");
+        final SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         sslContext.init(null, new TrustManager[]{trustManager}, new SecureRandom());
         final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
         //初始化客户端
@@ -97,17 +100,12 @@ public class WebClientUtils implements WebClient {
      * @throws IOException 异常
      */
     @Override
-    public <R> R sendRequest(
-            @Nonnull final String method,
-            @Nonnull final String url,
-            @Nullable final Map<String, Serializable> headers,
-            @Nonnull final Supplier<RequestBody> bodyConvert,
-            @Nonnull final Function<String, R> respBodyConvert
-    ) throws IOException {
+    public <R> R sendRequest(@Nonnull final String method, @Nonnull final String url, @Nullable final Map<String, Serializable> headers,
+                             @Nonnull final Supplier<RequestBody> bodyConvert, @Nonnull final Function<String, R> respBodyConvert) throws IOException {
         log.debug("sendRequest(method: {},url: {},headers: {},bodyConvert: {},respBodyConvert: {})...", method, url, headers, bodyConvert, respBodyConvert);
         final Request.Builder builder = new Request.Builder().url(url);
         //headers
-        if (headers != null && headers.size() > 0) {
+        if (!CollectionUtils.isEmpty(headers)) {
             headers.forEach((key, value) -> {
                 if (!Strings.isNullOrEmpty(key) && value != null) {
                     builder.addHeader(key, value.toString());
@@ -118,7 +116,7 @@ public class WebClientUtils implements WebClient {
         builder.method(method, bodyConvert.get());
         try (final Response response = client.newCall(builder.build()).execute()) {
             if (!response.isSuccessful()) {
-                throw new RuntimeException("[" + response.code() + "]" + response.message());
+                throw new ServiceException(response.code(), "[" + response.code() + "]" + response.message());
             }
             final ResponseBody respBody = response.body();
             //结果转换
@@ -127,7 +125,7 @@ public class WebClientUtils implements WebClient {
     }
 
     @Override
-    public void downloadFile(@Nonnull final String url, @Nonnull final OutputStream outputStream, @Nullable final Consumer<Integer> progress) {
+    public void downloadFile(@Nonnull final String url, @Nonnull final OutputStream outputStream, @Nullable final IntConsumer progress) {
         log.debug("downloadFile(url: {},progress: {})...", url, progress);
         final long start = System.currentTimeMillis();
         final Request request = new Request.Builder()

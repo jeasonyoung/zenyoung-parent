@@ -15,21 +15,21 @@ public enum LogViewFieldType {
     /**
      * 字典
      */
-    Dict,
+    DICT,
     /**
      * 上传
      */
-    Download,
+    DOWNLOAD,
     /**
      * 业务数据
      */
-    Biz,
+    BIZ,
     /**
      * 日期(yyyy-MM-dd)
      */
-    Date,
+    DATE,
     /**
      * 忽略
      */
-    Ignore;
+    IGNORE
 }

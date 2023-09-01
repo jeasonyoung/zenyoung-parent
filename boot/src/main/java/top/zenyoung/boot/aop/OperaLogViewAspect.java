@@ -11,7 +11,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.annotation.OperaLogView;
@@ -39,13 +38,12 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Aspect
-@Component
-@RequiredArgsConstructor
+@RequiredArgsConstructor(staticName = "of")
 public class OperaLogViewAspect extends BaseAspect {
     private static final Cache<String, LogReqParamVal> VAL_CACHE = CacheUtils.createCache(500, Duration.ofMinutes(5));
     private static final String METHOD_KEY = "method";
-    private final ObjectMapper objMapper;
 
+    private final ObjectMapper objMapper;
     private final ApplicationContext context;
 
     @AfterReturning(pointcut = "@annotation(controllerLogView)", returning = "jsonResult")
@@ -80,7 +78,7 @@ public class OperaLogViewAspect extends BaseAspect {
                     }
                 }
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             log.error("doAfterReturning(joinPoint: {},controllerLogView: {},jsonResult: {})-exp: {}", joinPoint, controllerLogView, jsonResult, ex.getMessage());
         } finally {
             log.info("doAfterReturning-执行时长: {}ms", (System.currentTimeMillis() - start));
@@ -140,7 +138,7 @@ public class OperaLogViewAspect extends BaseAspect {
         return paramVal;
     }
 
-    private LogReqParamVal cacheHandler(@Nonnull final Boolean isCache, @Nonnull final String key, @Nonnull final Supplier<LogReqParamVal> handler) {
+    private LogReqParamVal cacheHandler(final boolean isCache, @Nonnull final String key, @Nonnull final Supplier<LogReqParamVal> handler) {
         if (isCache && !Strings.isNullOrEmpty(key)) {
             LogReqParamVal data = VAL_CACHE.getIfPresent(key);
             if (data == null) {
@@ -156,13 +154,13 @@ public class OperaLogViewAspect extends BaseAspect {
 
     private LogReqParamVal convertDataVal(@Nonnull final String key, @Nonnull final OperaLogViewFieldValue fieldValue, @Nonnull final LogReqParamVal paramVal) {
         final LogViewFieldType fieldType = fieldValue.type();
-        if (fieldType == LogViewFieldType.Ignore) {
+        if (fieldType == LogViewFieldType.IGNORE) {
             return null;
         }
         final String cacheKey = key + "_" + paramVal.getVal();
         return cacheHandler(fieldValue.cache(), cacheKey, () -> {
             //日期格式
-            if (fieldType == LogViewFieldType.Date) {
+            if (fieldType == LogViewFieldType.DATE) {
                 final int maxLen = 10;
                 final String strVal = paramVal.getVal() + "";
                 if (!Strings.isNullOrEmpty(strVal) && strVal.length() > maxLen) {
@@ -171,15 +169,15 @@ public class OperaLogViewAspect extends BaseAspect {
                 return paramVal;
             }
             //字典
-            if (fieldType == LogViewFieldType.Dict) {
+            if (fieldType == LogViewFieldType.DICT) {
                 ///TODO: 字典处理
             }
             //上传
-            if (fieldType == LogViewFieldType.Download) {
+            if (fieldType == LogViewFieldType.DOWNLOAD) {
                 ///TODO: 文件上传处理
             }
             //业务数据
-            if (fieldType == LogViewFieldType.Biz) {
+            if (fieldType == LogViewFieldType.BIZ) {
                 final String methodName;
                 final Class<?> beanCls;
                 if ((beanCls = fieldValue.beanClass()) != null && !Strings.isNullOrEmpty(methodName = fieldValue.method())) {
@@ -193,7 +191,7 @@ public class OperaLogViewAspect extends BaseAspect {
                                 paramVal.setVal(data);
                                 return paramVal;
                             }
-                        } catch (Throwable ex) {
+                        } catch (Exception ex) {
                             log.error("convertDataVal(key: {},fieldValue: {}, paramVal: {})-exp: {}", key, fieldValue, paramVal, ex.getMessage());
                         }
                     }

@@ -34,7 +34,7 @@ import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.orm.enums.PoConstant;
-import top.zenyoung.orm.mapper.BaseMapper;
+import top.zenyoung.orm.mapper.ModelMapper;
 import top.zenyoung.orm.model.Model;
 import top.zenyoung.orm.model.ModelFieldHelper;
 import top.zenyoung.orm.service.BaseOrmService;
@@ -57,10 +57,10 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serializable> extends BaseServiceImpl implements BaseOrmService<PO, ID>, InitializingBean {
+public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> extends BaseServiceImpl implements BaseOrmService<M, K>, InitializingBean {
     protected static final int BATCH_SIZE = 500;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
-    private final ModelFieldHelper<PO> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
+    private final ModelFieldHelper<M> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
 
     @Autowired(required = false)
     @Getter(value = AccessLevel.PROTECTED)
@@ -72,8 +72,8 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
     }
 
     @SuppressWarnings({"unchecked"})
-    protected final Class<PO> getModelClass() {
-        return (Class<PO>) getGenericType(0);
+    protected final Class<M> getModelClass() {
+        return (Class<M>) getGenericType(0);
     }
 
     /**
@@ -82,11 +82,11 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
      * @return 主键ID
      */
     @SuppressWarnings({"unchecked"})
-    protected ID genId() {
+    protected K genId() {
         return Optional.ofNullable(getIdSequence())
                 .map(idSeq -> {
                     final Long id = idSeq.nextId();
-                    final Class<ID> cls = (Class<ID>) getGenericType(1);
+                    final Class<K> cls = (Class<K>) getGenericType(1);
                     if (cls == Long.class) {
                         return cls.cast(id);
                     }
@@ -104,14 +104,14 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
      * @return Mapper
      */
     @Nonnull
-    protected abstract BaseMapper<PO, ID> getMapper();
+    protected abstract ModelMapper<M, K> getMapper();
 
     @Override
-    public PO getById(@Nonnull final ID id) {
+    public M getById(@Nonnull final K id) {
         return getById(id, false);
     }
 
-    protected PO getById(@Nonnull final ID id, final boolean logicDel) {
+    protected M getById(@Nonnull final K id, final boolean logicDel) {
         if (logicDel) {
             return getMapper().selectPhysicalById(id);
         }
@@ -124,45 +124,45 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
     }
 
     @Override
-    public PO getOne(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
+    public M getOne(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return getOne(queryWrapper);
     }
 
     @Override
-    public PO getOne(@Nonnull final Wrapper<PO> query) {
-        final List<PO> pos = this.queryList(query);
+    public M getOne(@Nonnull final Wrapper<M> query) {
+        final List<M> pos = this.queryList(query);
         return CollectionUtils.isEmpty(pos) ? null : pos.get(0);
     }
 
     @Override
-    public int count(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
+    public int count(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return count(queryWrapper);
     }
 
     @Override
-    public int count(@Nonnull final Wrapper<PO> query) {
+    public int count(@Nonnull final Wrapper<M> query) {
         return (int) SqlHelper.retCount(getMapper().selectCount(query));
     }
 
     @Override
-    public List<PO> queryList(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
+    public List<M> queryList(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return queryList(queryWrapper);
     }
 
     @Override
-    public List<PO> queryList(@Nonnull final Wrapper<PO> query) {
+    public List<M> queryList(@Nonnull final Wrapper<M> query) {
         return getMapper().selectList(query);
     }
 
     @Override
-    public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
+    public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         if (Objects.nonNull(consumer)) {
             consumer.accept(queryWrapper);
         }
@@ -170,16 +170,16 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
     }
 
     @Override
-    public PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query) {
+    public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<M> query) {
         final int idx = (Objects.isNull(page) || page.getPageIndex() <= 0) ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
         final int size = (Objects.isNull(page) || page.getPageSize() <= 0) ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
-        IPage<PO> p = new Page<>(idx, size);
+        IPage<M> p = new Page<>(idx, size);
         p = getMapper().selectPage(p, query);
         return DataResult.of(p.getTotal(), p.getRecords());
     }
 
-    protected <R> PageList<R> mapping(@Nonnull final PageList<PO> pageList, @Nonnull final Function<PO, R> convert) {
-        final List<PO> items;
+    protected <R> PageList<R> mapping(@Nonnull final PageList<M> pageList, @Nonnull final Function<M, R> convert) {
+        final List<M> items;
         if (!CollectionUtils.isEmpty(items = pageList.getRows())) {
             return DataResult.of(pageList.getTotal(),
                     items.stream()
@@ -195,7 +195,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
      *
      * @param po 实体
      */
-    protected <T extends Model<ID>> void patchData(@Nonnull final T po) {
+    protected <T extends Model<K>> void patchData(@Nonnull final T po) {
         this.setAutoId(po);
         this.setCreate(po);
         this.setUpdate(po);
@@ -203,38 +203,39 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
         this.setLogicDel(po);
     }
 
-    protected <T extends Model<ID>> void setAutoId(@Nonnull final T po) {
+    protected <T extends Model<K>> void setAutoId(@Nonnull final T po) {
         if (Objects.isNull(po.getId()) || "".equals(po.getId())) {
             po.setId(genId());
         }
     }
 
     protected <T> void setCreate(@Nonnull final T po) {
-        setUser(po, PoConstant.CreatedBy);
-        setFieldValue(po, PoConstant.CreatedAt, cls -> new Date());
+        setUser(po, PoConstant.CREATED_BY);
+        setFieldValue(po, PoConstant.CREATED_AT, cls -> new Date());
     }
 
     protected <T> void setUpdate(@Nonnull final T po) {
-        setUser(po, PoConstant.UpdatedBy);
-        setFieldValue(po, PoConstant.UpdatedAt, cls -> new Date());
+        setUser(po, PoConstant.UPDATED_BY);
+        setFieldValue(po, PoConstant.UPDATED_AT, cls -> new Date());
     }
 
-    protected void setUpdate(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
+    protected void setUpdate(@Nonnull final LambdaUpdateWrapper<M> updateWrapper) {
         final String sqlSet = updateWrapper.getSqlSet();
         if (!Strings.isNullOrEmpty(sqlSet)) {
             final Map<String, Object> params = Maps.newHashMap();
             //更新时间
-            final String updateAt = poPoFieldHelper.getColumn(PoConstant.UpdatedAt);
+            final String updateAt = poPoFieldHelper.getColumn(PoConstant.UPDATED_AT);
             if (!Strings.isNullOrEmpty(updateAt) && !sqlSet.contains(updateAt)) {
                 params.put(updateAt, new Date());
             }
             //更新用户
-            SecurityUtils.getUserOpt().ifPresent(u -> {
-                final String updateBy = poPoFieldHelper.getColumn(PoConstant.UpdatedBy);
-                if (!Strings.isNullOrEmpty(updateBy) && !sqlSet.contains(updateBy)) {
-                    params.put(updateBy, u.getId());
-                }
-            });
+            Optional.ofNullable(SecurityUtils.getPrincipal())
+                    .ifPresent(u -> {
+                        final String updateBy = poPoFieldHelper.getColumn(PoConstant.UPDATED_BY);
+                        if (!Strings.isNullOrEmpty(updateBy) && !sqlSet.contains(updateBy)) {
+                            params.put(updateBy, u.getId());
+                        }
+                    });
             //设置更新数据
             if (!CollectionUtils.isEmpty(params)) {
                 MybatisPlusUtils.buildFieldMap(params, getModelClass(), updateWrapper, null);
@@ -243,22 +244,19 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
     }
 
     private <T> void setUser(@Nonnull final T po, @Nonnull final PoConstant pc) {
-        try {
-            SecurityUtils.getUserOpt().ifPresent(u -> {
-                final Field userField = poPoFieldHelper.getField(pc);
-                if (Objects.nonNull(userField)) {
-                    setFieldValue(po, userField, u.getId());
-                }
-            });
-        } catch (Throwable e) {
-            log.warn("setUser(po: {},pc: {})-exp: {}", po, pc, e.getMessage());
-        }
+        Optional.ofNullable(SecurityUtils.getPrincipal())
+                .ifPresent(u -> {
+                    final Field userField = poPoFieldHelper.getField(pc);
+                    if (Objects.nonNull(userField)) {
+                        setFieldValue(po, userField, u.getId());
+                    }
+                });
     }
 
     protected <T> void setStatus(@Nonnull final T po) {
         //状态
-        setFieldValue(po, PoConstant.Status, cls -> {
-            final Status enable = Status.Enable;
+        setFieldValue(po, PoConstant.STATUS, cls -> {
+            final Status enable = Status.ENABLE;
             if (cls == Status.class) {
                 return enable;
             }
@@ -268,22 +266,18 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     protected <T> void setLogicDel(@Nonnull final T po) {
         //初始化逻辑删除
-        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.DeletedAt);
+        final Field logicDelField = this.poPoFieldHelper.getField(PoConstant.DELETED_AT);
         if (Objects.nonNull(logicDelField) && logicDelField.isAnnotationPresent(TableLogic.class)) {
-            try {
-                final String defVal = logicDelField.getAnnotation(TableLogic.class).value();
-                if (!Strings.isNullOrEmpty(defVal)) {
-                    final Class<?> logicDelType = logicDelField.getType();
-                    if (logicDelType == String.class) {
-                        this.setFieldValue(po, logicDelField, defVal);
-                        return;
-                    }
-                    if (logicDelType == Integer.class || logicDelType == Long.class) {
-                        this.setFieldValue(po, logicDelField, Integer.parseInt(defVal));
-                    }
+            final String defVal = logicDelField.getAnnotation(TableLogic.class).value();
+            if (!Strings.isNullOrEmpty(defVal)) {
+                final Class<?> logicDelType = logicDelField.getType();
+                if (logicDelType == String.class) {
+                    this.setFieldValue(po, logicDelField, defVal);
+                    return;
                 }
-            } catch (Throwable e) {
-                log.warn("patchData(po: {})-初始化逻辑删除值失败", po);
+                if (logicDelType == Integer.class || logicDelType == Long.class) {
+                    this.setFieldValue(po, logicDelField, Integer.parseInt(defVal));
+                }
             }
         }
     }
@@ -297,23 +291,19 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
     }
 
     private <T> void setFieldValue(@Nonnull final T po, @Nullable final Field field, @Nonnull final Object val) {
-        try {
-            if (Objects.nonNull(field)) {
-                final Object old = ReflectionUtils.getField(field, po);
-                if (Objects.isNull(old)) {
-                    field.setAccessible(true);
-                    //设置新值
-                    ReflectionUtils.setField(field, po, val);
-                }
+        if (Objects.nonNull(field)) {
+            final Object old = ReflectionUtils.getField(field, po);
+            if (Objects.isNull(old)) {
+                field.setAccessible(true);
+                //设置新值
+                ReflectionUtils.setField(field, po, val);
             }
-        } catch (Throwable e) {
-            log.warn("setFieldValue(po: {},field: {},val: {})-exp: {}", po, field, val, e.getMessage());
         }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean add(@Nonnull final PO po) {
+    public boolean add(@Nonnull final M po) {
         //补充数据
         patchData(po);
         //插入数据
@@ -322,12 +312,11 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
         return SqlHelper.retBool(ret);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    protected boolean addOrUpdate(@Nonnull final PO po) {
+    protected boolean addOrUpdate(@Nonnull final M po) {
         //补充数据
         patchData(po);
         //插入数据
-        final List<PO> pos = Lists.newArrayList();
+        final List<M> pos = Lists.newArrayList();
         pos.add(po);
         final int ret = getMapper().batchAddOrUpdate(pos);
         //新增结果
@@ -342,9 +331,9 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean batchAdd(@Nonnull final Collection<PO> items) {
+    public boolean batchAdd(@Nonnull final Collection<M> items) {
         if (!CollectionUtils.isEmpty(items)) {
-            final List<PO> rows = items.stream()
+            final List<M> rows = items.stream()
                     .filter(Objects::nonNull)
                     .peek(this::patchData)
                     .collect(Collectors.toList());
@@ -356,12 +345,11 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
         return false;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    protected boolean batchAddOrUpdate(@Nonnull final Collection<PO> items) {
+    protected boolean batchAddOrUpdate(@Nonnull final Collection<M> items) {
         if (CollectionUtils.isEmpty(items)) {
             return false;
         }
-        final List<PO> rows = items.stream()
+        final List<M> rows = items.stream()
                 .filter(Objects::nonNull)
                 .peek(this::patchData)
                 .collect(Collectors.toList());
@@ -371,15 +359,15 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
         });
     }
 
-    private boolean batchHandler(@Nonnull final Collection<PO> pos, @Nonnull final Consumer<List<PO>> handler) {
+    private boolean batchHandler(@Nonnull final Collection<M> pos, @Nonnull final Consumer<List<M>> handler) {
         int count = 0;
         if (!CollectionUtils.isEmpty(pos)) {
-            final List<PO> items = Lists.newArrayList(pos);
+            final List<M> items = Lists.newArrayList(pos);
             final int totals = pos.size();
             int idx = 0;
             while (count < totals) {
                 final int start = (idx * BATCH_SIZE), end = Math.min(start + BATCH_SIZE, totals);
-                final List<PO> rows = items.subList(start, end);
+                final List<M> rows = items.subList(start, end);
                 count += rows.size();
                 //批处理
                 handler.accept(rows);
@@ -390,7 +378,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
         return count > 0;
     }
 
-    protected boolean batchHandler(@Nonnull final Collection<PO> pos, @Nonnull final BiConsumer<SqlSession, PO> handler) {
+    protected boolean batchHandler(@Nonnull final Collection<M> pos, @Nonnull final BiConsumer<SqlSession, M> handler) {
         final AtomicInteger refIdx = new AtomicInteger(0);
         try (final SqlSession session = SqlHelper.sqlSessionBatch(getModelClass())) {
             pos.stream()
@@ -411,7 +399,7 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean modify(@Nonnull final ID id, @Nonnull final PO po) {
+    public boolean modify(@Nonnull final K id, @Nonnull final M po) {
         po.setId(id);
         setUpdate(po);
         return SqlHelper.retBool(getMapper().updateById(po));
@@ -419,27 +407,27 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer) {
-        final LambdaUpdateWrapper<PO> updateWrapper = Wrappers.lambdaUpdate(getModelClass());
+    public boolean modify(@Nonnull final Consumer<LambdaUpdateWrapper<M>> consumer) {
+        final LambdaUpdateWrapper<M> updateWrapper = Wrappers.lambdaUpdate(getModelClass());
         consumer.accept(updateWrapper);
         return modify(updateWrapper);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper) {
+    public boolean modify(@Nonnull final LambdaUpdateWrapper<M> updateWrapper) {
         setUpdate(updateWrapper);
         return SqlHelper.retBool(getMapper().update(null, updateWrapper));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean batchModify(@Nonnull final Collection<PO> items) {
+    public boolean batchModify(@Nonnull final Collection<M> items) {
         if (!CollectionUtils.isEmpty(items)) {
             final String sqlStatement = getSqlStatement(SqlMethod.UPDATE_BY_ID);
             return batchHandler(items, (session, po) -> {
                 setUpdate(po);
-                final MapperMethod.ParamMap<PO> param = new MapperMethod.ParamMap<>();
+                final MapperMethod.ParamMap<M> param = new MapperMethod.ParamMap<>();
                 param.put(Constants.ENTITY, po);
                 session.update(sqlStatement, param);
             });
@@ -449,13 +437,12 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delete(@Nonnull final ID id) {
+    public boolean delete(@Nonnull final K id) {
         return delete(id, false);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    protected boolean delete(@Nonnull final ID id, final boolean physicalDel) {
-        final BaseMapper<PO, ID> mapper = getMapper();
+    protected boolean delete(@Nonnull final K id, final boolean physicalDel) {
+        final ModelMapper<M, K> mapper = getMapper();
         if (physicalDel) {
             return SqlHelper.retBool(mapper.physicalDelete(Lists.newArrayList(id)));
         }
@@ -464,13 +451,12 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delete(@Nonnull final List<ID> ids) {
+    public boolean delete(@Nonnull final List<K> ids) {
         return delete(ids, false);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    protected boolean delete(@Nonnull final List<ID> ids, final boolean physicalDel) {
-        final BaseMapper<PO, ID> mapper = getMapper();
+    protected boolean delete(@Nonnull final List<K> ids, final boolean physicalDel) {
+        final ModelMapper<M, K> mapper = getMapper();
         if (physicalDel) {
             return SqlHelper.retBool(mapper.physicalDelete(ids));
         }
@@ -479,15 +465,15 @@ public abstract class BaseOrmServiceImpl<PO extends Model<ID>, ID extends Serial
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer) {
-        final LambdaQueryWrapper<PO> queryWrapper = Wrappers.lambdaQuery(getModelClass());
+    public boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer) {
+        final LambdaQueryWrapper<M> queryWrapper = Wrappers.lambdaQuery(getModelClass());
         consumer.accept(queryWrapper);
         return delete(queryWrapper);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean delete(@Nonnull final Wrapper<PO> wrapper) {
+    public boolean delete(@Nonnull final Wrapper<M> wrapper) {
         return SqlHelper.retBool(getMapper().delete(wrapper));
     }
 }

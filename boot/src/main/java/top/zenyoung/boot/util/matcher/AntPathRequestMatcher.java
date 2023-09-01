@@ -1,5 +1,6 @@
 package top.zenyoung.boot.util.matcher;
 
+import lombok.Getter;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class AntPathRequestMatcher implements RequestMatcher {
     private static final String MATCH_ALL = "/**";
     private final Matcher matcher;
+    @Getter
     private final String pattern;
     private final HttpMethod httpMethod;
     private final UrlPathHelper urlPathHelper;
@@ -73,7 +75,7 @@ public class AntPathRequestMatcher implements RequestMatcher {
     public AntPathRequestMatcher(String pattern, final String httpMethod, final boolean caseSensitive,
                                  @Nullable final UrlPathHelper urlPathHelper) {
         Assert.hasText(pattern, "Pattern cannot be null or empty");
-        if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
+        if (pattern.equals(MATCH_ALL) || "**".equals(pattern)) {
             pattern = MATCH_ALL;
             this.matcher = null;
         } else {
@@ -133,10 +135,6 @@ public class AntPathRequestMatcher implements RequestMatcher {
             url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
         }
         return url;
-    }
-
-    public String getPattern() {
-        return this.pattern;
     }
 
     private interface Matcher {

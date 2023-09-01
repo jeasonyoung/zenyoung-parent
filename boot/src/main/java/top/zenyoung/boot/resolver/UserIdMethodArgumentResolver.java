@@ -2,7 +2,6 @@ package top.zenyoung.boot.resolver;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
-import org.springframework.stereotype.Component;
 import top.zenyoung.boot.annotation.UserId;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
@@ -17,7 +16,6 @@ import java.util.Objects;
  * @author young
  */
 @Slf4j
-@Component
 public class UserIdMethodArgumentResolver implements ArgumentResolver {
 
     @Override
@@ -27,7 +25,7 @@ public class UserIdMethodArgumentResolver implements ArgumentResolver {
 
     @Override
     public Object resolveArgument(@Nonnull final MethodParameter parameter, @Nonnull final HttpServletRequest req) {
-        final UserPrincipal principal = SecurityUtils.getUser();
+        final UserPrincipal principal = SecurityUtils.getPrincipal();
         if (Objects.nonNull(principal)) {
             log.info("获取当前用户信息: {}", principal);
             return principal.getId();

@@ -7,13 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.annotation.PrivacyPolicy;
 import top.zenyoung.boot.annotation.PrivacyPolicyType;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +25,6 @@ import java.util.Objects;
  */
 @Slf4j
 @Aspect
-@Component
 public class PrivacyPolicyAspect extends BaseAspect {
 
     @AfterReturning(pointcut = "@annotation(policy)", returning = "jsonResult")
@@ -74,8 +73,9 @@ public class PrivacyPolicyAspect extends BaseAspect {
                                     fCls.getMethod("remove", Object.class).invoke(fVal, v);
                                     //添加新值处理
                                     fCls.getMethod("add", Object.class).invoke(fVal, n);
-                                } catch (Throwable ex) {
-                                    log.warn("buildPrivacyPolicy(cls: {},privacyPolicy: {})[{}=> {}]-exp: {}", cls, privacyPolicy, v, n, ex.getMessage());
+                                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException |
+                                         NoSuchMethodException e) {
+                                    log.warn("buildPrivacyPolicy(cls: {},privacyPolicy: {})[{}=> {}]-exp: {}", cls, privacyPolicy, v, n, e.getMessage());
                                 }
                             }
                         });

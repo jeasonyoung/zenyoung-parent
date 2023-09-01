@@ -81,7 +81,7 @@ public abstract class BaseCaptcha implements Captcha {
      * @param codeCount      字符个数
      * @param interfereCount 验证码干扰元素个数
      */
-    public BaseCaptcha(final int width, final int height, final int codeCount, final int interfereCount) {
+    protected BaseCaptcha(final int width, final int height, final int codeCount, final int interfereCount) {
         this(width, height, new RandomGenerator(codeCount), interfereCount);
     }
 
@@ -93,7 +93,7 @@ public abstract class BaseCaptcha implements Captcha {
      * @param generator      验证码生成器
      * @param interfereCount 验证码干扰元素个数
      */
-    public BaseCaptcha(final int width, final int height, @Nonnull final CodeGenerator generator, final int interfereCount) {
+    protected BaseCaptcha(final int width, final int height, @Nonnull final CodeGenerator generator, final int interfereCount) {
         this.width = width;
         this.height = height;
         this.generator = generator;

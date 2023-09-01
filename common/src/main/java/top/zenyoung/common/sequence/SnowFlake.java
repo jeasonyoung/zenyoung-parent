@@ -2,6 +2,10 @@ package top.zenyoung.common.sequence;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import top.zenyoung.common.exception.ServiceException;
+import top.zenyoung.common.util.RandomUtils;
+
+import java.util.Random;
 
 /**
  * 雪花数算法工具类
@@ -90,11 +94,11 @@ public class SnowFlake implements Sequence<Long>, IdSequence {
      * @return 实例
      */
     public static SnowFlake getInstance() {
-        return new SnowFlake(
-                (int) ((long) ((Math.random() + 1) * System.currentTimeMillis()) & MAX_WORKER_ID),
-                (int) (((long) (Math.random() + System.currentTimeMillis())) & MAX_DATA_CENTER_ID),
-                0
-        );
+        final Random random = RandomUtils.getRandom();
+        random.setSeed(System.currentTimeMillis());
+        final long workerId = ((random.nextInt() + 1) * System.currentTimeMillis()) & MAX_WORKER_ID;
+        final long dataCenterId = (random.nextInt() + System.currentTimeMillis()) & MAX_DATA_CENTER_ID;
+        return new SnowFlake(workerId, dataCenterId, 0);
     }
 
     /**
@@ -130,7 +134,7 @@ public class SnowFlake implements Sequence<Long>, IdSequence {
         //当前时间戳
         long timestamp = timeGen();
         if (timestamp < lastTimeStamp) {
-            throw new RuntimeException(String.format("Clock moved backwards. Refusing to generate id for %d milliseconds.", (lastTimeStamp - timestamp)));
+            throw new ServiceException(501, String.format("Clock moved backwards. Refusing to generate id for %d milliseconds.", (lastTimeStamp - timestamp)));
         }
         //同一毫秒内，序号递增
         if (lastTimeStamp == timestamp) {

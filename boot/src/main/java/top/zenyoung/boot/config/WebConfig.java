@@ -1,16 +1,16 @@
 package top.zenyoung.boot.config;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 import top.zenyoung.boot.interceptor.RequestMappingInterceptor;
 import top.zenyoung.boot.resolver.ArgumentResolver;
 import top.zenyoung.common.model.EnumValue;
@@ -24,31 +24,67 @@ import java.util.List;
  * @author young
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
-    @Autowired(required = false)
-    private List<RequestMappingInterceptor> interceptors;
-    @Autowired(required = false)
-    private List<ArgumentResolver> argumentResolvers;
+    private final List<RequestMappingInterceptor> interceptors;
+    private final List<ArgumentResolver> argumentResolvers;
+
+    @Value("${server.error.path:${error.path:/error}}")
+    private String errorPage;
+
+    private final List<String> swaggerExcludes = Lists.newArrayList(
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/v2/**",
+            "/favicon.ico",
+            "/swagger-ui.html/**",
+            "/code.html",
+            "/doc.html"
+    );
 
     @Override
     public void addInterceptors(@Nonnull final InterceptorRegistry registry) {
         //拦截器
         if (!CollectionUtils.isEmpty(this.interceptors)) {
             this.interceptors.forEach(interceptor -> {
-                final int order = interceptor.getOrder();
-                final List<String> includePatterns = interceptor.getIncludePatterns(), excludePatterns = interceptor.getExcludePatterns();
                 final InterceptorRegistration ir = registry.addInterceptor(interceptor);
-                if (order != 0) {
-                    ir.order(order);
-                }
+                //排序
+                ir.order(interceptor.getOrder());
+                //包括匹配
+                final List<String> includePatterns = interceptor.getIncludePatterns();
                 if (!CollectionUtils.isEmpty(includePatterns)) {
                     ir.addPathPatterns(includePatterns);
+                }
+                //排除匹配
+                final List<String> excludePatterns = interceptor.getExcludePatterns();
+                if (!CollectionUtils.isEmpty(swaggerExcludes)) {
+                    excludePatterns.addAll(swaggerExcludes);
+                }
+                //排除错误
+                if (!Strings.isNullOrEmpty(errorPage)) {
+                    excludePatterns.add(errorPage);
                 }
                 if (!CollectionUtils.isEmpty(excludePatterns)) {
                     ir.excludePathPatterns(excludePatterns);
                 }
             });
         }
+    }
+
+    @Override
+    public void addViewControllers(@Nonnull final ViewControllerRegistry registry) {
+        registry.addRedirectViewController("/null/api-docs", "/api-docs").setKeepQueryParams(true);
+        registry.addRedirectViewController("/null/v2/api-docs", "/v2/api-docs").setKeepQueryParams(true);
+        registry.addRedirectViewController("/null/swagger-resources/configuration/ui", "/swagger-resources/configuration/ui");
+        registry.addRedirectViewController("/null/swagger-resources/configuration/security", "/swagger-resources/configuration/security");
+        registry.addRedirectViewController("/null/swagger-resources", "/swagger-resources");
+    }
+
+    @Override
+    public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     @Override

@@ -32,7 +32,7 @@ public @interface OperaLog {
      *
      * @return 功能类型
      */
-    OperaType operaType() default OperaType.Other;
+    OperaType operaType() default OperaType.OTHER;
 
     /**
      * 是否保存请求的参数

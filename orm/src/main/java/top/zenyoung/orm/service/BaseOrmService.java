@@ -20,14 +20,14 @@ import java.util.function.Consumer;
  *
  * @author young
  */
-public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> extends BaseService {
+public interface BaseOrmService<M extends Model<K>, K extends Serializable> extends BaseService {
     /**
      * 根据ID加载数据
      *
      * @param id ID
      * @return 加载数据
      */
-    PO getById(@Nonnull final ID id);
+    M getById(@Nonnull final K id);
 
     /**
      * 根据查询条件加载数据
@@ -35,7 +35,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param consumer 查询条件处理
      * @return 加载数据
      */
-    PO getOne(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
+    M getOne(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer);
 
     /**
      * 根据查询条件加载数据
@@ -43,7 +43,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param query 查询条件
      * @return 加载数据
      */
-    PO getOne(@Nonnull final Wrapper<PO> query);
+    M getOne(@Nonnull final Wrapper<M> query);
 
     /**
      * 根据查询条件查询总记录数
@@ -51,7 +51,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param consumer 查询条件处理
      * @return 总记录数
      */
-    int count(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
+    int count(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer);
 
     /**
      * 根据查询条件查询总记录数
@@ -59,7 +59,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param query 查询条件
      * @return 总记录数
      */
-    int count(@Nonnull final Wrapper<PO> query);
+    int count(@Nonnull final Wrapper<M> query);
 
     /**
      * 查询数据集合
@@ -67,7 +67,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param consumer 查询条件处理
      * @return 数据集合
      */
-    List<PO> queryList(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
+    List<M> queryList(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer);
 
     /**
      * 查询数据集合
@@ -75,7 +75,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param query 查询条件
      * @return 数据集合
      */
-    List<PO> queryList(@Nonnull final Wrapper<PO> query);
+    List<M> queryList(@Nonnull final Wrapper<M> query);
 
     /**
      * 分页查询数据
@@ -84,7 +84,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param consumer 查询条件处理
      * @return 查询结果
      */
-    PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<PO>> consumer);
+    PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Consumer<LambdaQueryWrapper<M>> consumer);
 
     /**
      * 分页查询数据
@@ -93,7 +93,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param query 查询条件
      * @return 查询结果
      */
-    PageList<PO> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<PO> query);
+    PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Wrapper<M> query);
 
     /**
      * 新增
@@ -101,7 +101,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param po 新增数据
      * @return 新增结果
      */
-    boolean add(@Nonnull final PO po);
+    boolean add(@Nonnull final M po);
 
     /**
      * 批量新增
@@ -109,7 +109,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param items 新增数据集合
      * @return 新增结果
      */
-    boolean batchAdd(@Nonnull final Collection<PO> items);
+    boolean batchAdd(@Nonnull final Collection<M> items);
 
     /**
      * 根据ID修改数据
@@ -118,7 +118,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param po 修改数据
      * @return 修改结果
      */
-    boolean modify(@Nonnull final ID id, @Nonnull final PO po);
+    boolean modify(@Nonnull final K id, @Nonnull final M po);
 
     /**
      * 根据条件更新数据
@@ -126,7 +126,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param consumer 更新数据条件处理
      * @return 更新结果
      */
-    boolean modify(@Nonnull final Consumer<LambdaUpdateWrapper<PO>> consumer);
+    boolean modify(@Nonnull final Consumer<LambdaUpdateWrapper<M>> consumer);
 
     /**
      * 根据条件更新数据
@@ -134,7 +134,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param updateWrapper 更新数据条件
      * @return 更新结果
      */
-    boolean modify(@Nonnull final LambdaUpdateWrapper<PO> updateWrapper);
+    boolean modify(@Nonnull final LambdaUpdateWrapper<M> updateWrapper);
 
     /**
      * 批量更新数据
@@ -142,7 +142,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param items 数据集合
      * @return 更新结果
      */
-    boolean batchModify(@Nonnull final Collection<PO> items);
+    boolean batchModify(@Nonnull final Collection<M> items);
 
     /**
      * 根据主键ID删除
@@ -150,7 +150,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param id 主键ID
      * @return 删除
      */
-    boolean delete(@Nonnull final ID id);
+    boolean delete(@Nonnull final K id);
 
     /**
      * 根据主键ID集合删除
@@ -158,7 +158,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param ids 主键ID集合
      * @return 删除
      */
-    boolean delete(@Nonnull final List<ID> ids);
+    boolean delete(@Nonnull final List<K> ids);
 
     /**
      * 根据条件删除数据
@@ -166,7 +166,7 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param consumer 删除条件处理
      * @return 删除结果
      */
-    boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<PO>> consumer);
+    boolean delete(@Nonnull final Consumer<LambdaQueryWrapper<M>> consumer);
 
     /**
      * 根据条件删除数据
@@ -174,5 +174,5 @@ public interface BaseOrmService<PO extends Model<ID>, ID extends Serializable> e
      * @param wrapper 删除条件
      * @return 删除结果
      */
-    boolean delete(@Nonnull final Wrapper<PO> wrapper);
+    boolean delete(@Nonnull final Wrapper<M> wrapper);
 }

@@ -3,6 +3,10 @@ package top.zenyoung.common.util;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import javax.annotation.Nonnull;
@@ -18,6 +22,7 @@ import java.util.Map;
  * @version 1.0
  * date 2020/6/30 2:38 下午
  **/
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonUtils {
 
     /**
@@ -128,7 +133,7 @@ public class JsonUtils {
             final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valCls);
             return objectMapper.readValue(json, javaType);
         }
-        return null;
+        return Maps.newHashMap();
     }
 
     /**
@@ -148,7 +153,7 @@ public class JsonUtils {
             final JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, mapType);
             return objectMapper.readValue(json, listType);
         }
-        return null;
+        return Lists.newArrayList();
     }
 
     /**
@@ -168,6 +173,6 @@ public class JsonUtils {
         if (!Strings.isNullOrEmpty(json)) {
             return fromJsonToMap(objectMapper, json, valCls);
         }
-        return null;
+        return Maps.newHashMap();
     }
 }

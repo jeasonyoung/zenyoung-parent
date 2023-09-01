@@ -3,6 +3,8 @@ package top.zenyoung.common.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  *
  * @author young
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RandomUtils {
     /**
      * 用于随机选的数字

@@ -1,6 +1,8 @@
 package top.zenyoung.file.util;
 
 import com.google.common.base.Strings;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,11 +15,12 @@ import java.util.function.BiConsumer;
  *
  * @author young
  */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExtHeadersUtils {
-    private final static String EXT_PREFIX = ".";
+    private static final String EXT_PREFIX = ".";
 
-    public static void handler(@Nullable final Map<String, Map<String, String>> extHeaders,
-                               @Nullable final String ext, @Nonnull final BiConsumer<String, String> headerHandler) {
+    public static void handler(@Nullable final Map<String, Map<String, String>> extHeaders, @Nullable final String ext,
+                               @Nonnull final BiConsumer<String, String> headerHandler) {
         if (Objects.nonNull(extHeaders) && !Strings.isNullOrEmpty(ext)) {
             final String key = ext.startsWith(EXT_PREFIX) ? ext : EXT_PREFIX + ext;
             final Map<String, String> headers = extHeaders.getOrDefault(key, null);

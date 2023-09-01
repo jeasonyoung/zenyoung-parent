@@ -1,6 +1,7 @@
 package top.zenyoung.boot.service.impl;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
@@ -16,6 +17,7 @@ import top.zenyoung.common.paging.PageList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
@@ -56,38 +58,38 @@ public class BeanMappingServiceImpl implements BeanMappingService {
     }
 
     @Override
-    public <T, MT> MT mapping(@Nullable final T data, @Nonnull final Class<MT> mtClass) {
+    public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> rClass) {
         if (Objects.isNull(data)) {
             return null;
         }
-        return MODEL.map(data, mtClass);
+        return MODEL.map(data, rClass);
     }
 
     @Override
-    public <T, MT> List<MT> mapping(@Nullable final List<T> items, @Nonnull final Class<MT> mtClass) {
+    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> rClass) {
         if (CollectionUtils.isEmpty(items)) {
-            return null;
+            return Lists.newArrayList();
         }
         return items.stream()
-                .map(item -> mapping(item, mtClass))
+                .map(item -> mapping(item, rClass))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public <T, MT> PageList<MT> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<MT> mtClass) {
+    public <T extends Serializable, V extends Serializable> PageList<V> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<V> vClass) {
         if (Objects.isNull(pageList)) {
             return null;
         }
-        return new PageList<MT>() {
+        return new PageList<V>() {
             @Override
             public Long getTotal() {
                 return pageList.getTotal();
             }
 
             @Override
-            public List<MT> getRows() {
-                return mapping(pageList.getRows(), mtClass);
+            public List<V> getRows() {
+                return mapping(pageList.getRows(), vClass);
             }
         };
     }
@@ -105,7 +107,7 @@ public class BeanMappingServiceImpl implements BeanMappingService {
                 return numberFor((Number) source, destType);
             }
             if (source instanceof Boolean) {
-                return numberFor((Boolean) source ? 1 : 0, destType);
+                return numberFor((boolean) source ? 1 : 0, destType);
             }
             if (source instanceof Date && Long.class.equals(destType)) {
                 return ((Date) source).getTime();

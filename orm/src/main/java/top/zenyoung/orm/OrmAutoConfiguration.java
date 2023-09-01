@@ -26,7 +26,6 @@ import java.util.List;
 @Configuration
 @Import({MybatisPlusConfig.class})
 public class OrmAutoConfiguration {
-
     @Bean
     public ISqlInjector sqlInjector() {
         return new DefaultSqlInjector() {
