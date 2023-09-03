@@ -42,7 +42,7 @@
 
         <!-- 模块依赖 -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>top.zenyoung</groupId>
             <artifactId>boot</artifactId>
         </dependency>
     </dependencies>
