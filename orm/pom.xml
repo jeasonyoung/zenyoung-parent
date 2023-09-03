@@ -16,12 +16,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- spring security -->
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-        </dependency>
-
         <!-- mybatis-plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -60,7 +54,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>META-INF/**</include>
-                    <include>*.properties</include>
+                    <include>spy.properties</include>
                 </includes>
             </resource>
         </resources>
