@@ -54,10 +54,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
     public T getObject() {
         final T source = createRetrofit().create(retrofitInterface);
         final RetrofitClient client = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        final Class<FallbackFactory<?>> fallbackFactory;
+        final Class<?> fallbackFactory;
         if (Objects.nonNull(client) && Objects.nonNull(fallbackFactory = client.fallbackFactory())
                 && !Void.class.isAssignableFrom(fallbackFactory)) {
-            return FallbackFactoryProxy.create(retrofitInterface, fallbackFactory, source, context);
+            @SuppressWarnings({"unchecked"}) final Class<FallbackFactory<?>> factoryClass = (Class<FallbackFactory<?>>) fallbackFactory;
+            return FallbackFactoryProxy.create(retrofitInterface, factoryClass, source, context);
         }
         return source;
     }

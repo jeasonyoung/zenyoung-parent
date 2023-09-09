@@ -3,7 +3,6 @@ package top.zenyoung.retrofit.annotation;
 import retrofit2.CallAdapter;
 import retrofit2.Converter;
 import top.zenyoung.retrofit.ErrorDecoder;
-import top.zenyoung.retrofit.FallbackFactory;
 
 import java.lang.annotation.*;
 
@@ -79,7 +78,7 @@ public @interface RetrofitClient {
      *
      * @return fallback factory
      */
-    Class<FallbackFactory<?>> fallbackFactory();
+    Class<?> fallbackFactory() default Void.class;
 
     /**
      * 当前接口采用的错误解码器，当请求发生异常或者收到无效响应结果的时候，将HTTP相关信息解码到异常中，无效响应由业务自己判断。
