@@ -87,6 +87,7 @@
         <zxing.version>3.5.1</zxing.version>
         <easypoi.version>4.4.0</easypoi.version>
         <oshi-core.version>6.4.4</oshi-core.version>
+        <retrofit.version>2.9.0</retrofit.version>
 
         <!-- swagger -->
         <swagger.version>1.5.20</swagger.version>
@@ -130,6 +131,7 @@
         <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>
         <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>
         <zenyoung-opencv.version>1.0.0</zenyoung-opencv.version>
+        <zenyoung-retrofit.version>1.0.0</zenyoung-retrofit.version>
         <zenyoung-generator.version>3.1.0</zenyoung-generator.version>
     </properties>
 
@@ -294,6 +296,18 @@
                 <version>${oshi-core.version}</version>
             </dependency>
 
+            <!-- retrofit -->
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>retrofit</artifactId>
+                <version>${retrofit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>converter-jackson</artifactId>
+                <version>${retrofit.version}</version>
+            </dependency>
+
             <!-- swagger -->
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -452,7 +466,13 @@
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>opencv</artifactId>
-                <version>1.0.0</version>
+                <version>${zenyoung-opencv.version}</version>
+            </dependency>
+            <!-- retrofit -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>retrofit</artifactId>
+                <version>${zenyoung-retrofit.version}</version>
             </dependency>
             <!-- generator -->
             <dependency>

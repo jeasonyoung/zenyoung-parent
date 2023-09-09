@@ -57,6 +57,8 @@
         <module>fc-runtime-huawei</module>
         <!-- opencv -->
         <module>opencv</module>
+        <!-- retrofit -->
+        <module>retrofit</module>
         <!-- 代码生成器 -->
         <module>generator</module>
     </modules>
