@@ -28,6 +28,7 @@ import top.zenyoung.retrofit.retry.RetryInterceptor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -40,19 +41,6 @@ import java.util.stream.Stream;
 @EnableConfigurationProperties({RetrofitProperties.class})
 public class RetrofitAutoConfiguration {
     private final RetrofitProperties properties;
-
-    /**
-     * ObjectMap 处理器
-     *
-     * @return JSON处理器
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
 
     /**
      * 拦截器Scope处理器
@@ -161,8 +149,11 @@ public class RetrofitAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public JacksonConverterFactory jacksonConverterFactory(@Nonnull final ObjectMapper objMapper) {
-        return JacksonConverterFactory.create(objMapper);
+    public JacksonConverterFactory jacksonConverterFactory(@Nullable final ObjectMapper objMapper) {
+        ObjectMapper mapper = Optional.ofNullable(objMapper).orElse(new ObjectMapper());
+        mapper = mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return JacksonConverterFactory.create(mapper);
     }
 
 
