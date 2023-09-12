@@ -186,7 +186,7 @@ public abstract class BaseJavaFxAppSupport extends Application {
      */
     private static Consumer<Throwable> defaultErrorAction() {
         return e -> {
-            log.error("初始化异常:", e);
+            log.error("初始化异常: {}", e.getMessage());
             final Alert alert = new Alert(AlertType.ERROR, "Oops! An unrecoverable error occurred.\n" +
                     "Please contact your software vendor.\n\n" +
                     "The application will stop now.");
