@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -37,10 +37,10 @@ import java.util.stream.Stream;
  * @author young
  */
 @Configuration
-@RequiredArgsConstructor
 @EnableConfigurationProperties({RetrofitProperties.class})
 public class RetrofitAutoConfiguration {
-    private final RetrofitProperties properties;
+    @Autowired
+    private RetrofitProperties properties;
 
     /**
      * 拦截器Scope处理器
