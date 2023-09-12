@@ -55,8 +55,7 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         final T source = createRetrofit().create(retrofitInterface);
         final RetrofitClient client = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
         final Class<?> fallbackFactory;
-        if (Objects.nonNull(client) && Objects.nonNull(fallbackFactory = client.fallbackFactory())
-                && !Void.class.isAssignableFrom(fallbackFactory)) {
+        if (Objects.nonNull(client) && Objects.nonNull(fallbackFactory = client.fallbackFactory()) && !Void.class.isAssignableFrom(fallbackFactory)) {
             @SuppressWarnings({"unchecked"}) final Class<FallbackFactory<?>> factoryClass = (Class<FallbackFactory<?>>) fallbackFactory;
             return FallbackFactoryProxy.create(retrofitInterface, factoryClass, source, context);
         }
@@ -117,13 +116,11 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
         synchronized (LOCKS.computeIfAbsent(okHttpClientKey, k -> new Object())) {
             try {
                 OkHttpClient.Builder builder;
-                boolean added = false;
                 final OkHttpClientRegistry clientRegistry = configBean.getOkHttpClientRegistry();
                 OkHttpClient client = clientRegistry.get(okHttpClientKey);
                 if (Objects.nonNull(client)) {
                     builder = client.newBuilder();
                 } else {
-                    added = true;
                     //默认超时
                     final TimeoutProperty timeout = configBean.getProperties().getTimeout();
                     final int connectTimeoutMs = timeout.getConnectTimeoutMs();
@@ -151,12 +148,8 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
                 builder.addInterceptor(configBean.getLoggingInterceptor());
                 //6.网络拦截器集合
                 addNetworkInterceptors(builder, configBean.getNetworkInterceptors());
-                //
-                client = builder.build();
-                if (added) {
-                    clientRegistry.register(okHttpClientKey, client);
-                }
-                return client;
+                //生成OkHttp对象
+                return builder.build();
             } finally {
                 LOCKS.remove(okHttpClientKey);
             }
