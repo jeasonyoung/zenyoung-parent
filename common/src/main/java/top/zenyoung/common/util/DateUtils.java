@@ -1,7 +1,6 @@
 package top.zenyoung.common.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import top.zenyoung.common.model.DateRange;
 
 import javax.annotation.Nonnull;
@@ -18,7 +17,7 @@ import java.util.function.UnaryOperator;
  * @version 1.0
  * date 2020/6/28 1:43 下午
  **/
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class DateUtils {
 
     /**

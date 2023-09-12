@@ -1,5 +1,6 @@
 package top.zenyoung.redis.util;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -15,6 +16,7 @@ import java.time.Duration;
  * @version 1.0
  **/
 @Slf4j
+@UtilityClass
 public class RedisCacheUtils {
 
     public static void saveCacheValue(@Nonnull final StringRedisTemplate redisTemplate, @Nonnull final String key, @Nonnull final String val) {

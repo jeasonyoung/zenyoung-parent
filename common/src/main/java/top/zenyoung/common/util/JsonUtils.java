@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
@@ -22,7 +21,7 @@ import java.util.Map;
  * @version 1.0
  * date 2020/6/30 2:38 下午
  **/
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class JsonUtils {
 
     /**

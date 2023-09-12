@@ -11,13 +11,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.core.toolkit.support.ColumnCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import top.zenyoung.boot.util.MapUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,11 +33,22 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class MybatisPlusUtils {
+    private static <T> Map<String, Object> fromToMap(@Nonnull final T obj) {
+        final Map<String, Object> map = Maps.newHashMap();
+        ReflectionUtils.doWithFields(obj.getClass(), f -> {
+            f.setAccessible(true);
+            final Object val = f.get(obj);
+            if (Objects.nonNull(val)) {
+                map.put(f.getName(), val);
+            }
+        });
+        return map;
+    }
 
     private static <T> Map<String, Object> from(@Nonnull final T dto) {
-        final Map<String, Object> dtoMap = MapUtils.from(dto);
+        final Map<String, Object> dtoMap = fromToMap(dto);
         if (CollectionUtils.isEmpty(dtoMap)) {
             return Maps.newHashMap();
         }

@@ -22,7 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.boot.annotation.OperaLog;
 import top.zenyoung.boot.util.HttpUtils;
-import top.zenyoung.boot.util.SecurityUtils;
+import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.common.dto.OperaLogDTO;
 import top.zenyoung.common.model.OperaType;
 import top.zenyoung.common.model.Status;

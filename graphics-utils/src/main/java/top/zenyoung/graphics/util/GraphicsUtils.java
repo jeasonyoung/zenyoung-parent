@@ -1,5 +1,7 @@
 package top.zenyoung.graphics.util;
 
+import lombok.experimental.UtilityClass;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -11,6 +13,7 @@ import java.util.Objects;
  *
  * @author young
  */
+@UtilityClass
 public class GraphicsUtils {
     /**
      * 创建{@link Graphics2D}

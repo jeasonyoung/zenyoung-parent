@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import top.zenyoung.boot.annotation.authorize.HasAnonymous;
 import top.zenyoung.boot.enums.ExceptionEnums;
-import top.zenyoung.boot.util.SecurityUtils;
+import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.model.UserPrincipal;
 

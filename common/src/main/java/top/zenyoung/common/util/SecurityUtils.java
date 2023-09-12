@@ -1,7 +1,6 @@
-package top.zenyoung.boot.util;
+package top.zenyoung.common.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
@@ -13,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author young
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class SecurityUtils {
     private static final ThreadLocal<AtomicReference<UserPrincipal>> LOCAL_REF = ThreadLocal.withInitial(() -> new AtomicReference<>(null));
 

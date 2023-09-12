@@ -2,6 +2,7 @@ package top.zenyoung.graphics.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -37,6 +38,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author young
  */
+@UtilityClass
 public class ImageUtils {
     public static final String IMAGE_TYPE_GIF = "gif";
     public static final String IMAGE_TYPE_JPG = "jpg";

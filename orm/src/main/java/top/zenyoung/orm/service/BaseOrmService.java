@@ -3,7 +3,7 @@ package top.zenyoung.orm.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import top.zenyoung.boot.service.BaseService;
+import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.orm.model.Model;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  *
  * @author young
  */
-public interface BaseOrmService<M extends Model<K>, K extends Serializable> extends BaseService {
+public interface BaseOrmService<M extends Model<K>, K extends Serializable> extends BeanMapping {
     /**
      * 根据ID加载数据
      *

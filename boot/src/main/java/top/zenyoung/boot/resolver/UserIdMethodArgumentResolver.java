@@ -3,7 +3,7 @@ package top.zenyoung.boot.resolver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import top.zenyoung.boot.annotation.UserId;
-import top.zenyoung.boot.util.SecurityUtils;
+import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;

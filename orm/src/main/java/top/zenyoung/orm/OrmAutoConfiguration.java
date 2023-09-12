@@ -4,12 +4,17 @@ import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.orm.config.MybatisPlusConfig;
+import top.zenyoung.common.mapping.BeanMapping;
+import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.orm.injector.BatchAddOrUpdateMethod;
 import top.zenyoung.orm.injector.PhysicalDeleteMethod;
 import top.zenyoung.orm.injector.SelectPhysicalByIdMethod;
@@ -24,8 +29,26 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({MybatisPlusConfig.class})
 public class OrmAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    public BeanMapping beanMapping() {
+        return BeanMappingDefault.INSTANCE;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        final MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        //分页
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+        //乐观锁
+        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
+        //防止全表更新或删除
+        interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
+        return interceptor;
+    }
+
     @Bean
     public ISqlInjector sqlInjector() {
         return new DefaultSqlInjector() {

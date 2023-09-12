@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import io.netty.channel.*;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ScheduledFuture;
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
+import java.util.function.ObjIntConsumer;
 import java.util.regex.Pattern;
 
 /**
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  *
  * @author young
  */
-@Slf4j
+@UtilityClass
 public class NettyUtils {
     /**
      * 获取远端地址
@@ -79,7 +79,8 @@ public class NettyUtils {
      * @param addr    地址
      * @param handler 获取IP和端口
      */
-    public static void getIpAddrWithPort(@Nullable final InetSocketAddress addr, @Nonnull final BiConsumer<String, Integer> handler) {
+    public static void getIpAddrWithPort(@Nullable final InetSocketAddress addr,
+                                         @Nonnull final ObjIntConsumer<String> handler) {
         Optional.ofNullable(addr)
                 .map(InetSocketAddress::getAddress)
                 .map(InetAddress::getHostAddress)

@@ -2,8 +2,7 @@ package top.zenyoung.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.codec.binary.Base64;
 import top.zenyoung.common.model.UserPrincipal;
 
@@ -16,7 +15,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author young
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class PrincipalUtils {
     private static final Charset CHARET = StandardCharsets.UTF_8;
 

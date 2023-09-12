@@ -5,11 +5,11 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -18,6 +18,7 @@ import java.util.Optional;
  * @author young
  */
 @Slf4j
+@UtilityClass
 public class SslUtils {
     private static SslContext sslClientContext;
 

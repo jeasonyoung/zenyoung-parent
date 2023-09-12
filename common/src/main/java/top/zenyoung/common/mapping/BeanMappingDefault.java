@@ -1,8 +1,9 @@
-package top.zenyoung.boot.service.impl;
+package top.zenyoung.common.mapping;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
@@ -10,8 +11,6 @@ import org.modelmapper.internal.Errors;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
-import org.springframework.util.CollectionUtils;
-import top.zenyoung.boot.service.BeanMappingService;
 import top.zenyoung.common.paging.PageList;
 
 import javax.annotation.Nonnull;
@@ -20,29 +19,28 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Bean对象转换服务接口实现
+ * Bean转换-默认实现
  *
  * @author young
  */
-@Slf4j
-public class BeanMappingServiceImpl implements BeanMappingService {
-    private static final ModelMapper MODEL = new ModelMapper();
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class BeanMappingDefault implements BeanMapping {
+    public static final BeanMappingDefault INSTANCE = new BeanMappingDefault();
+    private static final ModelMapper MODEL;
 
     static {
+        MODEL = new ModelMapper();
         final Configuration configuration = MODEL.getConfiguration();
         configuration.setMatchingStrategy(MatchingStrategies.STRICT)
                 .setFieldMatchingEnabled(true)
                 .setDeepCopyEnabled(true)
                 .setFullTypeMatchingRequired(true);
         final List<ConditionalConverter<?, ?>> converters = configuration.getConverters();
-        if (!CollectionUtils.isEmpty(converters)) {
+        if (converters != null && !converters.isEmpty()) {
             ConditionalConverter<?, ?> remove = null;
             for (ConditionalConverter<?, ?> converter : converters) {
                 if (converter.getClass().getSimpleName().contains("NumberConverter")) {
@@ -58,40 +56,41 @@ public class BeanMappingServiceImpl implements BeanMappingService {
     }
 
     @Override
-    public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> rClass) {
-        if (Objects.isNull(data)) {
-            return null;
-        }
-        return MODEL.map(data, rClass);
+    public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {
+        return Optional.ofNullable(data)
+                .map(item -> MODEL.map(item, cls))
+                .orElse(null);
     }
 
     @Override
-    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> rClass) {
-        if (CollectionUtils.isEmpty(items)) {
-            return Lists.newArrayList();
+    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls) {
+        if (Objects.nonNull(items)) {
+            return items.stream()
+                    .filter(Objects::nonNull)
+                    .map(item -> mapping(item, cls))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
         }
-        return items.stream()
-                .map(item -> mapping(item, rClass))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return Lists.newArrayList();
     }
 
     @Override
-    public <T extends Serializable, V extends Serializable> PageList<V> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<V> vClass) {
-        if (Objects.isNull(pageList)) {
-            return null;
-        }
-        return new PageList<V>() {
-            @Override
-            public Long getTotal() {
-                return pageList.getTotal();
-            }
+    public <T extends Serializable, R extends Serializable> PageList<R> mapping(@Nullable final PageList<T> pageList,
+                                                                                @Nonnull final Class<R> cls) {
+        if (Objects.nonNull(pageList)) {
+            return new PageList<R>() {
+                @Override
+                public Long getTotal() {
+                    return pageList.getTotal();
+                }
 
-            @Override
-            public List<V> getRows() {
-                return mapping(pageList.getRows(), vClass);
-            }
-        };
+                @Override
+                public List<R> getRows() {
+                    return mapping(pageList.getRows(), cls);
+                }
+            };
+        }
+        return PageList.empty();
     }
 
     private static class NumberConverter implements ConditionalConverter<Object, Number> {

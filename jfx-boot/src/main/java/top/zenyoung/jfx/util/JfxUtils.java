@@ -4,8 +4,7 @@ import com.google.common.base.Strings;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nonnull;
 import java.net.URL;
@@ -16,7 +15,7 @@ import java.util.Objects;
  *
  * @author young
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class JfxUtils {
     /**
      * 主函数处理

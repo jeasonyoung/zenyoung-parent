@@ -1,8 +1,7 @@
 package top.zenyoung.boot.util;
 
 import com.google.common.collect.Sets;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -20,7 +19,7 @@ import java.util.Set;
  *
  * @author young
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class RegistrarUtils {
 
     /**

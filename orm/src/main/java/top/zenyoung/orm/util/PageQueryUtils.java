@@ -3,8 +3,7 @@ package top.zenyoung.orm.util;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
  *
  * @author young
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class PageQueryUtils {
     private static final int PAGE_IDX = BasePageDTO.DEF_PAGE_INDEX, PAGE_SIZE = BasePageDTO.DEF_PAGE_SIZE;
 

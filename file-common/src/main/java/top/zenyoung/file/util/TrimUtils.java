@@ -1,8 +1,7 @@
 package top.zenyoung.file.util;
 
 import com.google.common.base.Strings;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nonnull;
 
@@ -11,7 +10,7 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class TrimUtils {
     /**
      * 径路分隔符

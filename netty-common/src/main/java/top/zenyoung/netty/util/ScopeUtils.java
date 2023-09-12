@@ -2,6 +2,7 @@ package top.zenyoung.netty.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import lombok.experimental.UtilityClass;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,7 @@ import java.util.Optional;
  *
  * @author young
  */
+@UtilityClass
 public class ScopeUtils {
     private static final String SINGLETON = "singleton";
     private static final String PROTOTYPE = "prototype";

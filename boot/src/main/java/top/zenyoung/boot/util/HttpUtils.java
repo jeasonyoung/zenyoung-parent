@@ -2,8 +2,7 @@ package top.zenyoung.boot.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
  *
  * @author young
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class HttpUtils {
     private static final List<String> HTTP_CLIENT_IP_HEAD = Lists.newArrayList("x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "X-Real-IP");
 

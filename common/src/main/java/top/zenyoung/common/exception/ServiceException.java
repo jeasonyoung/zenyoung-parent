@@ -34,4 +34,8 @@ public class ServiceException extends BaseException {
     public ServiceException(@Nonnull final EnumValue enumValue) {
         super(enumValue);
     }
+
+    public ServiceException(@Nullable final Throwable cause) {
+        super(cause);
+    }
 }

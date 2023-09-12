@@ -16,7 +16,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
@@ -25,14 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import top.zenyoung.boot.service.impl.BaseServiceImpl;
-import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.dto.BasePageDTO;
+import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.orm.enums.PoConstant;
 import top.zenyoung.orm.mapper.ModelMapper;
 import top.zenyoung.orm.model.Model;
@@ -57,15 +56,17 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> extends BaseServiceImpl implements BaseOrmService<M, K>, InitializingBean {
+public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> implements BaseOrmService<M, K>, InitializingBean {
     protected static final int BATCH_SIZE = 500;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
     private final ModelFieldHelper<M> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
 
     @Autowired(required = false)
     @Getter(value = AccessLevel.PROTECTED)
-    @Setter(value = AccessLevel.PROTECTED)
     private IdSequence idSequence;
+
+    @Autowired(required = false)
+    private BeanMapping beanMapping;
 
     private Class<?> getGenericType(final int index) {
         return clsMaps.computeIfAbsent(index, idx -> ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, idx));
@@ -475,5 +476,26 @@ public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializa
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final Wrapper<M> wrapper) {
         return SqlHelper.retBool(getMapper().delete(wrapper));
+    }
+
+    private <R> R mappingHandler(@Nonnull final Function<BeanMapping, R> handler) {
+        return Optional.ofNullable(beanMapping)
+                .map(handler)
+                .orElse(null);
+    }
+
+    @Override
+    public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {
+        return mappingHandler(bm -> bm.mapping(data, cls));
+    }
+
+    @Override
+    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls) {
+        return mappingHandler(bm -> bm.mapping(items, cls));
+    }
+
+    @Override
+    public <T extends Serializable, R extends Serializable> PageList<R> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<R> cls) {
+        return mappingHandler(bm -> bm.mapping(pageList, cls));
     }
 }

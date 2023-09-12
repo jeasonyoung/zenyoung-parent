@@ -1,5 +1,8 @@
 package top.zenyoung.graphics.util;
 
+import lombok.experimental.UtilityClass;
+import top.zenyoung.common.exception.ServiceException;
+
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.io.File;
@@ -11,6 +14,7 @@ import java.io.InputStream;
  *
  * @author young
  */
+@UtilityClass
 public class FontUtils {
     /**
      * 创建默认字体
@@ -57,7 +61,7 @@ public class FontUtils {
             try {
                 return Font.createFont(Font.TYPE1_FONT, fontFile);
             } catch (Exception e1) {
-                throw new RuntimeException(e1);
+                throw new ServiceException(e1);
             }
         }
     }
@@ -77,7 +81,7 @@ public class FontUtils {
             try {
                 return Font.createFont(Font.TYPE1_FONT, fontStream);
             } catch (Exception e1) {
-                throw new RuntimeException(e1);
+                throw new ServiceException(e1);
             }
         }
     }

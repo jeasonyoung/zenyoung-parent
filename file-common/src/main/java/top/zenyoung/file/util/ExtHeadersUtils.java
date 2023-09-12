@@ -1,8 +1,7 @@
 package top.zenyoung.file.util;
 
 import com.google.common.base.Strings;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,7 +14,7 @@ import java.util.function.BiConsumer;
  *
  * @author young
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class ExtHeadersUtils {
     private static final String EXT_PREFIX = ".";
 

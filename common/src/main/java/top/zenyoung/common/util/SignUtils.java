@@ -4,8 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  **/
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public class SignUtils {
     private static final String KK_JOIN = ".", KV_JOIN = "=", KV_KV_JOIN = "&", COLLECTION_JOIN = ",";
 

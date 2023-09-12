@@ -5,6 +5,7 @@ import lombok.Getter;
 import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * 异常基类
@@ -47,5 +48,15 @@ public abstract class BaseException extends RuntimeException implements EnumValu
      */
     protected BaseException(@Nonnull final EnumValue ev) {
         this(ev.getVal(), ev.getTitle());
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param cause 异常
+     */
+    protected BaseException(@Nullable final Throwable cause) {
+        super(cause);
+        this.code = 500;
     }
 }
