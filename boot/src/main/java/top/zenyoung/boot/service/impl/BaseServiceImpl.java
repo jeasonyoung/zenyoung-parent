@@ -1,9 +1,9 @@
 package top.zenyoung.boot.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import top.zenyoung.boot.service.BaseService;
 import top.zenyoung.common.mapping.BeanMapping;
+import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.PageList;
 
 import javax.annotation.Nonnull;
@@ -19,9 +19,8 @@ import java.util.function.Function;
  * @author young
  */
 @Slf4j
-public class BaseServiceImpl implements BaseService, BeanMapping {
-    @Autowired(required = false)
-    private BeanMapping beanMapping;
+public abstract class BaseServiceImpl implements BaseService {
+    private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
 
     private <R> R mappingHandler(@Nonnull final Function<BeanMapping, R> handler) {
         return Optional.ofNullable(beanMapping)

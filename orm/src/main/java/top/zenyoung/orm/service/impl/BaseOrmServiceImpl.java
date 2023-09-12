@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.mapping.BeanMapping;
+import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
@@ -58,15 +59,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> implements BaseOrmService<M, K>, InitializingBean {
     protected static final int BATCH_SIZE = 500;
+    private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
     private final ModelFieldHelper<M> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
 
     @Autowired(required = false)
     @Getter(value = AccessLevel.PROTECTED)
     private IdSequence idSequence;
-
-    @Autowired(required = false)
-    private BeanMapping beanMapping;
 
     private Class<?> getGenericType(final int index) {
         return clsMaps.computeIfAbsent(index, idx -> ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, idx));

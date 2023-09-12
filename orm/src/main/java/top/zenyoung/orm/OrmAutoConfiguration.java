@@ -13,8 +13,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
-import top.zenyoung.common.mapping.BeanMapping;
-import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.orm.injector.BatchAddOrUpdateMethod;
 import top.zenyoung.orm.injector.PhysicalDeleteMethod;
 import top.zenyoung.orm.injector.SelectPhysicalByIdMethod;
@@ -30,11 +28,6 @@ import java.util.List;
 @Slf4j
 @Configuration
 public class OrmAutoConfiguration {
-    @Bean
-    @ConditionalOnMissingBean
-    public BeanMapping beanMapping() {
-        return BeanMappingDefault.INSTANCE;
-    }
 
     @Bean
     @ConditionalOnMissingBean
