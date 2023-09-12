@@ -52,21 +52,21 @@ public class RetrofitFactoryBean<T> implements FactoryBean<T>, EnvironmentAware,
 
     @Override
     public T getObject() {
-        final T source = createRetrofit().create(retrofitInterface);
         final RetrofitClient client = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
+        if (Objects.isNull(client)) {
+            throw new RetrofitException(retrofitInterface + " not annotated @RetrofitClient");
+        }
+        final T source = createRetrofit(client).create(retrofitInterface);
+        //检查fallback
         final Class<?> fallbackFactory;
-        if (Objects.nonNull(client) && Objects.nonNull(fallbackFactory = client.fallbackFactory()) && !Void.class.isAssignableFrom(fallbackFactory)) {
+        if (Objects.nonNull(fallbackFactory = client.fallbackFactory()) && !Void.class.isAssignableFrom(fallbackFactory)) {
             @SuppressWarnings({"unchecked"}) final Class<FallbackFactory<?>> factoryClass = (Class<FallbackFactory<?>>) fallbackFactory;
             return FallbackFactoryProxy.create(retrofitInterface, factoryClass, source, context);
         }
         return source;
     }
 
-    private Retrofit createRetrofit() {
-        final RetrofitClient retrofitClient = AnnotatedElementUtils.findMergedAnnotation(retrofitInterface, RetrofitClient.class);
-        if (Objects.isNull(retrofitClient)) {
-            throw new RetrofitException(retrofitInterface + " not annotated @RetrofitClient");
-        }
+    private Retrofit createRetrofit(@Nonnull final RetrofitClient retrofitClient) {
         final String baseUrl = RetrofitUtils.convertBaseUrl(retrofitClient, env);
         final OkHttpClient httpClient = createOkHttpClient(retrofitClient);
         final Retrofit.Builder builder = new Retrofit.Builder()
