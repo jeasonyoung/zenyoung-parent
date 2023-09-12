@@ -51,6 +51,8 @@
 
         <!-- mybatis-plus -->
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <!-- flyway -->
+        <flyway-core.version>8.2.2</flyway-core.version>
         <!-- p6spy -->
         <p6spy.version>3.9.1</p6spy.version>
 
@@ -171,6 +173,13 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- flywaydb -->
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>${flyway-core.version}</version>
             </dependency>
 
             <!-- p6spy -->
