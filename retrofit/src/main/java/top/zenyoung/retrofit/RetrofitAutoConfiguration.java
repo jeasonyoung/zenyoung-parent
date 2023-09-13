@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -39,18 +38,6 @@ import java.util.stream.Stream;
 @Configuration
 @EnableConfigurationProperties({RetrofitProperties.class})
 public class RetrofitAutoConfiguration {
-    @Autowired
-    private RetrofitProperties properties;
-
-    /**
-     * 拦截器Scope处理器
-     *
-     * @return 处理器
-     */
-    @Bean
-    public InterceptorRegistryPostProcessor interceptorRegistryPostProcessor() {
-        return new InterceptorRegistryPostProcessor();
-    }
 
     /**
      * 基础类型转换器
@@ -103,7 +90,7 @@ public class RetrofitAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public RetryInterceptor retryInterceptor() {
+    public RetryInterceptor retryInterceptor(@Nonnull final RetrofitProperties properties) {
         return new RetryInterceptor(properties.getRetry());
     }
 
@@ -114,7 +101,7 @@ public class RetrofitAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public LoggingInterceptor loggingInterceptor() {
+    public LoggingInterceptor loggingInterceptor(@Nonnull final RetrofitProperties properties) {
         return new AggregateLoggingInterceptor(properties.getLog());
     }
 
@@ -156,10 +143,20 @@ public class RetrofitAutoConfiguration {
         return JacksonConverterFactory.create(mapper);
     }
 
+    /**
+     * 拦截器Scope处理器
+     *
+     * @return 处理器
+     */
+    @Bean
+    public InterceptorRegistryPostProcessor interceptorRegistryPostProcessor() {
+        return new InterceptorRegistryPostProcessor();
+    }
 
     @Bean
     @ConditionalOnMissingBean
-    public RetrofitConfigBean retrofitConfigBean(@Nullable final List<GlobalInterceptor> globalInterceptors,
+    public RetrofitConfigBean retrofitConfigBean(@Nonnull final RetrofitProperties properties,
+                                                 @Nullable final List<GlobalInterceptor> globalInterceptors,
                                                  @Nullable final List<NetworkInterceptor> networkInterceptors,
                                                  @Nonnull final RetryInterceptor retryInterceptor,
                                                  @Nonnull final ServiceChooseInterceptor serviceChooseInterceptor,
