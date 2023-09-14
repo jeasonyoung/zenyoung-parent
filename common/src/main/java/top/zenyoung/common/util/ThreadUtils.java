@@ -59,8 +59,8 @@ public class ThreadUtils {
         return new ThreadPoolExecutor.DiscardOldestPolicy();
     }
 
-    public static Executor createPools(final boolean daemon, @Nullable final String prefix,
-                                       @Nullable final Integer min, @Nullable final Integer max) {
+    public static ExecutorService createPools(final boolean daemon, @Nullable final String prefix,
+                                              @Nullable final Integer min, @Nullable final Integer max) {
         log.debug("createPools(daemon: {},prefix: {},min: {},max: {})...", daemon, prefix, min, max);
         final int corePoolSize = Math.max(min == null ? 0 : min, MIN);
         final int maxPoolSize = Math.max(max == null ? 0 : max, MAX);
@@ -77,7 +77,7 @@ public class ThreadUtils {
      * @param max 最大线程数
      * @return 线程池
      */
-    public static Executor createPools(@Nullable final Integer min, @Nullable final Integer max) {
+    public static ExecutorService createPools(@Nullable final Integer min, @Nullable final Integer max) {
         return createPools(true, "default", min, max);
     }
 
@@ -86,7 +86,7 @@ public class ThreadUtils {
      *
      * @return 线程池
      */
-    public static Executor createPools() {
+    public static ExecutorService createPools() {
         return createPools(null, null);
     }
 
