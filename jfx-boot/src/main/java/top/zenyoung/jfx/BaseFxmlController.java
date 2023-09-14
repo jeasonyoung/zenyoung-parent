@@ -18,13 +18,15 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * jfx-控制器基类
  */
 public abstract class BaseFxmlController implements ApplicationContextAware, Initializable {
-    private static final Executor POOLS = ThreadUtils.createPools();
+    private static final ExecutorService POOLS = ThreadUtils.createPools();
     private ApplicationContext context;
     private ResourceBundle resourceBundle;
 
@@ -104,21 +106,71 @@ public abstract class BaseFxmlController implements ApplicationContextAware, Ini
      * @param <T>       任务类型
      */
     protected <T extends Task<?>> void startAsyncTask(@Nonnull final T asyncTask) {
-        startAsyncTask(asyncTask, null);
+        startAsyncTask(null, asyncTask);
     }
 
     /**
      * 启动异步任务执行
      *
-     * @param asyncTask      异步任务
      * @param mesageCallback 消息回显
+     * @param asyncTask      异步任务
      * @param <T>            任务类型
      */
-    protected <T extends Task<?>> void startAsyncTask(@Nonnull final T asyncTask, @Nullable final StringProperty mesageCallback) {
+    protected <T extends Task<?>> void startAsyncTask(@Nullable final StringProperty mesageCallback, @Nonnull final T asyncTask) {
         if (Objects.nonNull(mesageCallback)) {
             mesageCallback.bind(asyncTask.messageProperty());
         }
         this.startAsyncRun(asyncTask);
+    }
+
+    /**
+     * 启动异步任务执行
+     *
+     * @param msgCallback 消息回显
+     * @param supplier    异步任务处理
+     * @param consumer    任务结果处理
+     * @param <T>         任务数据类型
+     */
+    protected <T> void startAsyncTask(@Nullable final StringProperty msgCallback, @Nonnull final Supplier<T> supplier,
+                                      @Nullable final Consumer<T> consumer) {
+        //异步任务初始化
+        final Task<T> task = new Task<T>() {
+            @Override
+            protected T call() {
+                updateMessage("开始执行...");
+                return supplier.get();
+            }
+
+            @Override
+            protected void succeeded() {
+                super.succeeded();
+                updateMessage("执行完成.");
+            }
+
+            @Override
+            protected void failed() {
+                super.failed();
+                updateMessage("执行失败!");
+            }
+
+            @Override
+            protected void cancelled() {
+                super.cancelled();
+                updateMessage("执行取消.");
+            }
+        };
+        //消息回显处理
+        if (Objects.nonNull(msgCallback)) {
+            msgCallback.bind(task.messageProperty());
+        }
+        //执行结果处理监听
+        task.valueProperty().addListener((observable, o, n) -> {
+            if (Objects.nonNull(consumer)) {
+                consumer.accept(n);
+            }
+        });
+        //异步执行
+        startAsyncRun(task);
     }
 
     /**
