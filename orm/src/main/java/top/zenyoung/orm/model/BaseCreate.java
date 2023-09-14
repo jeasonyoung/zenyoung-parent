@@ -11,7 +11,7 @@ import java.util.Date;
  * @author young
  */
 @Data
-public abstract class BaseCreate implements Serializable {
+public abstract class BaseCreate<K extends Serializable> implements Model<K> {
     /**
      * 创建者
      */

@@ -14,8 +14,6 @@ import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
@@ -64,7 +62,6 @@ public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializa
     private final ModelFieldHelper<M> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
 
     @Autowired(required = false)
-    @Getter(value = AccessLevel.PROTECTED)
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
@@ -83,7 +80,7 @@ public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializa
      */
     @SuppressWarnings({"unchecked"})
     protected K genId() {
-        return Optional.ofNullable(getIdSequence())
+        return Optional.ofNullable(idSequence)
                 .map(idSeq -> {
                     final Long id = idSeq.nextId();
                     final Class<K> cls = (Class<K>) getGenericType(1);

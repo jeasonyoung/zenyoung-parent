@@ -3,6 +3,7 @@ package top.zenyoung.orm.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseCreateUpdate extends BaseCreate {
+public abstract class BaseCreateUpdate<K extends Serializable> extends BaseCreate<K> {
     /**
      * 更新者
      */
