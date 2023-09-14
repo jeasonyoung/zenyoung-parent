@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 /**
  * jfx-控制器基类
@@ -102,6 +103,17 @@ public abstract class BaseFxmlController implements ApplicationContextAware, Ini
      */
     protected <T extends Task<?>> void startAsyncTask(@Nonnull final T asyncTask) {
         this.startAsyncRun(asyncTask);
+    }
+
+    /**
+     * 启动异步任务执行
+     *
+     * @param supplier 异步任务提供处理
+     * @param <T>      任务类型
+     */
+    protected <T extends Task<?>> void startAsyncTask(@Nonnull final Supplier<T> supplier) {
+        Optional.ofNullable(supplier.get())
+                .ifPresent(this::startAsyncTask);
     }
 
     /**
