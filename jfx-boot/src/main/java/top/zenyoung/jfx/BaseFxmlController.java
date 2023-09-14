@@ -1,6 +1,7 @@
 package top.zenyoung.jfx;
 
 import com.google.common.base.Strings;
+import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -13,10 +14,11 @@ import top.zenyoung.common.util.ThreadUtils;
 import top.zenyoung.jfx.util.JfxUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
-import java.util.function.Supplier;
 
 /**
  * jfx-控制器基类
@@ -102,18 +104,21 @@ public abstract class BaseFxmlController implements ApplicationContextAware, Ini
      * @param <T>       任务类型
      */
     protected <T extends Task<?>> void startAsyncTask(@Nonnull final T asyncTask) {
-        this.startAsyncRun(asyncTask);
+        startAsyncTask(asyncTask, null);
     }
 
     /**
      * 启动异步任务执行
      *
-     * @param supplier 异步任务提供处理
-     * @param <T>      任务类型
+     * @param asyncTask      异步任务
+     * @param mesageCallback 消息回显
+     * @param <T>            任务类型
      */
-    protected <T extends Task<?>> void startAsyncTask(@Nonnull final Supplier<T> supplier) {
-        Optional.ofNullable(supplier.get())
-                .ifPresent(this::startAsyncTask);
+    protected <T extends Task<?>> void startAsyncTask(@Nonnull final T asyncTask, @Nullable final StringProperty mesageCallback) {
+        if (Objects.nonNull(mesageCallback)) {
+            mesageCallback.bind(asyncTask.messageProperty());
+        }
+        this.startAsyncRun(asyncTask);
     }
 
     /**
