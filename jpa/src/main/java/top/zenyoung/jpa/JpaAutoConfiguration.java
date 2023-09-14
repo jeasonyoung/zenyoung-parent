@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
@@ -22,7 +23,7 @@ public class JpaAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public JPAQueryFactory buildJpaQueryFactory(final EntityManager entityManager) {
+    public JPAQueryFactory buildJpaQueryFactory(@Nonnull final EntityManager entityManager) {
         log.info("buildJpaQueryFactory...");
         return new JPAQueryFactory(entityManager);
     }

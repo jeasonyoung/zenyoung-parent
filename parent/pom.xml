@@ -116,6 +116,7 @@
         <zenyoung-boot.version>3.1.0</zenyoung-boot.version>
         <zenyoung-micro.version>3.1.0</zenyoung-micro.version>
         <zenyoung-orm.version>3.1.0</zenyoung-orm.version>
+        <zenyoung-jpa.version>3.1.0</zenyoung-jpa.version>
         <zenyoung-graphics-utils.version>3.1.0</zenyoung-graphics-utils.version>
         <zenyoung-graphics-captcha.version>3.1.0</zenyoung-graphics-captcha.version>
         <zenyoung-graphics-boot.version>3.1.0</zenyoung-graphics-boot.version>
@@ -381,6 +382,11 @@
                 <groupId>top.zenyoung</groupId>
                 <artifactId>orm</artifactId>
                 <version>${zenyoung-orm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>jpa</artifactId>
+                <version>${zenyoung-jpa.version}</version>
             </dependency>
             <!-- graphics -->
             <dependency>

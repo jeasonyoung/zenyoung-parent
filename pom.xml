@@ -25,6 +25,8 @@
         <module>micro</module>
         <!-- mybatis-plus orm -->
         <module>orm</module>
+        <!-- spring jpa -->
+        <module>jpa</module>
         <!-- 图像工具 -->
         <module>graphics-utils</module>
         <module>graphics-captcha</module>
@@ -37,8 +39,6 @@
         <module>segment</module>
         <!-- 定时任务 -->
         <module>quartz</module>
-        <!-- jpa -->
-<!--        <module>jpa</module>-->
         <!-- security -->
 <!--        <module>security-web</module>-->
         <!-- <module>security</module>-->
