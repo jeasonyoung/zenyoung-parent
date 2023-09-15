@@ -1,5 +1,6 @@
 package top.zenyoung.jpa.entity;
 
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
@@ -13,6 +14,7 @@ public interface ModelEntity<K extends Serializable> extends Serializable {
      *
      * @return 主键ID
      */
+    @Id
     K getId();
 
     /**
