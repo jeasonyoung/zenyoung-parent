@@ -8,13 +8,13 @@ import javax.persistence.Converter;
 import java.util.Objects;
 
 /**
- * 枚举-类型转换
+ * 枚举-类型转换器
  *
  * @param <T> 枚举类型
  * @author young
  */
 @Converter
-public abstract class EnumConverter<T extends EnumValue> implements AttributeConverter<T, Integer> {
+public abstract class BaseEnumConverter<T extends EnumValue> implements AttributeConverter<T, Integer> {
 
     @Override
     public Integer convertToDatabaseColumn(final T attr) {
