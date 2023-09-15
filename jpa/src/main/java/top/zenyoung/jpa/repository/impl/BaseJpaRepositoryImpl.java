@@ -20,7 +20,7 @@ import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.jpa.jpa.BaseJpa;
-import top.zenyoung.jpa.model.Model;
+import top.zenyoung.jpa.entity.ModelEntity;
 import top.zenyoung.jpa.repository.BaseJpaRepository;
 
 import javax.annotation.Nonnull;
@@ -36,7 +36,7 @@ import java.util.stream.StreamSupport;
  * @author young
  */
 @Slf4j
-public abstract class BaseJpaRepositoryImpl<M extends Model<K>, K extends Serializable> implements BaseJpaRepository<M, K> {
+public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends Serializable> implements BaseJpaRepository<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
     @Autowired(required = false)

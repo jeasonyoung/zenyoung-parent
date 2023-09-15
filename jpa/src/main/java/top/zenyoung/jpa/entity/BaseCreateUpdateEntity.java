@@ -1,8 +1,10 @@
-package top.zenyoung.jpa.model;
+package top.zenyoung.jpa.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,14 +14,17 @@ import java.util.Date;
  * @author young
  */
 @Data
+@MappedSuperclass
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseCreateUpdate<K extends Serializable> extends BaseCreate<K> {
+public abstract class BaseCreateUpdateEntity<K extends Serializable> extends BaseCreateEntity<K> {
     /**
      * 更新者
      */
+    @Column(insertable = false)
     private String updatedBy;
     /**
      * 更新时间
      */
+    @Column(insertable = false)
     private Date updatedAt;
 }

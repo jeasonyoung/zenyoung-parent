@@ -1,4 +1,4 @@
-package top.zenyoung.jpa.model;
+package top.zenyoung.jpa.entity;
 
 import java.io.Serializable;
 
@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @author young
  */
-public interface Model<K extends Serializable> extends Serializable {
+public interface ModelEntity<K extends Serializable> extends Serializable {
     /**
      * 获取主键ID
      *

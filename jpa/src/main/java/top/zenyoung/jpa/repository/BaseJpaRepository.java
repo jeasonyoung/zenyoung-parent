@@ -5,7 +5,7 @@ import org.springframework.data.domain.Sort;
 import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.jpa.model.Model;
+import top.zenyoung.jpa.entity.ModelEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author young
  */
-public interface BaseJpaRepository<M extends Model<K>, K extends Serializable> extends BeanMapping {
+public interface BaseJpaRepository<M extends ModelEntity<K>, K extends Serializable> extends BeanMapping {
 
     /**
      * 根据ID加载数据
