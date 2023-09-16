@@ -19,9 +19,9 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
-import top.zenyoung.jpa.jpa.BaseJpa;
 import top.zenyoung.jpa.entity.ModelEntity;
-import top.zenyoung.jpa.repository.BaseJpaRepository;
+import top.zenyoung.jpa.jpa.BaseJpa;
+import top.zenyoung.jpa.repository.JpaRepository;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,7 +36,7 @@ import java.util.stream.StreamSupport;
  * @author young
  */
 @Slf4j
-public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends Serializable> implements BaseJpaRepository<M, K> {
+public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends Serializable> implements JpaRepository<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
     @Autowired(required = false)
@@ -64,14 +64,11 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
         return Optional.ofNullable(idSequence)
                 .map(idSeq -> {
                     final Long id = idSeq.nextId();
-                    final Class<K> cls = (Class<K>) getGenericKeyType();
-                    if (cls == Long.class) {
-                        return cls.cast(id);
-                    }
+                    final Class<?> cls = getGenericKeyType();
                     if (cls == String.class) {
-                        return cls.cast(String.valueOf(id));
+                        return (K) cls.cast(String.valueOf(id));
                     }
-                    return cls.cast(id);
+                    return (K) cls.cast(id);
                 })
                 .orElse(null);
     }
@@ -113,16 +110,32 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
     }
 
     @Override
-    public long count(@Nonnull final Predicate predicate) {
+    public long count(@Nullable final Predicate predicate) {
         return Optional.ofNullable(getJpa())
-                .map(jpa -> jpa.count(predicate))
+                .map(jpa -> {
+                    if (Objects.nonNull(predicate)) {
+                        jpa.count(predicate);
+                    }
+                    return jpa.count();
+                })
                 .orElse(0L);
     }
 
     @Override
-    public List<M> queryList(@Nonnull final Predicate predicate) {
+    public List<M> queryList(@Nullable final Predicate predicate, @Nullable final Sort sort) {
         return Optional.ofNullable(getJpa())
-                .map(jpa -> jpa.findAll(predicate))
+                .map(jpa -> {
+                    if (Objects.nonNull(predicate)) {
+                        if (Objects.nonNull(sort)) {
+                            return jpa.findAll(predicate, sort);
+                        }
+                        return jpa.findAll(predicate);
+                    }
+                    if (Objects.nonNull(sort)) {
+                        return jpa.findAll(sort);
+                    }
+                    return jpa.findAll();
+                })
                 .map(iter -> StreamSupport.stream(iter.spliterator(), false)
                         .distinct()
                         .collect(Collectors.toList())
@@ -134,10 +147,14 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
     public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Predicate predicate, @Nullable final Sort sort) {
         return Optional.ofNullable(getJpa())
                 .map(jpa -> {
+                    //分页
                     final int idx = page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
                     final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
+                    //分页
                     final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
+                    //查询条件
                     final Page<M> p = predicate == null ? jpa.findAll(pageable) : jpa.findAll(predicate, pageable);
+                    //分页查询
                     return DataResult.of(p.getTotalElements(), p.getContent());
                 })
                 .orElse(DataResult.empty());
