@@ -10,7 +10,7 @@ import lombok.Getter;
 import javax.annotation.Nullable;
 
 /**
- * 性别
+ * 性别-枚举
  *
  * @author young
  */
