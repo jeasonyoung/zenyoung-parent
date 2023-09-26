@@ -1,5 +1,8 @@
 package top.zenyoung.jpa.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.io.Serializable;
 
@@ -15,6 +18,8 @@ public interface ModelEntity<K extends Serializable> extends Serializable {
      * @return 主键ID
      */
     @Id
+    @GeneratedValue(generator = "snowFlakeStrategy")
+    @GenericGenerator(name = "snowFlakeStrategy", strategy = "top.zenyoung.jpa.strategy.SnowFlakeStrategy")
     K getId();
 
     /**

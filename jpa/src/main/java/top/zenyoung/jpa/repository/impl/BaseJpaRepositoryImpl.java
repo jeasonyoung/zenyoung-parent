@@ -1,12 +1,10 @@
 package top.zenyoung.jpa.repository.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +16,6 @@ import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.jpa.entity.ModelEntity;
 import top.zenyoung.jpa.jpa.BaseJpa;
 import top.zenyoung.jpa.repository.JpaRepository;
@@ -26,7 +23,10 @@ import top.zenyoung.jpa.repository.JpaRepository;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -38,40 +38,8 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends Serializable> implements JpaRepository<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
-    private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
     @Autowired(required = false)
     protected JPAQueryFactory queryFactory;
-    @Autowired(required = false)
-    private IdSequence idSequence;
-
-    private Class<?> getGenericKeyType() {
-        final Class<?> cls = getClass();
-        final int index = 1;
-        return clsMaps.computeIfAbsent(index, idx -> {
-            // 直接使用 spring 静态方法，减少对象创建
-            final Class<?>[] typeArguments = GenericTypeResolver.resolveTypeArguments(cls, BaseJpaRepositoryImpl.class);
-            return typeArguments == null ? null : typeArguments[idx];
-        });
-    }
-
-    /**
-     * 生成主键ID
-     *
-     * @return 主键ID
-     */
-    @SuppressWarnings({"unchecked"})
-    protected K genId() {
-        return Optional.ofNullable(idSequence)
-                .map(idSeq -> {
-                    final Long id = idSeq.nextId();
-                    final Class<?> cls = getGenericKeyType();
-                    if (cls == String.class) {
-                        return (K) cls.cast(String.valueOf(id));
-                    }
-                    return (K) cls.cast(id);
-                })
-                .orElse(null);
-    }
 
     /**
      * 获取Jpa
@@ -163,9 +131,6 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean add(@Nonnull final M po) {
-        if (Objects.isNull(po.getId())) {
-            po.setId(genId());
-        }
         return Optional.ofNullable(getJpa())
                 .map(jpa -> {
                     jpa.saveAndFlush(po);
@@ -177,11 +142,6 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean batchAdd(@Nonnull final Collection<M> items) {
-        items.forEach(item -> {
-            if (Objects.isNull(item.getId())) {
-                item.setId(genId());
-            }
-        });
         return Optional.ofNullable(getJpa())
                 .map(jpa -> {
                     jpa.saveAllAndFlush(items);

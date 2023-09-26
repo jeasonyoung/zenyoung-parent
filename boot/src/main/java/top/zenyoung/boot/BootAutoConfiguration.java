@@ -18,8 +18,8 @@ import top.zenyoung.boot.aop.RequestLogAspect;
 import top.zenyoung.boot.config.*;
 import top.zenyoung.boot.interceptor.RequestAuthorizeInterceptor;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
-import top.zenyoung.boot.util.IdSequenceUtils;
 import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.SnowFlake;
 
 import javax.annotation.Nonnull;
 
@@ -31,13 +31,13 @@ import javax.annotation.Nonnull;
 @Configuration
 @ComponentScan({"top.zenyoung.boot.controller"})
 @Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, Knife4jConfig.class, ResponseAdviceController.class})
-@EnableConfigurationProperties({RepeatSubmitProperties.class, IdSequenceProperties.class})
+@EnableConfigurationProperties({RepeatSubmitProperties.class, SequenceProperties.class})
 public class BootAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public IdSequence buildSequence(final ObjectProvider<IdSequenceProperties> provider) {
-        return IdSequenceUtils.create(provider.getIfAvailable());
+    public IdSequence buildSequence(final ObjectProvider<SequenceProperties> provider) {
+        return SnowFlake.create(provider.getIfAvailable());
     }
 
     @Bean

@@ -2,14 +2,18 @@ package top.zenyoung.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.common.util.SecurityUtils;
+import top.zenyoung.jpa.util.SpringContextUtils;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
@@ -25,7 +29,7 @@ import java.util.Optional;
 @Configuration
 @EnableJpaAuditing
 @ConditionalOnClass(DataSource.class)
-public class JpaAutoConfiguration {
+public class JpaAutoConfiguration implements ApplicationContextAware {
 
     @Bean
     @ConditionalOnMissingBean
@@ -44,5 +48,10 @@ public class JpaAutoConfiguration {
                     .map(UserPrincipal::getId)
                     .map(String::valueOf);
         }
+    }
+
+    @Override
+    public void setApplicationContext(@Nonnull final ApplicationContext ctx) throws BeansException {
+        SpringContextUtils.setContext(ctx);
     }
 }
