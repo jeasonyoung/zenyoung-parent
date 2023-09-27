@@ -1,8 +1,11 @@
 package top.zenyoung.jpa.repository.impl;
 
 import com.google.common.collect.Lists;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -150,6 +154,26 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
                 .orElse(false);
     }
 
+    /**
+     * 数据更新处理
+     *
+     * @param entity     数据实体对象
+     * @param setHandler 更新设置处理器
+     * @param where      更新条件
+     * @return 更新结果
+     */
+    protected boolean modify(@Nonnull final EntityPath<M> entity,
+                             @Nonnull final Consumer<JPAUpdateClause> setHandler,
+                             @Nonnull final Predicate... where) {
+        final JPAUpdateClause updateClause = queryFactory.update(entity);
+        setHandler.accept(updateClause);
+        if (where.length > 0) {
+            return updateClause.where(where).execute() > 0;
+        }
+        return false;
+    }
+
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean delete(@Nonnull final K id) {
@@ -170,5 +194,20 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
                     return true;
                 })
                 .orElse(false);
+    }
+
+    /**
+     * 删除数据
+     *
+     * @param entity 数据实体
+     * @param where  删除条件
+     * @return 删除结果
+     */
+    protected boolean delete(@Nonnull final EntityPath<M> entity, @Nonnull final Predicate... where) {
+        final JPADeleteClause deleteClause = queryFactory.delete(entity);
+        if (where.length > 0) {
+            return deleteClause.where(where).execute() > 0;
+        }
+        return false;
     }
 }
