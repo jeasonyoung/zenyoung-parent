@@ -28,13 +28,12 @@ public interface ArgumentResolver extends HandlerMethodArgumentResolver {
      * @param webRequest    the current request
      * @param binderFactory a factory for creating {@link WebDataBinderFactory} instances
      * @return 参数数据
-     * @throws Exception 异常
      */
     @Override
     default Object resolveArgument(@Nonnull final MethodParameter parameter,
                                    @Nullable final ModelAndViewContainer mavContainer,
                                    @Nonnull final NativeWebRequest webRequest,
-                                   @Nullable final WebDataBinderFactory binderFactory) throws Exception {
+                                   @Nullable final WebDataBinderFactory binderFactory) {
         final HttpServletRequest req = webRequest.getNativeRequest(HttpServletRequest.class);
         if (Objects.nonNull(req)) {
             return resolveArgument(parameter, req);
