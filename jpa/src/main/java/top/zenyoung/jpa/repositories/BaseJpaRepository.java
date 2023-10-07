@@ -1,4 +1,4 @@
-package top.zenyoung.jpa.jpa;
+package top.zenyoung.jpa.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -14,6 +14,6 @@ import java.io.Serializable;
  * @author young
  */
 @NoRepositoryBean
-public interface BaseJpa<M extends ModelEntity<K>, K extends Serializable> extends JpaRepository<M, K>, JpaSpecificationExecutor<M>, QuerydslPredicateExecutor<M> {
+public interface BaseJpaRepository<M extends ModelEntity<K>, K extends Serializable> extends JpaRepository<M, K>, JpaSpecificationExecutor<M>, QuerydslPredicateExecutor<M> {
 
 }

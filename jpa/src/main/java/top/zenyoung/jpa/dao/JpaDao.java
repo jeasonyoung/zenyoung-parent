@@ -1,4 +1,4 @@
-package top.zenyoung.jpa.repository;
+package top.zenyoung.jpa.dao;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
  *
  * @author young
  */
-public interface JpaRepository<M extends ModelEntity<K>, K extends Serializable> extends BeanMapping {
+public interface JpaDao<M extends ModelEntity<K>, K extends Serializable> extends BeanMapping {
 
     /**
      * 根据ID加载数据

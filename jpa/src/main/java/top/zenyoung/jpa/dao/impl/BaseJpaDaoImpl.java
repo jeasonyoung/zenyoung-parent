@@ -1,4 +1,4 @@
-package top.zenyoung.jpa.repository.impl;
+package top.zenyoung.jpa.dao.impl;
 
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.EntityPath;
@@ -20,8 +20,8 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.jpa.entity.ModelEntity;
-import top.zenyoung.jpa.jpa.BaseJpa;
-import top.zenyoung.jpa.repository.JpaRepository;
+import top.zenyoung.jpa.repositories.BaseJpaRepository;
+import top.zenyoung.jpa.dao.JpaDao;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +40,7 @@ import java.util.stream.StreamSupport;
  * @author young
  */
 @Slf4j
-public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends Serializable> implements JpaRepository<M, K> {
+public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Serializable> implements JpaDao<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     @Autowired(required = false)
     protected JPAQueryFactory queryFactory;
@@ -50,7 +50,7 @@ public abstract class BaseJpaRepositoryImpl<M extends ModelEntity<K>, K extends 
      *
      * @return Jpa
      */
-    protected abstract BaseJpa<M, K> getJpa();
+    protected abstract BaseJpaRepository<M, K> getJpa();
 
     @Override
     public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {

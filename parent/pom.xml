@@ -182,6 +182,11 @@
                 <artifactId>flyway-core</artifactId>
                 <version>${flyway-core.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-mysql</artifactId>
+                <version>${flyway-core.version}</version>
+            </dependency>
 
             <!-- p6spy -->
             <dependency>
