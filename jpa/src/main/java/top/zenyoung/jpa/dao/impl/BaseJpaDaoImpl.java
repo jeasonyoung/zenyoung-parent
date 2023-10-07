@@ -19,9 +19,9 @@ import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
+import top.zenyoung.jpa.dao.JpaDao;
 import top.zenyoung.jpa.entity.ModelEntity;
 import top.zenyoung.jpa.repositories.BaseJpaRepository;
-import top.zenyoung.jpa.dao.JpaDao;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,7 +50,7 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
      *
      * @return Jpa
      */
-    protected abstract BaseJpaRepository<M, K> getJpa();
+    protected abstract BaseJpaRepository<M, K> getJpaRepository();
 
     @Override
     public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {
@@ -69,44 +69,44 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
 
     @Override
     public M getById(@Nonnull final K id) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> jpa.getById(id))
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> repository.getById(id))
                 .orElse(null);
     }
 
     @Override
     public M getOne(@Nonnull final Predicate predicate) {
-        return Optional.ofNullable(getJpa())
-                .flatMap(jpa -> jpa.findOne(predicate))
+        return Optional.ofNullable(getJpaRepository())
+                .flatMap(repository -> repository.findOne(predicate))
                 .orElse(null);
     }
 
     @Override
     public long count(@Nullable final Predicate predicate) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
                     if (Objects.nonNull(predicate)) {
-                        jpa.count(predicate);
+                        repository.count(predicate);
                     }
-                    return jpa.count();
+                    return repository.count();
                 })
                 .orElse(0L);
     }
 
     @Override
     public List<M> queryList(@Nullable final Predicate predicate, @Nullable final Sort sort) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
                     if (Objects.nonNull(predicate)) {
                         if (Objects.nonNull(sort)) {
-                            return jpa.findAll(predicate, sort);
+                            return repository.findAll(predicate, sort);
                         }
-                        return jpa.findAll(predicate);
+                        return repository.findAll(predicate);
                     }
                     if (Objects.nonNull(sort)) {
-                        return jpa.findAll(sort);
+                        return repository.findAll(sort);
                     }
-                    return jpa.findAll();
+                    return repository.findAll();
                 })
                 .map(iter -> StreamSupport.stream(iter.spliterator(), false)
                         .distinct()
@@ -117,15 +117,15 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
 
     @Override
     public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Predicate predicate, @Nullable final Sort sort) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
                     //分页
                     final int idx = page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
                     final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
                     //分页
                     final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
                     //查询条件
-                    final Page<M> p = predicate == null ? jpa.findAll(pageable) : jpa.findAll(predicate, pageable);
+                    final Page<M> p = predicate == null ? repository.findAll(pageable) : repository.findAll(predicate, pageable);
                     //分页查询
                     return DataResult.of(p.getTotalElements(), p.getContent());
                 })
@@ -135,9 +135,9 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean add(@Nonnull final M po) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
-                    jpa.saveAndFlush(po);
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
+                    repository.saveAndFlush(po);
                     return true;
                 })
                 .orElse(false);
@@ -146,9 +146,9 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean batchAdd(@Nonnull final Collection<M> items) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
-                    jpa.saveAllAndFlush(items);
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
+                    repository.saveAllAndFlush(items);
                     return true;
                 })
                 .orElse(false);
@@ -177,9 +177,9 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean delete(@Nonnull final K id) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
-                    jpa.deleteById(id);
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
+                    repository.deleteById(id);
                     return true;
                 })
                 .orElse(false);
@@ -188,9 +188,9 @@ public abstract class BaseJpaDaoImpl<M extends ModelEntity<K>, K extends Seriali
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean delete(@Nonnull final List<K> ids) {
-        return Optional.ofNullable(getJpa())
-                .map(jpa -> {
-                    jpa.deleteAllById(ids);
+        return Optional.ofNullable(getJpaRepository())
+                .map(repository -> {
+                    repository.deleteAllById(ids);
                     return true;
                 })
                 .orElse(false);
