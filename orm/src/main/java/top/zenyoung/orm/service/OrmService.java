@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  *
  * @author young
  */
-public interface BaseOrmService<M extends Model<K>, K extends Serializable> extends BeanMapping {
+public interface OrmService<M extends Model<K>, K extends Serializable> extends BeanMapping {
     /**
      * 根据ID加载数据
      *

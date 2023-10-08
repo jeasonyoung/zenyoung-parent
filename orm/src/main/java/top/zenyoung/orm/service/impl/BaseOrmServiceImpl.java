@@ -35,7 +35,7 @@ import top.zenyoung.orm.enums.PoConstant;
 import top.zenyoung.orm.mapper.ModelMapper;
 import top.zenyoung.orm.model.Model;
 import top.zenyoung.orm.model.ModelFieldHelper;
-import top.zenyoung.orm.service.BaseOrmService;
+import top.zenyoung.orm.service.OrmService;
 import top.zenyoung.orm.util.MybatisPlusUtils;
 
 import javax.annotation.Nonnull;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> implements BaseOrmService<M, K>, InitializingBean {
+public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> implements OrmService<M, K>, InitializingBean {
     protected static final int BATCH_SIZE = 500;
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
