@@ -229,10 +229,10 @@ public interface JpaService<M extends ModelEntity<K>, K extends Serializable> ex
     /**
      * 批量新增
      *
-     * @param items 新增数据集合
+     * @param pos 新增数据集合
      * @return 新增结果
      */
-    boolean batchAdd(@Nonnull final Collection<M> items);
+    boolean batchAdd(@Nonnull final Collection<M> pos);
 
     /**
      * 根据主键ID删除

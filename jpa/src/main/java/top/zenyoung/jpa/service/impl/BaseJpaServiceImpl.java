@@ -13,15 +13,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.jpa.service.JpaService;
 import top.zenyoung.jpa.entity.ModelEntity;
 import top.zenyoung.jpa.repositories.BaseJpaRepository;
+import top.zenyoung.jpa.service.JpaService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -67,91 +70,84 @@ public abstract class BaseJpaServiceImpl<M extends ModelEntity<K>, K extends Ser
         return beanMapping.mapping(pageList, cls);
     }
 
+    private <R> R repoHandler(@Nonnull final Function<BaseJpaRepository<M, K>, R> handler, @Nonnull final Supplier<R> elseHandler) {
+        return Optional.ofNullable(getJpaRepository())
+                .map(handler)
+                .orElseGet(elseHandler);
+    }
+
     @Override
     public M getById(@Nonnull final K id) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> repository.getById(id))
-                .orElse(null);
+        return repoHandler(repo -> repo.getById(id), () -> null);
     }
 
     @Override
     public M getOne(@Nonnull final Predicate predicate) {
-        return Optional.ofNullable(getJpaRepository())
-                .flatMap(repository -> repository.findOne(predicate))
-                .orElse(null);
+        return repoHandler(repo -> repo.findOne(predicate).orElse(null), () -> null);
     }
 
     @Override
     public long count(@Nullable final Predicate predicate) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    if (Objects.nonNull(predicate)) {
-                        repository.count(predicate);
-                    }
-                    return repository.count();
-                })
-                .orElse(0L);
+        return repoHandler(repo -> {
+            if (Objects.nonNull(predicate)) {
+                return repo.count(predicate);
+            }
+            return repo.count();
+        }, () -> 0L);
     }
 
     @Override
     public List<M> queryList(@Nullable final Predicate predicate, @Nullable final Sort sort) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    if (Objects.nonNull(predicate)) {
-                        if (Objects.nonNull(sort)) {
-                            return repository.findAll(predicate, sort);
-                        }
-                        return repository.findAll(predicate);
-                    }
-                    if (Objects.nonNull(sort)) {
-                        return repository.findAll(sort);
-                    }
-                    return repository.findAll();
-                })
-                .map(iter -> StreamSupport.stream(iter.spliterator(), false)
-                        .distinct()
-                        .collect(Collectors.toList())
-                )
-                .orElse(Lists.newArrayList());
+        return repoHandler(repo -> {
+            if (Objects.nonNull(predicate)) {
+                final Function<Iterable<M>, List<M>> handler = iter ->
+                        StreamSupport.stream(iter.spliterator(), false)
+                                .distinct()
+                                .collect(Collectors.toList());
+                if (Objects.nonNull(sort)) {
+                    return handler.apply(repo.findAll(predicate, sort));
+                }
+                return handler.apply(repo.findAll(predicate));
+            }
+            if (Objects.nonNull(sort)) {
+                return repo.findAll(sort);
+            }
+            return repo.findAll();
+        }, Lists::newArrayList);
     }
 
     @Override
     public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Predicate predicate, @Nullable final Sort sort) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    //分页
-                    final int idx = page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
-                    final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
-                    //分页
-                    final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
-                    //查询条件
-                    final Page<M> p = predicate == null ? repository.findAll(pageable) : repository.findAll(predicate, pageable);
-                    //分页查询
-                    return DataResult.of(p.getTotalElements(), p.getContent());
-                })
-                .orElse(DataResult.empty());
+        return repoHandler(repo -> {
+            //分页
+            final int idx = page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
+            final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
+            //分页
+            final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
+            //查询条件
+            final Page<M> p = predicate == null ? repo.findAll(pageable) : repo.findAll(predicate, pageable);
+            //分页查询
+            return DataResult.of(p.getTotalElements(), p.getContent());
+        }, DataResult::empty);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean add(@Nonnull final M po) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    repository.saveAndFlush(po);
-                    return true;
-                })
-                .orElse(false);
+        return repoHandler(repo -> {
+            repo.saveAndFlush(po);
+            return true;
+        }, () -> false);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public boolean batchAdd(@Nonnull final Collection<M> items) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    repository.saveAllAndFlush(items);
-                    return true;
-                })
-                .orElse(false);
+    public boolean batchAdd(@Nonnull final Collection<M> pos) {
+        Assert.notEmpty(pos, "'pos'不能为空");
+        return repoHandler(repo -> {
+            repo.saveAllAndFlush(pos);
+            return true;
+        }, () -> false);
     }
 
     /**
@@ -164,36 +160,30 @@ public abstract class BaseJpaServiceImpl<M extends ModelEntity<K>, K extends Ser
      */
     protected boolean modify(@Nonnull final EntityPath<M> entity,
                              @Nonnull final Consumer<JPAUpdateClause> setHandler,
-                             @Nonnull final Predicate... where) {
+                             @Nonnull final Predicate where) {
         final JPAUpdateClause updateClause = queryFactory.update(entity);
         setHandler.accept(updateClause);
-        if (where.length > 0) {
-            return updateClause.where(where).execute() > 0;
-        }
-        return false;
+        return updateClause.where(where).execute() > 0;
     }
 
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean delete(@Nonnull final K id) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    repository.deleteById(id);
-                    return true;
-                })
-                .orElse(false);
+        return repoHandler(repo -> {
+            repo.deleteById(id);
+            return true;
+        }, () -> false);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public boolean delete(@Nonnull final List<K> ids) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(repository -> {
-                    repository.deleteAllById(ids);
-                    return true;
-                })
-                .orElse(false);
+        Assert.notEmpty(ids, "'ids'不能为空");
+        return repoHandler(repo -> {
+            repo.deleteAllById(ids);
+            return true;
+        }, () -> false);
     }
 
     /**
@@ -203,11 +193,8 @@ public abstract class BaseJpaServiceImpl<M extends ModelEntity<K>, K extends Ser
      * @param where  删除条件
      * @return 删除结果
      */
-    protected boolean delete(@Nonnull final EntityPath<M> entity, @Nonnull final Predicate... where) {
+    protected boolean delete(@Nonnull final EntityPath<M> entity, @Nonnull final Predicate where) {
         final JPADeleteClause deleteClause = queryFactory.delete(entity);
-        if (where.length > 0) {
-            return deleteClause.where(where).execute() > 0;
-        }
-        return false;
+        return deleteClause.where(where).execute() > 0;
     }
 }
