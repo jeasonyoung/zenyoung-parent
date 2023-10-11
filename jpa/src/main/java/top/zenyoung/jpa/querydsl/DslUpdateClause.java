@@ -43,8 +43,8 @@ public class DslUpdateClause {
         return add(true, col, valHandler);
     }
 
-    public boolean execute(@Nonnull final Predicate... where) {
-        if (ref.get() && where.length > 0) {
+    public boolean execute(@Nonnull final Predicate where) {
+        if (ref.get()) {
             return clause.where(where).execute() > 0;
         }
         return false;

@@ -5,7 +5,6 @@ import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.jpa.impl.JPAUpdateClause;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +20,7 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.jpa.entity.ModelEntity;
+import top.zenyoung.jpa.querydsl.DslUpdateClause;
 import top.zenyoung.jpa.repositories.BaseJpaRepository;
 import top.zenyoung.jpa.service.JpaService;
 
@@ -153,17 +153,17 @@ public abstract class BaseJpaServiceImpl<M extends ModelEntity<K>, K extends Ser
     /**
      * 数据更新处理
      *
-     * @param entity     数据实体对象
-     * @param setHandler 更新设置处理器
-     * @param where      更新条件
+     * @param entity              数据实体对象
+     * @param updateClauseHandler 更新设置处理
+     * @param where               更新条件
      * @return 更新结果
      */
     protected boolean modify(@Nonnull final EntityPath<M> entity,
-                             @Nonnull final Consumer<JPAUpdateClause> setHandler,
+                             @Nonnull final Consumer<DslUpdateClause> updateClauseHandler,
                              @Nonnull final Predicate where) {
-        final JPAUpdateClause updateClause = queryFactory.update(entity);
-        setHandler.accept(updateClause);
-        return updateClause.where(where).execute() > 0;
+        final DslUpdateClause updateClause = DslUpdateClause.of(queryFactory.update(entity));
+        updateClauseHandler.accept(updateClause);
+        return updateClause.execute(where);
     }
 
 
