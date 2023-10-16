@@ -7,7 +7,6 @@ import org.springframework.data.querydsl.QSort;
 import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.jpa.entity.ModelEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,7 +22,7 @@ import java.util.function.Supplier;
  *
  * @author young
  */
-public interface JpaService<M extends ModelEntity<K>, K extends Serializable> extends BeanMapping {
+public interface JpaService<M extends Serializable, K extends Serializable> extends BeanMapping {
 
     /**
      * 根据ID加载数据

@@ -7,7 +7,6 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import java.io.Serializable;
 
 /**
  * 数据实体基类(创建、更新字段、逻辑删除标识)
@@ -17,9 +16,9 @@ import java.io.Serializable;
 @Data
 @MappedSuperclass
 @Where(clause = "deletedAt = 0")
-@SQLDelete(sql = "update #{#entityName} set deletedAt = 1 where id = ?")
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseCreateUpdateLogicEntity<K extends Serializable> extends BaseCreateUpdateEntity<K> {
+@SQLDelete(sql = "update #{#entityName} set deletedAt = 1 where id = ?")
+public abstract class BaseCreateUpdateLogicEntity extends BaseCreateUpdateEntity {
     /**
      * 逻辑删除标识(0:正常, 1:删除)
      */

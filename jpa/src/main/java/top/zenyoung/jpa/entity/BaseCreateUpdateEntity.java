@@ -9,7 +9,6 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -20,7 +19,7 @@ import java.util.Date;
 @Data
 @MappedSuperclass
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseCreateUpdateEntity<K extends Serializable> extends BaseCreateEntity<K> {
+public class BaseCreateUpdateEntity extends BaseCreateEntity {
     /**
      * 更新者
      */

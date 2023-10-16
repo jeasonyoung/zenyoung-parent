@@ -19,7 +19,6 @@ import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.jpa.entity.ModelEntity;
 import top.zenyoung.jpa.querydsl.DslUpdateClause;
 import top.zenyoung.jpa.repositories.BaseJpaRepository;
 import top.zenyoung.jpa.service.JpaService;
@@ -43,7 +42,7 @@ import java.util.stream.StreamSupport;
  * @author young
  */
 @Slf4j
-public abstract class BaseJpaServiceImpl<M extends ModelEntity<K>, K extends Serializable> implements JpaService<M, K> {
+public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Serializable> implements JpaService<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     @Autowired(required = false)
     protected JPAQueryFactory queryFactory;

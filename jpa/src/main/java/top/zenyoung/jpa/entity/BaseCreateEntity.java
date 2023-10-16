@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseCreateEntity<K extends Serializable> implements ModelEntity<K> {
+public class BaseCreateEntity implements Serializable {
     /**
      * 创建者
      */
