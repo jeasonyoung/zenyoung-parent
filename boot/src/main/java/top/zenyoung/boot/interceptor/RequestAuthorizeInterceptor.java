@@ -67,7 +67,7 @@ public class RequestAuthorizeInterceptor implements RequestMappingInterceptor {
                     throw new ServiceException(ExceptionEnums.FORBIDDEN);
                 }
                 //拥有任意一个角色/权限
-                if (method == CheckMethod.ANY && Stream.of(authorize).noneMatch(authorizes::contains)) {
+                if (method == CheckMethod.ANY && Stream.of(authorize).filter(val -> !Strings.isNullOrEmpty(val)).noneMatch(authorizes::contains)) {
                     log.warn("checkAuthorizeHandler[{}, {}]=> authorize: {}", type, method, String.join(",", authorize));
                     throw new ServiceException(ExceptionEnums.FORBIDDEN);
                 }
