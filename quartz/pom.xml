@@ -25,22 +25,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
         <!-- quartz -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
-        </dependency>
-
-        <!-- 模块 -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>boot</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>redis</artifactId>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 

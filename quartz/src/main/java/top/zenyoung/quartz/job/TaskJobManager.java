@@ -1,11 +1,11 @@
 package top.zenyoung.quartz.job;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.util.Assert;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,11 +41,9 @@ public interface TaskJobManager {
      */
     default void pauseTaskJobs(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String... jobNames) {
         Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        pauseTaskJobs(new HashMap<Class<? extends TaskJob>, List<String>>(1) {
-            {
-                put(jobClass, Lists.newArrayList(jobNames));
-            }
-        });
+        final Map<Class<? extends TaskJob>, List<String>> jobMaps = Maps.newHashMap();
+        jobMaps.put(jobClass, Lists.newArrayList(jobNames));
+        pauseTaskJobs(jobMaps);
     }
 
     /**
@@ -63,11 +61,9 @@ public interface TaskJobManager {
      */
     default void resumeJobs(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String... jobNames) {
         Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        resumeJobs(new HashMap<Class<? extends TaskJob>, List<String>>(1) {
-            {
-                put(jobClass, Lists.newArrayList(jobNames));
-            }
-        });
+        final Map<Class<? extends TaskJob>, List<String>> jobMaps = Maps.newHashMap();
+        jobMaps.put(jobClass, Lists.newArrayList(jobNames));
+        resumeJobs(jobMaps);
     }
 
     /**
@@ -85,10 +81,8 @@ public interface TaskJobManager {
      */
     default void removeTaskJobs(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String... jobNames) {
         Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        removeTaskJobs(new HashMap<Class<? extends TaskJob>, List<String>>(1) {
-            {
-                put(jobClass, Lists.newArrayList(jobNames));
-            }
-        });
+        final Map<Class<? extends TaskJob>, List<String>> jobMaps = Maps.newHashMap();
+        jobMaps.put(jobClass, Lists.newArrayList(jobNames));
+        removeTaskJobs(jobMaps);
     }
 }

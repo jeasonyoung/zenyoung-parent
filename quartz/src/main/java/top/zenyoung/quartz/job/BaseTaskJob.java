@@ -6,9 +6,6 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.PersistJobDataAfterExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import top.zenyoung.boot.service.impl.BaseServiceImpl;
-import top.zenyoung.redis.lock.LockService;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -22,10 +19,8 @@ import java.util.Objects;
 @Slf4j
 @DisallowConcurrentExecution
 @PersistJobDataAfterExecution
-public abstract class BaseTaskJob extends BaseServiceImpl implements TaskJob {
-    private static final Map<String, Object> RUN = Maps.newConcurrentMap();
-    @Autowired
-    private LockService lockService;
+public abstract class BaseTaskJob implements TaskJob {
+    private static final Map<String, Long> RUN = Maps.newConcurrentMap();
 
     /**
      * 任务执行业务入口
@@ -43,30 +38,30 @@ public abstract class BaseTaskJob extends BaseServiceImpl implements TaskJob {
     @Override
     public final void execute(@Nonnull final JobExecutionContext context) {
         final JobKey key = context.getJobDetail().getKey();
-        final Map<String, Object> args = context.getMergedJobDataMap();
         final String jobName = key.getName(), jobGroupName = key.getGroup();
         final String lock = "quartz-job:" + jobName + "_" + jobGroupName;
-        synchronized (this) {
-            //检测业务是否在执行
-            final Object o = RUN.getOrDefault(lock, null);
-            if (Objects.nonNull(o)) {
-                return;
-            }
-            try {
-                //设置已在执行标识
-                RUN.put(lock, new Object());
-                //执行业务
-                if (Objects.nonNull(lockService)) {
-                    lockService.sync(lock, () -> execute(jobName, args));
-                } else {
-                    this.execute(jobName, args);
-                }
-            } catch (Throwable e) {
-                log.warn("execute(jobName: {},args: {})-exp: {}", jobName, args, e.getMessage());
-            } finally {
-                //执行完毕,移除已在执行标识
-                RUN.remove(lock);
-            }
+        //检测业务是否在执行
+        final Long val = RUN.getOrDefault(lock, 0L);
+        if (Objects.nonNull(val) && val > 0) {
+            return;
         }
+        final Map<String, Object> args = context.getMergedJobDataMap();
+        try {
+            //设置已在执行标识
+            RUN.put(lock, System.currentTimeMillis());
+            //执行业务
+            sync(lock, () -> execute(jobName, args));
+        } finally {
+            final long start = RUN.getOrDefault(lock, 0L);
+            //执行完毕,移除已在执行标识
+            RUN.remove(lock);
+            //执行耗时
+            log.info("execute-job[{}]=> 耗时: {}ms", lock, (System.currentTimeMillis() - start));
+        }
+    }
+
+    protected void sync(@Nonnull final String key, @Nonnull final Runnable handler) {
+        log.info("sync(key: {}) => {}", key, handler);
+        handler.run();
     }
 }
