@@ -9,9 +9,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import top.zenyoung.boot.annotation.authorize.HasAnonymous;
 import top.zenyoung.boot.enums.ExceptionEnums;
-import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.model.UserPrincipal;
+import top.zenyoung.common.util.SecurityUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,31 +40,26 @@ public abstract class BaseTokenInterceptor implements RequestMappingInterceptor 
     }
 
     @Override
-    public final boolean handler(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res,
-                                 @Nonnull final HandlerMethod handler) {
-        //获取匿名登录注解
-        final HasAnonymous pt = handler.getMethodAnnotation(HasAnonymous.class);
-        //是否非匿名访问
-        final boolean notAnonymous = Objects.isNull(pt);
+    public final boolean handler(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final HandlerMethod handler) {
         //获取令牌
-        String token = Optional.ofNullable(req.getHeader(TOKEN_NAME))
+        final String token = Optional.ofNullable(req.getHeader(TOKEN_NAME))
                 .filter(val -> !Strings.isNullOrEmpty(val))
-                .orElse(req.getParameter(TOKEN_NAME));
-        if (Strings.isNullOrEmpty(token) && notAnonymous) {
+                .orElseGet(() -> req.getParameter(TOKEN_NAME));
+        if (Strings.isNullOrEmpty(token)) {
+            //检查是允许匿名访问
+            if (handler.hasMethodAnnotation(HasAnonymous.class)) {
+                return true;
+            }
             log.warn("获取令牌为空=> {}", req.getRequestURI());
             throw new ServiceException(ExceptionEnums.UNAUTHORIZED);
         }
-        //解析访问令牌
-        if (!Strings.isNullOrEmpty(token)) {
-            //检查令牌
-            if (token.startsWith(AUTH_BEARER_PREFIX)) {
-                token = StringUtils.replace(token, AUTH_BEARER_PREFIX, "").trim();
-            }
-            //解析令牌数据
-            final UserPrincipal principal = parseAccessToken(token, notAnonymous);
-            if (Objects.nonNull(principal)) {
-                SecurityUtils.setPrincipal(principal);
-            }
+        //检查令牌
+        final String tokenVal = token.startsWith(AUTH_BEARER_PREFIX) ? StringUtils.replace(token, AUTH_BEARER_PREFIX, "").trim() : token;
+        //解析令牌数据
+        log.info("parseAccessToken: {} => {}", req.getRequestURI(), tokenVal);
+        final UserPrincipal principal = parseAccessToken(tokenVal, handler);
+        if (Objects.nonNull(principal)) {
+            SecurityUtils.setPrincipal(principal);
         }
         return true;
     }
@@ -72,11 +67,11 @@ public abstract class BaseTokenInterceptor implements RequestMappingInterceptor 
     /**
      * 解析令牌
      *
-     * @param accessToken  访问令牌
-     * @param notAnonymous 是否非匿名访问
+     * @param accessToken   访问令牌
+     * @param handlerMethod 处理方法接口
      * @return 用户信息
      */
-    protected abstract UserPrincipal parseAccessToken(@Nonnull final String accessToken, final boolean notAnonymous);
+    protected abstract UserPrincipal parseAccessToken(@Nonnull final String accessToken, @Nonnull final HandlerMethod handlerMethod);
 
     /**
      * 数据转换处理
