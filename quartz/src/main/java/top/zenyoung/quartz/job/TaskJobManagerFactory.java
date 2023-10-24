@@ -26,7 +26,7 @@ public class TaskJobManagerFactory implements TaskJobManager {
     private final Scheduler scheduler;
 
     @Override
-    public void addTaskJob(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String jobName,
+    public void addTaskJob(@Nonnull final Class<? extends BaseTaskJob> jobClass, @Nonnull final String jobName,
                            @Nonnull final String jobCron, @Nullable final Map<String, Object> args) {
         Assert.hasText(jobName, "'jobName'不能为空");
         Assert.hasText(jobCron, "'jobCron'不能为空");
@@ -67,10 +67,10 @@ public class TaskJobManagerFactory implements TaskJobManager {
         }
     }
 
-    private List<JobKey> getJobKeys(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps) {
+    private List<JobKey> getJobKeys(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
         return jobMaps.entrySet().stream()
                 .map(entry -> {
-                    final Class<? extends TaskJob> jobClass = entry.getKey();
+                    final Class<? extends BaseTaskJob> jobClass = entry.getKey();
                     final List<String> jobNames = entry.getValue();
                     if (!CollectionUtils.isEmpty(jobNames)) {
                         final String jobGroupName = jobClass.getSimpleName();
@@ -87,7 +87,7 @@ public class TaskJobManagerFactory implements TaskJobManager {
     }
 
     @Override
-    public void pauseTaskJobs(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps) {
+    public void pauseTaskJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
         Assert.notEmpty(jobMaps, "'jobMaps'不能为空");
         final List<JobKey> jobKeys = getJobKeys(jobMaps);
         if (!CollectionUtils.isEmpty(jobKeys)) {
@@ -103,7 +103,7 @@ public class TaskJobManagerFactory implements TaskJobManager {
     }
 
     @Override
-    public void resumeJobs(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps) {
+    public void resumeJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
         Assert.notEmpty(jobMaps, "'jobMaps'不能为空");
         final List<JobKey> jobKeys = getJobKeys(jobMaps);
         if (!CollectionUtils.isEmpty(jobKeys)) {
@@ -119,7 +119,7 @@ public class TaskJobManagerFactory implements TaskJobManager {
     }
 
     @Override
-    public void removeTaskJobs(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps) {
+    public void removeTaskJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
         Assert.notEmpty(jobMaps, "'jobMaps'不能为空");
         try {
             final List<JobKey> jobKeys = getJobKeys(jobMaps);

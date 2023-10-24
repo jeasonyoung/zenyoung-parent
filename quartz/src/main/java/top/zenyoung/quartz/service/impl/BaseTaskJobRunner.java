@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.util.Assert;
 import top.zenyoung.quartz.job.BaseTaskJob;
 import top.zenyoung.quartz.job.TaskJobManager;
-import top.zenyoung.quartz.service.TaskJobRunner;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @DisallowConcurrentExecution
 @PersistJobDataAfterExecution
-public abstract class BaseTaskJobRunner extends BaseTaskJob implements TaskJobRunner {
+public abstract class BaseTaskJobRunner extends BaseTaskJob implements CommandLineRunner {
     /**
      * 工作任务管理器
      */

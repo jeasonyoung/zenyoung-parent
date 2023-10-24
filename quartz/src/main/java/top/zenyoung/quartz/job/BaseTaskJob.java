@@ -2,24 +2,21 @@ package top.zenyoung.quartz.job;
 
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.PersistJobDataAfterExecution;
+import org.quartz.*;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * 工作任务接口
+ * 工作任务执行器基类
  *
  * @author young
  */
 @Slf4j
 @DisallowConcurrentExecution
 @PersistJobDataAfterExecution
-public abstract class BaseTaskJob implements TaskJob {
+public abstract class BaseTaskJob implements InterruptableJob {
     private static final Map<String, Long> RUN = Maps.newConcurrentMap();
 
     /**
@@ -63,5 +60,10 @@ public abstract class BaseTaskJob implements TaskJob {
     protected void sync(@Nonnull final String key, @Nonnull final Runnable handler) {
         log.info("sync(key: {}) => {}", key, handler);
         handler.run();
+    }
+
+    @Override
+    public void interrupt() {
+        log.warn("interrupt.");
     }
 }

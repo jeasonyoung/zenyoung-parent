@@ -23,7 +23,7 @@ public interface TaskJobManager {
      * @param jobCron  cron表达式
      * @param args     参数集合
      */
-    void addTaskJob(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String jobName,
+    void addTaskJob(@Nonnull final Class<? extends BaseTaskJob> jobClass, @Nonnull final String jobName,
                     @Nonnull final String jobCron, @Nullable final Map<String, Object> args);
 
     /**
@@ -31,7 +31,7 @@ public interface TaskJobManager {
      *
      * @param jobMaps 工作任务集合
      */
-    void pauseTaskJobs(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps);
+    void pauseTaskJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps);
 
     /**
      * 暂停工作任务
@@ -39,9 +39,9 @@ public interface TaskJobManager {
      * @param jobClass 任务实现类
      * @param jobNames 任务名称集合
      */
-    default void pauseTaskJobs(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String... jobNames) {
+    default void pauseTaskJobs(@Nonnull final Class<? extends BaseTaskJob> jobClass, @Nonnull final String... jobNames) {
         Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        final Map<Class<? extends TaskJob>, List<String>> jobMaps = Maps.newHashMap();
+        final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps = Maps.newHashMap();
         jobMaps.put(jobClass, Lists.newArrayList(jobNames));
         pauseTaskJobs(jobMaps);
     }
@@ -51,7 +51,7 @@ public interface TaskJobManager {
      *
      * @param jobMaps 工作任务集合
      */
-    void resumeJobs(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps);
+    void resumeJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps);
 
     /**
      * 恢复工作任务
@@ -59,9 +59,9 @@ public interface TaskJobManager {
      * @param jobClass 任务实现类
      * @param jobNames 任务名称集合
      */
-    default void resumeJobs(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String... jobNames) {
+    default void resumeJobs(@Nonnull final Class<? extends BaseTaskJob> jobClass, @Nonnull final String... jobNames) {
         Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        final Map<Class<? extends TaskJob>, List<String>> jobMaps = Maps.newHashMap();
+        final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps = Maps.newHashMap();
         jobMaps.put(jobClass, Lists.newArrayList(jobNames));
         resumeJobs(jobMaps);
     }
@@ -71,7 +71,7 @@ public interface TaskJobManager {
      *
      * @param jobMaps 工作任务集合
      */
-    void removeTaskJobs(@Nonnull final Map<Class<? extends TaskJob>, List<String>> jobMaps);
+    void removeTaskJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps);
 
     /**
      * 移除工作任务
@@ -79,9 +79,9 @@ public interface TaskJobManager {
      * @param jobClass 任务实现类
      * @param jobNames 任务名称集合
      */
-    default void removeTaskJobs(@Nonnull final Class<? extends TaskJob> jobClass, @Nonnull final String... jobNames) {
+    default void removeTaskJobs(@Nonnull final Class<? extends BaseTaskJob> jobClass, @Nonnull final String... jobNames) {
         Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        final Map<Class<? extends TaskJob>, List<String>> jobMaps = Maps.newHashMap();
+        final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps = Maps.newHashMap();
         jobMaps.put(jobClass, Lists.newArrayList(jobNames));
         removeTaskJobs(jobMaps);
     }
