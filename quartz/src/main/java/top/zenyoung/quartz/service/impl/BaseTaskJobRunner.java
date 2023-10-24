@@ -12,6 +12,7 @@ import top.zenyoung.quartz.job.TaskJobManager;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * 工作任务执行-服务接口实现基类
@@ -29,94 +30,76 @@ public abstract class BaseTaskJobRunner extends BaseTaskJob implements CommandLi
     private TaskJobManager jobManager;
 
     /**
-     * 获取默认工作任务名称
+     * 任务管理器处理
      *
-     * @return 默认名称
+     * @param handler 业务处理实现
      */
-    protected String getDefaultJobName() {
-        return getClass().getSimpleName();
+    protected void jobManagerHandler(@Nonnull final Consumer<TaskJobManager> handler) {
+        Assert.notNull(jobManager, "'jobManager'不能为空");
+        handler.accept(jobManager);
     }
 
     /**
      * 添加工作任务
      *
-     * @param jobName 任务名称
-     * @param jobCron cron表达式
-     * @param args    参数集合
+     * @param jobName  任务名称
+     * @param jobGroup 任务组名称
+     * @param jobCron  cron表达式
+     * @param args     参数集合
      */
-    protected void addTaskJob(@Nonnull final String jobName, @Nonnull final String jobCron, @Nullable final Map<String, Object> args) {
+    protected void saveTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup,
+                               @Nonnull final String jobCron, @Nullable final Map<String, Object> args) {
         Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
         Assert.hasText(jobCron, "'jobCron'不能为空");
-        this.jobManager.addTaskJob(getClass(), jobName, jobCron, args);
+        jobManagerHandler(jm -> jm.saveTaskJob(jobName, jobGroup, jobCron, getClass(), args));
     }
 
     /**
      * 添加工作任务
      *
-     * @param jobName 任务名称
-     * @param jobCron cron表达式
+     * @param jobName  任务名称
+     * @param jobGroup 任务组名称
+     * @param jobCron  cron表达式
      */
-    protected void addTaskJob(@Nonnull final String jobName, @Nonnull final String jobCron) {
-        addTaskJob(jobName, jobCron, null);
+    protected void saveTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup, @Nonnull final String jobCron) {
+        saveTaskJob(jobName, jobGroup, jobCron, null);
     }
 
-    /**
-     * 添加工作任务
-     *
-     * @param jobCron cron表达式
-     */
-    protected void addTaskJob(@Nonnull final String jobCron) {
-        addTaskJob(getDefaultJobName(), jobCron, null);
-    }
 
     /**
      * 暂停工作任务
      *
-     * @param jobNames 任务名称集合
+     * @param jobName  任务名称
+     * @param jobGroup 任务组名称
      */
-    protected void pauseTaskJobs(@Nonnull final String... jobNames) {
-        Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        this.jobManager.pauseTaskJobs(getClass(), jobNames);
-    }
-
-    /**
-     * 暂停工作任务
-     */
-    protected void pauseTaskJobs() {
-        this.pauseTaskJobs(getDefaultJobName());
+    protected void pauseTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
+        jobManagerHandler(jm -> jm.pauseTaskJob(jobName, jobGroup));
     }
 
     /**
      * 恢复工作任务
      *
-     * @param jobNames 任务名称集合
+     * @param jobName  任务名称
+     * @param jobGroup 任务组名称
      */
-    protected void resumeJobs(@Nonnull final String... jobNames) {
-        Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        this.jobManager.resumeJobs(getClass(), jobNames);
-    }
-
-    /**
-     * 恢复工作任务
-     */
-    protected void resumeJobs() {
-        resumeJobs(getDefaultJobName());
+    protected void resumeJob(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
+        jobManagerHandler(jm -> jm.resumeJob(jobName, jobGroup));
     }
 
     /**
      * 移除工作任务
      *
-     * @param jobNames 任务名称集合
+     * @param jobName  任务名称
+     * @param jobGroup 任务组名称
      */
-    protected void removeTaskJobs(@Nonnull final String... jobNames) {
-        Assert.notEmpty(jobNames, "'jobNames'不能为空");
-        this.jobManager.removeTaskJobs(getClass(), jobNames);
-    }
-
-    /**
-     * 移除工作任务
-     */
-    protected void removeTaskJobs() {
-        removeTaskJobs(getDefaultJobName());
+    protected void removeTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
+        jobManagerHandler(jm -> jm.removeTaskJob(jobName, jobGroup));
     }
 }

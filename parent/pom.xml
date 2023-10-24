@@ -123,7 +123,8 @@
         <zenyoung-redis.version>3.1.0</zenyoung-redis.version>
         <zenyoung-sms.version>3.1.0</zenyoung-sms.version>
         <zenyoung-segment.version>3.1.0</zenyoung-segment.version>
-        <zenyoung-quartz.version>3.1.0</zenyoung-quartz.version>
+        <zenyoung-quartz.version>1.0.0</zenyoung-quartz.version>
+        <zenyoung-quartz-jpa.version>1.0.0</zenyoung-quartz-jpa.version>
         <zenyoung-file-common.version>3.1.0</zenyoung-file-common.version>
         <zenyoung-file-aliyun.version>3.1.0</zenyoung-file-aliyun.version>
         <zenyoung-file-huawei.version>3.1.0</zenyoung-file-huawei.version>
@@ -432,6 +433,11 @@
                 <groupId>top.zenyoung</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${zenyoung-quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>quartz-jpa</artifactId>
+                <version>${zenyoung-quartz-jpa.version}</version>
             </dependency>
             <!-- file -->
             <dependency>

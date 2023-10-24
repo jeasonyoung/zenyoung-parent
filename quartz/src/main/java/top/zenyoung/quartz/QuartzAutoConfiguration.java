@@ -1,6 +1,5 @@
 package top.zenyoung.quartz;
 
-import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,7 +15,6 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
-@Slf4j
 @Configuration
 public class QuartzAutoConfiguration {
 

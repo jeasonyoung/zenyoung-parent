@@ -1,6 +1,5 @@
 package top.zenyoung.quartz.job;
 
-import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -9,11 +8,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 工作任务管理器工厂
@@ -25,110 +20,102 @@ import java.util.stream.Collectors;
 public class TaskJobManagerFactory implements TaskJobManager {
     private final Scheduler scheduler;
 
+    private JobKey createJobKey(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        return JobKey.jobKey(jobName, jobGroup);
+    }
+
     @Override
-    public void addTaskJob(@Nonnull final Class<? extends BaseTaskJob> jobClass, @Nonnull final String jobName,
-                           @Nonnull final String jobCron, @Nullable final Map<String, Object> args) {
+    public void saveTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup, @Nonnull final String jobCron,
+                            @Nonnull final Class<? extends BaseTaskJob> jobClass, @Nullable final Map<String, Object> args) {
         Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
         Assert.hasText(jobCron, "'jobCron'不能为空");
         try {
             final JobDataMap jobDataMap = new JobDataMap();
             if (!CollectionUtils.isEmpty(args)) {
                 jobDataMap.putAll(args);
             }
-            final String jobGroupName = jobClass.getName();
-            final TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroupName);
+            final TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             //不存在则新增
-            if (Objects.isNull(trigger)) {
-                final JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName).usingJobData(jobDataMap).build();
-                trigger = TriggerBuilder.newTrigger().withIdentity(jobName, jobGroupName)
+            if (trigger == null) {
+                final JobKey jobKey = createJobKey(jobName, jobGroup);
+                final JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                        .withIdentity(jobKey)
+                        .usingJobData(jobDataMap)
+                        .build();
+                trigger = TriggerBuilder.newTrigger()
+                        .withIdentity(triggerKey)
                         .startAt(DateBuilder.futureDate(1, DateBuilder.IntervalUnit.SECOND))
-                        .withSchedule(CronScheduleBuilder.cronSchedule(jobCron)).startNow().build();
+                        .withSchedule(CronScheduleBuilder.cronSchedule(jobCron))
+                        .startNow()
+                        .build();
                 scheduler.scheduleJob(jobDetail, trigger);
                 if (!scheduler.isShutdown()) {
                     scheduler.start();
                 }
-                log.info("addTaskJob(jobClass: {},jobName: {},jobCron: {},args: {})-已添加", jobClass, jobName, jobCron, args);
+                log.info("saveTaskJob(jobName: {},jobGroup: {},jobCron: {},jobClass: {},args: {})-已添加",
+                        jobName, jobGroup, jobCron, jobClass, args);
                 return;
             }
             //检查定时表达式
             if (jobCron.equalsIgnoreCase(trigger.getCronExpression())) {
-                log.info("addTaskJob(jobClass: {},jobName: {},jobCron: {},args: {})-已存在", jobClass, jobName, jobCron, args);
+                log.info("saveTaskJob(jobName: {},jobGroup: {},jobCron: {},jobClass: {},args: {})-已存在",
+                        jobName, jobGroup, jobCron, jobClass, args);
                 return;
             }
             //更新处理
-            trigger = trigger.getTriggerBuilder().withIdentity(triggerKey)
-                    .withSchedule(CronScheduleBuilder.cronSchedule(jobCron)).usingJobData(jobDataMap).build();
+            trigger = trigger.getTriggerBuilder()
+                    .withIdentity(triggerKey)
+                    .withSchedule(CronScheduleBuilder.cronSchedule(jobCron))
+                    .usingJobData(jobDataMap)
+                    .build();
             //重启触发器
             scheduler.rescheduleJob(triggerKey, trigger);
-            log.info("addTaskJob(jobClass: {},jobName: {},jobCron: {},args: {})-已重启", jobClass, jobName, jobCron, args);
-        } catch (Throwable e) {
-            log.error("addTaskJob(jobClass: {},jobName: {},jobCron: {})-exp: {}", jobClass, jobName, jobCron, e.getMessage());
-        }
-    }
-
-    private List<JobKey> getJobKeys(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
-        return jobMaps.entrySet().stream()
-                .map(entry -> {
-                    final Class<? extends BaseTaskJob> jobClass = entry.getKey();
-                    final List<String> jobNames = entry.getValue();
-                    if (!CollectionUtils.isEmpty(jobNames)) {
-                        final String jobGroupName = jobClass.getSimpleName();
-                        return jobNames.stream().distinct()
-                                .filter(jobName -> !Strings.isNullOrEmpty(jobName))
-                                .map(jobName -> JobKey.jobKey(jobName, jobGroupName))
-                                .collect(Collectors.toList());
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void pauseTaskJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
-        Assert.notEmpty(jobMaps, "'jobMaps'不能为空");
-        final List<JobKey> jobKeys = getJobKeys(jobMaps);
-        if (!CollectionUtils.isEmpty(jobKeys)) {
-            jobKeys.forEach(jobKey -> {
-                try {
-                    scheduler.pauseJob(jobKey);
-                    log.info("pauseJob(jobKey: {})-已暂停", jobKey);
-                } catch (SchedulerException e) {
-                    log.error("pauseJob(jobKey: {})-exp: {}", jobKey, e.getMessage());
-                }
-            });
+            log.info("saveTaskJob(jobName: {},jobGroup: {},jobCron: {},jobClass: {},args: {})-已重启",
+                    jobName, jobGroup, jobCron, jobClass, args);
+        } catch (SchedulerException e) {
+            log.error("saveTaskJob(jobName: {},jobGroup: {},jobCron: {},jobClass: {},args: {})-exp: {}",
+                    jobName, jobGroup, jobCron, jobClass, args, e.getMessage());
         }
     }
 
     @Override
-    public void resumeJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
-        Assert.notEmpty(jobMaps, "'jobMaps'不能为空");
-        final List<JobKey> jobKeys = getJobKeys(jobMaps);
-        if (!CollectionUtils.isEmpty(jobKeys)) {
-            jobKeys.forEach(jobKey -> {
-                try {
-                    scheduler.resumeJob(jobKey);
-                    log.info("resumeJob(jobKey: {})-已恢复", jobKey);
-                } catch (SchedulerException e) {
-                    log.error("resumeJob(jobKey: {})-exp: {}", jobKey, e.getMessage());
-                }
-            });
-        }
-    }
-
-    @Override
-    public void removeTaskJobs(@Nonnull final Map<Class<? extends BaseTaskJob>, List<String>> jobMaps) {
-        Assert.notEmpty(jobMaps, "'jobMaps'不能为空");
+    public void pauseTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
+        final JobKey jobKey = createJobKey(jobName, jobGroup);
         try {
-            final List<JobKey> jobKeys = getJobKeys(jobMaps);
-            if (!CollectionUtils.isEmpty(jobKeys)) {
-                scheduler.deleteJobs(jobKeys);
-                log.info("deleteJobs(jobKeys: {})-已删除", jobKeys);
-            }
+            scheduler.pauseJob(jobKey);
+            log.info("pauseTaskJob(jobName: {},jobGroup: {})[{}]-已暂停", jobName, jobGroup, jobKey);
+        } catch (SchedulerException e) {
+            log.error("pauseTaskJob(jobName: {},jobGroup: {})[{}]-exp: {}", jobName, jobGroup, jobKey, e.getMessage());
+        }
+    }
+
+    @Override
+    public void resumeJob(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
+        final JobKey jobKey = createJobKey(jobName, jobGroup);
+        try {
+            scheduler.resumeJob(jobKey);
+            log.info("resumeJob(jobName: {},jobGroup: {})[{}]-已恢复", jobName, jobGroup, jobKey);
+        } catch (SchedulerException e) {
+            log.info("resumeJob(jobName: {},jobGroup: {})[{}]-exp: {}", jobName, jobGroup, jobKey, e.getMessage());
+        }
+    }
+
+    @Override
+    public void removeTaskJob(@Nonnull final String jobName, @Nonnull final String jobGroup) {
+        Assert.hasText(jobName, "'jobName'不能为空");
+        Assert.hasText(jobGroup, "'jobGroup'不能为空");
+        final JobKey jobKey = createJobKey(jobName, jobGroup);
+        try {
+            scheduler.deleteJob(jobKey);
+            log.info("removeTaskJob(jobName: {},jobGroup: {})[{}]-已删除", jobName, jobGroup, jobKey);
         } catch (Throwable e) {
-            log.error("removeTaskJobs(jobMaps:{})-exp: {}", jobMaps, e.getMessage());
+            log.error("removeTaskJob(jobName:{},jobGroup: {})[{}]-exp: {}", jobName, jobGroup, jobKey, e.getMessage());
         }
     }
 }

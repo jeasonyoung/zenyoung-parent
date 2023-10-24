@@ -1,5 +1,6 @@
 package top.zenyoung.quartz.job;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -20,12 +21,13 @@ public abstract class BaseTaskJob implements InterruptableJob {
     private static final Map<String, Long> RUN = Maps.newConcurrentMap();
 
     /**
-     * 任务执行业务入口
+     * 任务执行入口
      *
-     * @param jobName 工作任务名称
-     * @param args    工作参数
+     * @param jobName  任务名称
+     * @param jobGroup 任务组名称
+     * @param args     任务参数集合
      */
-    protected abstract void execute(@Nonnull final String jobName, @Nonnull final Map<String, Object> args);
+    protected abstract void execute(@Nonnull final String jobName, @Nonnull final String jobGroup, @Nonnull final Map<String, Object> args);
 
     /**
      * 任务执行入口
@@ -35,8 +37,8 @@ public abstract class BaseTaskJob implements InterruptableJob {
     @Override
     public final void execute(@Nonnull final JobExecutionContext context) {
         final JobKey key = context.getJobDetail().getKey();
-        final String jobName = key.getName(), jobGroupName = key.getGroup();
-        final String lock = "quartz-job:" + jobName + "_" + jobGroupName;
+        final String jobName = key.getName(), jobGroup = key.getGroup();
+        final String lock = Joiner.on("_").join("quartz-job:", jobName, jobGroup);
         //检测业务是否在执行
         final Long val = RUN.getOrDefault(lock, 0L);
         if (Objects.nonNull(val) && val > 0) {
@@ -47,7 +49,7 @@ public abstract class BaseTaskJob implements InterruptableJob {
             //设置已在执行标识
             RUN.put(lock, System.currentTimeMillis());
             //执行业务
-            sync(lock, () -> execute(jobName, args));
+            sync(lock, () -> execute(jobName, jobGroup, args));
         } finally {
             final long start = RUN.getOrDefault(lock, 0L);
             //执行完毕,移除已在执行标识

@@ -39,6 +39,7 @@
         <module>segment</module>
         <!-- 定时任务 -->
         <module>quartz</module>
+        <module>quartz-jpa</module>
         <!-- security -->
 <!--        <module>security-web</module>-->
         <!-- <module>security</module>-->
