@@ -4,7 +4,6 @@ import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,7 +44,6 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
     /**
      * queryFactory实体
      */
-    @Setter
     @Autowired(required = false)
     private JPAQueryFactory queryFactory;
 
@@ -57,6 +55,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
      * @return 处理结果
      */
     protected <R> R queryFactoryHandler(@Nonnull final Function<JPAQueryFactory, R> handler) {
+        Assert.notNull(queryFactory, "'queryFactory'不能为空");
         return handler.apply(queryFactory);
     }
 
