@@ -1,10 +1,10 @@
 package top.zenyoung.jpa.service.impl;
 
-import com.google.common.collect.Lists;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,10 +29,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -44,8 +42,23 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Serializable> implements JpaService<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
+    /**
+     * queryFactory实体
+     */
+    @Setter
     @Autowired(required = false)
-    protected JPAQueryFactory queryFactory;
+    private JPAQueryFactory queryFactory;
+
+    /**
+     * QueryFactory 处理器
+     *
+     * @param handler 业务处理器
+     * @param <R>     处理结果类型
+     * @return 处理结果
+     */
+    protected <R> R queryFactoryHandler(@Nonnull final Function<JPAQueryFactory, R> handler) {
+        return handler.apply(queryFactory);
+    }
 
     /**
      * 获取Jpa
@@ -53,6 +66,17 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
      * @return Jpa
      */
     protected abstract BaseJpaRepository<M, K> getJpaRepository();
+
+    /**
+     * Jpa业务处理器
+     *
+     * @param handler 业务处理器
+     * @param <R>     处理结果类型
+     * @return 处理结果
+     */
+    protected <R> R repoHandler(@Nonnull final Function<BaseJpaRepository<M, K>, R> handler) {
+        return handler.apply(getJpaRepository());
+    }
 
     @Override
     public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {
@@ -69,20 +93,15 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
         return beanMapping.mapping(pageList, cls);
     }
 
-    private <R> R repoHandler(@Nonnull final Function<BaseJpaRepository<M, K>, R> handler, @Nonnull final Supplier<R> elseHandler) {
-        return Optional.ofNullable(getJpaRepository())
-                .map(handler)
-                .orElseGet(elseHandler);
-    }
 
     @Override
     public M getById(@Nonnull final K id) {
-        return repoHandler(repo -> repo.getById(id), () -> null);
+        return repoHandler(repo -> repo.getById(id));
     }
 
     @Override
     public M getOne(@Nonnull final Predicate predicate) {
-        return repoHandler(repo -> repo.findOne(predicate).orElse(null), () -> null);
+        return repoHandler(repo -> repo.findOne(predicate).orElse(null));
     }
 
     @Override
@@ -92,7 +111,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
                 return repo.count(predicate);
             }
             return repo.count();
-        }, () -> 0L);
+        });
     }
 
     @Override
@@ -112,7 +131,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
                 return repo.findAll(sort);
             }
             return repo.findAll();
-        }, Lists::newArrayList);
+        });
     }
 
     @Override
@@ -127,7 +146,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
             final Page<M> p = predicate == null ? repo.findAll(pageable) : repo.findAll(predicate, pageable);
             //分页查询
             return DataResult.of(p.getTotalElements(), p.getContent());
-        }, DataResult::empty);
+        });
     }
 
     @Override
@@ -136,7 +155,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
         return repoHandler(repo -> {
             repo.saveAndFlush(po);
             return true;
-        }, () -> false);
+        });
     }
 
     @Override
@@ -146,7 +165,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
         return repoHandler(repo -> {
             repo.saveAllAndFlush(pos);
             return true;
-        }, () -> false);
+        });
     }
 
     /**
@@ -160,9 +179,11 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
     protected boolean modify(@Nonnull final EntityPath<M> entity,
                              @Nonnull final Consumer<DslUpdateClause> updateClauseHandler,
                              @Nonnull final Predicate where) {
-        final DslUpdateClause updateClause = DslUpdateClause.of(queryFactory.update(entity));
-        updateClauseHandler.accept(updateClause);
-        return updateClause.execute(where);
+        return queryFactoryHandler(qf -> {
+            final DslUpdateClause updateClause = DslUpdateClause.of(qf.update(entity));
+            updateClauseHandler.accept(updateClause);
+            return updateClause.execute(where);
+        });
     }
 
 
@@ -172,7 +193,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
         return repoHandler(repo -> {
             repo.deleteById(id);
             return true;
-        }, () -> false);
+        });
     }
 
     @Override
@@ -182,7 +203,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
         return repoHandler(repo -> {
             repo.deleteAllById(ids);
             return true;
-        }, () -> false);
+        });
     }
 
     /**
@@ -193,7 +214,9 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
      * @return 删除结果
      */
     protected boolean delete(@Nonnull final EntityPath<M> entity, @Nonnull final Predicate where) {
-        final JPADeleteClause deleteClause = queryFactory.delete(entity);
-        return deleteClause.where(where).execute() > 0;
+        return queryFactoryHandler(qf -> {
+            final JPADeleteClause deleteClause = qf.delete(entity);
+            return deleteClause.where(where).execute() > 0;
+        });
     }
 }
