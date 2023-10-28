@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.segment.exception.NotFoundMaxIdException;
+import top.zenyoung.segment.exception.SegmentException;
 import top.zenyoung.segment.exception.SegmentNameMissingException;
 
 import javax.annotation.Nonnull;
@@ -81,7 +82,7 @@ public class JdbcIdSegmentDistributor implements IdSegmentDistributor {
             return nextMaxId;
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e);
+            throw new SegmentException(e.getMessage(), e);
         }
     }
 }
