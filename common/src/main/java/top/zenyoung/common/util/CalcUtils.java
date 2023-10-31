@@ -69,8 +69,12 @@ public class CalcUtils {
                 .ifPresent(assignHandler);
     }
 
-    public static <V> CompletableFuture<Void> async(@Nonnull final Supplier<V> valHandler, @Nonnull final Consumer<V> assignHandler) {
-        return CompletableFuture.supplyAsync(valHandler).thenAccept(assignHandler);
+    public static <R> CompletableFuture<R> async(@Nonnull final Supplier<R> valHandler) {
+        return CompletableFuture.supplyAsync(valHandler);
+    }
+
+    public static <R> CompletableFuture<Void> async(@Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
+        return async(valHandler).thenAccept(assignHandler);
     }
 
     public static void syncJoin(@Nonnull final List<CompletableFuture<?>> futures) {
