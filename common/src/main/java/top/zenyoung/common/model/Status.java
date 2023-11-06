@@ -31,8 +31,7 @@ public enum Status implements EnumValue {
      * 启用
      */
     ENABLE(1, "启用");
-
-    @com.baomidou.mybatisplus.annotation.EnumValue
+    
     private final int val;
     private final String title;
 

@@ -28,13 +28,6 @@
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
 
-        <!-- mybatis-plus-annotation -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-annotation</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- fastxml -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -32,7 +32,6 @@ public enum Gender implements EnumValue {
      */
     FEMALE(2, "女");
 
-    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 

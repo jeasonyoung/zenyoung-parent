@@ -41,8 +41,7 @@ public enum OperaType implements EnumValue {
      * 其它
      */
     OTHER(4, "其它");
-
-    @com.baomidou.mybatisplus.annotation.EnumValue
+    
     private final int val;
     private final String title;
 

@@ -33,7 +33,6 @@ public enum ResultCode implements EnumValue {
      */
     ERROR(500, "错误");
 
-    @com.baomidou.mybatisplus.annotation.EnumValue
     private final int val;
     private final String title;
 
