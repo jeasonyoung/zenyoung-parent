@@ -1,5 +1,6 @@
 package top.zenyoung.orm;
 
+import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.injector.ISqlInjector;
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
+import top.zenyoung.orm.handler.EnumTypeHandler;
 import top.zenyoung.orm.injector.BatchAddOrUpdateMethod;
 import top.zenyoung.orm.injector.PhysicalDeleteMethod;
 import top.zenyoung.orm.injector.SelectPhysicalByIdMethod;
@@ -60,5 +62,11 @@ public class OrmAutoConfiguration {
                 return methods;
             }
         };
+    }
+
+    @Bean
+    public ConfigurationCustomizer configurationCustomizer() {
+        //枚举类型处理
+        return configuration -> configuration.setDefaultEnumTypeHandler(EnumTypeHandler.class);
     }
 }
