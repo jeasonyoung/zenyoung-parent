@@ -15,11 +15,11 @@ import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import top.zenyoung.boot.annotation.LimitPolicy;
 import top.zenyoung.boot.annotation.RateLimiter;
 import top.zenyoung.boot.aop.BaseAspect;
-import top.zenyoung.common.exception.ServiceException;
-import top.zenyoung.boot.model.LimitPolicy;
 import top.zenyoung.boot.util.HttpUtils;
+import top.zenyoung.common.exception.ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,7 +67,7 @@ public class RateLimiterAspect extends BaseAspect {
                     return rateLimiter.availablePermits();
                 }
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             log.error("getRateLimiter(policy: {},limitKey: {},max: {},time: {})-exp: {}", policy, limitKey, max, time, ex.getMessage());
             throw new ServiceException("服务器限流异常:" + ex.getMessage());
         }

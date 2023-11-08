@@ -8,7 +8,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
 
     <name>zenyoung-parent</name>
     <description>zenyoung tools for Springboot2</description>
@@ -19,8 +19,11 @@
         <module>parent</module>
         <!-- 公共模块 -->
         <module>common</module>
-        <!-- spring boot -->
+        <!-- boot -->
         <module>boot</module>
+        <module>boot-common</module>
+        <module>boot-mvc</module>
+        <module>boot-webflux</module>
         <!-- micro -->
         <module>micro</module>
         <!-- mybatis-plus orm -->
