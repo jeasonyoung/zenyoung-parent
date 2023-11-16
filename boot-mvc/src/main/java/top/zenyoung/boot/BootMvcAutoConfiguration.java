@@ -10,12 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import top.zenyoung.boot.advice.ResponseAdviceController;
+import top.zenyoung.boot.advice.ResponseMvcAdviceController;
 import top.zenyoung.boot.aop.OperaLogAspect;
 import top.zenyoung.boot.aop.OperaLogViewAspect;
 import top.zenyoung.boot.aop.PrivacyPolicyAspect;
 import top.zenyoung.boot.aop.RequestLogAspect;
-import top.zenyoung.boot.config.*;
+import top.zenyoung.boot.config.AsyncConfig;
+import top.zenyoung.boot.config.RepeatSubmitProperties;
+import top.zenyoung.boot.config.SequenceProperties;
+import top.zenyoung.boot.config.WebMvcConfig;
 import top.zenyoung.boot.interceptor.RequestAuthorizeInterceptor;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 import top.zenyoung.common.sequence.IdSequence;
@@ -30,7 +33,7 @@ import javax.annotation.Nonnull;
  */
 @Configuration
 @ComponentScan({"top.zenyoung.boot.controller"})
-@Import({AsyncConfig.class, WebConfig.class, SwaggerConfig.class, Knife4jConfig.class, ResponseAdviceController.class})
+@Import({AsyncConfig.class, WebMvcConfig.class, ResponseMvcAdviceController.class})
 @EnableConfigurationProperties({RepeatSubmitProperties.class, SequenceProperties.class})
 public class BootMvcAutoConfiguration {
     @Bean

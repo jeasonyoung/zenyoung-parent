@@ -11,7 +11,7 @@ import top.zenyoung.boot.annotation.HasAnonymous;
 import top.zenyoung.boot.enums.ExceptionEnums;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.model.UserPrincipal;
-import top.zenyoung.common.util.SecurityUtils;
+import top.zenyoung.boot.util.SecurityUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

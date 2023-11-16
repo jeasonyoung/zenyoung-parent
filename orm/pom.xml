@@ -43,7 +43,7 @@
         <!-- 模块依赖 -->
         <dependency>
             <groupId>top.zenyoung</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>boot-mvc</artifactId>
         </dependency>
     </dependencies>
 

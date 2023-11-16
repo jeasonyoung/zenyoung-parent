@@ -7,34 +7,30 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import top.zenyoung.boot.controller.BaseController;
 import top.zenyoung.common.exception.BaseException;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
- * 统一异常处理控制器
- *
- * @author young
+ * 统一异常处理控制器-基类
  */
 @Slf4j
-@RestControllerAdvice
-public class ResponseAdviceController extends BaseController {
+public abstract class BaseResponseAdviceController<R> {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResultVO<String> handleMethodArgumentNotValidException(@Nonnull final MethodArgumentNotValidException e) {
+    public R handleMethodArgumentNotValidException(@Nonnull final MethodArgumentNotValidException e) {
         log.warn("handleMethodArgumentNotValidException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({BindException.class})
-    public ResultVO<String> handlerBindException(@Nonnull final BindException e) {
+    public R handlerBindException(@Nonnull final BindException e) {
         log.warn("handlerBindException(e: {})...", e.getMessage());
         final StringBuilder builder = new StringBuilder("Validation failed for ");
         BindingResult bindingResult = e.getBindingResult();
@@ -49,41 +45,92 @@ public class ResponseAdviceController extends BaseController {
     }
 
     @ExceptionHandler({ValidationException.class})
-    public ResultVO<String> handleValidationException(@Nonnull final ValidationException e) {
+    public R handleValidationException(@Nonnull final ValidationException e) {
         log.warn("handleValidationException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({ConstraintViolationException.class})
-    public ResultVO<String> handleConstraintViolationException(@Nonnull final ConstraintViolationException e) {
+    public R handleConstraintViolationException(@Nonnull final ConstraintViolationException e) {
         log.warn("handleConstraintViolationException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({ServiceException.class})
-    public ResultVO<String> handleException(@Nonnull final ServiceException e) {
+    public R handleException(@Nonnull final ServiceException e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e.getVal(), e.getMessage());
     }
 
     @ExceptionHandler({BaseException.class})
-    public ResultVO<String> handleException(@Nonnull final BaseException e) {
+    public R handleException(@Nonnull final BaseException e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e.getVal(), e.getMessage());
     }
 
     @ExceptionHandler({Exception.class})
-    public ResultVO<String> handleException(@Nonnull final Exception e) {
+    public R handleException(@Nonnull final Exception e) {
         log.warn("handleException(e: {})...", e.getMessage());
         return failed(e);
     }
 
     @ExceptionHandler({RuntimeException.class})
-    public ResultVO<String> handleException(@Nonnull final RuntimeException e) {
-        final String err = Optional.ofNullable(e.getMessage())
-                .filter(msg -> !Strings.isNullOrEmpty(msg))
-                .orElse(e.getClass().getName());
-        log.warn("handleException(e: {})...", err);
-        return failed(err);
+    public R handleException(@Nonnull final RuntimeException e) {
+        log.warn("handleException(e: {})...", e.getMessage());
+        return failed(e);
     }
+
+    /**
+     * 失败响应
+     *
+     * @param e 异常对象
+     * @return 响应数据
+     */
+    protected R failed(@Nullable final Throwable e) {
+        if (Objects.isNull(e)) {
+            return resultHandler(ResultVO.ofFail());
+        }
+        return resultHandler(ResultVO.ofFail(e));
+    }
+
+    /**
+     * 失败响应
+     *
+     * @param err 异常消息
+     * @return 响应数据
+     */
+    protected R failed(@Nullable final String err) {
+        if (Strings.isNullOrEmpty(err)) {
+            return resultHandler(ResultVO.ofFail());
+        }
+        return resultHandler(ResultVO.ofFail(err));
+    }
+
+    /**
+     * 失败响应
+     *
+     * @param code    失败代码
+     * @param message 失败消息
+     * @param <T>     数据类型
+     * @return 响应数据
+     */
+    protected <T> R failed(@Nullable final Integer code, @Nullable final String message) {
+        final ResultVO<T> ret = ResultVO.ofFail();
+        if (Objects.nonNull(code)) {
+            ret.setCode(code);
+        }
+        if (!Strings.isNullOrEmpty(message)) {
+            ret.setMessage(message);
+        }
+        return resultHandler(ret);
+    }
+
+    /**
+     * 响应结果处理
+     *
+     * @param vo  响应结果对象
+     * @param <T> 响应数据类型
+     * @return 处理结果
+     */
+    protected abstract <T> R resultHandler(@Nonnull final ResultVO<T> vo);
 }

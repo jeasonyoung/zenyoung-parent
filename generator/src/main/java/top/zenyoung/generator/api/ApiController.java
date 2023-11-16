@@ -1,7 +1,7 @@
 package top.zenyoung.generator.api;
 
 import com.google.common.base.Strings;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -36,9 +36,9 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @RestController
-@Api("代码生成接口")
 @RequiredArgsConstructor
 @RequestMapping("/codegen")
+@Schema(description = "代码生成接口")
 public class ApiController extends BaseController {
     private final GeneratorAutoProperties properties;
     private final Generator generator;

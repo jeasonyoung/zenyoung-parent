@@ -2,7 +2,7 @@ package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  */
 @Getter
 @ToString
-@ApiModel("业务操作类型")
+@Schema(description = "业务操作类型")
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum OperaType implements EnumValue {
@@ -41,7 +41,7 @@ public enum OperaType implements EnumValue {
      * 其它
      */
     OTHER(4, "其它");
-    
+
     private final int val;
     private final String title;
 

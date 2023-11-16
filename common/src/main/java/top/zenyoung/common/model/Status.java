@@ -2,7 +2,7 @@ package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @version 1.0
  **/
 @Getter
-@ApiModel("状态")
+@Schema(description = "状态")
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Status implements EnumValue {
@@ -31,7 +31,7 @@ public enum Status implements EnumValue {
      * 启用
      */
     ENABLE(1, "启用");
-    
+
     private final int val;
     private final String title;
 

@@ -1,0 +1,83 @@
+package com.querydsl.r2dbc;
+
+import com.querydsl.core.NonUniqueResultException;
+import com.querydsl.core.Query;
+import com.querydsl.core.QueryMetadata;
+import com.querydsl.core.types.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public class UnionImpl<T, Q extends ProjectableR2dbcQuery<T, Q> & Query<Q>> implements Union<T> {
+    private final Q query;
+
+    public UnionImpl(@Nonnull final Q query) {
+        this.query = query;
+    }
+
+    @Override
+    public Flux<T> fetch() {
+        return query.fetch();
+    }
+
+    @Override
+    public Mono<T> fetchFirst() {
+        return query.fetchFirst();
+    }
+
+    @Override
+    public Mono<T> fetchOne() throws NonUniqueResultException {
+        return query.fetchOne();
+    }
+
+    @Override
+    public Union<T> groupBy(@Nonnull final Expression<?>... o) {
+        query.groupBy(o);
+        return this;
+    }
+
+    @Override
+    public Union<T> having(@Nonnull final Predicate... o) {
+        query.having(o);
+        return this;
+    }
+
+    @Override
+    public Union<T> orderBy(@Nonnull final OrderSpecifier<?>... o) {
+        query.orderBy(o);
+        return this;
+    }
+
+    @Override
+    public Expression<T> as(@Nonnull final String alias) {
+        return ExpressionUtils.as(this, alias);
+    }
+
+    @Override
+    public Expression<T> as(@Nonnull final Path<T> alias) {
+        return ExpressionUtils.as(this, alias);
+    }
+
+    @Override
+    public String toString() {
+        return query.toString();
+    }
+
+    @Nullable
+    @Override
+    public <R, C> R accept(@Nonnull final Visitor<R, C> v, @Nullable final C context) {
+        return query.accept(v, context);
+    }
+
+    @Override
+    public Class<? extends T> getType() {
+        return query.getType();
+    }
+
+    @Override
+    public QueryMetadata getMetadata() {
+        return query.getMetadata();
+    }
+}

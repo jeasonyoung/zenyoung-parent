@@ -1,5 +1,6 @@
 package top.zenyoung.jpa.util;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -9,11 +10,12 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Spring上下文工具类
+ * Spring 上下文工具类
  *
  * @author young
  */
 @Slf4j
+@UtilityClass
 public class SpringContextUtils {
     private static final AtomicReference<ApplicationContext> refCtx = new AtomicReference<>(null);
 

@@ -56,6 +56,9 @@
         <!-- p6spy -->
         <p6spy.version>3.9.1</p6spy.version>
 
+        <!-- r2dbc -->
+        <r2dbc-mysql.version>0.8.2.RELEASE</r2dbc-mysql.version>
+
         <!-- jetcache -->
         <jetcache.version>2.7.2</jetcache.version>
         <!-- redisson -->
@@ -92,8 +95,8 @@
         <retrofit.version>2.9.0</retrofit.version>
 
         <!-- swagger -->
-        <swagger.version>1.5.20</swagger.version>
-        <knife4j.version>2.0.9</knife4j.version>
+        <swagger-v3.version>2.2.9</swagger-v3.version>
+        <knife4j-openapi3.version>4.3.0</knife4j-openapi3.version>
 
         <!-- jfx -->
         <bootstrapfx-core.version>0.3.0</bootstrapfx-core.version>
@@ -120,6 +123,8 @@
         <zenyoung-micro.version>3.2.0</zenyoung-micro.version>
         <zenyoung-orm.version>3.2.0</zenyoung-orm.version>
         <zenyoung-jpa.version>3.2.0</zenyoung-jpa.version>
+        <zenyoung-jpa-common.version>1.0.0</zenyoung-jpa-common.version>
+        <zenyoung-jpa-reactive.version>1.0.0</zenyoung-jpa-reactive.version>
         <zenyoung-graphics-utils.version>3.1.0</zenyoung-graphics-utils.version>
         <zenyoung-graphics-captcha.version>3.1.0</zenyoung-graphics-captcha.version>
         <zenyoung-graphics-boot.version>3.2.0</zenyoung-graphics-boot.version>
@@ -196,6 +201,13 @@
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
                 <version>${p6spy.version}</version>
+            </dependency>
+
+            <!-- r2dbc -->
+            <dependency>
+                <groupId>dev.miku</groupId>
+                <artifactId>r2dbc-mysql</artifactId>
+                <version>${r2dbc-mysql.version}</version>
             </dependency>
 
             <!-- jetcache -->
@@ -328,24 +340,19 @@
 
             <!-- swagger -->
             <dependency>
-                <groupId>io.swagger</groupId>
+                <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
+                <version>2.2.9</version>
             </dependency>
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-annotations</artifactId>
-                <version>${knife4j.version}</version>
+                <artifactId>knife4j-openapi3-spring-boot-starter</artifactId>
+                <version>${knife4j-openapi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-micro-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
+                <artifactId>knife4j-openapi3-webflux-spring-boot-starter</artifactId>
+                <version>${knife4j-openapi3.version}</version>
             </dependency>
 
             <!-- jfx -->
@@ -406,10 +413,21 @@
                 <artifactId>orm</artifactId>
                 <version>${zenyoung-orm.version}</version>
             </dependency>
+            <!-- jpa -->
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>jpa-common</artifactId>
+                <version>${zenyoung-jpa-common.version}</version>
+            </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
                 <artifactId>jpa</artifactId>
                 <version>${zenyoung-jpa.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.zenyoung</groupId>
+                <artifactId>jpa-reactive</artifactId>
+                <version>${zenyoung-jpa-reactive.version}</version>
             </dependency>
             <!-- graphics -->
             <dependency>

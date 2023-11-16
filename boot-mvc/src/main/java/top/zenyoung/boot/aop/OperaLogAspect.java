@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -22,11 +22,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.boot.annotation.OperaLog;
 import top.zenyoung.boot.util.HttpUtils;
-import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.common.dto.OperaLogDTO;
 import top.zenyoung.common.model.OperaType;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.util.JsonUtils;
+import top.zenyoung.boot.util.SecurityUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -186,13 +186,13 @@ public class OperaLogAspect extends BaseAspect {
     }
 
     private static Map<String, String> getImplicitParams(@Nonnull final Method method) {
-        if (method.isAnnotationPresent(ApiImplicitParams.class)) {
-            final ApiImplicitParams paramsAnno = method.getAnnotation(ApiImplicitParams.class);
-            final ApiImplicitParam[] pas;
+        if (method.isAnnotationPresent(Parameters.class)) {
+            final Parameters paramsAnno = method.getAnnotation(Parameters.class);
+            final Parameter[] pas;
             if ((pas = paramsAnno.value()) != null && pas.length > 0) {
                 return Stream.of(pas)
                         .map(p -> {
-                            final String name = p.name(), value = p.value();
+                            final String name = p.name(), value = p.description();
                             if (!Strings.isNullOrEmpty(name) && !Strings.isNullOrEmpty(value)) {
                                 return new Map.Entry<String, String>() {
 
@@ -231,7 +231,7 @@ public class OperaLogAspect extends BaseAspect {
         if (Collection.class.isAssignableFrom(cls)) {
             final Collection<?> collection = (Collection<?>) o;
             for (Object val : collection) {
-                if(val instanceof MultipartFile){
+                if (val instanceof MultipartFile) {
                     return false;
                 }
             }
@@ -243,7 +243,7 @@ public class OperaLogAspect extends BaseAspect {
                 if (entry.getKey() instanceof MultipartFile) {
                     return false;
                 }
-                if(entry.getValue() instanceof MultipartFile){
+                if (entry.getValue() instanceof MultipartFile) {
                     return false;
                 }
             }
@@ -267,10 +267,11 @@ public class OperaLogAspect extends BaseAspect {
                 //注解判断
                 for (Annotation anno : argAnnos) {
                     //Swgger注解
-                    if (anno instanceof ApiModelProperty) {
-                        final ApiModelProperty property = (ApiModelProperty) anno;
-                        if (!Strings.isNullOrEmpty(property.value())) {
-                            rpv.setTitle(property.value());
+                    if (anno instanceof Schema) {
+                        final Schema property = (Schema) anno;
+                        final String desc;
+                        if (!Strings.isNullOrEmpty(desc = property.description())) {
+                            rpv.setTitle(desc);
                             break;
                         }
                     }

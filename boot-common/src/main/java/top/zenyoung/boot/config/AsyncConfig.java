@@ -1,6 +1,7 @@
 package top.zenyoung.boot.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,11 @@ public class AsyncConfig implements AsyncConfigurer {
         taskScheduler.initialize();
         //返回线程池
         return taskScheduler;
+    }
+
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (ex, method, params) -> log.warn("async[method:{}, params: {}]-exp: {}", method.getName(), params, ex.getMessage());
     }
 
     /**

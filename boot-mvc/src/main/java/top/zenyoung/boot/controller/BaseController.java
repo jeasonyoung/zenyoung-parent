@@ -24,8 +24,6 @@ import java.util.function.Consumer;
  * 控制器-基类
  *
  * @author yangyong
- * @version 1.0
- * date 2020/8/10 9:53 下午
  **/
 public class BaseController {
     @Autowired(required = false)
@@ -60,7 +58,7 @@ public class BaseController {
      * @return 响应结果
      */
     protected <T> ResultVO<T> success() {
-        return success((T) null);
+        return ResultVO.ofSuccess();
     }
 
     /**
@@ -73,12 +71,15 @@ public class BaseController {
      * @return 响应数据
      */
     protected <T> ResultVO<T> failed(@Nullable final T data, @Nullable final Integer code, @Nullable final String message) {
-        final ResultVO<T> ret = ResultVO.ofFail(message);
-        if (data != null) {
+        final ResultVO<T> ret = ResultVO.ofFail();
+        if (Objects.nonNull(data)) {
             ret.setData(data);
         }
-        if (code != null) {
+        if (Objects.nonNull(code)) {
             ret.setCode(code);
+        }
+        if (!Strings.isNullOrEmpty(message)) {
+            ret.setMessage(message);
         }
         return ret;
     }
@@ -135,14 +136,10 @@ public class BaseController {
      * @return 响应数据
      */
     protected <T> ResultVO<T> failed(@Nullable final EnumValue e) {
-        final ResultVO<T> ret = failed();
-        if (e != null) {
-            ret.setCode(e.getVal());
-            if (!Strings.isNullOrEmpty(e.getTitle())) {
-                ret.setMessage(e.getTitle());
-            }
+        if (Objects.isNull(e)) {
+            return ResultVO.ofFail();
         }
-        return ret;
+        return ResultVO.of(e);
     }
 
     /**
@@ -156,21 +153,9 @@ public class BaseController {
         if (Objects.isNull(e)) {
             return failed();
         }
-        if (e instanceof EnumValue) {
-            return failed(((EnumValue) e));
-        }
-        return failed(getExpErr(e));
+        return ResultVO.ofFail(e);
     }
-
-    private String getExpErr(@Nonnull final Throwable e) {
-        final String err = e.getMessage();
-        final Throwable parent;
-        if (Strings.isNullOrEmpty(err) && Objects.nonNull(parent = e.getCause())) {
-            return getExpErr(parent);
-        }
-        return err;
-    }
-
+    
     /**
      * 导出Excel处理
      *
@@ -231,7 +216,16 @@ public class BaseController {
             res.reset();
             res.setContentType(MediaType.APPLICATION_JSON_VALUE);
             res.setCharacterEncoding(enc);
-            res.getWriter().write(JsonUtils.toJson(objectMapper, failed(null, getExpErr(e))));
+            res.getWriter().write(JsonUtils.toJson(objectMapper, failed(null, buildExpError(e))));
         }
+    }
+
+    private static String buildExpError(@Nonnull final Throwable e) {
+        String msg = e.getMessage();
+        Throwable cause = e;
+        while (Strings.isNullOrEmpty(msg) && Objects.nonNull(cause)) {
+            cause = cause.getCause();
+        }
+        return msg;
     }
 }

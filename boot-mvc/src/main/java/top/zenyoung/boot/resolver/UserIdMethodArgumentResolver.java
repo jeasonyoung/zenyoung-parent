@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.WebRequest;
 import top.zenyoung.boot.annotation.UserId;
+import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
-import top.zenyoung.common.util.SecurityUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

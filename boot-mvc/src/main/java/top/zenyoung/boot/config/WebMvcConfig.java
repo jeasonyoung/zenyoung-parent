@@ -19,13 +19,13 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
- * Web配置
+ * WebMvc-配置
  *
  * @author young
  */
 @Configuration
 @RequiredArgsConstructor
-public class WebConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer {
     private final List<RequestMappingInterceptor> interceptors;
     private final List<ArgumentResolver> argumentResolvers;
 

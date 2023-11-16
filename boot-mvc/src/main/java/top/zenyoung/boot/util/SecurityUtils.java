@@ -1,4 +1,4 @@
-package top.zenyoung.common.util;
+package top.zenyoung.boot.util;
 
 import lombok.experimental.UtilityClass;
 import top.zenyoung.common.model.UserPrincipal;

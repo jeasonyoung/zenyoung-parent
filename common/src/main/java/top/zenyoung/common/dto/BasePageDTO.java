@@ -1,5 +1,6 @@
 package top.zenyoung.common.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import top.zenyoung.common.paging.PagingQuery;
@@ -17,10 +18,12 @@ public class BasePageDTO implements PagingQuery {
     /**
      * 页码
      */
+    @Schema(description = "页码")
     private Integer pageIndex;
     /**
      * 页数据量
      */
+    @Schema(description = "页数据量")
     private Integer pageSize;
 
     /**

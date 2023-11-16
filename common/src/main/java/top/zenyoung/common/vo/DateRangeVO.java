@@ -2,6 +2,7 @@ package top.zenyoung.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,16 +22,19 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(staticName = "of")
+@Schema(description = "时间段数据")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DateRangeVO implements Serializable {
     /**
      * 开始时间
      */
+    @Schema(description = "开始时间")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date start;
     /**
      * 结束时间
      */
+    @Schema(description = "结束时间")
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private Date end;
 

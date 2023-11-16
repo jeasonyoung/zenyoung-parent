@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
-import top.zenyoung.common.util.SecurityUtils;
 import top.zenyoung.jpa.util.SpringContextUtils;
 
 import javax.annotation.Nonnull;
@@ -31,6 +31,11 @@ import java.util.Optional;
 @ConditionalOnClass(DataSource.class)
 public class JpaAutoConfiguration implements ApplicationContextAware {
 
+    @Override
+    public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
+        SpringContextUtils.setContext(context);
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public JPAQueryFactory buildJpaQueryFactory(@Nonnull final EntityManager entityManager) {
@@ -38,20 +43,11 @@ public class JpaAutoConfiguration implements ApplicationContextAware {
         return new JPAQueryFactory(entityManager);
     }
 
-    @Configuration
-    public static class AuditingAuditorAware implements AuditorAware<String> {
-
-        @Nonnull
-        @Override
-        public Optional<String> getCurrentAuditor() {
-            return Optional.ofNullable(SecurityUtils.getPrincipal())
-                    .map(UserPrincipal::getId)
-                    .map(String::valueOf);
-        }
-    }
-
-    @Override
-    public void setApplicationContext(@Nonnull final ApplicationContext ctx) throws BeansException {
-        SpringContextUtils.setContext(ctx);
+    @Bean
+    @ConditionalOnMissingBean
+    public AuditorAware<String> auditorAware() {
+        return () -> Optional.ofNullable(SecurityUtils.getPrincipal())
+                .map(UserPrincipal::getId)
+                .map(String::valueOf);
     }
 }

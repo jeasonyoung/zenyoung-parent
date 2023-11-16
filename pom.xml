@@ -28,8 +28,10 @@
         <module>micro</module>
         <!-- mybatis-plus orm -->
         <module>orm</module>
-        <!-- spring jpa -->
+        <!-- jpa -->
+        <module>jpa-common</module>
         <module>jpa</module>
+        <module>jpa-reactive</module>
         <!-- 图像工具 -->
         <module>graphics-utils</module>
         <module>graphics-captcha</module>

@@ -2,7 +2,7 @@ package top.zenyoung.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author young
  **/
 @Getter
-@ApiModel("结果状态")
+@Schema(description = "结果状态")
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ResultCode implements EnumValue {
