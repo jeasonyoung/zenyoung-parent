@@ -9,7 +9,6 @@ import com.querydsl.r2dbc.R2dbcConnectionProvider;
 import com.querydsl.sql.Configuration;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 
 public abstract class AbstractMySqlR2dbcQuery<T, C extends AbstractMySqlR2dbcQuery<T, C>> extends AbstractR2dbcQuery<T, C> {
@@ -25,9 +24,9 @@ public abstract class AbstractMySqlR2dbcQuery<T, C extends AbstractMySqlR2dbcQue
     protected static final String SQL_BIG_RESULT = "sql_big_result ";
     protected static final Joiner JOINER = Joiner.on(", ");
 
-    public AbstractMySqlR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider,
-                                   @Nonnull final Configuration configuration,
-                                   @Nonnull final QueryMetadata metadata) {
+    protected AbstractMySqlR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider,
+                                      @Nonnull final Configuration configuration,
+                                      @Nonnull final QueryMetadata metadata) {
         super(provider, configuration, metadata);
     }
 

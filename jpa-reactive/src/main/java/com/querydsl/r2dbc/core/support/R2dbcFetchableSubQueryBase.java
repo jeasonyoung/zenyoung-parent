@@ -12,12 +12,12 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
 
-public abstract class FetchableSubQueryBase<T, Q extends FetchableSubQueryBase<T, Q>>
-        extends FetchableQueryBase<T, Q> implements ExtendedSubQuery<T> {
+public abstract class R2dbcFetchableSubQueryBase<T, Q extends R2dbcFetchableSubQueryBase<T, Q>>
+        extends R2dbcFetchableQueryBase<T, Q> implements ExtendedSubQuery<T> {
     private final SubQueryExpression<T> mixin;
 
     @SuppressWarnings({"unchecked"})
-    public FetchableSubQueryBase(@Nonnull final QueryMixin<Q> queryMixin) {
+    protected R2dbcFetchableSubQueryBase(@Nonnull final QueryMixin<Q> queryMixin) {
         super(queryMixin);
         this.mixin = new SubQueryExpressionImpl<>((Class<T>) Object.class, queryMixin.getMetadata());
     }

@@ -60,14 +60,14 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
     }
 
     /**
-     * 获取Jpa
+     * 获取数据操作接口
      *
-     * @return Jpa
+     * @return 数据操作接口
      */
     protected abstract BaseJpaRepository<M, K> getJpaRepository();
 
     /**
-     * Jpa业务处理器
+     * 业务处理器
      *
      * @param handler 业务处理器
      * @param <R>     处理结果类型
@@ -95,7 +95,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
 
     @Override
     public M getById(@Nonnull final K id) {
-        return repoHandler(repo -> repo.getById(id));
+        return repoHandler(repo -> repo.getReferenceById(id));
     }
 
     @Override

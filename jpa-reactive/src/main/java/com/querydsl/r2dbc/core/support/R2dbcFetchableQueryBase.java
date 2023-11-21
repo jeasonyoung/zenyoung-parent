@@ -5,25 +5,25 @@ import com.querydsl.core.ResultTransformer;
 import com.querydsl.core.support.QueryBase;
 import com.querydsl.core.support.QueryMixin;
 import com.querydsl.core.types.SubQueryExpression;
-import com.querydsl.r2dbc.core.Fetchable;
+import com.querydsl.r2dbc.core.R2dbcFetchable;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 
-public abstract class FetchableQueryBase<T, Q extends FetchableQueryBase<T, Q>>
-        extends QueryBase<Q> implements Fetchable<T> {
-    public FetchableQueryBase(@Nonnull final QueryMixin<Q> queryMixin) {
+public abstract class R2dbcFetchableQueryBase<T, Q extends R2dbcFetchableQueryBase<T, Q>>
+        extends QueryBase<Q> implements R2dbcFetchable<T> {
+    protected R2dbcFetchableQueryBase(@Nonnull final QueryMixin<Q> queryMixin) {
         super(queryMixin);
     }
 
     @Override
     public Mono<T> fetchFirst() {
-        return limit(1).fetchOne();
+        return super.limit(1).fetchOne();
     }
 
     @Override
     public Mono<T> fetchOne() {
-        return fetch().singleOrEmpty();
+        return fetchFirst();
     }
 
     public <M> M transform(@Nonnull final ResultTransformer<M> transformer) {
@@ -40,5 +40,10 @@ public abstract class FetchableQueryBase<T, Q extends FetchableQueryBase<T, Q>>
             return s.getMetadata().equals(queryMixin.getMetadata());
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+top.zenyoung.jpa.reactive.JpaReactiveAutoConfiguration,\
+top.zenyoung.jpa.reactive.QueryDslR2dbcAutoConfiguration

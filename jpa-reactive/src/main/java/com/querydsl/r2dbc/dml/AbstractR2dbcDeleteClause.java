@@ -6,7 +6,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.ValidatingVisitor;
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
-import com.querydsl.r2dbc.core.dml.DeleteClause;
+import com.querydsl.r2dbc.core.dml.R2dbcDeleteClause;
 import com.querydsl.r2dbc.core.internal.R2dbcUtils;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPath;
@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class AbstractR2dbcDeleteClause<C extends AbstractR2dbcDeleteClause<C>>
-        extends AbstractR2dbcClause<C> implements DeleteClause<C> {
+        extends AbstractR2dbcClause<C> implements R2dbcDeleteClause<C> {
     private static final ValidatingVisitor validatingVisitor = new ValidatingVisitor("Undeclared path '%s'. " +
             "A delete operation can only reference a single table. " +
             "Consider this alternative: DELETE ... WHERE EXISTS (subquery)");
@@ -29,9 +29,9 @@ public abstract class AbstractR2dbcDeleteClause<C extends AbstractR2dbcDeleteCla
     private final List<QueryMetadata> batches = Lists.newArrayList();
     private DefaultQueryMetadata metadata = new DefaultQueryMetadata();
 
-    public AbstractR2dbcDeleteClause(@Nonnull final R2dbcConnectionProvider provider,
-                                     @Nonnull final Configuration configuration,
-                                     @Nonnull final RelationalPath<?> entity) {
+    protected AbstractR2dbcDeleteClause(@Nonnull final R2dbcConnectionProvider provider,
+                                        @Nonnull final Configuration configuration,
+                                        @Nonnull final RelationalPath<?> entity) {
         super(provider, configuration);
         this.entity = entity;
         metadata.addJoin(JoinType.DEFAULT, entity);

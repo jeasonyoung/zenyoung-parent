@@ -4,7 +4,7 @@ import com.querydsl.core.types.ParamExpression;
 import com.querydsl.core.types.ParamNotSetException;
 import com.querydsl.core.types.Path;
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
-import com.querydsl.r2dbc.core.dml.DMLClause;
+import com.querydsl.r2dbc.core.dml.R2dbcDmlClause;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.types.Null;
 import io.r2dbc.spi.Connection;
@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class AbstractR2dbcClause<C extends AbstractR2dbcClause<C>> implements DMLClause<C> {
+public abstract class AbstractR2dbcClause<C extends AbstractR2dbcClause<C>> implements R2dbcDmlClause<C> {
     protected final Configuration configuration;
     private final R2dbcConnectionProvider provider;
     protected boolean useLiterals;
 
-    public AbstractR2dbcClause(final R2dbcConnectionProvider provider, final Configuration configuration) {
+    protected AbstractR2dbcClause(final R2dbcConnectionProvider provider, final Configuration configuration) {
         this.provider = provider;
         this.configuration = configuration;
         this.useLiterals = configuration.getUseLiterals();
@@ -49,8 +49,10 @@ public abstract class AbstractR2dbcClause<C extends AbstractR2dbcClause<C>> impl
         return Mono.error(new IllegalStateException("No connection provided"));
     }
 
-    protected final void setParameters(@Nonnull final Statement stmt, @Nonnull final List<?> objects,
-                                       @Nonnull final List<Path<?>> constantPaths, @Nonnull final Map<ParamExpression<?>, ?> params,
+    protected final void setParameters(@Nonnull final Statement stmt,
+                                       @Nonnull final List<?> objects,
+                                       @Nonnull final List<Path<?>> constantPaths,
+                                       @Nonnull final Map<ParamExpression<?>, ?> params,
                                        final int offset) {
         if (objects.size() != constantPaths.size()) {
             throw new IllegalArgumentException("Expected " + objects.size() + " paths, " + "but got " + constantPaths.size());

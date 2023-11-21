@@ -30,11 +30,11 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
     private final R2dbcConnectionProvider provider;
     protected boolean useLiterals;
 
-    public AbstractR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration) {
+    protected AbstractR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration) {
         this(provider, configuration, new DefaultQueryMetadata());
     }
 
-    public AbstractR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration, @Nonnull final QueryMetadata metadata) {
+    protected AbstractR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration, @Nonnull final QueryMetadata metadata) {
         super(new QueryMixin<>(metadata, false), configuration);
         this.provider = provider;
         this.useLiterals = configuration.getUseLiterals();
@@ -105,7 +105,7 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
         return requireConnection()
                 .flatMapMany(conn -> {
                     final Expression<T> expr = getProjection();
-                    final Mapper<T> mapper = createMapper(expr);
+                    final R2dbcMapper<T> mapper = createMapper(expr);
                     final SQLSerializer serializer = serialize(false);
                     final String originalSql = serializer.toString();
                     final String sql = R2dbcUtils.replaceBindingArguments(originalSql);
@@ -128,7 +128,7 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
     }
 
     @SuppressWarnings({"unchecked"})
-    private Mapper<T> createMapper(@Nonnull final Expression<T> expr) {
+    private R2dbcMapper<T> createMapper(@Nonnull final Expression<T> expr) {
         if (expr instanceof FactoryExpression) {
             final FactoryExpression<T> fe = (FactoryExpression<T>) expr;
             return (row, meta) -> newInstance(fe, row, 0);
@@ -183,11 +183,5 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
             statement.bind(i, args.get(i));
         }
         return statement;
-    }
-
-    @FunctionalInterface
-    private interface Mapper<T> {
-        @Nonnull
-        T map(@Nonnull final Row row, @Nonnull final RowMetadata metadata);
     }
 }

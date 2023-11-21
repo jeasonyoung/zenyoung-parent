@@ -8,7 +8,8 @@ import com.querydsl.core.QueryFlag;
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.types.*;
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
-import com.querydsl.r2dbc.core.dml.InsertClause;
+import com.querydsl.r2dbc.R2dbcMapper;
+import com.querydsl.r2dbc.core.dml.R2dbcInsertClause;
 import com.querydsl.r2dbc.core.internal.R2dbcUtils;
 import com.querydsl.sql.ColumnMetadata;
 import com.querydsl.sql.Configuration;
@@ -17,8 +18,6 @@ import com.querydsl.sql.SQLSerializer;
 import com.querydsl.sql.dml.SQLInsertBatch;
 import com.querydsl.sql.types.Null;
 import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.RowMetadata;
 import io.r2dbc.spi.Statement;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,7 +30,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertClause<C>>
-        extends AbstractR2dbcClause<C> implements InsertClause<C> {
+        extends AbstractR2dbcClause<C> implements R2dbcInsertClause<C> {
     private final List<SQLInsertBatch> batches = Lists.newArrayList();
     private final List<Path<?>> columns = Lists.newArrayList();
     private final List<Expression<?>> values = Lists.newArrayList();
@@ -39,11 +38,11 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
     private final QueryMetadata metadata = new DefaultQueryMetadata();
     @Nullable
     private SubQueryExpression<?> subQuery;
-    private transient boolean batchToBulk;
+    private boolean batchToBulk;
 
-    public AbstractR2dbcInsertClause(@Nonnull final R2dbcConnectionProvider provider,
-                                     @Nonnull final Configuration configuration,
-                                     @Nonnull final RelationalPath<?> entity) {
+    protected AbstractR2dbcInsertClause(@Nonnull final R2dbcConnectionProvider provider,
+                                        @Nonnull final Configuration configuration,
+                                        @Nonnull final RelationalPath<?> entity) {
         super(provider, configuration);
         this.entity = entity;
         metadata.addJoin(JoinType.DEFAULT, entity);
@@ -174,19 +173,19 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
     @SuppressWarnings("unchecked")
     public <T> Mono<T> executeWithKey(@Nonnull final Path<T> path) {
         final Class<T> type = (Class<T>) path.getType();
-        final Mapper<T> mapper = (row, metadata) -> Objects.requireNonNull(row.get(0, type), "Null key result");
+        final R2dbcMapper<T> mapper = (row, metadata) -> Objects.requireNonNull(row.get(0, type), "Null key result");
         return requireConnection()
                 .map(connection -> createStatement(connection, true))
                 .flatMap(connection -> executeStatementWithKey(connection, mapper));
     }
 
-    private <T> Mono<T> executeStatementWithKey(@Nonnull final Statement stmt, @Nonnull final Mapper<T> mapper) {
+    private <T> Mono<T> executeStatementWithKey(@Nonnull final Statement stmt, @Nonnull final R2dbcMapper<T> mapper) {
         return Mono.from(stmt.execute())
                 .flatMap(result -> Mono.from(result.map(mapper::map)));
     }
 
     public <T> Flux<T> executeWithKeys(@Nonnull final Path<T> path) {
-        final Mapper<T> mapper = (row, metadata) -> Objects.requireNonNull(row.get(0, path.getType()), "Null key result");
+        final R2dbcMapper<T> mapper = (row, md) -> Objects.requireNonNull(row.get(0, path.getType()), "Null key result");
         return requireConnection()
                 .map(connection -> createStatement(connection, true))
                 .flatMapMany(connection -> executeStatementWithKeys(connection, mapper));
@@ -212,7 +211,7 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
                 .map(Long::valueOf);
     }
 
-    private <T> Flux<T> executeStatementWithKeys(@Nonnull final Statement stmt, @Nonnull final Mapper<T> mapper) {
+    private <T> Flux<T> executeStatementWithKeys(@Nonnull final Statement stmt, @Nonnull final R2dbcMapper<T> mapper) {
         return Flux.from(stmt.execute())
                 .flatMap(result -> Mono.from(result.map(mapper::map)));
     }
@@ -267,12 +266,6 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
                 .stream()
                 .map(c -> ((Constant<T>) c).getConstant())
                 .collect(Collectors.toList());
-        setParameters(stmt, constants, batch.getColumns(), params, offset);
-    }
-
-    @FunctionalInterface
-    private interface Mapper<T> {
-        @Nonnull
-        T map(@Nonnull final Row row, @Nonnull final RowMetadata metadata);
+        super.setParameters(stmt, constants, batch.getColumns(), params, offset);
     }
 }

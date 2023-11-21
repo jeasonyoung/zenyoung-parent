@@ -1,18 +1,22 @@
 package top.zenyoung.jpa.reactive;
 
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
-import com.querydsl.r2dbc.R2dbcQuery;
 import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.ReactiveAuditorAware;
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
-import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.ConnectionFactoryUtils;
 import org.springframework.r2dbc.core.DatabaseClient;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
+import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.IdSequenceProperties;
+import top.zenyoung.common.sequence.SnowFlake;
 
 import javax.annotation.Nonnull;
 
@@ -23,8 +27,21 @@ import javax.annotation.Nonnull;
  */
 @Configuration
 @EnableR2dbcAuditing
-@EnableR2dbcRepositories
-public class JpaReactiveAutoConfiguration {
+public class JpaReactiveAutoConfiguration implements ApplicationContextAware {
+    private ApplicationContext context;
+
+    @Override
+    public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdSequence idSequence() {
+        final IdSequenceProperties properties = context.getBean(IdSequenceProperties.class);
+        return SnowFlake.create(properties);
+    }
+
     @Bean
     @ConditionalOnMissingBean
     public ReactiveAuditorAware<String> reactiveAuditorAware() {
@@ -42,11 +59,5 @@ public class JpaReactiveAutoConfiguration {
     @ConditionalOnMissingBean
     public MySqlR2dbcQueryFactory queryFactory(@Nonnull final R2dbcConnectionProvider provider) {
         return new MySqlR2dbcQueryFactory(provider);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public <T> R2dbcQuery<T> r2dbcQuery(@Nonnull final MySqlR2dbcQueryFactory queryFactory) {
-        return new R2dbcQuery<>(queryFactory.getProvider(), queryFactory.getConfiguration());
     }
 }

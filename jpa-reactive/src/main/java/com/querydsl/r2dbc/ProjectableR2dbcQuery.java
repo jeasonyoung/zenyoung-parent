@@ -9,8 +9,8 @@ import com.querydsl.core.QueryFlag;
 import com.querydsl.core.support.QueryMixin;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.r2dbc.core.FetchableQuery;
-import com.querydsl.r2dbc.core.support.FetchableSubQueryBase;
+import com.querydsl.r2dbc.core.R2dbcFetchableQuery;
+import com.querydsl.r2dbc.core.support.R2dbcFetchableSubQueryBase;
 import com.querydsl.sql.*;
 
 import javax.annotation.Nonnull;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class ProjectableR2dbcQuery<T, Q extends ProjectableR2dbcQuery<T, Q> & Query<Q>>
-        extends FetchableSubQueryBase<T, Q> implements SQLCommonQuery<Q>, FetchableQuery<T, Q> {
+        extends R2dbcFetchableSubQueryBase<T, Q> implements SQLCommonQuery<Q>, R2dbcFetchableQuery<T, Q> {
     private static final Path<?> defaultQueryAlias = ExpressionUtils.path(Object.class, "query");
     protected final Configuration configuration;
     @Nullable
@@ -30,7 +30,7 @@ public abstract class ProjectableR2dbcQuery<T, Q extends ProjectableR2dbcQuery<T
     protected boolean unionAll;
 
     @SuppressWarnings({"unchecked"})
-    public ProjectableR2dbcQuery(@Nonnull final QueryMixin<Q> queryMixin, @Nonnull final Configuration configuration) {
+    protected ProjectableR2dbcQuery(@Nonnull final QueryMixin<Q> queryMixin, @Nonnull final Configuration configuration) {
         super(queryMixin);
         this.queryMixin.setSelf((Q) this);
         this.configuration = configuration;

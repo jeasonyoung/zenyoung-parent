@@ -1,11 +1,11 @@
 package com.querydsl.r2dbc;
 
 import com.querydsl.core.types.*;
-import com.querydsl.r2dbc.core.Fetchable;
+import com.querydsl.r2dbc.core.R2dbcFetchable;
 
 import javax.annotation.Nonnull;
 
-public interface Union<T> extends SubQueryExpression<T>, Fetchable<T> {
+public interface Union<T> extends SubQueryExpression<T>, R2dbcFetchable<T> {
     Union<T> groupBy(@Nonnull final Expression<?>... o);
 
     Union<T> having(@Nonnull final Predicate... o);

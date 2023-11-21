@@ -18,7 +18,7 @@ public abstract class AbstractR2dbcQueryFactory<Q extends SQLCommonQuery<?>> imp
     protected final Configuration configuration;
     protected final R2dbcConnectionProvider provider;
 
-    public AbstractR2dbcQueryFactory(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration) {
+    protected AbstractR2dbcQueryFactory(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration) {
         this.configuration = configuration;
         this.provider = provider;
     }

@@ -8,7 +8,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import java.io.Serializable;
 
 /**
- * Jpa-接口基类
+ * Jpa-数据操作基接口
  *
  * @author young
  */

@@ -8,7 +8,7 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
-import com.querydsl.r2dbc.core.dml.UpdateClause;
+import com.querydsl.r2dbc.core.dml.R2dbcUpdateClause;
 import com.querydsl.r2dbc.core.internal.R2dbcUtils;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.RelationalPath;
@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractR2dbcUpdateClause<C extends AbstractR2dbcUpdateClause<C>>
-        extends AbstractR2dbcClause<C> implements UpdateClause<C> {
+        extends AbstractR2dbcClause<C> implements R2dbcUpdateClause<C> {
     protected final RelationalPath<?> entity;
     protected final List<SQLUpdateBatch> batches = Lists.newArrayList();
     protected Map<Path<?>, Expression<?>> updates = Maps.newLinkedHashMap();
     protected QueryMetadata metadata = new DefaultQueryMetadata();
 
-    public AbstractR2dbcUpdateClause(@Nonnull final R2dbcConnectionProvider provider,
-                                     @Nonnull final Configuration configuration,
-                                     @Nonnull final RelationalPath<?> entity) {
+    protected AbstractR2dbcUpdateClause(@Nonnull final R2dbcConnectionProvider provider,
+                                        @Nonnull final Configuration configuration,
+                                        @Nonnull final RelationalPath<?> entity) {
         super(provider, configuration);
         this.entity = entity;
         metadata.addJoin(JoinType.DEFAULT, entity);
