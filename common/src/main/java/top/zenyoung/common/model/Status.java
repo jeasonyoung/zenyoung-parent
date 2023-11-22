@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @version 1.0
  **/
 @Getter
-@Schema(description = "状态")
+@Schema(description = "状态", enumAsRef = true)
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Status implements EnumValue {

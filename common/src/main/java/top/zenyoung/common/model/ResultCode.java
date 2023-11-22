@@ -16,8 +16,8 @@ import java.util.Objects;
  * @author young
  **/
 @Getter
-@Schema(description = "结果状态")
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+@Schema(description = "结果状态", enumAsRef = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ResultCode implements EnumValue {
     /**

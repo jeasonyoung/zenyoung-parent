@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 
 import javax.annotation.Nullable;
 
@@ -16,10 +15,9 @@ import javax.annotation.Nullable;
  * @author young
  */
 @Getter
-@ToString
-@Schema(description = "业务操作类型")
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Schema(description = "业务操作类型", enumAsRef = true)
 public enum OperaType implements EnumValue {
     /**
      * 查询

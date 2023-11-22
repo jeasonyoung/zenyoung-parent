@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  * @author young
  */
 @Getter
-@Schema(description = "性别")
+@Schema(description = "性别", enumAsRef = true)
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Gender implements EnumValue {
