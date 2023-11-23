@@ -91,6 +91,7 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
         return repoHandler(repo -> repo.findOne(predicate));
     }
 
+    @Nonnull
     @Override
     public Mono<Long> count(@Nullable final Predicate predicate) {
         return repoHandler(repo -> {
