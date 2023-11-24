@@ -34,21 +34,11 @@
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql-codegen</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.google.auto.service</groupId>-->
-<!--            <artifactId>auto-service</artifactId>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>com.infobip</groupId>-->
-<!--            <artifactId>infobip-spring-data-r2dbc-querydsl-boot-starter</artifactId>-->
-<!--            <version>8.1.2</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.infobip</groupId>-->
-<!--            <artifactId>infobip-spring-data-jdbc-annotation-processor</artifactId>-->
-<!--            <version>8.1.2</version>-->
-<!--        </dependency>-->
+        <!-- auto service -->
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+        </dependency>
 
         <!-- 模块依赖 -->
         <dependency>
