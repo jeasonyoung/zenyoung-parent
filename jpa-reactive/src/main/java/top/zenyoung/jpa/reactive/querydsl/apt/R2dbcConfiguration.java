@@ -1,4 +1,4 @@
-package top.zenyoung.jpa.reactive.querydsl.processor;
+package top.zenyoung.jpa.reactive.querydsl.apt;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
@@ -32,20 +32,20 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class QuerydslR2dbcConfiguration extends DefaultConfiguration {
+public class R2dbcConfiguration extends DefaultConfiguration {
     private final SQLCodegenModule sqlCodegenModule;
 
-    public QuerydslR2dbcConfiguration(@Nonnull final RoundEnvironment roundEnv,
-                                      @Nonnull final ProcessingEnvironment processingEnv,
-                                      @Nonnull final CaseFormat columnCaseFormat,
-                                      @Nonnull final Class<? extends Annotation> entityAnn,
-                                      @Nullable final Class<? extends Annotation> superTypeAnn,
-                                      @Nullable final Class<? extends Annotation> embeddableAnn,
-                                      @Nullable final Class<? extends Annotation> embeddedAnn,
-                                      @Nullable final Class<? extends Annotation> skipAnn,
-                                      @Nonnull final TypeMappings typeMappings,
-                                      @Nonnull final CodegenModule codegenModule,
-                                      @Nonnull final NamingStrategy namingStrategy) {
+    public R2dbcConfiguration(@Nonnull final RoundEnvironment roundEnv,
+                              @Nonnull final ProcessingEnvironment processingEnv,
+                              @Nonnull final CaseFormat columnCaseFormat,
+                              @Nonnull final Class<? extends Annotation> entityAnn,
+                              @Nullable final Class<? extends Annotation> superTypeAnn,
+                              @Nullable final Class<? extends Annotation> embeddableAnn,
+                              @Nullable final Class<? extends Annotation> embeddedAnn,
+                              @Nullable final Class<? extends Annotation> skipAnn,
+                              @Nonnull final TypeMappings typeMappings,
+                              @Nonnull final CodegenModule codegenModule,
+                              @Nonnull final NamingStrategy namingStrategy) {
         super(processingEnv, roundEnv, processingEnv.getOptions(), Keywords.JPA, QueryEntities.class, entityAnn,
                 superTypeAnn, embeddableAnn, embeddedAnn, skipAnn, codegenModule);
         super.setStrictMode(true);

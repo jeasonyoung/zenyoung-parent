@@ -1,7 +1,6 @@
-package top.zenyoung.jpa.reactive.querydsl.processor;
+package top.zenyoung.jpa.reactive.querydsl.apt;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.collect.ImmutableSet;
 import com.querydsl.apt.AbstractQuerydslProcessor;
 import com.querydsl.apt.Configuration;
 import com.querydsl.apt.ExtendedTypeFactory;
@@ -11,7 +10,6 @@ import com.querydsl.codegen.utils.model.Type;
 import com.querydsl.codegen.utils.model.TypeCategory;
 import com.querydsl.sql.codegen.NamingStrategy;
 import lombok.experimental.UtilityClass;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.Table;
@@ -20,6 +18,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -28,75 +27,60 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.lang.annotation.Annotation;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class QuerydslR2dbcAnnotationProcessorBase extends AbstractQuerydslProcessor {
+@SupportedAnnotationTypes({
+        "com.querydsl.core.annotations.*",
+        "org.springframework.data.annotation.*",
+        "org.springframework.data.relational.core.mapping.*"
+})
+public class R2dbcAnnotationProcessor extends AbstractQuerydslProcessor {
+    private static final CaseFormat columnCaseFormat = CaseFormat.UPPER_CAMEL;
+    private static final CaseFormat tableCaseFormat = CaseFormat.UPPER_CAMEL;
     private RoundEnvironment roundEnv;
-    private ExtendedTypeFactory typeFactory;
     private Configuration conf;
-    private CaseFormat projectTableCaseFormat;
-    private CaseFormat projectColumnCaseFormat;
-
-    private final NamingStrategy namingStrategy;
-    private final BiFunction<TypeMappings, QueryTypeFactory, TypeElementHandler> typeElementHandlerFactory;
-
-    protected QuerydslR2dbcAnnotationProcessorBase(@Nonnull final Class<? extends NamingStrategy> namingStrategyClass) {
-        try {
-            this.namingStrategy = namingStrategyClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new IllegalArgumentException("Failed to create new instance of " + namingStrategyClass, e);
-        }
-        this.typeElementHandlerFactory = (typeMappings, queryTypeFactory) -> new TypeElementHandler(conf, typeFactory, typeMappings, queryTypeFactory);
-    }
-
-
-    @Override
-    public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-        if (Objects.isNull(this.projectTableCaseFormat)) {
-            this.projectTableCaseFormat = CaseFormat.UPPER_CAMEL;
-        }
-        if (Objects.isNull(this.projectColumnCaseFormat)) {
-            this.projectColumnCaseFormat = CaseFormat.UPPER_CAMEL;
-        }
-        return super.process(annotations, roundEnv);
-    }
-
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        return ImmutableSet.of(Id.class.getName());
-    }
+    private ExtendedTypeFactory typeFactory;
 
     @Override
     protected Configuration createConfiguration(final RoundEnvironment roundEnv) {
-        final Class<? extends Annotation> entity = Id.class;
         this.roundEnv = roundEnv;
+        //
+        final Class<? extends Annotation> entity = Table.class;
+        final Class<? extends Annotation> embedded = Embedded.class;
+        final Class<? extends Annotation> skip = Transient.class;
+        //
         final CodegenModule codegenModule = new CodegenModule();
         final JavaTypeMappings typeMappings = new JavaTypeMappings();
         codegenModule.bind(TypeMappings.class, typeMappings);
         codegenModule.bind(QueryTypeFactory.class, new QueryTypeFactoryImpl("Q", "", ""));
-        this.conf = new QuerydslR2dbcConfiguration(roundEnv, processingEnv, projectColumnCaseFormat, entity,
-                null, null, Embedded.class, Transient.class, typeMappings,
-                codegenModule, namingStrategy);
+        //
+        final NamingStrategy namingStrategy = new R2dbcNamingStrategy();
+        //
+        this.conf = new R2dbcConfiguration(roundEnv, processingEnv, columnCaseFormat, entity,
+                null, null, embedded, skip, typeMappings, codegenModule, namingStrategy);
         return this.conf;
-    }
-
-    @Override
-    protected TypeElementHandler createElementHandler(@Nonnull final TypeMappings typeMappings,
-                                                      @Nonnull final QueryTypeFactory queryTypeFactory) {
-        return typeElementHandlerFactory.apply(typeMappings, queryTypeFactory);
     }
 
     @Override
     protected ExtendedTypeFactory createTypeFactory(final Set<Class<? extends Annotation>> entityAnnotations,
                                                     final TypeMappings typeMappings,
                                                     final QueryTypeFactory queryTypeFactory) {
-        this.typeFactory = new CustomExtendedTypeFactory(this.processingEnv, entityAnnotations, typeMappings,
-                queryTypeFactory, this.conf, this.processingEnv.getElementUtils(), this.projectTableCaseFormat);
+        this.typeFactory = new CustomExtendedTypeFactory(processingEnv, entityAnnotations, typeMappings,
+                queryTypeFactory, this.conf, processingEnv.getElementUtils(), tableCaseFormat);
         return this.typeFactory;
     }
 
+    @Nonnull
+    @Override
+    protected TypeElementHandler createElementHandler(@Nonnull final TypeMappings typeMappings,
+                                                      @Nonnull final QueryTypeFactory queryTypeFactory) {
+
+
+        return new TypeElementHandler(this.conf, this.typeFactory, typeMappings, queryTypeFactory);
+    }
+
+    @Override
     protected Set<TypeElement> collectElements() {
         final Set<TypeElement> entityElements = roundEnv.getElementsAnnotatedWith(conf.getEntitiesAnnotation())
                 .stream()
@@ -119,6 +103,30 @@ public abstract class QuerydslR2dbcAnnotationProcessorBase extends AbstractQuery
                 .map(el -> (TypeElement) el)
                 .collect(Collectors.toSet());
         return Stream.concat(Stream.of(entityElement), embeddedElements.stream());
+    }
+
+    @UtilityClass
+    private static class Embeddeds {
+        public static boolean isEmbedded(@Nonnull final Configuration configuration,
+                                         @Nonnull final Element element,
+                                         @Nonnull final Property property) {
+            final Class<? extends Annotation> embeddedAnnotation = configuration.getEmbeddedAnnotation();
+            if (Objects.isNull(embeddedAnnotation)) {
+                return false;
+            }
+            return ElementFilter.fieldsIn(element.getEnclosedElements())
+                    .stream()
+                    .filter(el -> el.getSimpleName().toString().equals(property.getName()))
+                    .allMatch(el -> Objects.nonNull(el.getAnnotation(embeddedAnnotation)));
+        }
+
+        public static boolean isEmbedded(@Nonnull final Configuration configuration, @Nonnull final Element element) {
+            final Class<? extends Annotation> embeddedAnnotation = configuration.getEmbeddedAnnotation();
+            if (Objects.isNull(embeddedAnnotation)) {
+                return false;
+            }
+            return Objects.nonNull(element.getAnnotation(embeddedAnnotation));
+        }
     }
 
     private static class CustomExtendedTypeFactory extends ExtendedTypeFactory {
@@ -200,31 +208,6 @@ public abstract class QuerydslR2dbcAnnotationProcessorBase extends AbstractQuery
                         return table.value();
                     })
                     .orElse(tableName);
-        }
-
-    }
-
-    @UtilityClass
-    private static class Embeddeds {
-        public static boolean isEmbedded(@Nonnull final Configuration configuration,
-                                         @Nonnull final Element element,
-                                         @Nonnull final Property property) {
-            final Class<? extends Annotation> embeddedAnnotation = configuration.getEmbeddedAnnotation();
-            if (Objects.isNull(embeddedAnnotation)) {
-                return false;
-            }
-            return ElementFilter.fieldsIn(element.getEnclosedElements())
-                    .stream()
-                    .filter(el -> el.getSimpleName().toString().equals(property.getName()))
-                    .allMatch(el -> Objects.nonNull(el.getAnnotation(embeddedAnnotation)));
-        }
-
-        public static boolean isEmbedded(@Nonnull final Configuration configuration, @Nonnull final Element element) {
-            final Class<? extends Annotation> embeddedAnnotation = configuration.getEmbeddedAnnotation();
-            if (Objects.isNull(embeddedAnnotation)) {
-                return false;
-            }
-            return Objects.nonNull(element.getAnnotation(embeddedAnnotation));
         }
     }
 }

@@ -1,4 +1,4 @@
-package top.zenyoung.jpa.reactive.querydsl.processor;
+package top.zenyoung.jpa.reactive.querydsl.apt;
 
 import com.google.common.base.CaseFormat;
 import com.querydsl.codegen.EntityType;
@@ -6,7 +6,7 @@ import com.querydsl.sql.SchemaAndTable;
 import com.querydsl.sql.codegen.NamingStrategy;
 import com.querydsl.sql.codegen.support.ForeignKeyData;
 
-public class QuerydslR2dbcNamingStrategy implements NamingStrategy {
+public class R2dbcNamingStrategy implements NamingStrategy {
 
     @Override
     public String appendSchema(final String packageName, final String schema) {
