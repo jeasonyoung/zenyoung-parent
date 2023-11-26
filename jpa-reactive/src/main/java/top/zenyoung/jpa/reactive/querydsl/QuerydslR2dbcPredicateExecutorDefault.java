@@ -21,6 +21,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
@@ -88,17 +90,19 @@ public class QuerydslR2dbcPredicateExecutorDefault<M> implements QuerydslR2dbcPr
     }
 
     @Override
-    public Mono<Page<M>> findAll(@Nonnull final Predicate predicate, @Nonnull final Pageable pageable) {
+    public Mono<Page<M>> findAll(@Nullable final Predicate predicate, @Nonnull final Pageable pageable) {
         return count(predicate)
                 .flatMap(count -> {
                     if (count == 0) {
                         return Mono.just(PageableExecutionUtils.getPage(Lists.newArrayList(), pageable, () -> count));
                     }
-                    return querydsl.applyPagination(pageable, queryFactory.query())
+                    MySqlR2dbcQuery<M> query = querydsl.applyPagination(pageable, queryFactory.query())
                             .select(constructorExpression)
-                            .from(path)
-                            .where(predicate)
-                            .fetch()
+                            .from(path);
+                    if (Objects.nonNull(predicate)) {
+                        query = query.where(predicate);
+                    }
+                    return query.fetch()
                             .collectList()
                             .map(rows -> PageableExecutionUtils.getPage(rows, pageable, () -> count));
                 });
@@ -106,13 +110,15 @@ public class QuerydslR2dbcPredicateExecutorDefault<M> implements QuerydslR2dbcPr
 
     @Nonnull
     @Override
-    public Mono<Long> count(@Nonnull final Predicate predicate) {
+    public Mono<Long> count(@Nullable final Predicate predicate) {
         final NumberExpression<Long> count = ((SimpleExpression<?>) constructorExpression.getArgs().get(0)).count();
-        return queryFactory.query()
+        MySqlR2dbcQuery<Long> query = queryFactory.query()
                 .select(count)
-                .from(path)
-                .where(predicate)
-                .fetchOne();
+                .from(path);
+        if (Objects.nonNull(predicate)) {
+            query = query.where(predicate);
+        }
+        return query.fetchOne();
     }
 
     @Nonnull

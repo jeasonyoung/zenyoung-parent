@@ -3,13 +3,19 @@ package top.zenyoung.jpa.reactive.service.impl;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.mapping.BeanMappingDefault;
+import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.jpa.reactive.repositories.BaseJpaReactiveRepository;
@@ -18,6 +24,7 @@ import top.zenyoung.jpa.reactive.service.JpaReactiveService;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -126,8 +133,44 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
                                           @Nullable final Supplier<Predicate> predicate,
                                           @Nullable final Sort sort) {
         return repoHandler(repo -> {
-            ///TODO:
-            return null;
+            //分页
+            final int idx = page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
+            final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
+            //分页
+            final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
+            //
+            return repo.findAll(Objects.isNull(predicate) ? null : predicate.get(), pageable)
+                    .map(p -> DataResult.of(p.getTotalElements(), p.getContent()));
         });
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Mono<Boolean> add(@Nonnull final M po) {
+        return repoHandler(repo -> repo.save(po).map(Objects::nonNull));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Mono<Boolean> batchAdd(@Nonnull final Collection<M> pos) {
+        if (CollectionUtils.isEmpty(pos)) {
+            return Mono.just(false);
+        }
+        return repoHandler(repo -> repo.saveAll(pos).collectList().map(items -> !items.isEmpty()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Mono<Boolean> delete(@Nonnull final K id) {
+        return repoHandler(repo -> repo.deleteById(id).map(ret -> true));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Mono<Boolean> delete(@Nonnull final List<K> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Mono.just(false);
+        }
+        return repoHandler(repo -> repo.deleteAllById(ids).map(ret -> true));
     }
 }
