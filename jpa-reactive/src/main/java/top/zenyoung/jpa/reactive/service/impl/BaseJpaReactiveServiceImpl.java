@@ -1,5 +1,6 @@
 package top.zenyoung.jpa.reactive.service.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,12 +100,41 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
 
     @Nonnull
     @Override
+    public Mono<M> findOne(@Nonnull final Predicate predicate) {
+        return getOne(predicate);
+    }
+
+    @Nonnull
+    @Override
     public Mono<Long> count(@Nullable final Predicate predicate) {
         return repoHandler(repo -> {
             if (Objects.isNull(predicate)) {
                 return repo.count();
             }
             return repo.count(predicate);
+        });
+    }
+
+    @Nonnull
+    @Override
+    public Flux<M> findAll(@Nullable final Predicate predicate) {
+        return findAll(predicate, (OrderSpecifier<?>) null);
+    }
+
+    @Nonnull
+    @Override
+    public Flux<M> findAll(@Nullable final Predicate predicate, @Nullable final OrderSpecifier<?>... orders) {
+        return repoHandler(repo -> {
+            if (Objects.nonNull(predicate)) {
+                if (orders == null || orders.length == 0) {
+                    return repo.findAll(predicate);
+                }
+                return repo.findAll(predicate, orders);
+            }
+            if (Objects.nonNull(orders)) {
+                return repo.findAll(orders);
+            }
+            return repo.findAll();
         });
     }
 
