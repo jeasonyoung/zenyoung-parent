@@ -3,11 +3,13 @@ package top.zenyoung.jpa.reactive.service.impl;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.querydsl.ReactiveQuerydslPredicateExecutor;
+import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -117,8 +119,21 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
 
     @Nonnull
     @Override
+    public Mono<Boolean> exists(@Nullable final Predicate predicate) {
+        return count(predicate)
+                .map(ret -> ret > 0);
+    }
+
+    @Nonnull
+    @Override
     public Flux<M> findAll(@Nullable final Predicate predicate) {
         return findAll(predicate, (OrderSpecifier<?>) null);
+    }
+
+    @Nonnull
+    @Override
+    public Flux<M> findAll(@Nullable final Predicate predicate, @Nullable final Sort sort) {
+        return this.queryList(predicate, sort);
     }
 
     @Nonnull
@@ -136,6 +151,24 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
             }
             return repo.findAll();
         });
+    }
+
+    @Nonnull
+    @Override
+    public Flux<M> findAll(@Nullable final OrderSpecifier<?>... orders) {
+        return repoHandler(repo -> {
+            if (Objects.isNull(orders) || orders.length == 0) {
+                return repo.findAll();
+            }
+            return repo.findAll(orders);
+        });
+    }
+
+    @Nonnull
+    @Override
+    public <S extends M, R, P extends Publisher<R>> P findBy(@Nonnull final Predicate predicate,
+                                                             @Nonnull final Function<FluentQuery.ReactiveFluentQuery<S>, P> queryFunction) {
+        return repoHandler(repo -> repo.findBy(predicate, queryFunction));
     }
 
     @Override
