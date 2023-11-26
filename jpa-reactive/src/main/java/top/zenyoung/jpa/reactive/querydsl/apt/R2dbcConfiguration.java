@@ -43,7 +43,7 @@ public class R2dbcConfiguration extends DefaultConfiguration {
                 superTypeAnn, embeddableAnn, embeddedAnn, skipAnn);
         this.annotations = getAnnotations();
         this.types = processingEnv.getTypeUtils();
-        setStrictMode(true);
+        this.setStrictMode(true);
     }
 
     protected List<Class<? extends Annotation>> getAnnotations() {

@@ -32,12 +32,7 @@
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-sql-codegen</artifactId>
-        </dependency>
-        <!-- auto service -->
-        <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
+            <artifactId>querydsl-apt</artifactId>
         </dependency>
 
         <!-- 模块依赖 -->
