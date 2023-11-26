@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * jpa-reative 数据服务接口实现基类
@@ -129,8 +128,7 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
     }
 
     @Override
-    public Mono<PageList<M>> queryForPage(@Nullable final PagingQuery page,
-                                          @Nullable final Supplier<Predicate> predicate,
+    public Mono<PageList<M>> queryForPage(@Nullable final PagingQuery page, @Nullable final Predicate predicate,
                                           @Nullable final Sort sort) {
         return repoHandler(repo -> {
             //分页
@@ -139,7 +137,7 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
             //分页
             final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
             //
-            return repo.findAll(Objects.isNull(predicate) ? null : predicate.get(), pageable)
+            return repo.findAll(Objects.isNull(predicate) ? null : predicate, pageable)
                     .map(p -> DataResult.of(p.getTotalElements(), p.getContent()));
         });
     }
