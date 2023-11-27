@@ -34,7 +34,7 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
     private final List<SQLInsertBatch> batches = Lists.newArrayList();
     private final List<Path<?>> columns = Lists.newArrayList();
     private final List<Expression<?>> values = Lists.newArrayList();
-    private final RelationalPath<?> entity;
+    private final EntityPath<?> entity;
     private final QueryMetadata metadata = new DefaultQueryMetadata();
     @Nullable
     private SubQueryExpression<?> subQuery;
@@ -42,7 +42,7 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
 
     protected AbstractR2dbcInsertClause(@Nonnull final R2dbcConnectionProvider provider,
                                         @Nonnull final Configuration configuration,
-                                        @Nonnull final RelationalPath<?> entity) {
+                                        @Nonnull final EntityPath<?> entity) {
         super(provider, configuration);
         this.entity = entity;
         metadata.addJoin(JoinType.DEFAULT, entity);
@@ -82,12 +82,12 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
     private SQLSerializer createSerializerAndSerialize() {
         final SQLSerializer serializer = createSerializer();
         if (!batches.isEmpty() && batchToBulk) {
-            serializer.serializeInsert(metadata, entity, batches);
+            serializer.serializeInsert(metadata, buildRelationalPath(entity), batches);
         } else if (!batches.isEmpty()) {
             SQLInsertBatch first = batches.get(0);
-            serializer.serializeInsert(metadata, entity, first.getColumns(), first.getValues(), subQuery);
+            serializer.serializeInsert(metadata, buildRelationalPath(entity), first.getColumns(), first.getValues(), subQuery);
         } else {
-            serializer.serializeInsert(metadata, entity, columns, values, subQuery);
+            serializer.serializeInsert(metadata, buildRelationalPath(entity), columns, values, subQuery);
         }
         return serializer;
     }
@@ -247,10 +247,11 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
                 }
             }
         }
-        if (withKeys && (entity.getPrimaryKey() != null)) {
-            final String[] target = new String[entity.getPrimaryKey().getLocalColumns().size()];
+        final RelationalPath<?> relationalPathEntity = buildRelationalPath(entity);
+        if (withKeys && (relationalPathEntity.getPrimaryKey() != null)) {
+            final String[] target = new String[relationalPathEntity.getPrimaryKey().getLocalColumns().size()];
             for (int i = 0; i < target.length; i++) {
-                final Path<?> path = entity.getPrimaryKey().getLocalColumns().get(i);
+                final Path<?> path = relationalPathEntity.getPrimaryKey().getLocalColumns().get(i);
                 final String column = ColumnMetadata.getName(path);
                 target[i] = configuration.getTemplates().quoteIdentifier(column);
             }

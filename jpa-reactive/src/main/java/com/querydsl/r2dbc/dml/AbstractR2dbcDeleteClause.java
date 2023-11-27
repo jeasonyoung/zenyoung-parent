@@ -2,6 +2,7 @@ package com.querydsl.r2dbc.dml;
 
 import com.google.common.collect.Lists;
 import com.querydsl.core.*;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.ValidatingVisitor;
@@ -9,7 +10,6 @@ import com.querydsl.r2dbc.R2dbcConnectionProvider;
 import com.querydsl.r2dbc.core.dml.R2dbcDeleteClause;
 import com.querydsl.r2dbc.core.internal.R2dbcUtils;
 import com.querydsl.sql.Configuration;
-import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLSerializer;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.Statement;
@@ -25,13 +25,13 @@ public abstract class AbstractR2dbcDeleteClause<C extends AbstractR2dbcDeleteCla
     private static final ValidatingVisitor validatingVisitor = new ValidatingVisitor("Undeclared path '%s'. " +
             "A delete operation can only reference a single table. " +
             "Consider this alternative: DELETE ... WHERE EXISTS (subquery)");
-    private final RelationalPath<?> entity;
+    private final EntityPath<?> entity;
     private final List<QueryMetadata> batches = Lists.newArrayList();
     private DefaultQueryMetadata metadata = new DefaultQueryMetadata();
 
     protected AbstractR2dbcDeleteClause(@Nonnull final R2dbcConnectionProvider provider,
                                         @Nonnull final Configuration configuration,
-                                        @Nonnull final RelationalPath<?> entity) {
+                                        @Nonnull final EntityPath<?> entity) {
         super(provider, configuration);
         this.entity = entity;
         metadata.addJoin(JoinType.DEFAULT, entity);
@@ -101,9 +101,9 @@ public abstract class AbstractR2dbcDeleteClause<C extends AbstractR2dbcDeleteCla
         final SQLSerializer serializer = createSerializer();
         if (!batches.isEmpty()) {
             final QueryMetadata first = batches.get(0);
-            serializer.serializeDelete(first, entity);
+            serializer.serializeDelete(first, buildRelationalPath(entity));
         } else {
-            serializer.serializeDelete(metadata, entity);
+            serializer.serializeDelete(metadata, buildRelationalPath(entity));
         }
         return serializer;
     }
@@ -160,7 +160,7 @@ public abstract class AbstractR2dbcDeleteClause<C extends AbstractR2dbcDeleteCla
 
     private void setBatchParameters(@Nonnull final Statement stmt, @Nonnull final QueryMetadata batch, final int offset) {
         final SQLSerializer helperSerializer = createSerializer();
-        helperSerializer.serializeDelete(batch, entity);
+        helperSerializer.serializeDelete(batch, buildRelationalPath(entity));
         setParameters(stmt, helperSerializer.getConstants(), helperSerializer.getConstantPaths(), metadata.getParams(), offset);
     }
 }

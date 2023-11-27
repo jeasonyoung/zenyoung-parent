@@ -3,15 +3,11 @@ package com.querydsl.r2dbc.dml;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.querydsl.core.*;
-import com.querydsl.core.types.ConstantImpl;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.*;
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
 import com.querydsl.r2dbc.core.dml.R2dbcUpdateClause;
 import com.querydsl.r2dbc.core.internal.R2dbcUtils;
 import com.querydsl.sql.Configuration;
-import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLSerializer;
 import com.querydsl.sql.dml.SQLUpdateBatch;
 import com.querydsl.sql.types.Null;
@@ -28,14 +24,14 @@ import java.util.Map;
 
 public abstract class AbstractR2dbcUpdateClause<C extends AbstractR2dbcUpdateClause<C>>
         extends AbstractR2dbcClause<C> implements R2dbcUpdateClause<C> {
-    protected final RelationalPath<?> entity;
+    protected final EntityPath<?> entity;
     protected final List<SQLUpdateBatch> batches = Lists.newArrayList();
     protected Map<Path<?>, Expression<?>> updates = Maps.newLinkedHashMap();
     protected QueryMetadata metadata = new DefaultQueryMetadata();
 
     protected AbstractR2dbcUpdateClause(@Nonnull final R2dbcConnectionProvider provider,
                                         @Nonnull final Configuration configuration,
-                                        @Nonnull final RelationalPath<?> entity) {
+                                        @Nonnull final EntityPath<?> entity) {
         super(provider, configuration);
         this.entity = entity;
         metadata.addJoin(JoinType.DEFAULT, entity);
@@ -193,10 +189,9 @@ public abstract class AbstractR2dbcUpdateClause<C extends AbstractR2dbcUpdateCla
 
     private void setBatchParameters(@Nonnull final Statement stmt, @Nonnull final SQLUpdateBatch batch, final int offset) {
         final SQLSerializer helperSerializer = createSerializer();
-        helperSerializer.serializeUpdate(batch.getMetadata(), entity, batch.getUpdates());
+        helperSerializer.serializeUpdate(batch.getMetadata(), buildRelationalPath(entity), batch.getUpdates());
         setParameters(stmt, helperSerializer.getConstants(), helperSerializer.getConstantPaths(), batch.getMetadata().getParams(), offset);
     }
-
 
     private SQLSerializer createSerializer() {
         final SQLSerializer serializer = new SQLSerializer(configuration, true);
@@ -208,9 +203,9 @@ public abstract class AbstractR2dbcUpdateClause<C extends AbstractR2dbcUpdateCla
         final SQLSerializer serializer = createSerializer();
         if (!batches.isEmpty()) {
             SQLUpdateBatch first = batches.get(0);
-            serializer.serializeUpdate(first.getMetadata(), entity, first.getUpdates());
+            serializer.serializeUpdate(first.getMetadata(), buildRelationalPath(entity), first.getUpdates());
         } else {
-            serializer.serializeUpdate(metadata, entity, updates);
+            serializer.serializeUpdate(metadata, buildRelationalPath(entity), updates);
         }
         return serializer;
     }

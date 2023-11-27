@@ -2,6 +2,7 @@ package com.querydsl.r2dbc.mysql;
 
 import com.querydsl.core.QueryFlag;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.Expressions;
@@ -10,7 +11,6 @@ import com.querydsl.r2dbc.R2dbcConnectionProvider;
 import com.querydsl.r2dbc.dml.R2dbcInsertClause;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.MySQLTemplates;
-import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLTemplates;
 
 import javax.annotation.Nonnull;
@@ -28,25 +28,25 @@ public class MySqlR2dbcQueryFactory extends AbstractR2dbcQueryFactory<MySqlR2dbc
         super(provider, configuration);
     }
 
-    public R2dbcInsertClause insertIgnore(@Nonnull final RelationalPath<?> entity) {
+    public R2dbcInsertClause insertIgnore(@Nonnull final EntityPath<?> entity) {
         final R2dbcInsertClause insert = insert(entity);
         insert.addFlag(QueryFlag.Position.START_OVERRIDE, "insert ignore into ");
         return insert;
     }
 
-    public R2dbcInsertClause insertOnDuplicateKeyUpdate(@Nonnull final RelationalPath<?> entity, @Nonnull final String clause) {
+    public R2dbcInsertClause insertOnDuplicateKeyUpdate(@Nonnull final EntityPath<?> entity, @Nonnull final String clause) {
         final R2dbcInsertClause insert = insert(entity);
         insert.addFlag(QueryFlag.Position.END, " on duplicate key update " + clause);
         return insert;
     }
 
-    public R2dbcInsertClause insertOnDuplicateKeyUpdate(@Nonnull final RelationalPath<?> entity, @Nonnull final Expression<?> clause) {
+    public R2dbcInsertClause insertOnDuplicateKeyUpdate(@Nonnull final EntityPath<?> entity, @Nonnull final Expression<?> clause) {
         final R2dbcInsertClause insert = insert(entity);
         insert.addFlag(QueryFlag.Position.END, ExpressionUtils.template(String.class, " on duplicate key update {0}", clause));
         return insert;
     }
 
-    public R2dbcInsertClause insertOnDuplicateKeyUpdate(@Nonnull final RelationalPath<?> entity, @Nonnull final Expression<?>... clauses) {
+    public R2dbcInsertClause insertOnDuplicateKeyUpdate(@Nonnull final EntityPath<?> entity, @Nonnull final Expression<?>... clauses) {
         final R2dbcInsertClause insert = insert(entity);
         final StringBuilder flag = new StringBuilder(" on duplicate key update ");
         for (int i = 0; i < clauses.length; i++) {
@@ -61,7 +61,7 @@ public class MySqlR2dbcQueryFactory extends AbstractR2dbcQueryFactory<MySqlR2dbc
         return new MySqlR2dbcQuery<>(provider, configuration);
     }
 
-    public MySqlR2dbcReplaceClause replace(@Nonnull final RelationalPath<?> entity) {
+    public MySqlR2dbcReplaceClause replace(@Nonnull final EntityPath<?> entity) {
         return new MySqlR2dbcReplaceClause(provider, configuration, entity);
     }
 
@@ -96,7 +96,7 @@ public class MySqlR2dbcQueryFactory extends AbstractR2dbcQueryFactory<MySqlR2dbc
     }
 
     @Override
-    public <T> MySqlR2dbcQuery<T> selectFrom(@Nonnull final RelationalPath<T> expr) {
+    public <T> MySqlR2dbcQuery<T> selectFrom(@Nonnull final EntityPath<T> expr) {
         return select(expr).from(expr);
     }
 }

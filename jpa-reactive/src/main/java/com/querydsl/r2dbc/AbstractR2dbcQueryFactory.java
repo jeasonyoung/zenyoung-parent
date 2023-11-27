@@ -2,6 +2,7 @@ package com.querydsl.r2dbc;
 
 import com.querydsl.core.QueryFactory;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.SubQueryExpression;
@@ -9,7 +10,6 @@ import com.querydsl.r2dbc.dml.R2dbcDeleteClause;
 import com.querydsl.r2dbc.dml.R2dbcInsertClause;
 import com.querydsl.r2dbc.dml.R2dbcUpdateClause;
 import com.querydsl.sql.Configuration;
-import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLCommonQuery;
 
 import javax.annotation.Nonnull;
@@ -31,15 +31,15 @@ public abstract class AbstractR2dbcQueryFactory<Q extends SQLCommonQuery<?>> imp
         return provider;
     }
 
-    public final R2dbcInsertClause insert(@Nonnull final RelationalPath<?> path) {
+    public final R2dbcInsertClause insert(@Nonnull final EntityPath<?> path) {
         return new R2dbcInsertClause(provider, configuration, path);
     }
 
-    public final R2dbcUpdateClause update(@Nonnull final RelationalPath<?> path) {
+    public final R2dbcUpdateClause update(@Nonnull final EntityPath<?> path) {
         return new R2dbcUpdateClause(provider, configuration, path);
     }
 
-    public final R2dbcDeleteClause delete(final RelationalPath<?> path) {
+    public final R2dbcDeleteClause delete(final EntityPath<?> path) {
         return new R2dbcDeleteClause(provider, configuration, path);
     }
 
@@ -70,5 +70,5 @@ public abstract class AbstractR2dbcQueryFactory<Q extends SQLCommonQuery<?>> imp
 
     public abstract AbstractR2dbcQuery<Integer, ?> selectOne();
 
-    public abstract <T> AbstractR2dbcQuery<T, ?> selectFrom(@Nonnull final RelationalPath<T> expr);
+    public abstract <T> AbstractR2dbcQuery<T, ?> selectFrom(@Nonnull final EntityPath<T> expr);
 }
