@@ -90,10 +90,22 @@ public interface PageList<T> extends Serializable {
     /**
      * 空对象方法
      *
-     * @param <R> 类型
+     * @param <T> 类型
      * @return 空对象
      */
-    static <R> PageList<R> empty() {
+    static <T> PageList<T> empty() {
         return DataResult.empty();
+    }
+
+    /**
+     * 创建数据结果
+     *
+     * @param total 总数量
+     * @param rows  数据集合
+     * @param <T>   数据类型
+     * @return 数据结果
+     */
+    static <T> PageList<T> of(@Nullable final Long total, @Nullable final List<T> rows) {
+        return DataResult.of(total, rows);
     }
 }
