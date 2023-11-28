@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @author young
  */
 @NoRepositoryBean
-public interface BaseJpaReactiveRepository<M extends Model<K>, K extends Serializable> extends R2dbcRepository<M, K>,
+public interface DataRepository<M extends Model<K>, K extends Serializable> extends R2dbcRepository<M, K>,
         QuerydslR2dbcPredicateExecutor<M>, QuerydslR2dbcFragment<M> {
 
 }

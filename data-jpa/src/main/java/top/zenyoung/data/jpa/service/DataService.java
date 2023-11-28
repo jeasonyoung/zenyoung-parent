@@ -22,7 +22,7 @@ import java.util.function.Supplier;
  *
  * @author young
  */
-public interface JpaService<M extends Serializable, K extends Serializable> extends BeanMapping {
+public interface DataService<M extends Serializable, K extends Serializable> extends BeanMapping {
 
     /**
      * 根据ID加载数据

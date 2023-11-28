@@ -19,8 +19,8 @@ import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.data.jpa.querydsl.DslUpdateClause;
-import top.zenyoung.data.jpa.service.JpaService;
-import top.zenyoung.data.jpa.repositories.BaseJpaRepository;
+import top.zenyoung.data.jpa.service.DataService;
+import top.zenyoung.data.jpa.repositories.DataRepository;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ import java.util.stream.StreamSupport;
  * @author young
  */
 @Slf4j
-public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Serializable> implements JpaService<M, K> {
+public abstract class BaseDataServiceImpl<M extends Serializable, K extends Serializable> implements DataService<M, K> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     /**
      * queryFactory实体
@@ -64,7 +64,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
      *
      * @return 数据操作接口
      */
-    protected abstract BaseJpaRepository<M, K> getJpaRepository();
+    protected abstract DataRepository<M, K> getJpaRepository();
 
     /**
      * 业务处理器
@@ -73,7 +73,7 @@ public abstract class BaseJpaServiceImpl<M extends Serializable, K extends Seria
      * @param <R>     处理结果类型
      * @return 处理结果
      */
-    protected <R> R repoHandler(@Nonnull final Function<BaseJpaRepository<M, K>, R> handler) {
+    protected <R> R repoHandler(@Nonnull final Function<DataRepository<M, K>, R> handler) {
         return handler.apply(getJpaRepository());
     }
 

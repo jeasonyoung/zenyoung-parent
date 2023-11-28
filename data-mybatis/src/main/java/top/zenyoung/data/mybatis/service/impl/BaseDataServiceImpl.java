@@ -35,7 +35,7 @@ import top.zenyoung.data.entity.Model;
 import top.zenyoung.data.mybatis.entity.ModelFieldHelper;
 import top.zenyoung.data.mybatis.enums.PoConstant;
 import top.zenyoung.data.mybatis.mapper.ModelMapper;
-import top.zenyoung.data.mybatis.service.OrmService;
+import top.zenyoung.data.mybatis.service.DataService;
 import top.zenyoung.data.mybatis.util.MybatisPlusUtils;
 
 import javax.annotation.Nonnull;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializable> implements OrmService<M, K>, InitializingBean {
+public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable> implements DataService<M, K>, InitializingBean {
     protected static final int BATCH_SIZE = 500;
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
@@ -65,7 +65,7 @@ public abstract class BaseOrmServiceImpl<M extends Model<K>, K extends Serializa
     private IdSequence idSequence;
 
     private Class<?> getGenericType(final int index) {
-        return clsMaps.computeIfAbsent(index, idx -> ReflectionKit.getSuperClassGenericType(getClass(), BaseOrmServiceImpl.class, idx));
+        return clsMaps.computeIfAbsent(index, idx -> ReflectionKit.getSuperClassGenericType(getClass(), BaseDataServiceImpl.class, idx));
     }
 
     @SuppressWarnings({"unchecked"})

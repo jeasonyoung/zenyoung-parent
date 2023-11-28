@@ -27,8 +27,8 @@ import top.zenyoung.common.paging.PagingQuery;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.data.entity.Model;
 import top.zenyoung.data.r2dbc.querydsl.DslUpdateClause;
-import top.zenyoung.data.r2dbc.repositories.BaseJpaReactiveRepository;
-import top.zenyoung.data.r2dbc.service.JpaReactiveService;
+import top.zenyoung.data.r2dbc.repositories.DataRepository;
+import top.zenyoung.data.r2dbc.service.DataService;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,8 +46,8 @@ import java.util.function.Function;
  * @param <M> 数据实体类型
  * @param <K> 数据主键类型
  */
-public abstract class BaseJpaReactiveServiceImpl<M extends Model<K>, K extends Serializable>
-        implements JpaReactiveService<M, K>, ReactiveQuerydslPredicateExecutor<M> {
+public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable>
+        implements DataService<M, K>, ReactiveQuerydslPredicateExecutor<M> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> genericTypeCache = Maps.newConcurrentMap();
 
@@ -62,7 +62,7 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Model<K>, K extends S
      *
      * @return 数据操作接口
      */
-    protected abstract BaseJpaReactiveRepository<M, K> getJpaRepository();
+    protected abstract DataRepository<M, K> getJpaRepository();
 
     /**
      * ID生成器处理
@@ -96,7 +96,7 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Model<K>, K extends S
      * @param <R>     处理结果类型
      * @return 处理结果
      */
-    protected <R> R repoHandler(@Nonnull final Function<BaseJpaReactiveRepository<M, K>, R> handler) {
+    protected <R> R repoHandler(@Nonnull final Function<DataRepository<M, K>, R> handler) {
         return handler.apply(getJpaRepository());
     }
 
@@ -233,7 +233,7 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Model<K>, K extends S
     protected Class<?> getGenericKeyType() {
         final int index = 1;
         return genericTypeCache.computeIfAbsent(index, idx -> {
-            final Class<?>[] cls = GenericTypeResolver.resolveTypeArguments(getClass(), BaseJpaReactiveServiceImpl.class);
+            final Class<?>[] cls = GenericTypeResolver.resolveTypeArguments(getClass(), BaseDataServiceImpl.class);
             if (cls != null && cls.length >= idx) {
                 return cls[idx];
             }

@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * @param <K> 数据主键类型
  * @author young
  */
-public interface JpaReactiveService<M extends Model<K>, K extends Serializable> extends BeanMapping {
+public interface DataService<M extends Model<K>, K extends Serializable> extends BeanMapping {
     /**
      * 根据ID加载数据
      *

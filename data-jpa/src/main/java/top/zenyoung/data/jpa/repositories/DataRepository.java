@@ -13,6 +13,6 @@ import java.io.Serializable;
  * @author young
  */
 @NoRepositoryBean
-public interface BaseJpaRepository<M extends Serializable, K extends Serializable> extends JpaRepository<M, K>, JpaSpecificationExecutor<M>, QuerydslPredicateExecutor<M> {
+public interface DataRepository<M extends Serializable, K extends Serializable> extends JpaRepository<M, K>, JpaSpecificationExecutor<M>, QuerydslPredicateExecutor<M> {
 
 }
