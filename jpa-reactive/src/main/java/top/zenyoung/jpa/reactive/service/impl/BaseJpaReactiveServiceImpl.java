@@ -1,10 +1,12 @@
 package top.zenyoung.jpa.reactive.service.impl;
 
+import com.google.common.collect.Maps;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,6 +23,8 @@ import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
+import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.jpa.entity.Model;
 import top.zenyoung.jpa.reactive.repositories.BaseJpaReactiveRepository;
 import top.zenyoung.jpa.reactive.service.JpaReactiveService;
 
@@ -29,6 +33,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -38,9 +43,13 @@ import java.util.function.Function;
  * @param <M> 数据实体类型
  * @param <K> 数据主键类型
  */
-public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K extends Serializable>
+public abstract class BaseJpaReactiveServiceImpl<M extends Model<K>, K extends Serializable>
         implements JpaReactiveService<M, K>, ReactiveQuerydslPredicateExecutor<M> {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
+    private final Map<Integer, Class<?>> genericTypeCache = Maps.newConcurrentMap();
+
+    @Autowired(required = false)
+    private IdSequence idSequence;
 
     @Autowired(required = false)
     private MySqlR2dbcQueryFactory queryFactory;
@@ -51,6 +60,19 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
      * @return 数据操作接口
      */
     protected abstract BaseJpaReactiveRepository<M, K> getJpaRepository();
+
+    /**
+     * ID生成器处理
+     *
+     * @param handler 生成处理器
+     * @return ID生成结果
+     */
+    protected K idSequenceHandler(@Nonnull final Function<IdSequence, K> handler) {
+        if (Objects.isNull(idSequence)) {
+            return null;
+        }
+        return handler.apply(idSequence);
+    }
 
     /**
      * QueryFactory 处理器
@@ -205,10 +227,46 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
         });
     }
 
+    protected Class<?> getGenericKeyType() {
+        final int index = 1;
+        return genericTypeCache.computeIfAbsent(index, idx -> {
+            final Class<?>[] cls = GenericTypeResolver.resolveTypeArguments(getClass(), BaseJpaReactiveServiceImpl.class);
+            if (cls != null && cls.length >= idx) {
+                return cls[idx];
+            }
+            return null;
+        });
+    }
+
+    @SuppressWarnings({"unchecked"})
+    protected K genId() {
+        return idSequenceHandler(sequence -> {
+            final Long id = sequence.nextId();
+            final Class<?> cls = getGenericKeyType();
+            if (Objects.nonNull(cls)) {
+                if (cls == Long.class) {
+                    return (K) id;
+                }
+                if (cls == String.class) {
+                    return (K) (id + "");
+                }
+            }
+            return null;
+        });
+    }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Mono<Boolean> add(@Nonnull final M po) {
-        return repoHandler(repo -> repo.save(po).map(Objects::nonNull));
+        return repoHandler(repo -> {
+            //检查ID
+            if (Objects.isNull(po.getId())) {
+                po.setId(genId());
+            }
+            //新增处理
+            return repo.save(po)
+                    .map(Objects::nonNull);
+        });
     }
 
     @Override
@@ -217,7 +275,19 @@ public abstract class BaseJpaReactiveServiceImpl<M extends Serializable, K exten
         if (CollectionUtils.isEmpty(pos)) {
             return Mono.just(false);
         }
-        return repoHandler(repo -> repo.saveAll(pos).collectList().map(items -> !items.isEmpty()));
+        return repoHandler(repo -> {
+            //检查ID
+            pos.forEach(po -> {
+                //检查ID
+                if (Objects.isNull(po.getId())) {
+                    po.setId(genId());
+                }
+            });
+            //批量新增处理
+            return repo.saveAll(pos)
+                    .collectList()
+                    .map(items -> !items.isEmpty());
+        });
     }
 
     @Override
