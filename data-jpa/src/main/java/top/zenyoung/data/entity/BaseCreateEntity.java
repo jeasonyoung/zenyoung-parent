@@ -31,4 +31,15 @@ public abstract class BaseCreateEntity<K extends Serializable> implements Model<
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false, updatable = false)
     private Date createdAt;
+
+    /**
+     * 是否新增
+     */
+    @Transient
+    private boolean addNew = true;
+
+    @Override
+    public boolean isNew() {
+        return addNew;
+    }
 }

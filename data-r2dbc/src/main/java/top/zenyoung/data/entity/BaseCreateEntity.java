@@ -3,6 +3,7 @@ package top.zenyoung.data.entity;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Transient;
 import top.zenyoung.data.annotations.MappedSuperclass;
 
 import java.io.Serializable;
@@ -26,4 +27,15 @@ public abstract class BaseCreateEntity<K extends Serializable> implements Model<
      */
     @CreatedDate
     private Date createdAt;
+
+    /**
+     * 是否新增
+     */
+    @Transient
+    private boolean addNew = true;
+
+    @Override
+    public boolean isNew() {
+        return addNew;
+    }
 }
