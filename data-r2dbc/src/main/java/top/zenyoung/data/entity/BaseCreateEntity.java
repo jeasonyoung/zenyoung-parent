@@ -1,11 +1,10 @@
-package top.zenyoung.data.jpa.entity;
+package top.zenyoung.data.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import top.zenyoung.data.annotations.MappedSuperclass;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,19 +15,15 @@ import java.util.Date;
  */
 @Data
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public class BaseCreateEntity implements Serializable {
+public abstract class BaseCreateEntity<K extends Serializable> implements Model<K> {
     /**
      * 创建者
      */
     @CreatedBy
-    @Column(insertable = false)
     private String createdBy;
     /**
      * 创建时间
      */
     @CreatedDate
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false)
     private Date createdAt;
 }

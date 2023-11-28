@@ -1,4 +1,4 @@
-package top.zenyoung.data.jpa.entity;
+package top.zenyoung.data.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Date;
 @Data
 @MappedSuperclass
 @EqualsAndHashCode(callSuper = true)
-public class BaseCreateUpdateEntity extends BaseCreateEntity {
+public abstract class BaseCreateUpdateEntity<K extends Serializable> extends BaseCreateEntity<K> {
     /**
      * 更新者
      */

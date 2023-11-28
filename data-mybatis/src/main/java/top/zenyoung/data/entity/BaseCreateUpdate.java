@@ -1,4 +1,4 @@
-package top.zenyoung.data.mybatis.entity;
+package top.zenyoung.data.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

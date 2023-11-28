@@ -1,7 +1,6 @@
-package top.zenyoung.data.mybatis.entity;
+package top.zenyoung.data.entity;
 
 import lombok.Data;
-import top.zenyoung.data.entity.Model;
 
 import java.io.Serializable;
 import java.util.Date;

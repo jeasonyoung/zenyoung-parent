@@ -1,4 +1,4 @@
-package top.zenyoung.data.mybatis.entity;
+package top.zenyoung.data.entity;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
