@@ -26,12 +26,11 @@
         <module>boot-webflux</module>
         <!-- micro -->
         <module>micro</module>
-        <!-- mybatis-plus orm -->
-        <module>orm</module>
-        <!-- jpa -->
-        <module>jpa-common</module>
-        <module>jpa</module>
-        <module>jpa-reactive</module>
+        <!-- data -->
+        <module>data-common</module>
+        <module>data-jpa</module>
+        <module>data-r2dbc</module>
+        <module>data-mybatis</module>
         <!-- 图像工具 -->
         <module>graphics-utils</module>
         <module>graphics-captcha</module>
