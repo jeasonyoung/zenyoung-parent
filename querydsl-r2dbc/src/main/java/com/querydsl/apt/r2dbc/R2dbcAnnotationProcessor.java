@@ -1,4 +1,4 @@
-package com.querydsl.r2dbc.apt;
+package com.querydsl.apt.r2dbc;
 
 import com.querydsl.apt.AbstractQuerydslProcessor;
 import com.querydsl.apt.Configuration;

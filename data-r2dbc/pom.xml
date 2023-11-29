@@ -70,7 +70,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>com.querydsl.r2dbc.apt.R2dbcAnnotationProcessor</processor>
+                            <processor>com.querydsl.apt.r2dbc.R2dbcAnnotationProcessor</processor>
                             <options>
                                 <querydsl.logInfo>true</querydsl.logInfo>
                             </options>
