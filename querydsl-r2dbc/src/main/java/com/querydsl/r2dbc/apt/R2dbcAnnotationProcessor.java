@@ -1,4 +1,4 @@
-package top.zenyoung.data.r2dbc.querydsl.apt;
+package com.querydsl.r2dbc.apt;
 
 import com.querydsl.apt.AbstractQuerydslProcessor;
 import com.querydsl.apt.Configuration;

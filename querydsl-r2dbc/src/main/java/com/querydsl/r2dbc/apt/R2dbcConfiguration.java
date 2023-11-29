@@ -1,4 +1,4 @@
-package top.zenyoung.data.r2dbc.querydsl.apt;
+package com.querydsl.r2dbc.apt;
 
 import com.google.common.collect.Lists;
 import com.querydsl.apt.DefaultConfiguration;
