@@ -52,6 +52,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
      *
      * @return 数据操作接口
      */
+    @Nonnull
     protected abstract DataRepository<M, K> getDataRepository();
 
     /**
