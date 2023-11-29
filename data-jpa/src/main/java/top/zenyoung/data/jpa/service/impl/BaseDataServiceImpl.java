@@ -1,6 +1,7 @@
 package top.zenyoung.data.jpa.service.impl;
 
 import com.querydsl.core.types.EntityPath;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -10,17 +11,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import top.zenyoung.common.dto.BasePageDTO;
-import top.zenyoung.common.mapping.BeanMapping;
-import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
+import top.zenyoung.data.entity.BaseCreateEntity;
+import top.zenyoung.data.entity.Model;
 import top.zenyoung.data.jpa.querydsl.DslUpdateClause;
-import top.zenyoung.data.jpa.service.DataService;
 import top.zenyoung.data.jpa.repositories.DataRepository;
+import top.zenyoung.data.jpa.service.DataService;
+import top.zenyoung.data.service.impl.BaseDataCommonServiceImpl;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,6 +32,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,8 +44,8 @@ import java.util.stream.StreamSupport;
  * @author young
  */
 @Slf4j
-public abstract class BaseDataServiceImpl<M extends Serializable, K extends Serializable> implements DataService<M, K> {
-    private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
+public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable>
+        extends BaseDataCommonServiceImpl<K> implements DataService<M, K>, QuerydslPredicateExecutor<M> {
     /**
      * queryFactory实体
      */
@@ -64,7 +69,7 @@ public abstract class BaseDataServiceImpl<M extends Serializable, K extends Seri
      *
      * @return 数据操作接口
      */
-    protected abstract DataRepository<M, K> getJpaRepository();
+    protected abstract DataRepository<M, K> getDataRepository();
 
     /**
      * 业务处理器
@@ -74,24 +79,8 @@ public abstract class BaseDataServiceImpl<M extends Serializable, K extends Seri
      * @return 处理结果
      */
     protected <R> R repoHandler(@Nonnull final Function<DataRepository<M, K>, R> handler) {
-        return handler.apply(getJpaRepository());
+        return handler.apply(getDataRepository());
     }
-
-    @Override
-    public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {
-        return beanMapping.mapping(data, cls);
-    }
-
-    @Override
-    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls) {
-        return beanMapping.mapping(items, cls);
-    }
-
-    @Override
-    public <T extends Serializable, R extends Serializable> PageList<R> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<R> cls) {
-        return beanMapping.mapping(pageList, cls);
-    }
-
 
     @Override
     public M getById(@Nonnull final K id) {
@@ -101,6 +90,53 @@ public abstract class BaseDataServiceImpl<M extends Serializable, K extends Seri
     @Override
     public M getOne(@Nonnull final Predicate predicate) {
         return repoHandler(repo -> repo.findOne(predicate).orElse(null));
+    }
+
+    @Nonnull
+    @Override
+    public Optional<M> findOne(@Nonnull final Predicate predicate) {
+        return repoHandler(repo -> repo.findOne(predicate));
+    }
+
+    @Nonnull
+    @Override
+    public Iterable<M> findAll(@Nonnull final Predicate predicate) {
+        return repoHandler(repo -> repo.findAll(predicate));
+    }
+
+    @Nonnull
+    @Override
+    public Iterable<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Sort sort) {
+        return repoHandler(repo -> repo.findAll(predicate, sort));
+    }
+
+    @Nonnull
+    @Override
+    public Iterable<M> findAll(@Nonnull final Predicate predicate, @Nonnull final OrderSpecifier<?>... orders) {
+        return repoHandler(repo -> repo.findAll(predicate, orders));
+    }
+
+    @Nonnull
+    @Override
+    public Iterable<M> findAll(@Nonnull final OrderSpecifier<?>... orders) {
+        return repoHandler(repo -> repo.findAll(orders));
+    }
+
+    @Nonnull
+    @Override
+    public Page<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Pageable pageable) {
+        return repoHandler(repo -> repo.findAll(predicate, pageable));
+    }
+
+    @Override
+    public boolean exists(@Nonnull final Predicate predicate) {
+        return repoHandler(repo -> repo.exists(predicate));
+    }
+
+    @Nonnull
+    @Override
+    public <S extends M, R> R findBy(@Nonnull final Predicate predicate, @Nonnull final Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
+        return repoHandler(repo -> repo.findBy(predicate, queryFunction));
     }
 
     @Override
@@ -152,6 +188,15 @@ public abstract class BaseDataServiceImpl<M extends Serializable, K extends Seri
     @Transactional(rollbackFor = Throwable.class)
     public boolean add(@Nonnull final M po) {
         return repoHandler(repo -> {
+            //检查ID
+            if (Objects.isNull(po.getId())) {
+                po.setId(genId());
+            }
+            //检查新增状态
+            if (po instanceof BaseCreateEntity) {
+                ((BaseCreateEntity<?>) po).setAddNew(true);
+            }
+            //新增处理
             repo.saveAndFlush(po);
             return true;
         });
@@ -162,6 +207,17 @@ public abstract class BaseDataServiceImpl<M extends Serializable, K extends Seri
     public boolean batchAdd(@Nonnull final Collection<M> pos) {
         Assert.notEmpty(pos, "'pos'不能为空");
         return repoHandler(repo -> {
+            //检查ID
+            pos.forEach(po -> {
+                //检查ID
+                if (Objects.isNull(po.getId())) {
+                    po.setId(genId());
+                }
+                //检查新增状态
+                if (po instanceof BaseCreateEntity) {
+                    ((BaseCreateEntity<?>) po).setAddNew(true);
+                }
+            });
             repo.saveAllAndFlush(pos);
             return true;
         });
