@@ -1,11 +1,10 @@
-package top.zenyoung.data.jpa.converter;
+package top.zenyoung.data.r2dbc.converter;
 
+import org.springframework.core.convert.converter.Converter;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.data.converter.EnumConverter;
 
 import javax.annotation.Nonnull;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.Objects;
 
 /**
@@ -14,13 +13,7 @@ import java.util.Objects;
  * @param <T> 枚举类型
  * @author young
  */
-@Converter
-public abstract class BaseEnumConverter<T extends EnumValue> implements AttributeConverter<T, Integer>, EnumConverter<T> {
-
-    @Override
-    public Integer convertToDatabaseColumn(final T attr) {
-        return Objects.isNull(attr) ? null : attr.getVal();
-    }
+public abstract class BaseEnumConverter<T extends EnumValue> implements EnumConverter<T> {
 
     @Override
     public T convertToEntityAttribute(final Integer val) {
