@@ -2,7 +2,6 @@ package top.zenyoung.segment.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import top.zenyoung.segment.SegmentChainId;
 import top.zenyoung.segment.concurrent.PrefetchWorkerExecutorService;
 
 import java.time.Duration;
@@ -19,7 +18,6 @@ public class SegmentProperties {
 
     @Data
     public static class Chain {
-        private int safeDistance = SegmentChainId.DEFAULT_SAFE_DISTANCE;
         private PrefetchWorker prefetchWorker;
 
         public Chain() {
