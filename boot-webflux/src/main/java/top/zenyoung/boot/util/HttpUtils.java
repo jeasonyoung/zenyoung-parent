@@ -5,8 +5,10 @@ import com.google.common.collect.Lists;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,6 +25,30 @@ import java.util.Optional;
 @UtilityClass
 public class HttpUtils {
     private static final List<String> HTTP_CLIENT_IP_HEAD = Lists.newArrayList("x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "X-Real-IP");
+
+    public static Mono<ServerWebExchange> getWebExchange() {
+        return Mono.deferContextual(contextView -> contextView.getOrDefault(Info.CONTEXT_KEY, null));
+    }
+
+    public static Mono<ServerHttpRequest> getRequest() {
+        return getWebExchange()
+                .map(exchange -> {
+                    if (Objects.isNull(exchange)) {
+                        return null;
+                    }
+                    return exchange.getRequest();
+                });
+    }
+
+    public static Mono<ServerHttpResponse> getResponse() {
+        return getWebExchange()
+                .map(exchange -> {
+                    if (Objects.isNull(exchange)) {
+                        return null;
+                    }
+                    return exchange.getResponse();
+                });
+    }
 
     /**
      * 获取客户端IP地址
@@ -70,5 +96,9 @@ public class HttpUtils {
             return Objects.requireNonNull(address).getAddress().getHostAddress();
         }
         return null;
+    }
+
+    public static final class Info {
+        public static final Class<ServerWebExchange> CONTEXT_KEY = ServerWebExchange.class;
     }
 }

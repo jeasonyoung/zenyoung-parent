@@ -17,28 +17,16 @@ import javax.annotation.Nonnull;
 public class SecurityUtils {
     private static final Class<?> SECURITY_CONTEXT_KEY = UserPrincipal.class;
 
-    public static Mono<UserPrincipal> getContext() {
-        return Mono.deferContextual(ctx -> {
-            if (hasUserPrincipalContext(ctx)) {
-                return getUserPrincipalContext(ctx);
-            }
-            return Mono.empty();
-        });
+    public static Mono<UserPrincipal> getPrincipal(@Nonnull final ContextView contextView) {
+        final UserPrincipal principal = contextView.getOrDefault(SECURITY_CONTEXT_KEY, null);
+        return Mono.justOrEmpty(principal);
     }
 
-    private static boolean hasUserPrincipalContext(@Nonnull final ContextView context) {
-        return context.hasKey(SECURITY_CONTEXT_KEY);
+    public static Mono<UserPrincipal> getPrincipal() {
+        return Mono.deferContextual(SecurityUtils::getPrincipal);
     }
 
-    private static Mono<UserPrincipal> getUserPrincipalContext(@Nonnull final ContextView context) {
-        return context.<Mono<UserPrincipal>>get(SECURITY_CONTEXT_KEY);
-    }
-
-    public static Context withUserPrincipalContext(@Nonnull final Mono<? extends UserPrincipal> userPrincipal) {
-        return Context.of(SECURITY_CONTEXT_KEY, userPrincipal);
-    }
-
-    public static Context withUserPrincipal(@Nonnull final UserPrincipal userPrincipal) {
-        return withUserPrincipalContext(Mono.just(userPrincipal));
+    public static Context withPrincipal(@Nonnull final Context context, @Nonnull final UserPrincipal principal) {
+        return context.put(SECURITY_CONTEXT_KEY, principal);
     }
 }

@@ -1,19 +1,21 @@
-package top.zenyoung.boot.annotation;
+package top.zenyoung.boot.annotation.authority;
 
 import java.lang.annotation.*;
 
 /**
- * 不拥有某权限(与HasPermi逻辑相反)-注解
+ * 拥有某个角色-注解
+ *
+ * @author young
  */
 @Inherited
 @Documented
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HasLacksPermi {
+public @interface HasRole {
     /**
-     * 获取权限值
+     * 获取角色
      *
-     * @return 权限值
+     * @return 角色值
      */
     String value();
 }

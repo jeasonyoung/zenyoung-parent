@@ -1,5 +1,8 @@
 package top.zenyoung.boot.matcher;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -39,35 +42,11 @@ public interface RequestMatcher {
      *
      * @since 5.2
      */
+    @Getter
+    @RequiredArgsConstructor
     class MatchResult {
-
         private final boolean match;
-
         private final Map<String, String> variables;
-
-        MatchResult(final boolean match, final Map<String, String> variables) {
-            this.match = match;
-            this.variables = variables;
-        }
-
-        /**
-         * @return true if the comparison against the HttpServletRequest produced a
-         * successful match
-         */
-        public boolean isMatch() {
-            return this.match;
-        }
-
-        /**
-         * Returns the extracted variable values where the key is the variable name and
-         * the value is the variable value
-         *
-         * @return a map containing key-value pairs representing extracted variable names
-         * and variable values
-         */
-        public Map<String, String> getVariables() {
-            return this.variables;
-        }
 
         /**
          * Creates an instance of {@link MatchResult} that is a match with no variables

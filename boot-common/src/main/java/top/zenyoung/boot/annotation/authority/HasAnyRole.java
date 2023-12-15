@@ -1,9 +1,9 @@
-package top.zenyoung.boot.annotation;
+package top.zenyoung.boot.annotation.authority;
 
 import java.lang.annotation.*;
 
 /**
- * 拥有任意一个权限-注解
+ * 拥有任意一个角色-注解
  *
  * @author young
  */
@@ -11,11 +11,11 @@ import java.lang.annotation.*;
 @Documented
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HasAnyPermi {
+public @interface HasAnyRole {
     /**
-     * 获取权限集合
+     * 获取角色集合
      *
-     * @return 权限集合
+     * @return 角色集合
      */
     String[] value();
 }

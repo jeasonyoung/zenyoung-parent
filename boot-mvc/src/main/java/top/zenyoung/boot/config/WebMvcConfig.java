@@ -5,15 +5,13 @@ import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import top.zenyoung.boot.converter.EnumValueConvertFactory;
 import top.zenyoung.boot.interceptor.RequestMappingInterceptor;
 import top.zenyoung.boot.resolver.ArgumentResolver;
-import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -98,23 +96,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(@Nonnull final FormatterRegistry registry) {
         registry.addConverterFactory(EnumValueConvertFactory.of());
-    }
-
-    @RequiredArgsConstructor(staticName = "of")
-    private static class EnumValueConvertFactory implements ConverterFactory<Integer, EnumValue> {
-
-        @Override
-        @SuppressWarnings({"all"})
-        public <T extends EnumValue> Converter<Integer, T> getConverter(@Nonnull final Class<T> targetType) {
-            return source -> {
-                final T[] enums = targetType.getEnumConstants();
-                for (final T e : enums) {
-                    if (e.getVal() == source) {
-                        return e;
-                    }
-                }
-                return null;
-            };
-        }
     }
 }

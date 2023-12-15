@@ -53,7 +53,7 @@ public class R2dbcAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean
     public ReactiveAuditorAware<String> reactiveAuditorAware() {
-        return () -> SecurityUtils.getContext()
+        return () -> SecurityUtils.getPrincipal()
                 .map(UserPrincipal::getAccount);
     }
 
@@ -82,6 +82,6 @@ public class R2dbcAutoConfiguration implements ApplicationContextAware {
     }
 
     protected List<Object> getCustomConverters() {
-        return Lists.newArrayList(new EnumReadConverter(),new EnumWriterConverter());
+        return Lists.newArrayList(new EnumReadConverter(), new EnumWriterConverter());
     }
 }

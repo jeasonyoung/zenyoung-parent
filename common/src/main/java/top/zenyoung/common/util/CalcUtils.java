@@ -3,6 +3,7 @@ package top.zenyoung.common.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nonnull;
@@ -31,6 +32,16 @@ public class CalcUtils {
                     .collect(Collectors.toList());
         }
         return Lists.newArrayList();
+    }
+
+    public static <T, R> Set<R> set(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
+        if (Objects.nonNull(items) && !items.isEmpty()) {
+            return items.stream()
+                    .map(convert)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+        }
+        return Sets.newHashSet();
     }
 
     public static <T, K, V> Map<K, V> map(@Nullable final Collection<T> items,

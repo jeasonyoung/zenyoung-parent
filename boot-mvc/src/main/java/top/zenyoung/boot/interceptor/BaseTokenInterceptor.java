@@ -1,28 +1,21 @@
 package top.zenyoung.boot.interceptor;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
-import top.zenyoung.boot.annotation.HasAnonymous;
+import top.zenyoung.boot.annotation.authority.HasAnonymous;
 import top.zenyoung.boot.enums.ExceptionEnums;
+import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.model.UserPrincipal;
-import top.zenyoung.boot.util.SecurityUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * 令牌处理-拦截器
@@ -72,23 +65,4 @@ public abstract class BaseTokenInterceptor implements RequestMappingInterceptor 
      * @return 用户信息
      */
     protected abstract UserPrincipal parseAccessToken(@Nonnull final String accessToken, @Nonnull final HandlerMethod handlerMethod);
-
-    /**
-     * 数据转换处理
-     *
-     * @param items   源数据集合
-     * @param handler 转换处理
-     * @param <T>     结果数据类型
-     * @return 结果数据集合
-     */
-    protected static <T> Set<String> dataConvertHandler(@Nullable final List<T> items, @Nonnull final Function<T, String> handler) {
-        if (!CollectionUtils.isEmpty(items)) {
-            return items.stream()
-                    .filter(Objects::nonNull)
-                    .map(handler)
-                    .filter(val -> !Strings.isNullOrEmpty(val))
-                    .collect(Collectors.toSet());
-        }
-        return Sets.newHashSet();
-    }
 }

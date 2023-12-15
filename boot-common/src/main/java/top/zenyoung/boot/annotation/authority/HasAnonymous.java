@@ -1,4 +1,4 @@
-package top.zenyoung.boot.annotation;
+package top.zenyoung.boot.annotation.authority;
 
 import java.lang.annotation.*;
 

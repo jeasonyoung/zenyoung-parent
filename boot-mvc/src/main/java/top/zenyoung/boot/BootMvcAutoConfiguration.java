@@ -19,7 +19,7 @@ import top.zenyoung.boot.config.AsyncConfig;
 import top.zenyoung.boot.config.RepeatSubmitProperties;
 import top.zenyoung.boot.config.SequenceProperties;
 import top.zenyoung.boot.config.WebMvcConfig;
-import top.zenyoung.boot.interceptor.RequestAuthorizeInterceptor;
+import top.zenyoung.boot.interceptor.RequestAuthorityInterceptor;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.common.sequence.SnowFlake;
@@ -44,8 +44,8 @@ public class BootMvcAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "top.zenyoung", name = "request-authorize-check", matchIfMissing = true)
-    public RequestAuthorizeInterceptor requestAuthorizeInterceptor() {
-        return new RequestAuthorizeInterceptor();
+    public RequestAuthorityInterceptor requestAuthorizeInterceptor() {
+        return new RequestAuthorityInterceptor();
     }
 
     @Bean

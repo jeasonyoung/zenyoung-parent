@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.ClassUtils;
@@ -11,13 +13,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nonnull;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -117,5 +118,24 @@ public abstract class BaseAspect {
             }
         }
         return arguments;
+    }
+
+    private static Optional<Method> getMethod(@Nonnull final JoinPoint joinPoint) {
+        return Optional.ofNullable(joinPoint.getSignature())
+                .filter(MethodSignature.class::isInstance)
+                .map(MethodSignature.class::cast)
+                .map(MethodSignature::getMethod);
+    }
+
+    public static <A extends Annotation> boolean hasMethodAnnotation(@Nonnull final JoinPoint joinPoint, @Nonnull final Class<A> annotationType) {
+        return getMethod(joinPoint)
+                .map(method -> AnnotatedElementUtils.hasAnnotation(method, annotationType))
+                .orElse(false);
+    }
+
+    public static <A extends Annotation> A getMethodAnnotation(@Nonnull final JoinPoint joinPoint, @Nonnull final Class<A> annotationType) {
+        return getMethod(joinPoint)
+                .map(method -> AnnotatedElementUtils.findMergedAnnotation(method, annotationType))
+                .orElse(null);
     }
 }

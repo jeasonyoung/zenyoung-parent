@@ -2,7 +2,8 @@ package top.zenyoung.boot.resolver;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import reactor.core.publisher.Mono;
 import top.zenyoung.boot.annotation.UserId;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
@@ -24,9 +25,9 @@ public class UserIdMethodArgumentResolver implements ArgumentResolver {
     }
 
     @Override
-    public Object resolveArgument(@Nonnull final MethodParameter parameter, @Nonnull final WebRequest req) {
-        return SecurityUtils.getContext()
+    public Mono<Object> resolveArgument(@Nonnull final MethodParameter parameter, @Nonnull final ServerHttpRequest req) {
+        return SecurityUtils.getPrincipal()
                 .filter(Objects::nonNull)
-                .map(UserPrincipal::getId).subscribe();
+                .map(UserPrincipal::getId);
     }
 }
