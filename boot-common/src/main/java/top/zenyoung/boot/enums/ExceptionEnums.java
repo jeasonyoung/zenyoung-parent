@@ -37,6 +37,10 @@ public enum ExceptionEnums implements EnumValue {
      * 账号无效
      */
     ACCOUNT_INVALID(1404, "账号无效"),
+    /**
+     * 应用不存在
+     */
+    APP_NOT(1405, "应用不存在"),
     ;
 
     private final int val;
