@@ -1,6 +1,5 @@
 package top.zenyoung.data.r2dbc.converter;
 
-import org.springframework.core.convert.converter.Converter;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.data.converter.EnumConverter;
 
