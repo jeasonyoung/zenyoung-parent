@@ -200,7 +200,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
      * @return 加载数据
      */
     @Nonnull
-    protected Mono<M> getOne(@Nonnull final Supplier<Predicate> where) {
+    protected Mono<M> findOne(@Nonnull final Supplier<Predicate> where) {
         return findOne(where.get());
     }
 
