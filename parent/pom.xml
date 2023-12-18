@@ -48,9 +48,6 @@
 
         <!-- modelmapper -->
         <modelmapper.version>3.1.0</modelmapper.version>
-        <!-- javax.el -->
-        <el-api.version>3.0.0</el-api.version>
-
         <!-- mybatis-plus -->
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <!-- flyway -->
@@ -174,12 +171,6 @@
                 <groupId>org.modelmapper</groupId>
                 <artifactId>modelmapper</artifactId>
                 <version>${modelmapper.version}</version>
-            </dependency>
-            <!-- javax.el -->
-            <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <version>${el-api.version}</version>
             </dependency>
 
             <!-- mybatis-plus -->

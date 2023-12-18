@@ -28,6 +28,12 @@
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
 
+        <!-- validator -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
         <!-- fastxml -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -39,12 +45,6 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <optional>true</optional>
-        </dependency>
-
-        <!-- validation -->
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
         </dependency>
 
         <!-- swagger -->
