@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.querydsl.QSort;
 import org.springframework.data.r2dbc.mapping.R2dbcMappingContext;
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
 import org.springframework.data.repository.query.FluentQuery;
@@ -465,6 +466,41 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
                 .map(Supplier::get)
                 .orElse(null);
         return queryForPage(page, predicate, sort);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page      分页条件
+     * @param predicate 查询条件
+     * @param orders    排序字段
+     * @return 查询结果
+     */
+    @Nonnull
+    public Mono<PageList<M>> queryForPage(@Nullable final PagingQuery page,
+                                          @Nullable final Predicate predicate,
+                                          @Nullable final OrderSpecifier<?>... orders) {
+        final Sort sort = (orders == null || orders.length == 0) ? null : new QSort(orders);
+        return queryForPage(page, predicate, sort);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param page   分页条件
+     * @param where  查询条件处理
+     * @param orders 排序字段
+     * @return 查询结果
+     */
+    @Nonnull
+    public Mono<PageList<M>> queryForPage(@Nullable final PagingQuery page,
+                                          @Nullable final Supplier<Predicate> where,
+                                          @Nullable final OrderSpecifier<?>... orders) {
+        //查询条件
+        final Predicate predicate = Optional.ofNullable(where)
+                .map(Supplier::get)
+                .orElse(null);
+        return queryForPage(page, predicate, orders);
     }
 
     /**
