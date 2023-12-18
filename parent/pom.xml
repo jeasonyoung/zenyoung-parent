@@ -48,6 +48,8 @@
 
         <!-- modelmapper -->
         <modelmapper.version>3.1.0</modelmapper.version>
+        <!-- jakarta.el -->
+        <el-api.version>5.0.1</el-api.version>
 
         <!-- mybatis-plus -->
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
@@ -172,6 +174,12 @@
                 <groupId>org.modelmapper</groupId>
                 <artifactId>modelmapper</artifactId>
                 <version>${modelmapper.version}</version>
+            </dependency>
+            <!-- jakarta.el -->
+            <dependency>
+                <groupId>jakarta.el</groupId>
+                <artifactId>jakarta.el-api</artifactId>
+                <version>${el-api.version}</version>
             </dependency>
 
             <!-- mybatis-plus -->
