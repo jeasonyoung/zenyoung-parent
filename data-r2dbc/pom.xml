@@ -25,11 +25,6 @@
             <groupId>dev.miku</groupId>
             <artifactId>r2dbc-mysql</artifactId>
         </dependency>
-        <!-- jakarta.el -->
-        <dependency>
-            <groupId>jakarta.el</groupId>
-            <artifactId>jakarta.el-api</artifactId>
-        </dependency>
         <!-- 模块依赖 -->
         <dependency>
             <groupId>top.zenyoung</groupId>
