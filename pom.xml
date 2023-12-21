@@ -44,28 +44,25 @@
         <module>segment</module>
         <!-- 定时任务 -->
         <module>quartz</module>
-        <!-- security -->
-<!--        <module>security-web</module>-->
-        <!-- <module>security</module>-->
         <!-- 文件存储 -->
 <!--        <module>file-common</module>-->
 <!--        <module>file-aliyun</module>-->
 <!--        <module>file-huawei</module>-->
 <!--        <module>file-boot</module>-->
         <!-- netty -->
-<!--        <module>netty-common</module>-->
-<!--        <module>netty-server</module>-->
-<!--        <module>netty-client</module>-->
+        <module>netty-common</module>
+        <module>netty-server</module>
+        <module>netty-client</module>
         <!-- jfx -->
 <!--        <module>jfx-boot</module>-->
         <!-- fc-runtime -->
 <!--        <module>fc-runtime-huawei</module>-->
         <!-- opencv -->
-<!--        <module>opencv</module>-->
+        <module>opencv</module>
         <!-- retrofit -->
         <module>retrofit</module>
         <!-- 代码生成器 -->
-<!--        <module>generator</module>-->
+        <module>generator</module>
     </modules>
 
     <dependencyManagement>
