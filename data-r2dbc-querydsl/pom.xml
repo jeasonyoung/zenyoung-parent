@@ -30,11 +30,6 @@
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
         </dependency>
-        <!-- javax.annotation-api -->
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-        </dependency>
         <!-- 工具类 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
