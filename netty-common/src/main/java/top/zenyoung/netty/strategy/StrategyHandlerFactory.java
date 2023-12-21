@@ -2,9 +2,10 @@ package top.zenyoung.netty.strategy;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.codec.Message;
@@ -38,26 +39,34 @@ public class StrategyHandlerFactory {
 
     private Map<String, List<BaseStrategyHandler<? extends Message>>> buildCommandStrategyHandlers(
             @Nullable final List<BaseStrategyHandler<? extends Message>> handlers) {
-        if (CollectionUtils.isEmpty(handlers)) {
-            return Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(handlers)) {
+            final List<CommandStrategyHandler> items = handlers.stream()
+                    .map(handler -> {
+                        final String[] commands = handler.getCommands();
+                        if (ArrayUtils.isEmpty(commands)) {
+                            return null;
+                        }
+                        return Stream.of(commands)
+                                .filter(command -> !Strings.isNullOrEmpty(command))
+                                .distinct()
+                                .map(command -> {
+                                    log.info("注册[策略处理器: {}]=> {}", command, handler);
+                                    return CommandStrategyHandler.of(command, handler);
+                                })
+                                .collect(Collectors.toList());
+                    })
+                    .filter(Objects::nonNull)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(items)) {
+                return items.stream()
+                        .collect(Collectors.groupingBy(
+                                CommandStrategyHandler::getCommand,
+                                Collectors.mapping(CommandStrategyHandler::getHandler, Collectors.toList())
+                        ));
+            }
         }
-        return handlers.stream()
-                .map(handler -> {
-                    final String[] commands = handler.getCommands();
-                    if (ArrayUtils.isEmpty(commands)) {
-                        return null;
-                    }
-                    return Stream.of(commands)
-                            .filter(command -> !Strings.isNullOrEmpty(command))
-                            .map(command -> {
-                                log.info("注册[策略处理器: {}]=> {}", command, handler);
-                                return Pair.of(command, handler);
-                            })
-                            .collect(Collectors.toList());
-                })
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .collect(Collectors.groupingBy(Pair::getLeft, Collectors.mapping(Pair::getRight, Collectors.toList())));
+        return Maps.newHashMap();
     }
 
     @SuppressWarnings({"unchecked"})
@@ -65,7 +74,6 @@ public class StrategyHandlerFactory {
                                             @Nonnull final Consumer<T> callbackHandler) {
         final String command = req.getCommand();
         Assert.hasText(command, "'req.command'不能为空");
-        final long start = System.currentTimeMillis();
         final List<BaseStrategyHandler<? extends Message>> handlers = commandStrategyHandlers.getOrDefault(command, null);
         if (CollectionUtils.isEmpty(handlers)) {
             log.warn("process[command: {}]- 未找到命令处理器.", command);
@@ -88,5 +96,12 @@ public class StrategyHandlerFactory {
                         callbackHandler.accept(callback);
                     }
                 });
+    }
+
+    @Getter
+    @RequiredArgsConstructor(staticName = "of")
+    private static class CommandStrategyHandler {
+        private final String command;
+        private final BaseStrategyHandler<? extends Message> handler;
     }
 }

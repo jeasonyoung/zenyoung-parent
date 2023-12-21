@@ -39,6 +39,11 @@
     </repositories>
 
     <properties>
+        <!-- jdk -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+
         <!-- spring -->
         <spring-cloud.version>2021.0.8</spring-cloud.version>
         <alibaba-cloud.version>2021.0.5.0</alibaba-cloud.version>
