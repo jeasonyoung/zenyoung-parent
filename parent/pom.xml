@@ -128,7 +128,7 @@
         <zenyoung-micro.version>3.2.0</zenyoung-micro.version>
         <zenyoung-data-common.version>1.0.0</zenyoung-data-common.version>
         <zenyoung-data-jpa.version>3.2.0</zenyoung-data-jpa.version>
-        <zenyoung-querydsl-r2dbc.version>1.0.0</zenyoung-querydsl-r2dbc.version>
+        <zenyoung-data-r2dbc-querydsl.version>1.0.0</zenyoung-data-r2dbc-querydsl.version>
         <zenyoung-data-r2dbc.version>1.0.0</zenyoung-data-r2dbc.version>
         <zenyoung-data-mybatis.version>3.2.0</zenyoung-data-mybatis.version>
         <zenyoung-graphics-utils.version>3.1.0</zenyoung-graphics-utils.version>
@@ -432,8 +432,8 @@
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>
-                <artifactId>querydsl-r2dbc</artifactId>
-                <version>${zenyoung-querydsl-r2dbc.version}</version>
+                <artifactId>data-r2dbc-querydsl</artifactId>
+                <version>${zenyoung-data-r2dbc-querydsl.version}</version>
             </dependency>
             <dependency>
                 <groupId>top.zenyoung</groupId>

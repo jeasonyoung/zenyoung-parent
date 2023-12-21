@@ -11,8 +11,8 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>querydsl-r2dbc</artifactId>
-    <version>${zenyoung-querydsl-r2dbc.version}</version>
+    <artifactId>data-r2dbc-querydsl</artifactId>
+    <version>${zenyoung-data-r2dbc-querydsl.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>

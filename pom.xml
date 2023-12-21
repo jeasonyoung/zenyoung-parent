@@ -29,7 +29,7 @@
         <!-- data -->
         <module>data-common</module>
         <module>data-jpa</module>
-        <module>querydsl-r2dbc</module>
+        <module>data-r2dbc-querydsl</module>
         <module>data-r2dbc</module>
         <module>data-mybatis</module>
         <!-- 图像工具 -->

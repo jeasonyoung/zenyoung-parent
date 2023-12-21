@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>top.zenyoung</groupId>
-            <artifactId>querydsl-r2dbc</artifactId>
+            <artifactId>data-r2dbc-querydsl</artifactId>
         </dependency>
         <dependency>
             <groupId>top.zenyoung</groupId>
