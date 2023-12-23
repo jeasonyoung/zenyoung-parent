@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
-import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.common.vo.CaptchaVO;
 import top.zenyoung.graphics.captcha.BaseCaptcha;
 import top.zenyoung.graphics.captcha.Captcha;
@@ -73,9 +73,9 @@ public class CaptchaServiceImpl implements CaptchaService {
     }
 
     private Long nextId() {
-        final IdSequence seq = context.getBean(IdSequence.class);
-        final Long id = seq.nextId();
-        return Objects.nonNull(id) ? id : System.currentTimeMillis();
+        final Sequence seq = context.getBean(Sequence.class);
+        final long id = seq.nextId();
+        return id > 0 ? id : System.currentTimeMillis();
     }
 
     private CodeGenerator createCodeGenerator(@Nonnull final CaptchaType type, @Nonnull final Properties props) {

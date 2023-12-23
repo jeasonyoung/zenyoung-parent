@@ -45,7 +45,7 @@ import java.util.stream.StreamSupport;
  */
 @Slf4j
 public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable>
-        extends BaseDataCommonServiceImpl<K> implements DataService<M, K>, QuerydslPredicateExecutor<M> {
+        extends BaseDataCommonServiceImpl<M, K> implements DataService<M, K>, QuerydslPredicateExecutor<M> {
     /**
      * queryFactory实体
      */

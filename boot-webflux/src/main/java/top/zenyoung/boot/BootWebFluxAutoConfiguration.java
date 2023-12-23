@@ -1,5 +1,6 @@
 package top.zenyoung.boot;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,10 @@ import top.zenyoung.boot.config.WebFluxConfig;
 import top.zenyoung.boot.filter.AppHttpFilter;
 import top.zenyoung.boot.filter.TraceFilter;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
+import top.zenyoung.common.sequence.Sequence;
+import top.zenyoung.common.sequence.SnowFlake;
+
+import java.util.Optional;
 
 /**
  * WebFlux-自动注册
@@ -26,6 +31,13 @@ import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 @Import({AsyncConfig.class, WebFluxConfig.class, ResponseFluxAdviceController.class})
 @EnableConfigurationProperties({RepeatSubmitProperties.class, SequenceProperties.class})
 public class BootWebFluxAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    public Sequence buildSequence(final ObjectProvider<SequenceProperties> provider) {
+        return Optional.ofNullable(provider.getIfAvailable())
+                .map(sp -> SnowFlake.getInstance(sp.getWorkerId(), sp.getDataCenterId(), sp.getSequence()))
+                .orElseGet(SnowFlake::getInstance);
+    }
 
     @Bean
     @ConditionalOnMissingBean

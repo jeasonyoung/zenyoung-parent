@@ -3,10 +3,7 @@ package top.zenyoung.data.r2dbc;
 import com.google.common.collect.Lists;
 import com.querydsl.r2dbc.R2dbcConnectionProvider;
 import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.convert.CustomConversions;
@@ -19,9 +16,6 @@ import org.springframework.r2dbc.connection.ConnectionFactoryUtils;
 import org.springframework.r2dbc.core.DatabaseClient;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
-import top.zenyoung.common.sequence.IdSequence;
-import top.zenyoung.common.sequence.IdSequenceProperties;
-import top.zenyoung.common.sequence.SnowFlake;
 import top.zenyoung.data.r2dbc.converter.EnumReadConverter;
 import top.zenyoung.data.r2dbc.converter.EnumWriterConverter;
 
@@ -35,20 +29,7 @@ import java.util.List;
  */
 @Configuration
 @EnableR2dbcAuditing
-public class R2dbcAutoConfiguration implements ApplicationContextAware {
-    private ApplicationContext context;
-
-    @Override
-    public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
-        this.context = context;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public IdSequence idSequence() {
-        final IdSequenceProperties properties = context.getBean(IdSequenceProperties.class);
-        return SnowFlake.create(properties);
-    }
+public class R2dbcAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean

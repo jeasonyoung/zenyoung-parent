@@ -6,7 +6,8 @@ import org.springframework.core.GenericTypeResolver;
 import top.zenyoung.common.mapping.BeanMapping;
 import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.paging.PageList;
-import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.Sequence;
+import top.zenyoung.data.entity.Model;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,39 +15,29 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * 数据服务公共实现基类
  *
- * @author young
+ * @param <M> 数据模型类型
+ * @param <K> 数据主键类型
  */
-public abstract class BaseDataCommonServiceImpl<K extends Serializable> implements BeanMapping {
+public abstract class BaseDataCommonServiceImpl<M extends Model<K>, K extends Serializable> implements BeanMapping {
     private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
     private final Map<Integer, Class<?>> genericTypeCache = Maps.newConcurrentMap();
+    /**
+     * 注入ID生成器
+     */
     @Autowired(required = false)
-    private IdSequence idSequence;
+    private Sequence idSequence;
 
     /**
-     * ID生成器处理
+     * 获取泛型类型
      *
-     * @param handler 生成处理器
-     * @return ID生成结果
+     * @param index 泛型索引
+     * @return 泛型类型
      */
-    protected K idSequenceHandler(@Nonnull final Function<IdSequence, K> handler) {
-        if (Objects.isNull(idSequence)) {
-            return null;
-        }
-        return handler.apply(idSequence);
-    }
-
-    /**
-     * 获取主键类型
-     *
-     * @return 主键类型
-     */
-    protected Class<?> getGenericKeyType() {
-        final int index = 0;
+    private Class<?> getGenericType(final int index) {
         return genericTypeCache.computeIfAbsent(index, idx -> {
             final Class<?>[] cls = GenericTypeResolver.resolveTypeArguments(getClass(), BaseDataCommonServiceImpl.class);
             if (cls != null && cls.length > 0) {
@@ -56,23 +47,45 @@ public abstract class BaseDataCommonServiceImpl<K extends Serializable> implemen
         });
     }
 
+    /**
+     * 获取数据模型类型
+     *
+     * @return 数据模型类型
+     */
     @SuppressWarnings({"unchecked"})
-    protected K genId() {
-        return idSequenceHandler(sequence -> {
-            final Long id = sequence.nextId();
-            final Class<?> cls = getGenericKeyType();
-            if (Objects.nonNull(cls)) {
-                if (cls == Long.class) {
-                    return (K) id;
-                }
-                if (cls == String.class) {
-                    return (K) (id + "");
-                }
-            }
-            return null;
-        });
+    protected Class<M> getModelClass() {
+        return (Class<M>) getGenericType(0);
     }
 
+    /**
+     * 获取数据主键类型
+     *
+     * @return 数据主键类型
+     */
+    @SuppressWarnings({"unchecked"})
+    protected Class<K> getKeyClass() {
+        return (Class<K>) getGenericType(1);
+    }
+
+    /**
+     * 生成主键ID
+     *
+     * @return 主键ID
+     */
+    @SuppressWarnings({"unchecked"})
+    protected K genId() {
+        final long id = idSequence.nextId();
+        final Class<?> cls = getKeyClass();
+        if (Objects.nonNull(cls)) {
+            if (cls == Long.class) {
+                return (K) cls.cast(id);
+            }
+            if (cls == String.class) {
+                return (K) cls.cast(id + "");
+            }
+        }
+        return null;
+    }
 
     @Override
     public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {

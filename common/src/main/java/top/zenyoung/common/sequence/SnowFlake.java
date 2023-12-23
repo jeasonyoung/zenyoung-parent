@@ -5,12 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.util.RandomUtils;
 
-import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.Random;
-import java.util.function.Function;
-import java.util.function.LongSupplier;
-import java.util.function.ToIntBiFunction;
 
 /**
  * 雪花数算法工具类
@@ -18,7 +13,7 @@ import java.util.function.ToIntBiFunction;
  * @author young
  */
 @Slf4j
-public class SnowFlake implements Sequence<Long>, IdSequence {
+public class SnowFlake implements Sequence {
     /**
      * 时间初始值 2^41 - 1
      */
@@ -78,7 +73,7 @@ public class SnowFlake implements Sequence<Long>, IdSequence {
      * @param sequence     顺序号
      * @return 实例
      */
-    public static SnowFlake getInstance(final int workerId, final int dataCenterId, final int sequence) {
+    public static SnowFlake getInstance(final long workerId, final long dataCenterId, final long sequence) {
         return new SnowFlake(workerId, dataCenterId, sequence);
     }
 
@@ -90,7 +85,7 @@ public class SnowFlake implements Sequence<Long>, IdSequence {
      * @return 实例
      */
     public static SnowFlake getInstance(final int workerId, final int dataCenterId) {
-        return new SnowFlake(workerId, dataCenterId, 0);
+        return getInstance(workerId, dataCenterId, 0);
     }
 
     /**
@@ -129,31 +124,13 @@ public class SnowFlake implements Sequence<Long>, IdSequence {
         this.sequence = sequence;
     }
 
-    public static IdSequence create(@Nullable final IdSequenceProperties properties) {
-        final int max = 10, cpus = Math.max(Runtime.getRuntime().availableProcessors(), 1);
-        final ToIntBiFunction<Function<IdSequenceProperties, Integer>, LongSupplier> toIntHandler = (fn, def) ->
-                Optional.ofNullable(properties)
-                        .map(fn)
-                        .filter(val -> val > 0)
-                        .map(val -> Math.min((int) def.getAsLong(), val))
-                        .orElseGet(() -> Math.min((int) def.getAsLong(), cpus & max));
-        //机器ID
-        final int w = toIntHandler.applyAsInt(IdSequenceProperties::getWorkerId, () -> SnowFlake.MAX_WORKER_ID);
-        //机房ID
-        final int c = toIntHandler.applyAsInt(IdSequenceProperties::getDataCenterId, () -> SnowFlake.MAX_DATA_CENTER_ID);
-        //顺序号
-        final int s = toIntHandler.applyAsInt(IdSequenceProperties::getSequence, () -> SnowFlake.MAX_SEQUENCE);
-        //构建对象
-        return new SnowFlake(w, c, s);
-    }
-
     /**
      * 生成雪花ID
      *
      * @return 雪花ID
      */
     @Override
-    public synchronized Long nextId() {
+    public synchronized long nextId() {
         //当前时间戳
         long timestamp = timeGen();
         if (timestamp < lastTimeStamp) {

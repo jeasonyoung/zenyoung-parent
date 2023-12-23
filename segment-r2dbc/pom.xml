@@ -11,20 +11,35 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>segment</artifactId>
-    <version>${zenyoung-segment.version}</version>
+    <artifactId>segment-r2dbc</artifactId>
+    <version>${zenyoung-segment-r2dbc.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <!-- 模块依赖 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>segment-jdbc</artifactId>
+            <artifactId>segment-common</artifactId>
+        </dependency>
+        <!-- spring r2dbc -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-r2dbc</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/**</include>
+                    <include>**/**.sql</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.baomidou.mybatisplus.core.toolkit.ReflectionKit;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
@@ -18,25 +17,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.dto.BasePageDTO;
-import top.zenyoung.common.mapping.BeanMapping;
-import top.zenyoung.common.mapping.BeanMappingDefault;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
 import top.zenyoung.common.paging.PagingQuery;
-import top.zenyoung.common.sequence.IdSequence;
 import top.zenyoung.data.entity.Model;
 import top.zenyoung.data.mybatis.entity.ModelFieldHelper;
 import top.zenyoung.data.mybatis.enums.PoConstant;
 import top.zenyoung.data.mybatis.mapper.ModelMapper;
 import top.zenyoung.data.mybatis.service.DataService;
 import top.zenyoung.data.mybatis.util.MybatisPlusUtils;
+import top.zenyoung.data.service.impl.BaseDataCommonServiceImpl;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,45 +51,10 @@ import java.util.stream.Collectors;
  * @author young
  */
 @Slf4j
-public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable> implements DataService<M, K>, InitializingBean {
+public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable>
+        extends BaseDataCommonServiceImpl<M, K> implements DataService<M, K>, InitializingBean {
+    private ModelFieldHelper<M> poPoFieldHelper;
     protected static final int BATCH_SIZE = 500;
-    private static final BeanMapping beanMapping = BeanMappingDefault.INSTANCE;
-    private final Map<Integer, Class<?>> clsMaps = Maps.newConcurrentMap();
-    private final ModelFieldHelper<M> poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
-
-    @Autowired(required = false)
-    private IdSequence idSequence;
-
-    private Class<?> getGenericType(final int index) {
-        return clsMaps.computeIfAbsent(index, idx -> ReflectionKit.getSuperClassGenericType(getClass(), BaseDataServiceImpl.class, idx));
-    }
-
-    @SuppressWarnings({"unchecked"})
-    protected final Class<M> getModelClass() {
-        return (Class<M>) getGenericType(0);
-    }
-
-    /**
-     * 生成主键ID
-     *
-     * @return 主键ID
-     */
-    @SuppressWarnings({"unchecked"})
-    protected K genId() {
-        return Optional.ofNullable(idSequence)
-                .map(idSeq -> {
-                    final Long id = idSeq.nextId();
-                    final Class<K> cls = (Class<K>) getGenericType(1);
-                    if (cls == Long.class) {
-                        return cls.cast(id);
-                    }
-                    if (cls == String.class) {
-                        return cls.cast(String.valueOf(id));
-                    }
-                    return cls.cast(id);
-                })
-                .orElse(null);
-    }
 
     /**
      * 获取Mapper
@@ -117,6 +78,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
 
     @Override
     public void afterPropertiesSet() {
+        poPoFieldHelper = ModelFieldHelper.of(this.getModelClass());
         poPoFieldHelper.init();
     }
 
@@ -472,26 +434,5 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(@Nonnull final Wrapper<M> wrapper) {
         return SqlHelper.retBool(getMapper().delete(wrapper));
-    }
-
-    private <R> R mappingHandler(@Nonnull final Function<BeanMapping, R> handler) {
-        return Optional.ofNullable(beanMapping)
-                .map(handler)
-                .orElse(null);
-    }
-
-    @Override
-    public <T, R> R mapping(@Nullable final T data, @Nonnull final Class<R> cls) {
-        return mappingHandler(bm -> bm.mapping(data, cls));
-    }
-
-    @Override
-    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls) {
-        return mappingHandler(bm -> bm.mapping(items, cls));
-    }
-
-    @Override
-    public <T extends Serializable, R extends Serializable> PageList<R> mapping(@Nullable final PageList<T> pageList, @Nonnull final Class<R> cls) {
-        return mappingHandler(bm -> bm.mapping(pageList, cls));
     }
 }

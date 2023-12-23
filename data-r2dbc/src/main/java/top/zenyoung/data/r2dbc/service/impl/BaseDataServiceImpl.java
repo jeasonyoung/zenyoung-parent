@@ -12,7 +12,6 @@ import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ResolvableType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,7 +62,7 @@ import java.util.function.Supplier;
  */
 @Slf4j
 public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializable>
-        extends BaseDataCommonServiceImpl<K> implements DataService<M, K>, QuerydslR2dbcPredicateExecutor<M> {
+        extends BaseDataCommonServiceImpl<M, K> implements DataService<M, K>, QuerydslR2dbcPredicateExecutor<M> {
     private static final Map<Class<?>, EntityPath<?>> RELATIONAL_PATH_CACHE = Maps.newHashMap();
     private static final Map<Class<?>, QuerydslR2dbc> QUERYDSL_CACHE = Maps.newHashMap();
 
@@ -73,24 +72,13 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
     private R2dbcMappingContext mappingContext;
 
     /**
-     * 获取实体对象类型
-     *
-     * @return 实体类型
-     */
-    protected Class<?> getEntityType() {
-        return ResolvableType.forClass(getClass().getSuperclass())
-                .getGeneric(0)
-                .resolve();
-    }
-
-    /**
      * 获取 QuerydslR2dbc
      *
      * @return QuerydslR2dbc
      */
     protected QuerydslR2dbc getQuerydslR2dbc() {
         return QUERYDSL_CACHE.computeIfAbsent(getClass(), k -> {
-            final Class<?> entityType = getEntityType();
+            final Class<M> entityType = getModelClass();
             if (Objects.isNull(entityType)) {
                 log.warn("getEntityPath: Could not resolve query class for " + getClass());
                 return null;
@@ -108,7 +96,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
     @SuppressWarnings({"unchecked"})
     protected EntityPath<M> getEntityPath() {
         return (EntityPath<M>) RELATIONAL_PATH_CACHE.computeIfAbsent(getClass(), k -> {
-            final Class<?> entityType = getEntityType();
+            final Class<?> entityType = getModelClass();
             if (Objects.isNull(entityType)) {
                 log.warn("getEntityPath: Could not resolve query class for " + getClass());
                 return null;

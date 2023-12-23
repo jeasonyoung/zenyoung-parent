@@ -11,20 +11,30 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>segment</artifactId>
-    <version>${zenyoung-segment.version}</version>
+    <artifactId>segment-jdbc</artifactId>
+    <version>${zenyoung-segment-jdbc.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <!-- 模块依赖 -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>segment-jdbc</artifactId>
+            <artifactId>segment-common</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/**</include>
+                    <include>**/**.sql</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

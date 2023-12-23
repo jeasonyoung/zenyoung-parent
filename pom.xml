@@ -41,6 +41,9 @@
         <!-- sms -->
         <module>sms</module>
         <!-- segment -->
+        <module>segment-common</module>
+        <module>segment-jdbc</module>
+        <module>segment-r2dbc</module>
         <module>segment</module>
         <!-- 定时任务 -->
         <module>quartz</module>

@@ -21,10 +21,11 @@ import top.zenyoung.boot.config.SequenceProperties;
 import top.zenyoung.boot.config.WebMvcConfig;
 import top.zenyoung.boot.interceptor.RequestAuthorityInterceptor;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
-import top.zenyoung.common.sequence.IdSequence;
+import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.common.sequence.SnowFlake;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * WebMvc 自动注册
@@ -34,12 +35,14 @@ import javax.annotation.Nonnull;
 @Configuration
 @ComponentScan({"top.zenyoung.boot.controller"})
 @Import({AsyncConfig.class, WebMvcConfig.class, ResponseMvcAdviceController.class})
-@EnableConfigurationProperties({RepeatSubmitProperties.class, SequenceProperties.class})
+@EnableConfigurationProperties({RepeatSubmitProperties.class, SequenceProperties.class, SequenceProperties.class})
 public class BootMvcAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    public IdSequence buildSequence(final ObjectProvider<SequenceProperties> provider) {
-        return SnowFlake.create(provider.getIfAvailable());
+    public Sequence buildSequence(final ObjectProvider<SequenceProperties> provider) {
+        return Optional.ofNullable(provider.getIfAvailable())
+                .map(sp -> SnowFlake.getInstance(sp.getWorkerId(), sp.getDataCenterId(), sp.getSequence()))
+                .orElseGet(SnowFlake::getInstance);
     }
 
     @Bean
