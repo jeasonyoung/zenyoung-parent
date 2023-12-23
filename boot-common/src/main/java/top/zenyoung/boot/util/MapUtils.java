@@ -1,16 +1,14 @@
 package top.zenyoung.boot.util;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -20,6 +18,7 @@ import java.util.function.Function;
  *
  * @author young
  */
+@Slf4j
 @UtilityClass
 public class MapUtils {
 
@@ -77,33 +76,33 @@ public class MapUtils {
         return map;
     }
 
-    @SneakyThrows({})
-    @SuppressWarnings({"unchecked"})
-    public static <T, R> R to(@Nonnull final Map<String, T> map, @Nonnull final Class<R> cls) {
-        final R ret = cls.newInstance();
-        if (!CollectionUtils.isEmpty(map)) {
-            final List<Field> fields = Lists.newArrayList();
-            ReflectionUtils.doWithFields(cls, field -> {
-                field.setAccessible(true);
-                fields.add(field);
-            });
-            if (!CollectionUtils.isEmpty(fields)) {
-                fields.parallelStream()
-                        .filter(Objects::nonNull)
-                        .forEach(field -> {
-                            final String name = field.getName();
-                            final T val = map.getOrDefault(name, null);
-                            if (Objects.nonNull(val)) {
-                                if (val instanceof Map) {
-                                    final Object sub = to((Map<String, ?>) val, (Class<?>) field.getClass());
-                                    ReflectionUtils.setField(field, ret, sub);
-                                } else {
-                                    ReflectionUtils.setField(field, ret, val);
-                                }
-                            }
-                        });
+    /**
+     * 将Map数据赋值生成对象
+     *
+     * @param map         数据集合
+     * @param targetClass 目标类型
+     * @param <R>         目标类型
+     * @return 目标对象
+     */
+    public static <R> R to(@Nonnull final Map<String, Object> map, @Nonnull final Class<R> targetClass) {
+        try {
+            if (CollectionUtils.isEmpty(map)) {
+                return null;
             }
+            final R ret = targetClass.getDeclaredConstructor().newInstance();
+            map.forEach((key, val) -> {
+                if (!Strings.isNullOrEmpty(key) && Objects.nonNull(val)) {
+                    final Field field = ReflectionUtils.findField(targetClass, key, val.getClass());
+                    if (Objects.nonNull(field)) {
+                        field.setAccessible(true);
+                        ReflectionUtils.setField(field, ret, val);
+                    }
+                }
+            });
+            return ret;
+        } catch (Exception e) {
+            log.error("to(map: {},targetClass: {})-exp: {}", map, targetClass, e.getMessage());
+            return null;
         }
-        return ret;
     }
 }
