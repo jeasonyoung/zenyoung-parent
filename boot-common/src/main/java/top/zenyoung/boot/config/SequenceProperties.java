@@ -16,13 +16,13 @@ public class SequenceProperties implements Serializable {
     /**
      * 机器ID
      */
-    private Integer workerId;
+    private Long workerId;
     /**
      * 机房ID
      */
-    private Integer dataCenterId;
+    private Long dataCenterId;
     /**
      * 顺序号
      */
-    private Integer sequence;
+    private Long sequence;
 }

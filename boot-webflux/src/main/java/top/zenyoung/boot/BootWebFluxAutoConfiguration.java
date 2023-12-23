@@ -1,6 +1,5 @@
 package top.zenyoung.boot;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +17,9 @@ import top.zenyoung.boot.filter.TraceFilter;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 import top.zenyoung.common.sequence.Sequence;
 import top.zenyoung.common.sequence.SnowFlake;
+import top.zenyoung.common.util.RandomUtils;
 
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -33,10 +34,18 @@ import java.util.Optional;
 public class BootWebFluxAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    public Sequence buildSequence(final ObjectProvider<SequenceProperties> provider) {
-        return Optional.ofNullable(provider.getIfAvailable())
-                .map(sp -> SnowFlake.getInstance(sp.getWorkerId(), sp.getDataCenterId(), sp.getSequence()))
-                .orElseGet(SnowFlake::getInstance);
+    public Sequence buildSequence(@Nonnull final SequenceProperties properties) {
+        //机器ID
+        final long workerId = Optional.ofNullable(properties.getWorkerId())
+                .orElseGet(() -> RandomUtils.randomLong(1, SnowFlake.MAX_WORKER_ID - 1));
+        //机房ID
+        final long dataCenterId = Optional.ofNullable(properties.getDataCenterId())
+                .orElseGet(() -> RandomUtils.randomLong(1, SnowFlake.MAX_DATA_CENTER_ID - 1));
+        //顺序号
+        final long sequence = Optional.ofNullable(properties.getSequence())
+                .orElseGet(() -> RandomUtils.randomLong(1, SnowFlake.MAX_SEQUENCE - 1));
+        //创建
+        return SnowFlake.getInstance(workerId, dataCenterId, sequence);
     }
 
     @Bean
