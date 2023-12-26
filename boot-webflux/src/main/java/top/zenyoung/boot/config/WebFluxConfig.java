@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 import top.zenyoung.boot.converter.EnumValueConvertFactory;
@@ -28,6 +29,15 @@ public class WebFluxConfig implements WebFluxConfigurer {
     @Override
     public void addFormatters(@Nonnull final FormatterRegistry registry) {
         registry.addConverterFactory(EnumValueConvertFactory.of());
+    }
+
+    @Override
+    public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
+        //knife4j
+        registry.addResourceHandler("doc.html")
+                .addResourceLocations("classpath*:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath*:/META-INF/resources/webjars/");
     }
 
     @Override

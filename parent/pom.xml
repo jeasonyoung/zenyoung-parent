@@ -102,6 +102,7 @@
         <!-- swagger -->
         <swagger-v3.version>2.2.9</swagger-v3.version>
         <knife4j-openapi3.version>4.4.0</knife4j-openapi3.version>
+        <springdoc-openapi-webflux-ui.version>1.7.0</springdoc-openapi-webflux-ui.version>
 
         <!-- jfx -->
         <bootstrapfx-core.version>0.3.0</bootstrapfx-core.version>
@@ -364,8 +365,13 @@
                 <version>${knife4j-openapi3.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-webflux-ui</artifactId>
+                <version>${springdoc-openapi-webflux-ui.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-webflux-spring-boot-starter</artifactId>
+                <artifactId>knife4j-openapi3-ui</artifactId>
                 <version>${knife4j-openapi3.version}</version>
             </dependency>
 
