@@ -101,7 +101,7 @@
 
         <!-- swagger -->
         <swagger-v3.version>2.2.9</swagger-v3.version>
-        <knife4j-openapi3.version>4.3.0</knife4j-openapi3.version>
+        <knife4j-openapi3.version>4.4.0</knife4j-openapi3.version>
 
         <!-- jfx -->
         <bootstrapfx-core.version>0.3.0</bootstrapfx-core.version>
@@ -356,7 +356,7 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.2.9</version>
+                <version>${swagger-v3.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>

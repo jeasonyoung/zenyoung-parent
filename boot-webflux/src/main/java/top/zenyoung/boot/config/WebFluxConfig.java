@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 import top.zenyoung.boot.converter.EnumValueConvertFactory;
@@ -25,13 +24,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class WebFluxConfig implements WebFluxConfigurer {
     private final List<ArgumentResolver> argumentResolvers;
-
-    @Override
-    public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("doc.html").addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
 
     @Override
     public void addFormatters(@Nonnull final FormatterRegistry registry) {
