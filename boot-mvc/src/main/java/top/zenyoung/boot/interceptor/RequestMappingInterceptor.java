@@ -1,6 +1,8 @@
 package top.zenyoung.boot.interceptor;
 
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.HandlerMethod;
@@ -8,8 +10,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import top.zenyoung.boot.util.HttpUtils;
 
 import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**

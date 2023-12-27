@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * ORM-操作服务接口实现基类
@@ -143,7 +142,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
             return DataResult.of(pageList.getTotal(),
                     items.stream()
                             .map(convert)
-                            .collect(Collectors.toList())
+                            .toList()
             );
         }
         return DataResult.of(pageList.getTotal(), Lists.newArrayList());
@@ -295,7 +294,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
             final List<M> rows = items.stream()
                     .filter(Objects::nonNull)
                     .peek(this::patchData)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!CollectionUtils.isEmpty(rows)) {
                 final String sqlStatement = getSqlStatement(SqlMethod.INSERT_ONE);
                 return batchHandler(rows, (session, po) -> session.insert(sqlStatement, po));
@@ -311,7 +310,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
         final List<M> rows = items.stream()
                 .filter(Objects::nonNull)
                 .peek(this::patchData)
-                .collect(Collectors.toList());
+                .toList();
         return batchHandler(rows, pos -> {
             final int ret = getMapper().batchAddOrUpdate(pos);
             log.debug("batchAddOrUpdate=> {}", ret);
@@ -337,6 +336,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
         return count > 0;
     }
 
+    @SuppressWarnings({"deprecation"})
     protected boolean batchHandler(@Nonnull final Collection<M> pos, @Nonnull final BiConsumer<SqlSession, M> handler) {
         final AtomicInteger refIdx = new AtomicInteger(0);
         try (final SqlSession session = SqlHelper.sqlSessionBatch(getModelClass())) {

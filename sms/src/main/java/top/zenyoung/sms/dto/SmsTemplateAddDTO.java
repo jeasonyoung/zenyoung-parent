@@ -3,8 +3,8 @@ package top.zenyoung.sms.dto;
 import lombok.Data;
 import top.zenyoung.sms.enums.SmsTemplateType;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * 短信模板-新增DTO

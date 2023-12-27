@@ -1,11 +1,11 @@
 package top.zenyoung.data.jpa.converter;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import top.zenyoung.common.model.EnumValue;
 import top.zenyoung.data.converter.EnumConverter;
 
 import javax.annotation.Nonnull;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.Objects;
 
 /**

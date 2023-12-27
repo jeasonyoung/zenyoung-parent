@@ -9,7 +9,7 @@ import top.zenyoung.sms.vo.SmsSenderVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 

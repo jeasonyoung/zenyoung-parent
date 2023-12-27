@@ -1,6 +1,7 @@
 package top.zenyoung.data.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -16,7 +17,6 @@ import top.zenyoung.common.model.UserPrincipal;
 import top.zenyoung.data.jpa.util.SpringContextUtils;
 
 import javax.annotation.Nonnull;
-import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.util.Optional;
 

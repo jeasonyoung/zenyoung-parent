@@ -1,6 +1,11 @@
 package top.zenyoung.boot.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.SpringDocConfigProperties;
+import org.springdoc.core.SwaggerUiConfigParameters;
+import org.springdoc.core.SwaggerUiConfigProperties;
+import org.springdoc.webflux.ui.SwaggerWebFluxConfigurer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +19,7 @@ import top.zenyoung.boot.resolver.ArgumentResolver;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * WebFlux-配置
@@ -26,18 +32,14 @@ import java.util.Objects;
 public class WebFluxConfig implements WebFluxConfigurer {
     private final List<ArgumentResolver> argumentResolvers;
 
-    @Override
-    public void addFormatters(@Nonnull final FormatterRegistry registry) {
-        registry.addConverterFactory(EnumValueConvertFactory.of());
+    @Bean
+    public SwaggerWebFluxConfigurer swaggerWebFluxConfigurer() {
+        return new NoneSwaggerWebFluxConfigurer();
     }
 
     @Override
-    public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
-        //knife4j
-        registry.addResourceHandler("doc.html")
-                .addResourceLocations("classpath*:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath*:/META-INF/resources/webjars/");
+    public void addFormatters(@Nonnull final FormatterRegistry registry) {
+        registry.addConverterFactory(EnumValueConvertFactory.of());
     }
 
     @Override
@@ -50,6 +52,18 @@ public class WebFluxConfig implements WebFluxConfigurer {
                     .distinct()
                     .toArray(ArgumentResolver[]::new)
             );
+        }
+    }
+
+    private static class NoneSwaggerWebFluxConfigurer extends SwaggerWebFluxConfigurer {
+        public NoneSwaggerWebFluxConfigurer() {
+            super(new SwaggerUiConfigParameters(new SwaggerUiConfigProperties()),
+                    new SpringDocConfigProperties(), null, Optional.empty(), null);
+        }
+
+        @Override
+        public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
+
         }
     }
 }

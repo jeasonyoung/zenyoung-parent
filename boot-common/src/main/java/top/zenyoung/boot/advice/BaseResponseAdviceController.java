@@ -1,6 +1,8 @@
 package top.zenyoung.boot.advice;
 
 import com.google.common.base.Strings;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -13,8 +15,6 @@ import top.zenyoung.common.vo.ResultVO;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 import java.util.Objects;
 
 /**

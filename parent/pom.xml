@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.17</version>
+        <version>3.2.1</version>
         <relativePath/>
     </parent>
 
@@ -40,28 +40,20 @@
 
     <properties>
         <!-- jdk -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
 
         <!-- spring -->
-        <spring-cloud.version>2021.0.8</spring-cloud.version>
-        <alibaba-cloud.version>2021.0.5.0</alibaba-cloud.version>
-
-        <!-- zenyoung -->
-        <zenyoung.version>3.1.0</zenyoung.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <alibaba-cloud.version>2022.0.0.0</alibaba-cloud.version>
 
         <!-- modelmapper -->
-        <modelmapper.version>3.1.0</modelmapper.version>
+        <modelmapper.version>3.2.0</modelmapper.version>
         <!-- mybatis-plus -->
-        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
-        <!-- flyway -->
-        <flyway-core.version>8.2.2</flyway-core.version>
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <!-- p6spy -->
         <p6spy.version>3.9.1</p6spy.version>
-
-        <!-- r2dbc -->
-        <r2dbc-mysql.version>0.8.2.RELEASE</r2dbc-mysql.version>
 
         <!-- jetcache -->
         <jetcache.version>2.7.2</jetcache.version>
@@ -91,7 +83,7 @@
         <huawei-obs.version>3.22.12</huawei-obs.version>
 
         <!-- tools -->
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>32.1.2-jre</guava.version>
         <auto-service.version>1.1.1</auto-service.version>
         <commons-io.version>2.8.0</commons-io.version>
         <zxing.version>3.5.1</zxing.version>
@@ -149,11 +141,11 @@
         <zenyoung-netty-common.version>3.1.0</zenyoung-netty-common.version>
         <zenyoung-netty-server.version>3.2.0</zenyoung-netty-server.version>
         <zenyoung-netty-client.version>3.2.0</zenyoung-netty-client.version>
-        <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>
-        <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>
+<!--        <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>-->
+<!--        <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>-->
         <zenyoung-opencv.version>1.0.0</zenyoung-opencv.version>
         <zenyoung-retrofit.version>1.1.0</zenyoung-retrofit.version>
-        <zenyoung-generator.version>3.2.0</zenyoung-generator.version>
+<!--        <zenyoung-generator.version>3.2.0</zenyoung-generator.version>-->
     </properties>
 
     <dependencyManagement>
@@ -190,20 +182,8 @@
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
-            </dependency>
-
-            <!-- flywaydb -->
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-core</artifactId>
-                <version>${flyway-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-mysql</artifactId>
-                <version>${flyway-core.version}</version>
             </dependency>
 
             <!-- p6spy -->
@@ -211,13 +191,6 @@
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
                 <version>${p6spy.version}</version>
-            </dependency>
-
-            <!-- r2dbc -->
-            <dependency>
-                <groupId>dev.miku</groupId>
-                <artifactId>r2dbc-mysql</artifactId>
-                <version>${r2dbc-mysql.version}</version>
             </dependency>
 
             <!-- jetcache -->
@@ -361,7 +334,7 @@
             </dependency>
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-spring-boot-starter</artifactId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j-openapi3.version}</version>
             </dependency>
             <dependency>
@@ -423,11 +396,11 @@
                 <artifactId>boot-webflux</artifactId>
                 <version>${zenyoung-boot-webflux.version}</version>
             </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>micro</artifactId>
-                <version>${zenyoung-micro.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>micro</artifactId>-->
+<!--                <version>${zenyoung-micro.version}</version>-->
+<!--            </dependency>-->
             <!-- data -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -510,26 +483,26 @@
                 <version>${zenyoung-quartz.version}</version>
             </dependency>
             <!-- file -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-common</artifactId>
-                <version>${zenyoung-file-common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-aliyun</artifactId>
-                <version>${zenyoung-file-aliyun.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-huawei</artifactId>
-                <version>${zenyoung-file-huawei.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>file-boot</artifactId>
-                <version>${zenyoung-file-boot.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>file-common</artifactId>-->
+<!--                <version>${zenyoung-file-common.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>file-aliyun</artifactId>-->
+<!--                <version>${zenyoung-file-aliyun.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>file-huawei</artifactId>-->
+<!--                <version>${zenyoung-file-huawei.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>file-boot</artifactId>-->
+<!--                <version>${zenyoung-file-boot.version}</version>-->
+<!--            </dependency>-->
             <!-- netty -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -547,17 +520,17 @@
                 <version>${zenyoung-netty-client.version}</version>
             </dependency>
             <!-- jfx -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>jfx-boot</artifactId>
-                <version>${zenyoung-jfx-boot.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>jfx-boot</artifactId>-->
+<!--                <version>${zenyoung-jfx-boot.version}</version>-->
+<!--            </dependency>-->
             <!-- fc-runtime -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>fc-runtime-huawei</artifactId>
-                <version>${zenyoung-fc-runtime-huawei.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>fc-runtime-huawei</artifactId>-->
+<!--                <version>${zenyoung-fc-runtime-huawei.version}</version>-->
+<!--            </dependency>-->
             <!-- opencv -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -571,11 +544,11 @@
                 <version>${zenyoung-retrofit.version}</version>
             </dependency>
             <!-- generator -->
-            <dependency>
-                <groupId>top.zenyoung</groupId>
-                <artifactId>generator</artifactId>
-                <version>${zenyoung-generator.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>top.zenyoung</groupId>-->
+<!--                <artifactId>generator</artifactId>-->
+<!--                <version>${zenyoung-generator.version}</version>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 

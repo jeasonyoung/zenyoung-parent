@@ -1,6 +1,7 @@
 package top.zenyoung.retrofit.core;
 
 import com.google.common.collect.Maps;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.util.Assert;
@@ -9,7 +10,6 @@ import top.zenyoung.retrofit.OkHttpClientRegistrar;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 

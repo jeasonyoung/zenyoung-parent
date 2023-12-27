@@ -1,12 +1,12 @@
 package top.zenyoung.data.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 /**
@@ -16,7 +16,7 @@ import java.io.Serializable;
  */
 @Data
 @MappedSuperclass
-@Where(clause = "deletedAt = 0")
+@SQLRestriction("deletedAt = 0")
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "update #{#entityName} set deletedAt = 1 where id = ?")
 public abstract class BaseCreateUpdateLogicEntity<K extends Serializable> extends BaseCreateUpdateEntity<K> {

@@ -1,10 +1,10 @@
 package top.zenyoung.common.valid;
 
 import com.google.common.base.Strings;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import top.zenyoung.common.util.TextValidUtils;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 /**
  * 日期校验

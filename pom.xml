@@ -65,7 +65,7 @@
         <!-- retrofit -->
         <module>retrofit</module>
         <!-- 代码生成器 -->
-        <module>generator</module>
+<!--        <module>generator</module>-->
     </modules>
 
     <dependencyManagement>

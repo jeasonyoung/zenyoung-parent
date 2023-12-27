@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,7 +23,6 @@ import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.boot.util.HttpUtils;
 import top.zenyoung.common.util.JsonUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;

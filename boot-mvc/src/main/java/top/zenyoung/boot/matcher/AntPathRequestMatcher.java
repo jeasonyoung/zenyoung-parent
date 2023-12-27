@@ -1,5 +1,6 @@
 package top.zenyoung.boot.matcher;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
@@ -9,7 +10,6 @@ import org.springframework.web.util.UrlPathHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Map;
 
@@ -103,7 +103,9 @@ public class AntPathRequestMatcher implements RequestMatcher {
      */
     @Override
     public boolean matches(@Nonnull final HttpServletRequest request) {
-        if (this.httpMethod != null && StringUtils.hasText(request.getMethod()) && this.httpMethod != HttpMethod.resolve(request.getMethod())) {
+        if (this.httpMethod != null
+                && StringUtils.hasText(request.getMethod())
+                && this.httpMethod != HttpMethod.valueOf(request.getMethod())) {
             return false;
         }
         if (this.pattern.equals(MATCH_ALL)) {
