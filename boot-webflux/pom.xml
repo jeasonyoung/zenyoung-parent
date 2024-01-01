@@ -33,7 +33,7 @@
         <!-- knife4j swagger -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webflux-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.xiaoymin</groupId>

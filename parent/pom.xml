@@ -93,8 +93,9 @@
 
         <!-- swagger -->
         <swagger-v3.version>2.2.9</swagger-v3.version>
+        <swagger-v3-jakarta.version>2.2.19</swagger-v3-jakarta.version>
         <knife4j-openapi3.version>4.4.0</knife4j-openapi3.version>
-        <springdoc-openapi-webflux-ui.version>1.7.0</springdoc-openapi-webflux-ui.version>
+        <springdoc-openapi-starter-webflux-ui.version>2.3.0</springdoc-openapi-starter-webflux-ui.version>
 
         <!-- jfx -->
         <bootstrapfx-core.version>0.3.0</bootstrapfx-core.version>
@@ -333,14 +334,19 @@
                 <version>${swagger-v3.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger-v3-jakarta.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j-openapi3.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-webflux-ui</artifactId>
-                <version>${springdoc-openapi-webflux-ui.version}</version>
+                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+                <version>${springdoc-openapi-starter-webflux-ui.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>

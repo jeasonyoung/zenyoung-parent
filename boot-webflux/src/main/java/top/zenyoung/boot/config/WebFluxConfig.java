@@ -1,15 +1,14 @@
 package top.zenyoung.boot.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.SpringDocConfigProperties;
-import org.springdoc.core.SwaggerUiConfigParameters;
-import org.springdoc.core.SwaggerUiConfigProperties;
+import org.springdoc.core.properties.SpringDocConfigProperties;
+import org.springdoc.core.properties.SwaggerUiConfigParameters;
+import org.springdoc.core.properties.SwaggerUiConfigProperties;
 import org.springdoc.webflux.ui.SwaggerWebFluxConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
@@ -27,7 +26,6 @@ import java.util.Optional;
  * @author young
  */
 @Configuration
-@EnableWebFlux
 @RequiredArgsConstructor
 public class WebFluxConfig implements WebFluxConfigurer {
     private final List<ArgumentResolver> argumentResolvers;
