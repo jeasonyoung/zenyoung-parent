@@ -1,15 +1,9 @@
 package top.zenyoung.boot.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.properties.SpringDocConfigProperties;
-import org.springdoc.core.properties.SwaggerUiConfigParameters;
-import org.springdoc.core.properties.SwaggerUiConfigProperties;
-import org.springdoc.webflux.ui.SwaggerWebFluxConfigurer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 import top.zenyoung.boot.converter.EnumValueConvertFactory;
@@ -18,7 +12,6 @@ import top.zenyoung.boot.resolver.ArgumentResolver;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * WebFlux-配置
@@ -29,11 +22,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WebFluxConfig implements WebFluxConfigurer {
     private final List<ArgumentResolver> argumentResolvers;
-
-    @Bean
-    public SwaggerWebFluxConfigurer swaggerWebFluxConfigurer() {
-        return new NoneSwaggerWebFluxConfigurer();
-    }
 
     @Override
     public void addFormatters(@Nonnull final FormatterRegistry registry) {
@@ -53,15 +41,19 @@ public class WebFluxConfig implements WebFluxConfigurer {
         }
     }
 
-    private static class NoneSwaggerWebFluxConfigurer extends SwaggerWebFluxConfigurer {
-        public NoneSwaggerWebFluxConfigurer() {
-            super(new SwaggerUiConfigParameters(new SwaggerUiConfigProperties()),
-                    new SpringDocConfigProperties(), null, Optional.empty(), null);
-        }
-
-        @Override
-        public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
-
-        }
-    }
+    //    @Bean
+//    public SwaggerWebFluxConfigurer swaggerWebFluxConfigurer() {
+//        return new NoneSwaggerWebFluxConfigurer();
+//    }
+//    private static class NoneSwaggerWebFluxConfigurer extends SwaggerWebFluxConfigurer {
+//        public NoneSwaggerWebFluxConfigurer() {
+//            super(new SwaggerUiConfigParameters(new SwaggerUiConfigProperties()),
+//                    new SpringDocConfigProperties(), null, Optional.empty(), null);
+//        }
+//
+//        @Override
+//        public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
+//
+//        }
+//    }
 }
