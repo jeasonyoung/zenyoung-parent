@@ -40,20 +40,4 @@ public class WebFluxConfig implements WebFluxConfigurer {
             );
         }
     }
-
-    //    @Bean
-//    public SwaggerWebFluxConfigurer swaggerWebFluxConfigurer() {
-//        return new NoneSwaggerWebFluxConfigurer();
-//    }
-//    private static class NoneSwaggerWebFluxConfigurer extends SwaggerWebFluxConfigurer {
-//        public NoneSwaggerWebFluxConfigurer() {
-//            super(new SwaggerUiConfigParameters(new SwaggerUiConfigProperties()),
-//                    new SpringDocConfigProperties(), null, Optional.empty(), null);
-//        }
-//
-//        @Override
-//        public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
-//
-//        }
-//    }
 }
