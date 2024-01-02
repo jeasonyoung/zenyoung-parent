@@ -20,6 +20,7 @@ import com.querydsl.sql.SQLTemplates;
 import io.r2dbc.spi.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -180,7 +181,13 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
     private Statement bind(@Nonnull final Statement statement, @Nonnull final SQLSerializer serializer) {
         final List<Object> args = serializer.getConstants();
         for (int i = 0; i < args.size(); i++) {
-            statement.bind(i, args.get(i));
+            Object arg = args.get(i);
+            //处理枚举
+            if (arg instanceof EnumValue ev) {
+                arg = ev.getVal();
+            }
+            //设置参数值
+            statement.bind(i, arg);
         }
         return statement;
     }
