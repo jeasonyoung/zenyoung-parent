@@ -35,9 +35,8 @@ public abstract class R2dbcFetchableQueryBase<T, Q extends R2dbcFetchableQueryBa
         if (o == this) {
             return true;
         }
-        if (o instanceof SubQueryExpression) {
-            final SubQueryExpression<?> s = (SubQueryExpression<?>) o;
-            return s.getMetadata().equals(queryMixin.getMetadata());
+        if (o instanceof SubQueryExpression<?> expr) {
+            return expr.getMetadata().equals(queryMixin.getMetadata());
         }
         return false;
     }

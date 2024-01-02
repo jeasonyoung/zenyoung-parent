@@ -18,6 +18,7 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLSerializer;
 import com.querydsl.sql.SQLTemplates;
 import io.r2dbc.spi.*;
+import lombok.Setter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import top.zenyoung.common.model.EnumValue;
@@ -29,6 +30,7 @@ import java.util.Optional;
 
 public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> extends ProjectableR2dbcQuery<T, Q> {
     private final R2dbcConnectionProvider provider;
+    @Setter
     protected boolean useLiterals;
 
     protected AbstractR2dbcQuery(@Nonnull final R2dbcConnectionProvider provider, @Nonnull final Configuration configuration) {
@@ -78,10 +80,6 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
         return serializer;
     }
 
-    public void setUseLiterals(final boolean useLiterals) {
-        this.useLiterals = useLiterals;
-    }
-
     @SuppressWarnings({"unchecked"})
     public Q withUseLiterals() {
         setUseLiterals(true);
@@ -96,7 +94,7 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
 
     @Override
     public Q clone() {
-        return this.clone(this.provider);
+        return clone(this.provider);
     }
 
     public abstract Q clone(@Nonnull final R2dbcConnectionProvider provider);
@@ -130,8 +128,7 @@ public abstract class AbstractR2dbcQuery<T, Q extends AbstractR2dbcQuery<T, Q>> 
 
     @SuppressWarnings({"unchecked"})
     private R2dbcMapper<T> createMapper(@Nonnull final Expression<T> expr) {
-        if (expr instanceof FactoryExpression) {
-            final FactoryExpression<T> fe = (FactoryExpression<T>) expr;
+        if (expr instanceof FactoryExpression<T> fe) {
             return (row, meta) -> newInstance(fe, row, 0);
         } else if (expr.equals(Wildcard.all)) {
             return this::toWildcardObjectArray;

@@ -88,14 +88,13 @@ public class R2dbcConfiguration extends DefaultConfiguration {
         AnnotationMirror mirror = TypeUtils.getAnnotationMirrorOfType(element, MappedCollection.class);
         if (Objects.nonNull(mirror)) {
             final TypeMirror typeArg = TypeUtils.getAnnotationValueAsTypeMirror(mirror, "targetEntity");
-            final TypeMirror erasure = (element instanceof ExecutableElement) ? ((ExecutableElement) element).getReturnType() :
-                    types.erasure(element.asType());
+            final TypeMirror erasure = (element instanceof ExecutableElement ee) ? ee.getReturnType() : types.erasure(element.asType());
             final TypeElement typeElement = (TypeElement) types.asElement(erasure);
             if (typeElement != null && typeArg != null) {
                 if (typeElement.getTypeParameters().size() == 1) {
                     return types.getDeclaredType(typeElement, typeArg);
-                } else if (typeElement.getTypeParameters().size() == 2 && (element.asType() instanceof DeclaredType)) {
-                    final TypeMirror first = ((DeclaredType) element.asType()).getTypeArguments().get(0);
+                } else if (typeElement.getTypeParameters().size() == 2 && (element.asType() instanceof DeclaredType dt)) {
+                    final TypeMirror first = dt.getTypeArguments().get(0);
                     return types.getDeclaredType(typeElement, first, typeArg);
                 }
             }

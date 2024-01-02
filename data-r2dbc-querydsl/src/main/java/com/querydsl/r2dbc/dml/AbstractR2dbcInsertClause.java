@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertClause<C>>
         extends AbstractR2dbcClause<C> implements R2dbcInsertClause<C> {
@@ -173,7 +172,7 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
     @SuppressWarnings("unchecked")
     public <T> Mono<T> executeWithKey(@Nonnull final Path<T> path) {
         final Class<T> type = (Class<T>) path.getType();
-        final R2dbcMapper<T> mapper = (row, metadata) -> Objects.requireNonNull(row.get(0, type), "Null key result");
+        final R2dbcMapper<T> mapper = (row, md) -> Objects.requireNonNull(row.get(0, type), "Null key result");
         return requireConnection()
                 .map(connection -> createStatement(connection, true))
                 .flatMap(connection -> executeStatementWithKey(connection, mapper));
@@ -263,10 +262,10 @@ public abstract class AbstractR2dbcInsertClause<C extends AbstractR2dbcInsertCla
     @SuppressWarnings({"unchecked"})
     private <T> void setBatchParameters(@Nonnull final Statement stmt, @Nonnull final SQLInsertBatch batch, final int offset) {
         final Map<ParamExpression<?>, Object> params = Maps.newHashMap();
-        final List<Object> constants = batch.getValues()
+        final List<T> constants = batch.getValues()
                 .stream()
                 .map(c -> ((Constant<T>) c).getConstant())
-                .collect(Collectors.toList());
+                .toList();
         super.setParameters(stmt, constants, batch.getColumns(), params, offset);
     }
 }

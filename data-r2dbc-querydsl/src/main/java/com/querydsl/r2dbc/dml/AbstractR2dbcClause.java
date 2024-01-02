@@ -16,6 +16,7 @@ import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.Statement;
 import org.springframework.data.relational.core.mapping.Table;
 import reactor.core.publisher.Mono;
+import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -71,6 +72,9 @@ public abstract class AbstractR2dbcClause<C extends AbstractR2dbcClause<C>> impl
                     throw new ParamNotSetException((ParamExpression<?>) o);
                 }
                 o = params.get(o);
+            }
+            if (o instanceof EnumValue ev) {
+                o = ev.getVal();
             }
             bind(stmt, constantPaths.get(i), (offset * objects.size()) + i, o);
         }

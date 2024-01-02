@@ -36,8 +36,8 @@ public class QuerydslR2dbc {
         if (sort.isUnsorted()) {
             return query;
         }
-        if (sort instanceof QSort) {
-            return addOrderByFrom((QSort) sort, query);
+        if (sort instanceof QSort qSort) {
+            return addOrderByFrom(qSort, query);
         }
         return addOrderByFrom(sort, query);
     }
