@@ -38,6 +38,12 @@
             <groupId>top.zenyoung</groupId>
             <artifactId>boot-webflux</artifactId>
         </dependency>
+        <!-- flyway -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>

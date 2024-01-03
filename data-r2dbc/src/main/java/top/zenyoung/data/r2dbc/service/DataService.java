@@ -23,7 +23,7 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @return 加载数据
      */
     @Nonnull
-    Mono<M> getById(@Nonnull final K id);
+    Mono<M> findById(@Nonnull final K id);
 
     /**
      * 新增
@@ -31,6 +31,7 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param po 新增数据
      * @return 新增结果
      */
+    @Nonnull
     Mono<Boolean> add(@Nonnull final M po);
 
     /**
@@ -39,6 +40,7 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param pos 新增数据集合
      * @return 新增结果
      */
+    @Nonnull
     Mono<Boolean> batchAdd(@Nonnull final Collection<M> pos);
 
     /**
@@ -47,6 +49,7 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param id 主键ID
      * @return 删除
      */
+    @Nonnull
     Mono<Boolean> delete(@Nonnull final K id);
 
     /**
@@ -55,5 +58,6 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param ids 主键ID集合
      * @return 删除
      */
+    @Nonnull
     Mono<Boolean> delete(@Nonnull final Collection<K> ids);
 }

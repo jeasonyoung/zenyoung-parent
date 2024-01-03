@@ -1,8 +1,6 @@
 package top.zenyoung.data.r2dbc;
 
 import com.google.common.collect.Lists;
-import com.querydsl.r2dbc.R2dbcConnectionProvider;
-import com.querydsl.r2dbc.mysql.MySqlR2dbcQueryFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +10,6 @@ import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.dialect.DialectResolver;
 import org.springframework.data.r2dbc.dialect.R2dbcDialect;
-import org.springframework.r2dbc.connection.ConnectionFactoryUtils;
 import org.springframework.r2dbc.core.DatabaseClient;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.model.UserPrincipal;
@@ -36,18 +33,6 @@ public class R2dbcAutoConfiguration {
     public ReactiveAuditorAware<String> reactiveAuditorAware() {
         return () -> SecurityUtils.getPrincipal()
                 .map(UserPrincipal::getAccount);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public R2dbcConnectionProvider connectionProvider(@Nonnull final DatabaseClient client) {
-        return () -> ConnectionFactoryUtils.getConnection(client.getConnectionFactory());
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public MySqlR2dbcQueryFactory queryFactory(@Nonnull final R2dbcConnectionProvider provider) {
-        return new MySqlR2dbcQueryFactory(provider);
     }
 
     @Bean

@@ -1,10 +1,8 @@
 package top.zenyoung.data.r2dbc.querydsl;
 
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.r2dbc.dml.R2dbcUpdateClause;
+import com.querydsl.sql.dml.SQLUpdateClause;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +17,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor(staticName = "of")
 public class DslUpdateClause {
     private final AtomicBoolean ref = new AtomicBoolean(false);
-    private final R2dbcUpdateClause clause;
+    private final SQLUpdateClause clause;
 
     public <T> DslUpdateClause add(final boolean condition, @Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
         final T val = valHandler.get();
@@ -42,13 +40,5 @@ public class DslUpdateClause {
 
     public <T> DslUpdateClause add(@Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
         return add(true, col, valHandler);
-    }
-
-    public Mono<Boolean> execute(@Nonnull final Predicate where) {
-        if (ref.get()) {
-            return clause.where(where).execute()
-                    .map(ret -> ret > 0);
-        }
-        return Mono.just(false);
     }
 }
