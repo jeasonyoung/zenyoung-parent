@@ -14,13 +14,17 @@ import javax.annotation.Nullable;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum PrivacyPolicyType {
     /**
+     * 未明确
+     */
+    NULL(null, null),
+    /**
      * 手机号码
      */
     MOBILE("^(\\d{3})\\d+(\\d{4})$", "$1****$2"),
     /**
      * 身份证号码
      */
-    IDNUMBER("^(\\d{6})\\d+([0-9|X]{4})$", "$1****$2");
+    ID_CARD("^(\\d{6})\\d+([0-9|X]{4})$", "$1****$2");
 
     private final String regex;
     private final String replacement;
@@ -32,7 +36,7 @@ public enum PrivacyPolicyType {
      * @return 脱敏数据
      */
     public String getPrivacy(@Nullable final String val) {
-        if (!Strings.isNullOrEmpty(val)) {
+        if (!Strings.isNullOrEmpty(val) && !Strings.isNullOrEmpty(regex) && !Strings.isNullOrEmpty(replacement)) {
             return val.replaceAll(regex, replacement);
         }
         return val;

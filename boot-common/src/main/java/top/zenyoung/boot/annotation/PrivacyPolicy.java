@@ -12,16 +12,23 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PrivacyPolicy {
     /**
-     * 获取隐私保护字段数组(注解在方法上生效)
+     * 脱敏-手机号码字段
      *
-     * @return 隐私保护字段数组
+     * @return 手机号码字段
      */
-    String[] fields() default "";
+    String[] mobiles() default {};
 
     /**
-     * 隐私保护策略类型
+     * 脱敏-身份证号码字段
+     *
+     * @return 身份证号码字段
+     */
+    String[] idCards() default {};
+
+    /**
+     * 脱敏类型
      *
      * @return 策略类型
      */
-    PrivacyPolicyType policy() default PrivacyPolicyType.MOBILE;
+    PrivacyPolicyType policy() default PrivacyPolicyType.NULL;
 }
