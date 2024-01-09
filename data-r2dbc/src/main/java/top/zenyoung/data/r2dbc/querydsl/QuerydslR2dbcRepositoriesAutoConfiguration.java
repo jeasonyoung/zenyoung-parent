@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Import;
 @Import({R2dbcConfiguration.class, QuerydslR2dbcRepositoriesAutoConfigureRegistrar.class})
 @AutoConfigureBefore(R2dbcRepositoriesAutoConfiguration.class)
 public class QuerydslR2dbcRepositoriesAutoConfiguration {
-    
+
 }
