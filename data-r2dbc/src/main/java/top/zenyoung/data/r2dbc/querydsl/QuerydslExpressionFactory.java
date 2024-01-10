@@ -39,8 +39,8 @@ import java.util.stream.Stream;
  */
 @RequiredArgsConstructor(staticName = "of")
 public class QuerydslExpressionFactory {
-    private static Map<Class<?>, RelationalPathBase<?>> CLASS_RELATIONAL_PATH_CACHE = Maps.newHashMap();
-    private static Map<EntityPathBase<?>, RelationalPathBase<?>> ENTITY_RELATIONAL_PATH_CACHE = Maps.newHashMap();
+    private static final Map<Class<?>, RelationalPathBase<?>> CLASS_RELATIONAL_PATH_CACHE = Maps.newHashMap();
+    private static final Map<EntityPathBase<?>, RelationalPathBase<?>> ENTITY_RELATIONAL_PATH_CACHE = Maps.newHashMap();
     private final Class<?> repositoryTargetType;
 
     public ConstructorExpression<?> getConstructorExpression(@Nonnull final Class<?> type, @Nonnull final RelationalPath<?> pathBase) {
