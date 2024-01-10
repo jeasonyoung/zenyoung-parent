@@ -137,8 +137,7 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     private <O> RowsFetchSpec<O> query(@Nonnull final SQLQuery<O> query) {
         var mapper = new EntityRowMapper<>(query.getType(), converter);
         var sql = query.getSQL();
-        return querydslParameterBinder.bind(client, sql.getNullFriendlyBindings(), sql.getSQL())
-                .map(mapper);
+        return querydslParameterBinder.bind(client, sql.getNullFriendlyBindings(), sql.getSQL()).map(mapper);
     }
 
     @Nonnull
@@ -147,7 +146,6 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     public Flux<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Pageable pageable) {
         SQLQuery<M> sqlQuery = (SQLQuery<M>) createQuery(predicate);
         sqlQuery = querydsl.applyPagination(pageable, sqlQuery);
-        return query(sqlQuery)
-                .all();
+        return query(sqlQuery).all();
     }
 }
