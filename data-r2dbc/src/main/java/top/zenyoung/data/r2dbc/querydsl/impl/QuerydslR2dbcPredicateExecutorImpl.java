@@ -3,7 +3,7 @@ package top.zenyoung.data.r2dbc.querydsl.impl;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.SimpleExpression;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -91,11 +91,10 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     @Nonnull
     @Override
     public Mono<Long> count(@Nonnull final Predicate predicate) {
-        var count = ((SimpleExpression<?>) constructorExpression.getArgs().get(0)).count();
         var sqlQuery = queryFactory.query()
-                .select(count)
-                .where(predicate)
-                .from(path);
+                .select(Wildcard.count)
+                .from(path)
+                .where(predicate);
         return query(sqlQuery).one();
     }
 
