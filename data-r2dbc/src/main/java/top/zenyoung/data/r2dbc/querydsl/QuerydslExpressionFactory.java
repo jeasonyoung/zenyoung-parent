@@ -39,6 +39,8 @@ import java.util.stream.Stream;
  */
 @RequiredArgsConstructor(staticName = "of")
 public class QuerydslExpressionFactory {
+    private static Map<Class<?>, RelationalPathBase<?>> CLASS_RELATIONAL_PATH_CACHE = Maps.newHashMap();
+    private static Map<EntityPathBase<?>, RelationalPathBase<?>> ENTITY_RELATIONAL_PATH_CACHE = Maps.newHashMap();
     private final Class<?> repositoryTargetType;
 
     public ConstructorExpression<?> getConstructorExpression(@Nonnull final Class<?> type, @Nonnull final RelationalPath<?> pathBase) {
@@ -148,30 +150,38 @@ public class QuerydslExpressionFactory {
     }
 
     private RelationalPathBase<?> getRelationalPathBaseFromQueryClass(@Nonnull final Class<?> queryClass) {
-        var fieldName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, queryClass.getSimpleName().substring(1));
-        var field = ReflectionUtils.findField(queryClass, fieldName);
-        if (field == null) {
-            throw new IllegalArgumentException("Did not find a static field of the same type in " + queryClass);
-        }
-        final EntityPathBase<?> entity = (EntityPathBase<?>) ReflectionUtils.getField(field, null);
-        if (entity == null) {
-            throw new IllegalArgumentException(field.getName() + ",未继承 EntityPathBase");
-        }
-        final Class<?> entityClass = entity.getType();
-        String schemaName = null, tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityClass.getSimpleName());
-        final AnnotatedElement annotatedElement;
-        if (Objects.nonNull(annotatedElement = entity.getAnnotatedElement())) {
-            final Table table = annotatedElement.getAnnotation(Table.class);
-            if (Objects.nonNull(table)) {
-                schemaName = table.schema();
-                final String name = Optional.of(table.value())
-                        .filter(val -> !Strings.isNullOrEmpty(val))
-                        .orElse(table.name());
-                if (!Strings.isNullOrEmpty(name)) {
-                    tableName = name;
+        return CLASS_RELATIONAL_PATH_CACHE.computeIfAbsent(queryClass, key -> {
+            var fieldName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, key.getSimpleName().substring(1));
+            var field = ReflectionUtils.findField(key, fieldName);
+            if (field == null) {
+                throw new IllegalArgumentException("Did not find a static field of the same type in " + key);
+            }
+            final EntityPathBase<?> entity = (EntityPathBase<?>) ReflectionUtils.getField(field, null);
+            if (entity == null) {
+                throw new IllegalArgumentException(field.getName() + ",未继承 EntityPathBase");
+            }
+            return fromEntityPath(entity);
+        });
+    }
+
+    public static RelationalPathBase<?> fromEntityPath(@Nonnull final EntityPathBase<?> entity) {
+        return ENTITY_RELATIONAL_PATH_CACHE.computeIfAbsent(entity, key -> {
+            final Class<?> cls = key.getType();
+            String schemaName = null, tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, cls.getSimpleName());
+            final AnnotatedElement annotatedElement;
+            if (Objects.nonNull(annotatedElement = key.getAnnotatedElement())) {
+                final Table table = annotatedElement.getAnnotation(Table.class);
+                if (Objects.nonNull(table)) {
+                    schemaName = table.schema();
+                    final String name = Optional.of(table.value())
+                            .filter(val -> !Strings.isNullOrEmpty(val))
+                            .orElse(table.name());
+                    if (!Strings.isNullOrEmpty(name)) {
+                        tableName = name;
+                    }
                 }
             }
-        }
-        return new RelationalPathBase<>(entityClass, entity.getMetadata(), schemaName, tableName);
+            return new RelationalPathBase<>(cls, key.getMetadata(), schemaName, tableName);
+        });
     }
 }
