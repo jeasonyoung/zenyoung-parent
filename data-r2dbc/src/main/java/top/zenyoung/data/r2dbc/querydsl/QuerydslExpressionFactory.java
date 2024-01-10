@@ -1,10 +1,12 @@
 package top.zenyoung.data.r2dbc.querydsl;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,11 @@ import org.springframework.data.mapping.PreferredConstructor;
 import org.springframework.data.mapping.model.PreferredConstructorDiscoverer;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -149,6 +153,25 @@ public class QuerydslExpressionFactory {
         if (field == null) {
             throw new IllegalArgumentException("Did not find a static field of the same type in " + queryClass);
         }
-        return (RelationalPathBase<?>) ReflectionUtils.getField(field, null);
+        final EntityPathBase<?> entity = (EntityPathBase<?>) ReflectionUtils.getField(field, null);
+        if (entity == null) {
+            throw new IllegalArgumentException(field.getName() + ",未继承 EntityPathBase");
+        }
+        final Class<?> entityClass = entity.getType();
+        String schemaName = null, tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityClass.getSimpleName());
+        final AnnotatedElement annotatedElement;
+        if (Objects.nonNull(annotatedElement = entity.getAnnotatedElement())) {
+            final Table table = annotatedElement.getAnnotation(Table.class);
+            if (Objects.nonNull(table)) {
+                schemaName = table.schema();
+                final String name = Optional.of(table.value())
+                        .filter(val -> !Strings.isNullOrEmpty(val))
+                        .orElse(table.name());
+                if (!Strings.isNullOrEmpty(name)) {
+                    tableName = name;
+                }
+            }
+        }
+        return new RelationalPathBase<>(entityClass, entity.getMetadata(), schemaName, tableName);
     }
 }
