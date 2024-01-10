@@ -5,10 +5,12 @@ import io.r2dbc.spi.Parameters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.binding.BindMarkersFactory;
+import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Querydsl桥接器
@@ -34,7 +36,12 @@ public class QuerydslParameterBinder {
         var parameterNameToParameterValue = Maps.<String, Object>newLinkedHashMap();
         for (int i = 0; i < bindings.size(); i++) {
             var marker = bindMarkers.next(String.valueOf(i));
-            parameterNameToParameterValue.put(marker.getPlaceholder(), bindings.get(i));
+            //检查是否为枚举
+            Object param = bindings.get(i);
+            if (Objects.nonNull(param) && (param instanceof EnumValue p)) {
+                param = p.getVal();
+            }
+            parameterNameToParameterValue.put(marker.getPlaceholder(), param);
         }
         return parameterNameToParameterValue;
     }
