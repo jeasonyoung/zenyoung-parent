@@ -5,12 +5,12 @@ import io.r2dbc.spi.Parameters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.binding.BindMarkersFactory;
+import org.springframework.util.CollectionUtils;
 import top.zenyoung.common.model.EnumValue;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Querydsl桥接器
@@ -25,23 +25,26 @@ public class QuerydslParameterBinder {
         var parameterNameToParameterValue = parameterNameToParameterValue(bindings);
         var sqlWithParameterNames = getSqlWithParameterNames(parameterNameToParameterValue, sql);
         var spec = client.sql(sqlWithParameterNames);
-        for (Map.Entry<String, Object> entry : parameterNameToParameterValue.entrySet()) {
-            spec = spec.bind(entry.getKey(), Parameters.in(entry.getValue()));
+        if (!CollectionUtils.isEmpty(parameterNameToParameterValue)) {
+            for (Map.Entry<String, Object> entry : parameterNameToParameterValue.entrySet()) {
+                spec = spec.bind(entry.getKey(), Parameters.in(entry.getValue()));
+            }
         }
         return spec;
     }
 
     private Map<String, Object> parameterNameToParameterValue(@Nonnull final List<Object> bindings) {
-        var bindMarkers = bindMarkersFactory.create();
-        var parameterNameToParameterValue = Maps.<String, Object>newLinkedHashMap();
-        for (int i = 0; i < bindings.size(); i++) {
-            var marker = bindMarkers.next(String.valueOf(i));
-            //检查是否为枚举
-            Object param = bindings.get(i);
-            if (Objects.nonNull(param) && (param instanceof EnumValue p)) {
-                param = p.getVal();
-            }
-            parameterNameToParameterValue.put(marker.getPlaceholder(), param);
+        final var parameterNameToParameterValue = Maps.<String, Object>newLinkedHashMap();
+        if (!CollectionUtils.isEmpty(bindings)) {
+            final var bindMarkers = bindMarkersFactory.create();
+            bindings.forEach(param -> {
+                final var marker = bindMarkers.next();
+                Object val = param;
+                if (param instanceof EnumValue p) {
+                    val = p.getVal();
+                }
+                parameterNameToParameterValue.put(marker.getPlaceholder(), val);
+            });
         }
         return parameterNameToParameterValue;
     }

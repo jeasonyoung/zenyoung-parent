@@ -19,8 +19,8 @@ public class R2dbcSQLTemplatesConfiguration {
     @Bean
     @ConditionalOnBean(Flyway.class)
     public SQLTemplates sqlTemplates(@Nonnull final Flyway flyway) throws SQLException {
-        try (var connectionFactory = new JdbcConnectionFactory(
-                flyway.getConfiguration().getDataSource(), flyway.getConfiguration(), null)) {
+        final var config = flyway.getConfiguration();
+        try (var connectionFactory = new JdbcConnectionFactory(config.getDataSource(), config, null)) {
             var sqlTemplatesRegistry = new SQLTemplatesRegistry();
             try (var conn = connectionFactory.openConnection()) {
                 return sqlTemplatesRegistry.getTemplates(conn.getMetaData());

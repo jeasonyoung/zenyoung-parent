@@ -19,12 +19,12 @@ public class DslUpdateClause {
     private final AtomicBoolean ref = new AtomicBoolean(false);
     private final SQLUpdateClause clause;
 
-    public <T> DslUpdateClause add(final boolean condition, @Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
+    public <T> DslUpdateClause set(final boolean condition, @Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
         final T val = valHandler.get();
-        return add(condition, col, val);
+        return set(condition, col, val);
     }
 
-    public <T> DslUpdateClause add(final boolean condition, @Nonnull final Path<T> col, @Nullable final T val) {
+    public <T> DslUpdateClause set(final boolean condition, @Nonnull final Path<T> col, @Nullable final T val) {
         if (condition) {
             if (!ref.get()) {
                 ref.set(true);
@@ -34,11 +34,11 @@ public class DslUpdateClause {
         return this;
     }
 
-    public <T> DslUpdateClause add(@Nonnull final Path<T> col, @Nullable final T val) {
-        return add(true, col, val);
+    public <T> DslUpdateClause set(@Nonnull final Path<T> col, @Nullable final T val) {
+        return set(true, col, val);
     }
 
-    public <T> DslUpdateClause add(@Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
-        return add(true, col, valHandler);
+    public <T> DslUpdateClause set(@Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
+        return set(true, col, valHandler);
     }
 }
