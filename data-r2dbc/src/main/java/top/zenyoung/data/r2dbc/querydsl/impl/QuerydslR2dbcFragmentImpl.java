@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import top.zenyoung.data.r2dbc.querydsl.QuerydslParameterBinder;
 import top.zenyoung.data.r2dbc.querydsl.QuerydslR2dbcFragment;
-import top.zenyoung.data.r2dbc.querydsl.SimpleRowsFetchSpec;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -79,12 +78,10 @@ public class QuerydslR2dbcFragmentImpl<T> implements QuerydslR2dbcFragment<T> {
     }
 
     private <O> RowsFetchSpec<O> createQuery(@Nonnull final Function<SQLQuery<?>, SQLQuery<O>> query) {
-        var result = query.apply(queryFactory.query());
-        var mapper = new EntityRowMapper<>(result.getType(), converter);
-        var sql = result.getSQL();
-        return SimpleRowsFetchSpec.of(
-                querydslParameterBinder.bind(client, sql.getNullFriendlyBindings(), sql.getSQL()).map(mapper)
-        );
+        final var result = query.apply(queryFactory.query());
+        final var mapper = new EntityRowMapper<>(result.getType(), converter);
+        final var sql = result.getSQL();
+        return querydslParameterBinder.bind(client, sql.getNullFriendlyBindings(), sql.getSQL()).map(mapper);
     }
 
     private List<Object> getBindings(@Nonnull final List<SQLBindings> sqlBindings) {
