@@ -1,5 +1,7 @@
 package top.zenyoung.data.r2dbc.querydsl;
 
+import com.querydsl.core.JoinExpression;
+import com.querydsl.core.types.dsl.EntityPathBase;
 import com.querydsl.sql.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -37,12 +39,12 @@ public class R2dbcConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SQLQueryFactory sqlQueryFactory(com.querydsl.sql.Configuration sqlConfiguration) {
+    public SQLQueryFactory sqlQueryFactory(@Nonnull final com.querydsl.sql.Configuration sqlConfiguration) {
         return new SQLQueryFactoryInner(sqlConfiguration);
     }
 
     private static class SQLQueryFactoryInner extends SQLQueryFactory {
-        public SQLQueryFactoryInner(final com.querydsl.sql.Configuration sqlConfiguration) {
+        public SQLQueryFactoryInner(@Nonnull final com.querydsl.sql.Configuration sqlConfiguration) {
             super(sqlConfiguration, (DataSource) null);
         }
 
@@ -60,21 +62,28 @@ public class R2dbcConfiguration {
         @Nonnull
         @Override
         protected SQLSerializer createSerializer() {
-            final SQLSerializerInner serializer = new SQLSerializerInner(configuration);
+            final SQLSerializer serializer = new SQLSerializerInner(configuration);
             serializer.setUseLiterals(useLiterals);
             return serializer;
         }
     }
 
     private static class SQLSerializerInner extends SQLSerializer {
+
         public SQLSerializerInner(final com.querydsl.sql.Configuration conf) {
             super(conf);
         }
 
         @Override
-        protected void serializeConstant(final int parameterIndex, final String constantLabel) {
-            append("?");
-            append(Integer.toString(parameterIndex));
+        protected void handleJoinTarget(final JoinExpression je) {
+            if (je.getTarget() instanceof EntityPathBase<?> entityPath) {
+                final var pe = QuerydslExpressionFactory.fromEntityPath(entityPath);
+                final var nJe = new JoinExpression(je.getType(), pe, je.getCondition(), je.getFlags());
+                super.handleJoinTarget(nJe);
+            } else {
+                super.handleJoinTarget(je);
+            }
         }
+
     }
 }

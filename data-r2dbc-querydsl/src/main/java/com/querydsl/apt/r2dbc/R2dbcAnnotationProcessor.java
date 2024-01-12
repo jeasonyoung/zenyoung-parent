@@ -1,5 +1,6 @@
 package com.querydsl.apt.r2dbc;
 
+import com.google.auto.service.AutoService;
 import com.querydsl.apt.AbstractQuerydslProcessor;
 import com.querydsl.apt.Configuration;
 import org.springframework.data.annotation.Transient;
@@ -7,6 +8,7 @@ import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.Table;
 import top.zenyoung.data.annotations.MappedSuperclass;
 
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import java.lang.annotation.Annotation;
@@ -17,6 +19,7 @@ import java.lang.annotation.Annotation;
         "org.springframework.data.annotation.*",
         "org.springframework.data.relational.core.mapping.*"
 })
+@AutoService(Processor.class)
 public class R2dbcAnnotationProcessor extends AbstractQuerydslProcessor {
     @Override
     protected Configuration createConfiguration(final RoundEnvironment roundEnv) {

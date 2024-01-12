@@ -16,22 +16,39 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- spring data r2dbc -->
+        <!-- spring -->
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-r2dbc</artifactId>
+            <artifactId>spring-data-relational</artifactId>
+        </dependency>
+        <!-- auto service -->
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
         </dependency>
         <!-- query dsl -->
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql</artifactId>
             <version>${querydsl.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>ecj</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
             <version>${querydsl.version}</version>
             <classifier>jakarta</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>ecj</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- 工具类 -->
         <dependency>
@@ -46,6 +63,14 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/services/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
