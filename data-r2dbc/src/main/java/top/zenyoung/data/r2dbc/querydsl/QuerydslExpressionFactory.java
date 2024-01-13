@@ -3,27 +3,25 @@ package top.zenyoung.data.r2dbc.querydsl;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.querydsl.core.types.ConstructorExpression;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.EntityPathBase;
+import com.querydsl.sql.ColumnMetadata;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.RelationalPathBase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mapping.PreferredConstructor;
 import org.springframework.data.mapping.model.PreferredConstructorDiscoverer;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,6 +39,8 @@ import java.util.stream.Stream;
 public class QuerydslExpressionFactory {
     private static final Map<Class<?>, RelationalPathBase<?>> CLASS_RELATIONAL_PATH_CACHE = Maps.newHashMap();
     private static final Map<EntityPathBase<?>, RelationalPathBase<?>> ENTITY_RELATIONAL_PATH_CACHE = Maps.newHashMap();
+    private static final Map<String, Map<String, String>> TABLE_FIELD_COLUMN_CACHE = Maps.newHashMap();
+    //
     private final Class<?> repositoryTargetType;
 
     public ConstructorExpression<?> getConstructorExpression(@Nonnull final Class<?> type, @Nonnull final RelationalPath<?> pathBase) {
@@ -181,7 +181,68 @@ public class QuerydslExpressionFactory {
                     }
                 }
             }
-            return new RelationalPathBase<>(cls, key.getMetadata(), schemaName, tableName);
+            final var inner = new RelationalPathBaseInner<>(cls, key.getMetadata(), schemaName, tableName);
+            inner.parseColumns(key);
+            return inner;
         });
+    }
+
+    public static String getTableColumn(@Nonnull final RelationalPathBase<?> relational, @Nonnull final String fieldName) {
+        return Optional.ofNullable(relational.getTableName())
+                .filter(table -> !Strings.isNullOrEmpty(table))
+                .map(table -> TABLE_FIELD_COLUMN_CACHE.getOrDefault(table, null))
+                .map(tableColumnMap -> tableColumnMap.getOrDefault(fieldName, null))
+                .orElse(null);
+    }
+
+    public static String getTableColumn(@Nonnull final EntityPathBase<?> entity, @Nonnull final String fieldName) {
+        return getTableColumn(fromEntityPath(entity), fieldName);
+    }
+
+    private static class RelationalPathBaseInner<T> extends RelationalPathBase<T> {
+        public RelationalPathBaseInner(final Class<? extends T> type, final PathMetadata metadata, final String schema, final String table) {
+            super(type, metadata, schema, table);
+        }
+
+        public void parseColumns(@Nonnull final EntityPathBase<?> entity) {
+            final Class<?> domainCls = super.getType(), entityCls = entity.getClass();
+            final Field[] fields = entityCls.getDeclaredFields();
+            for (final Field field : fields) {
+                final Method method = ReflectionUtils.findMethod(field.getType(), "getMetadata");
+                if (Objects.nonNull(method)) {
+                    final var fieldObj = ReflectionUtils.getField(field, entity);
+                    final var invokeRet = ReflectionUtils.invokeMethod(method, fieldObj);
+                    if ((invokeRet instanceof PathMetadata pm)
+                            && pm.getPathType() == PathType.PROPERTY
+                            && (pm.getElement() instanceof String property)
+                            && !Strings.isNullOrEmpty(property)) {
+                        final Field col = ReflectionUtils.findField(domainCls, property);
+                        if (Objects.nonNull(col)) {
+                            final var colProp = ReflectionUtils.getField(field, entity);
+                            if (colProp instanceof Path<?> colPropPath) {
+                                //检查字段名
+                                String colName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, col.getName());
+                                final Column column = col.getAnnotation(Column.class);
+                                if (Objects.nonNull(column) && !Strings.isNullOrEmpty(column.value())) {
+                                    colName = column.value();
+                                }
+                                final String tableName;
+                                if (!Strings.isNullOrEmpty(tableName = super.getTableName()) && !Strings.isNullOrEmpty(colName)) {
+                                    final var fieldColumnMap = TABLE_FIELD_COLUMN_CACHE.computeIfAbsent(tableName, k -> Maps.newHashMap());
+                                    fieldColumnMap.put(col.getName(), colName);
+                                }
+                                //检查是否为主键
+                                final var idAnnon = col.getAnnotation(Id.class);
+                                if (Objects.nonNull(idAnnon)) {
+                                    createPrimaryKey(colPropPath);
+                                }
+                                //添加字段
+                                addMetadata(colPropPath, ColumnMetadata.getColumnMetadata(colPropPath));
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
