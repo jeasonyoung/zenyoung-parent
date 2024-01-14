@@ -2,7 +2,6 @@ package top.zenyoung.data.r2dbc.querydsl;
 
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.sql.RelationalPath;
-import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQueryFactory;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations;
@@ -64,7 +63,7 @@ public class QuerydslR2dbcRepositoryFactory extends R2dbcRepositoryFactory {
     }
 
     private RepositoryFragment<Object> createQuerydslPredicateExecutor(@Nonnull final ConstructorExpression<?> constructorExpression,
-                                                                       @Nonnull final RelationalPathBase<?> path) {
+                                                                       @Nonnull final RelationalPath<?> path) {
         var context = converter.getMappingContext();
         @SuppressWarnings("unchecked")
         var entity = context.getRequiredPersistentEntity(constructorExpression.getType());

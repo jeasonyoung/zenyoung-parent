@@ -21,7 +21,10 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,8 +40,8 @@ import java.util.stream.Stream;
  */
 @RequiredArgsConstructor(staticName = "of")
 public class QuerydslExpressionFactory {
-    private static final Map<Class<?>, RelationalPathBase<?>> CLASS_RELATIONAL_PATH_CACHE = Maps.newHashMap();
-    private static final Map<EntityPathBase<?>, RelationalPathBase<?>> ENTITY_RELATIONAL_PATH_CACHE = Maps.newHashMap();
+    private static final Map<Class<?>, RelationalPath<?>> CLASS_RELATIONAL_PATH_CACHE = Maps.newHashMap();
+    private static final Map<EntityPath<?>, RelationalPath<?>> ENTITY_RELATIONAL_PATH_CACHE = Maps.newHashMap();
     private static final Map<String, Map<String, String>> TABLE_FIELD_COLUMN_CACHE = Maps.newHashMap();
     //
     private final Class<?> repositoryTargetType;
@@ -129,7 +132,7 @@ public class QuerydslExpressionFactory {
         return preferredConstructor.getConstructor();
     }
 
-    public RelationalPathBase<?> getRelationalPathBaseFromQueryRepositoryClass(@Nonnull final Class<?> repositoryInterface) {
+    public RelationalPath<?> getRelationalPathBaseFromQueryRepositoryClass(@Nonnull final Class<?> repositoryInterface) {
         var entityType = ResolvableType.forClass(repositoryInterface)
                 .as(repositoryTargetType)
                 .getGeneric(0)
@@ -149,7 +152,7 @@ public class QuerydslExpressionFactory {
         }
     }
 
-    private RelationalPathBase<?> getRelationalPathBaseFromQueryClass(@Nonnull final Class<?> queryClass) {
+    private RelationalPath<?> getRelationalPathBaseFromQueryClass(@Nonnull final Class<?> queryClass) {
         return CLASS_RELATIONAL_PATH_CACHE.computeIfAbsent(queryClass, key -> {
             var fieldName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, key.getSimpleName().substring(1));
             var field = ReflectionUtils.findField(key, fieldName);
@@ -164,21 +167,18 @@ public class QuerydslExpressionFactory {
         });
     }
 
-    public static RelationalPathBase<?> fromEntityPath(@Nonnull final EntityPathBase<?> entity) {
+    public static RelationalPath<?> fromEntityPath(@Nonnull final EntityPath<?> entity) {
         return ENTITY_RELATIONAL_PATH_CACHE.computeIfAbsent(entity, key -> {
             final Class<?> cls = key.getType();
             String schemaName = null, tableName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, cls.getSimpleName());
-            final AnnotatedElement annotatedElement;
-            if (Objects.nonNull(annotatedElement = key.getAnnotatedElement())) {
-                final Table table = annotatedElement.getAnnotation(Table.class);
-                if (Objects.nonNull(table)) {
-                    schemaName = table.schema();
-                    final String name = Optional.of(table.value())
-                            .filter(val -> !Strings.isNullOrEmpty(val))
-                            .orElse(table.name());
-                    if (!Strings.isNullOrEmpty(name)) {
-                        tableName = name;
-                    }
+            final Table table = AnnotationUtils.findAnnotation(cls, Table.class);
+            if (Objects.nonNull(table)) {
+                schemaName = table.schema();
+                final String name = Optional.of(table.value())
+                        .filter(val -> !Strings.isNullOrEmpty(val))
+                        .orElse(table.name());
+                if (!Strings.isNullOrEmpty(name)) {
+                    tableName = name;
                 }
             }
             final var inner = new RelationalPathBaseInner<>(cls, key.getMetadata(), schemaName, tableName);
@@ -187,7 +187,7 @@ public class QuerydslExpressionFactory {
         });
     }
 
-    public static String getTableColumn(@Nonnull final RelationalPathBase<?> relational, @Nonnull final String fieldName) {
+    public static String getTableColumn(@Nonnull final RelationalPath<?> relational, @Nonnull final String fieldName) {
         return Optional.ofNullable(relational.getTableName())
                 .filter(table -> !Strings.isNullOrEmpty(table))
                 .map(table -> TABLE_FIELD_COLUMN_CACHE.getOrDefault(table, null))
@@ -195,7 +195,7 @@ public class QuerydslExpressionFactory {
                 .orElse(null);
     }
 
-    public static String getTableColumn(@Nonnull final EntityPathBase<?> entity, @Nonnull final String fieldName) {
+    public static String getTableColumn(@Nonnull final EntityPath<?> entity, @Nonnull final String fieldName) {
         return getTableColumn(fromEntityPath(entity), fieldName);
     }
 
@@ -204,40 +204,38 @@ public class QuerydslExpressionFactory {
             super(type, metadata, schema, table);
         }
 
-        public void parseColumns(@Nonnull final EntityPathBase<?> entity) {
+        public void parseColumns(@Nonnull final EntityPath<?> entity) {
             final Class<?> domainCls = super.getType(), entityCls = entity.getClass();
-            final Field[] fields = entityCls.getDeclaredFields();
-            for (final Field field : fields) {
-                final Method method = ReflectionUtils.findMethod(field.getType(), "getMetadata");
+            final Field[] entityFields = entityCls.getDeclaredFields();
+            for (final Field entityField : entityFields) {
+                final Method method = ReflectionUtils.findMethod(entityField.getType(), "getMetadata");
                 if (Objects.nonNull(method)) {
-                    final var fieldObj = ReflectionUtils.getField(field, entity);
-                    final var invokeRet = ReflectionUtils.invokeMethod(method, fieldObj);
-                    if ((invokeRet instanceof PathMetadata pm)
-                            && pm.getPathType() == PathType.PROPERTY
-                            && (pm.getElement() instanceof String property)
-                            && !Strings.isNullOrEmpty(property)) {
-                        final Field col = ReflectionUtils.findField(domainCls, property);
-                        if (Objects.nonNull(col)) {
-                            final var colProp = ReflectionUtils.getField(field, entity);
-                            if (colProp instanceof Path<?> colPropPath) {
+                    final var entityFieldObj = ReflectionUtils.getField(entityField, entity);
+                    final var metadata = ReflectionUtils.invokeMethod(method, entityFieldObj);
+                    if ((metadata instanceof PathMetadata pm) && pm.getPathType() == PathType.PROPERTY
+                            && (pm.getElement() instanceof String property) && !Strings.isNullOrEmpty(property)) {
+                        final Field field = ReflectionUtils.findField(domainCls, property);
+                        if (Objects.nonNull(field)) {
+                            final var entityFieldVal = ReflectionUtils.getField(entityField, entity);
+                            if (entityFieldVal instanceof Path<?> entityFieldPath) {
+                                final String fieldName = field.getName();
                                 //检查字段名
-                                String colName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, col.getName());
-                                final Column column = col.getAnnotation(Column.class);
+                                String colName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName);
+                                final Column column = AnnotationUtils.findAnnotation(field, Column.class);
                                 if (Objects.nonNull(column) && !Strings.isNullOrEmpty(column.value())) {
                                     colName = column.value();
                                 }
                                 final String tableName;
                                 if (!Strings.isNullOrEmpty(tableName = super.getTableName()) && !Strings.isNullOrEmpty(colName)) {
                                     final var fieldColumnMap = TABLE_FIELD_COLUMN_CACHE.computeIfAbsent(tableName, k -> Maps.newHashMap());
-                                    fieldColumnMap.put(col.getName(), colName);
+                                    fieldColumnMap.put(fieldName, colName);
                                 }
                                 //检查是否为主键
-                                final var idAnnon = col.getAnnotation(Id.class);
-                                if (Objects.nonNull(idAnnon)) {
-                                    createPrimaryKey(colPropPath);
+                                if (Objects.nonNull(AnnotationUtils.findAnnotation(field, Id.class))) {
+                                    createPrimaryKey(entityFieldPath);
                                 }
                                 //添加字段
-                                addMetadata(colPropPath, ColumnMetadata.getColumnMetadata(colPropPath));
+                                addMetadata(entityFieldPath, ColumnMetadata.getColumnMetadata(entityFieldPath));
                             }
                         }
                     }
