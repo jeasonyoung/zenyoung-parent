@@ -13,7 +13,10 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
  */
 @Getter
 @ToString
-public class DefaultIdSegment implements IdSegment {
+public class JdbcDefaultIdSegment implements JdbcIdSegment {
+    public static final JdbcDefaultIdSegment OVERFLOW = new JdbcDefaultIdSegment(SEQUENCE_OVERFLOW, 0, Clock.CACHE.secondTime(), TIME_TO_LIVE_FOREVER);
+    private static final AtomicLongFieldUpdater<JdbcDefaultIdSegment> S = AtomicLongFieldUpdater.newUpdater(JdbcDefaultIdSegment.class, "sequence");
+
     private final long maxId;
     private final long offset;
     private final long step;
@@ -21,7 +24,7 @@ public class DefaultIdSegment implements IdSegment {
     private final long fetchTime;
     private final long ttl;
 
-    public DefaultIdSegment(final long maxId, final long step, final long fetchTime, final long ttl) {
+    public JdbcDefaultIdSegment(final long maxId, final long step, final long fetchTime, final long ttl) {
         Preconditions.checkArgument(ttl > 0, "ttl:[%s] must be greater than 0.", ttl);
         this.maxId = maxId;
         this.step = step;
@@ -30,10 +33,6 @@ public class DefaultIdSegment implements IdSegment {
         this.fetchTime = fetchTime;
         this.ttl = ttl;
     }
-
-    public static final DefaultIdSegment OVERFLOW = new DefaultIdSegment(SEQUENCE_OVERFLOW, 0, Clock.CACHE.secondTime(), TIME_TO_LIVE_FOREVER);
-
-    private static final AtomicLongFieldUpdater<DefaultIdSegment> S = AtomicLongFieldUpdater.newUpdater(DefaultIdSegment.class, "sequence");
 
     @Override
     public long incrementAndGet() {

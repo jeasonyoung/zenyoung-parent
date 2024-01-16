@@ -20,7 +20,7 @@ import java.sql.SQLException;
  * @author young
  */
 @Slf4j
-public class JdbcIdSegmentDistributor implements IdSegmentDistributor {
+public class JdbcIdSegmentDistributor implements JdbcSegmentDistributor {
     public static final Integer MAX_STEP = 5000;
     public static final String INCREMENT_MAX_ID_SQL = "update tbl_segment_id set max_id=(max_id + ?), step = ?, version=unix_timestamp() where biz_type = ?";
     public static final String FETCH_MAX_ID_SQL = "select max_id from tbl_segment_id where biz_type = ?";

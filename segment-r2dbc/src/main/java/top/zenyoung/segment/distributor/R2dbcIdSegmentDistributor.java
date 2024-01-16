@@ -10,7 +10,7 @@ import top.zenyoung.segment.exception.SegmentNameMissingException;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * R2dbc 分布式分段ID实现
@@ -18,10 +18,11 @@ import java.util.Optional;
  * @author young
  */
 @Slf4j
-public class R2dbcIdSegmentDistributor implements IdSegmentDistributor {
+public class R2dbcIdSegmentDistributor implements R2dbcSegmentDistributor {
     public static final Integer MAX_STEP = 5000;
-    public static final String INCREMENT_MAX_ID_SQL = "update tbl_segment_id set max_id=(max_id + ?), step = ?, version=unix_timestamp() where biz_type = ?";
-    public static final String FETCH_MAX_ID_SQL = "select max_id from tbl_segment_id where biz_type = ?";
+    public static final String INCREMENT_MAX_ID_SQL = "update tbl_segment_id set max_id=(max_id + :{step}), " +
+            "step = :{step}, version=unix_timestamp() where biz_type = :{bizType}";
+    public static final String FETCH_MAX_ID_SQL = "select max_id from tbl_segment_id where biz_type = :{bizType}";
 
     private final String namespace;
     private final long step;
@@ -52,38 +53,30 @@ public class R2dbcIdSegmentDistributor implements IdSegmentDistributor {
     }
 
     @Override
-    public long nextMaxId(final long step) {
+    public Mono<Long> nextMaxId(final long step) {
         final long sep = Math.min(step, MAX_STEP);
-        ensureStep(sep);
-        try {
-            //更新数据
-            final Long maxId = dataSource.sql(incrementMaxIdSql)
-                    .bind(1, step)
-                    .bind(2, step)
-                    .bind(3, getNamespace())
-                    .fetch()
-                    .rowsUpdated()
-                    .flatMap(affected -> {
-                        if (affected == 0) {
-                            return Mono.error(new SegmentNameMissingException(getNamespace()));
-                        }
-                        return dataSource.sql(fetchMaxIdSql)
-                                .bind(1, getNamespace())
-                                .fetch()
-                                .first()
-                                .map(ret -> {
-                                    final Object val = ret.getOrDefault("max_id", null);
-                                    if (Objects.nonNull(val) && (val instanceof Number)) {
-                                        return ((Number) val).longValue();
-                                    }
-                                    return 0L;
-                                });
-                    })
-                    .block();
-            return Optional.ofNullable(maxId).map(Number::longValue).orElse(0L);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new SegmentException(e.getMessage(), e);
-        }
+        final Supplier<Mono<Long>> getMaxHandler = () -> dataSource.sql(incrementMaxIdSql)
+                .bind("step", step)
+                .bind("bizType", getNamespace())
+                .fetch().rowsUpdated().flatMap(affected -> {
+                    if (affected == 0) {
+                        return Mono.error(new SegmentNameMissingException(getNamespace()));
+                    }
+                    return dataSource.sql(fetchMaxIdSql)
+                            .bind("bizType", getNamespace())
+                            .map(row -> {
+                                final Long val = row.get("max_id", Long.class);
+                                if (Objects.nonNull(val)) {
+                                    return val;
+                                }
+                                return 0L;
+                            }).
+                            first();
+                }).doOnError(e -> {
+                    log.error(e.getMessage(), e);
+                    throw new SegmentException(e.getMessage(), e);
+                });
+        return ensureStep(sep)
+                .then(getMaxHandler.get());
     }
 }

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import top.zenyoung.segment.concurrent.PrefetchWorkerExecutorService;
-import top.zenyoung.segment.distributor.IdSegmentDistributor;
+import top.zenyoung.segment.distributor.JdbcSegmentDistributor;
 import top.zenyoung.segment.distributor.JdbcIdSegmentDistributor;
 import top.zenyoung.segment.exception.NotFoundMaxIdException;
 import top.zenyoung.segment.exception.SegmentException;
@@ -18,7 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-import static top.zenyoung.segment.IdSegment.TIME_TO_LIVE_FOREVER;
+import static top.zenyoung.segment.JdbcIdSegment.TIME_TO_LIVE_FOREVER;
 
 /**
  * JDBC 分段ID工厂
@@ -43,8 +43,8 @@ public class JdbcSegmentIdFactory implements SegmentIdFactory {
             try {
                 return GENERATORS.computeIfAbsent(bizType, key -> {
                     final SegmentIdDefinition definition = getIdDefinition(key);
-                    final IdSegmentDistributor distributor = new JdbcIdSegmentDistributor(bizType, definition.getStep(), dataSource);
-                    return new SegmentChainId(TIME_TO_LIVE_FOREVER, definition.getSafeDistance(), distributor, prefetchWorkerExecutorService);
+                    final JdbcSegmentDistributor distributor = new JdbcIdSegmentDistributor(bizType, definition.getStep(), dataSource);
+                    return new JdbcSegmentChainId(TIME_TO_LIVE_FOREVER, definition.getSafeDistance(), distributor, prefetchWorkerExecutorService);
                 });
             } finally {
                 LOCKS.remove(bizType);
@@ -64,7 +64,7 @@ public class JdbcSegmentIdFactory implements SegmentIdFactory {
                     final long maxId = resultSet.getLong(1);
                     final long step = resultSet.getLong(2);
                     final int safeDistance = resultSet.getInt(3);
-                    definition = new SegmentIdDefinition(bizType, safeDistance, maxId - step, step);
+                    definition = SegmentIdDefinition.of(bizType, safeDistance, maxId - step, step);
                 }
             }
             return definition;

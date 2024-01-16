@@ -17,23 +17,23 @@ import java.util.function.UnaryOperator;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public class IdSegmentChain implements IdSegment {
+public class JdbcIdSegmentChain implements JdbcIdSegment {
     private static final int ROOT_VERSION = -1;
-    private static final IdSegmentChain NOT_SET = null;
-    private final AtomicReference<IdSegmentChain> refNext = new AtomicReference<>(null);
+    private static final JdbcIdSegmentChain NOT_SET = null;
+    private final AtomicReference<JdbcIdSegmentChain> refNext = new AtomicReference<>(null);
 
     private final long version;
-    private final IdSegment idSegment;
+    private final JdbcIdSegment idSegment;
 
-    public IdSegmentChain getNext() {
+    public JdbcIdSegmentChain getNext() {
         return refNext.get();
     }
 
-    public IdSegmentChain(@Nonnull final IdSegmentChain previousChain, @Nonnull final IdSegment idSegment) {
+    public JdbcIdSegmentChain(@Nonnull final JdbcIdSegmentChain previousChain, @Nonnull final JdbcIdSegment idSegment) {
         this(previousChain.getVersion() + 1, idSegment);
     }
 
-    public boolean trySetNext(@Nonnull final UnaryOperator<IdSegmentChain> idSegmentChainSupplier) throws NextIdSegmentExpiredException {
+    public boolean trySetNext(@Nonnull final UnaryOperator<JdbcIdSegmentChain> idSegmentChainSupplier) throws NextIdSegmentExpiredException {
         if (NOT_SET != getNext()) {
             return false;
         }
@@ -41,31 +41,31 @@ public class IdSegmentChain implements IdSegment {
             if (NOT_SET != getNext()) {
                 return false;
             }
-            final IdSegmentChain chain = idSegmentChainSupplier.apply(this);
+            final JdbcIdSegmentChain chain = idSegmentChainSupplier.apply(this);
             setNext(chain);
             return true;
         }
     }
 
-    public void setNext(@Nonnull final IdSegmentChain nextChain) {
+    public void setNext(@Nonnull final JdbcIdSegmentChain nextChain) {
         ensureNextIdSegment(nextChain);
         this.refNext.set(nextChain);
     }
 
-    public IdSegmentChain ensureSetNext(@Nonnull final UnaryOperator<IdSegmentChain> idSegmentChainSupplier) throws NextIdSegmentExpiredException {
-        IdSegmentChain currentChain = this;
+    public JdbcIdSegmentChain ensureSetNext(@Nonnull final UnaryOperator<JdbcIdSegmentChain> idSegmentChainSupplier) throws NextIdSegmentExpiredException {
+        JdbcIdSegmentChain currentChain = this;
         while (!currentChain.trySetNext(idSegmentChainSupplier)) {
             currentChain = currentChain.getNext();
         }
         return currentChain;
     }
 
-    public int gap(@Nonnull final IdSegmentChain end, final long step) {
+    public int gap(@Nonnull final JdbcIdSegmentChain end, final long step) {
         return (int) ((end.getMaxId() - getSequence()) / step);
     }
 
-    public static IdSegmentChain newRoot() {
-        return new IdSegmentChain(IdSegmentChain.ROOT_VERSION, DefaultIdSegment.OVERFLOW);
+    public static JdbcIdSegmentChain newRoot() {
+        return new JdbcIdSegmentChain(JdbcIdSegmentChain.ROOT_VERSION, JdbcDefaultIdSegment.OVERFLOW);
     }
 
     @Override

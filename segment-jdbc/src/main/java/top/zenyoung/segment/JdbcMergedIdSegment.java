@@ -9,14 +9,14 @@ import lombok.ToString;
  * @author young
  */
 @ToString
-public class MergedIdSegment implements IdSegment {
+public class JdbcMergedIdSegment implements JdbcIdSegment {
     @Getter
     private final int segments;
-    private final IdSegment idSegment;
+    private final JdbcIdSegment idSegment;
     @Getter
     private final long singleStep;
 
-    public MergedIdSegment(final int segments, final IdSegment idSegment) {
+    public JdbcMergedIdSegment(final int segments, final JdbcIdSegment idSegment) {
         this.segments = segments;
         this.idSegment = idSegment;
         this.singleStep = idSegment.getStep() / segments;
