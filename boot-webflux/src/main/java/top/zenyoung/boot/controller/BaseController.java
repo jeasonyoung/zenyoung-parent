@@ -43,6 +43,7 @@ public class BaseController {
      */
     protected <T> Mono<ResultVO<List<T>>> success(@Nonnull final Flux<T> flux) {
         return flux.collectList()
+                .defaultIfEmpty(Lists.newArrayList())
                 .map(items -> {
                     if (CollectionUtils.isEmpty(items)) {
                         return ResultVO.ofSuccess(Lists.newArrayList());
@@ -93,6 +94,6 @@ public class BaseController {
      * @return 响应数据
      */
     protected <T> Mono<ResultVO<T>> failed() {
-        return Mono.fromSupplier(ResultVO::ofFail);
+        return Mono.just(ResultVO.ofFail());
     }
 }
