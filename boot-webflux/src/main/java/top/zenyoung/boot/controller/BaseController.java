@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 控制器-基类
@@ -26,12 +27,9 @@ public class BaseController {
      * @return 响应数据
      */
     protected <T> Mono<ResultVO<T>> success(@Nonnull final Mono<T> mono) {
-        return mono.map(val -> {
-            if (Objects.isNull(val)) {
-                return ResultVO.ofSuccess();
-            }
-            return ResultVO.ofSuccess(val);
-        });
+        return mono.map(Optional::of)
+                .defaultIfEmpty(Optional.empty())
+                .map(opt -> opt.map(ResultVO::ofSuccess).orElse(ResultVO.ofSuccess()));
     }
 
     /**
