@@ -33,7 +33,7 @@ public class QuerydslParameterBinder {
             for (Map.Entry<String, Object> entry : paramVals.entrySet()) {
                 final String name = entry.getKey();
                 final Parameter inParam = Parameters.in(entry.getValue());
-                if (PLACEHOLDER.equalsIgnoreCase(name)) {
+                if (name.startsWith(PLACEHOLDER)) {
                     spec = spec.bind(refIdx.incrementAndGet() + "", inParam);
                 } else {
                     spec = spec.bind(entry.getKey(), inParam);
@@ -47,14 +47,14 @@ public class QuerydslParameterBinder {
         final var parameterNameToParameterValue = Maps.<String, Object>newLinkedHashMap();
         if (!CollectionUtils.isEmpty(bindings)) {
             final var bindMarkers = bindMarkersFactory.create();
-            bindings.forEach(param -> {
+            for (int i = 0; i < bindings.size(); i++) {
                 final var marker = bindMarkers.next();
-                Object val = param;
-                if (param instanceof EnumValue p) {
-                    val = p.getVal();
+                Object val = bindings.get(i);
+                if (val instanceof EnumValue ev) {
+                    val = ev.getVal();
                 }
-                parameterNameToParameterValue.put(marker.getPlaceholder(), val);
-            });
+                parameterNameToParameterValue.put(marker.getPlaceholder() + i, val);
+            }
         }
         return parameterNameToParameterValue;
     }
@@ -63,7 +63,7 @@ public class QuerydslParameterBinder {
         var sqlWithParames = sql;
         final AtomicInteger refIdx = new AtomicInteger(0);
         for (String param : paramVals.keySet()) {
-            if (PLACEHOLDER.equalsIgnoreCase(param)) {
+            if (param.startsWith(PLACEHOLDER)) {
                 sqlWithParames = sqlWithParames.replaceFirst("\\?", ":{" + refIdx.incrementAndGet() + "}");
             }
         }

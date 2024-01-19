@@ -1,8 +1,8 @@
 package top.zenyoung.data.r2dbc.querydsl.impl;
 
-import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLQuery;
@@ -34,10 +34,10 @@ import java.util.function.Function;
  *
  * @param <M> 数据实体类型
  */
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
-@RequiredArgsConstructor(staticName = "of")
 public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredicateExecutor<M> {
-    private final ConstructorExpression<M> constructorExpression;
+    private final QBean<M> beanExpression;
     private final RelationalPath<M> path;
     private final SQLQueryFactory queryFactory;
     private final Querydsl querydsl;
@@ -49,7 +49,7 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     @Override
     public Mono<M> findOne(@Nonnull final Predicate predicate) {
         var sqlQuery = queryFactory.query()
-                .select(constructorExpression)
+                .select(beanExpression)
                 .where(predicate)
                 .from(path);
         return query(sqlQuery).one();
@@ -59,7 +59,7 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     @Override
     public Flux<M> findAll(@Nonnull final Predicate predicate) {
         var query = queryFactory.query()
-                .select(constructorExpression)
+                .select(beanExpression)
                 .from(path)
                 .where(predicate);
         return query(query).all();
@@ -70,7 +70,7 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     public Flux<M> findAll(@Nonnull final Predicate predicate, @Nonnull final OrderSpecifier<?>... orders) {
         Assert.notNull(predicate, "Predicate must not be null!");
         Assert.notNull(orders, "Order specifiers must not be null!");
-        return executeSorted(createQuery(predicate).select(constructorExpression), orders);
+        return executeSorted(createQuery(predicate).select(beanExpression), orders);
     }
 
     @Nonnull
@@ -78,14 +78,14 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     public Flux<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Sort sort) {
         Assert.notNull(predicate, "Predicate must not be null!");
         Assert.notNull(sort, "Sort must not be null!");
-        return executeSorted(createQuery(predicate).select(constructorExpression), sort);
+        return executeSorted(createQuery(predicate).select(beanExpression), sort);
     }
 
     @Nonnull
     @Override
     public Flux<M> findAll(@Nonnull final OrderSpecifier<?>... orders) {
         Assert.notNull(orders, "Order specifiers must not be null!");
-        return executeSorted(createQuery().select(constructorExpression), orders);
+        return executeSorted(createQuery().select(beanExpression), orders);
     }
 
     @Nonnull
@@ -112,10 +112,6 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
     }
 
     protected SQLQuery<?> createQuery(@Nullable final Predicate... predicate) {
-        return doCreateQuery(predicate);
-    }
-
-    private SQLQuery<?> doCreateQuery(@Nullable final Predicate... predicate) {
         var query = querydsl.createQuery(path);
         if (predicate != null) {
             query = query.where(predicate);
@@ -142,9 +138,8 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
 
     @Nonnull
     @Override
-    @SuppressWarnings({"unchecked"})
     public Flux<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Pageable pageable) {
-        SQLQuery<M> sqlQuery = (SQLQuery<M>) createQuery(predicate);
+        SQLQuery<M> sqlQuery = createQuery(predicate).select(beanExpression);
         sqlQuery = querydsl.applyPagination(pageable, sqlQuery);
         return query(sqlQuery).all();
     }

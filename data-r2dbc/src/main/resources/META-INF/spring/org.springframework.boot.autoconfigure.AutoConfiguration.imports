@@ -1,2 +1,3 @@
 top.zenyoung.data.r2dbc.R2dbcAutoConfiguration
+top.zenyoung.data.r2dbc.R2dbcConversionsAutoConfiguration
 top.zenyoung.data.r2dbc.querydsl.QuerydslR2dbcRepositoriesAutoConfiguration

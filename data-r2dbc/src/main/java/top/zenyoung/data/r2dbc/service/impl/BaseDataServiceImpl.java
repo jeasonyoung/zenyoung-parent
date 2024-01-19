@@ -242,7 +242,8 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
     @Nonnull
     protected Mono<PageList<M>> queryForPage(@Nonnull final PagingQuery page, @Nonnull final Predicate predicate, @Nullable final Sort sort) {
         //分页
-        final int idx = Optional.ofNullable(page.getPageIndex()).orElse(BasePageDTO.DEF_PAGE_INDEX);
+        int idx = Optional.ofNullable(page.getPageIndex()).orElse(BasePageDTO.DEF_PAGE_INDEX);
+        idx = Math.max(idx - 1, 0);
         final int size = Optional.ofNullable(page.getPageSize()).orElse(BasePageDTO.DEF_PAGE_SIZE);
         //分页排序
         final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);

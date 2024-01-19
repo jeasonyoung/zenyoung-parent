@@ -1,8 +1,8 @@
 package top.zenyoung.data.r2dbc.querydsl.impl;
 
-import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.QBean;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLQuery;
@@ -30,10 +30,10 @@ import java.util.stream.Collectors;
  * @param <T> 数据实体类型
  * @author young
  */
-@RequiredArgsConstructor(staticName = "of")
+@RequiredArgsConstructor
 public class QuerydslR2dbcFragmentImpl<T> implements QuerydslR2dbcFragment<T> {
     private final SQLQueryFactory queryFactory;
-    private final ConstructorExpression<T> constructorExpression;
+    private final QBean<T> beanExpression;
     private final RelationalPath<T> path;
     private final DatabaseClient client;
     private final R2dbcConverter converter;
@@ -74,7 +74,7 @@ public class QuerydslR2dbcFragmentImpl<T> implements QuerydslR2dbcFragment<T> {
 
     @Override
     public Expression<T> entityProjection() {
-        return constructorExpression;
+        return beanExpression;
     }
 
     private <O> RowsFetchSpec<O> createQuery(@Nonnull final Function<SQLQuery<?>, SQLQuery<O>> query) {

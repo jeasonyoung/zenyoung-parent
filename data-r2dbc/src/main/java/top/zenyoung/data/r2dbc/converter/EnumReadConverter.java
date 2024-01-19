@@ -36,7 +36,7 @@ public class EnumReadConverter implements ConverterFactory<Integer, EnumValue> {
         }
         final EnumConverter<? extends EnumValue> enumConverter = enumConverterMap.computeIfAbsent(enumCls, k -> {
             try {
-                return enumCls.newInstance();
+                return enumCls.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 log.error("getConverter(enumCls: {})-exp: {}", enumCls, e.getMessage());
                 throw new ServiceException(targetType + ",注解参数初始化失败[" + enumCls + "]:" + e.getMessage());

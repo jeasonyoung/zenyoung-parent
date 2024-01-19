@@ -1,6 +1,6 @@
 package top.zenyoung.data.r2dbc.querydsl;
 
-import com.querydsl.core.types.ConstructorExpression;
+import com.querydsl.core.types.QBean;
 import com.querydsl.sql.RelationalPath;
 import com.querydsl.sql.SQLQueryFactory;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
@@ -42,34 +42,34 @@ public class QuerydslR2dbcRepositoryFactory extends R2dbcRepositoryFactory {
     @Nonnull
     @Override
     protected RepositoryComposition.RepositoryFragments getRepositoryFragments(@Nonnull final RepositoryMetadata metadata) {
-        var fragments = super.getRepositoryFragments(metadata);
-        var repositoryInterface = metadata.getRepositoryInterface();
+        final var fragments = super.getRepositoryFragments(metadata);
+        final var repositoryInterface = metadata.getRepositoryInterface();
         if (!REPOSITORY_TARGET_TYPE.isAssignableFrom(repositoryInterface)) {
             return fragments;
         }
-        var path = querydslExpressionFactory.getRelationalPathBaseFromQueryRepositoryClass(repositoryInterface);
-        var type = metadata.getDomainType();
-        var constructorExpression = querydslExpressionFactory.getConstructorExpression(type, path);
-        var querydslR2dbcFragment = createQuerydslR2dbcFragment(path, constructorExpression);
-        var querydslPredicateExecutor = createQuerydslPredicateExecutor(constructorExpression, path);
+        final var path = querydslExpressionFactory.getRelationalPathBaseFromQueryRepositoryClass(repositoryInterface);
+        final var type = metadata.getDomainType();
+        final var beanExpression = querydslExpressionFactory.getBeanExpression(type, path);
+        final var querydslR2dbcFragment = createQuerydslR2dbcFragment(path, beanExpression);
+        final var querydslPredicateExecutor = createQuerydslPredicateExecutor(path, beanExpression);
         return fragments.append(querydslR2dbcFragment).append(querydslPredicateExecutor);
     }
 
     private RepositoryFragment<Object> createQuerydslR2dbcFragment(@Nonnull final RelationalPath<?> path,
-                                                                   @Nonnull final ConstructorExpression<?> constructor) {
+                                                                   @Nonnull final QBean<?> beanExpression) {
         var queryDslFragment = instantiateClass(QuerydslR2dbcFragmentImpl.class,
-                queryFactory, constructor, path, client, converter, querydslParameterBinder);
+                queryFactory, beanExpression, path, client, converter, querydslParameterBinder);
         return RepositoryFragment.implemented(queryDslFragment);
     }
 
-    private RepositoryFragment<Object> createQuerydslPredicateExecutor(@Nonnull final ConstructorExpression<?> constructorExpression,
-                                                                       @Nonnull final RelationalPath<?> path) {
+    private RepositoryFragment<Object> createQuerydslPredicateExecutor(@Nonnull final RelationalPath<?> path,
+                                                                       @Nonnull final QBean<?> beanExpression) {
         var context = converter.getMappingContext();
-        @SuppressWarnings("unchecked")
-        var entity = context.getRequiredPersistentEntity(constructorExpression.getType());
+        @SuppressWarnings({"unchecked"})
+        var entity = context.getRequiredPersistentEntity(beanExpression.getType());
         var querydsl = Querydsl.of(queryFactory, entity);
         var querydslPredicateExecutor = instantiateClass(QuerydslR2dbcPredicateExecutorImpl.class,
-                constructorExpression, path, queryFactory, querydsl, client, converter, querydslParameterBinder);
+                beanExpression, path, queryFactory, querydsl, client, converter, querydslParameterBinder);
         return RepositoryFragment.implemented(querydslPredicateExecutor);
     }
 }
