@@ -50,16 +50,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- 工具类 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <!-- 模块依赖 -->
-        <dependency>
-            <groupId>top.zenyoung</groupId>
-            <artifactId>common</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

@@ -71,8 +71,8 @@ public class CalcUtils {
                                      @Nonnull final Consumer<V> assignHandler) {
         Optional.ofNullable(keyHandler.get())
                 .filter(key -> {
-                    if (key instanceof String) {
-                        return !Strings.isNullOrEmpty((String) key);
+                    if (key instanceof String v) {
+                        return !Strings.isNullOrEmpty(v);
                     }
                     return true;
                 })
