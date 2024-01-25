@@ -37,6 +37,10 @@ public class R2dbcConversionsAutoConfiguration {
     }
 
     protected List<Object> getCustomConverters() {
-        return Lists.newArrayList(new EnumReadConverter(), new EnumWriterConverter(), new ZonedDateTimeToDateConverter());
+        return Lists.newArrayList(
+                new EnumReadConverter(),
+                new EnumWriterConverter(),
+                new ZonedDateTimeToDateConverter()
+        );
     }
 }
