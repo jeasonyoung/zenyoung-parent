@@ -90,6 +90,7 @@
         <easypoi.version>4.4.0</easypoi.version>
         <oshi-core.version>6.4.4</oshi-core.version>
         <retrofit.version>2.9.0</retrofit.version>
+        <cosid.version>2.6.5</cosid.version>
 
         <!-- swagger -->
         <swagger-v3.version>2.2.9</swagger-v3.version>
@@ -164,6 +165,14 @@
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
                 <version>${alibaba-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- cosid-bom -->
+            <dependency>
+                <groupId>me.ahoo.cosid</groupId>
+                <artifactId>cosid-bom</artifactId>
+                <version>${cosid.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
