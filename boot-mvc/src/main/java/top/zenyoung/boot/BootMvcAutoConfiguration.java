@@ -1,7 +1,8 @@
 package top.zenyoung.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.ObjectProvider;
+import me.ahoo.cosid.IdGenerator;
+import me.ahoo.cosid.provider.IdGeneratorProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,15 +18,12 @@ import top.zenyoung.boot.aop.PrivacyPolicyAspect;
 import top.zenyoung.boot.aop.RequestLogAspect;
 import top.zenyoung.boot.config.AsyncConfig;
 import top.zenyoung.boot.config.RepeatSubmitProperties;
-import top.zenyoung.boot.config.SequenceProperties;
 import top.zenyoung.boot.config.WebMvcConfig;
 import top.zenyoung.boot.interceptor.RequestAuthorityInterceptor;
 import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 import top.zenyoung.common.sequence.Sequence;
-import top.zenyoung.common.sequence.SnowFlake;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 /**
  * WebMvc 自动注册
@@ -35,14 +33,13 @@ import java.util.Optional;
 @Configuration
 @ComponentScan({"top.zenyoung.boot.controller"})
 @Import({AsyncConfig.class, WebMvcConfig.class, ResponseMvcAdviceController.class})
-@EnableConfigurationProperties({RepeatSubmitProperties.class, SequenceProperties.class, SequenceProperties.class})
+@EnableConfigurationProperties({RepeatSubmitProperties.class})
 public class BootMvcAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    public Sequence buildSequence(final ObjectProvider<SequenceProperties> provider) {
-        return Optional.ofNullable(provider.getIfAvailable())
-                .map(sp -> SnowFlake.getInstance(sp.getWorkerId(), sp.getDataCenterId(), sp.getSequence()))
-                .orElseGet(SnowFlake::getInstance);
+    public Sequence buildSequence(@Nonnull final IdGeneratorProvider provider) {
+        final IdGenerator generator = provider.getShare();
+        return generator::generate;
     }
 
     @Bean
