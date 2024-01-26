@@ -10,9 +10,10 @@ import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.dialect.DialectResolver;
 import org.springframework.data.r2dbc.dialect.R2dbcDialect;
 import org.springframework.r2dbc.core.DatabaseClient;
+import top.zenyoung.data.r2dbc.converter.DateReadConverter;
+import top.zenyoung.data.r2dbc.converter.DateWriterConverter;
 import top.zenyoung.data.r2dbc.converter.EnumReadConverter;
 import top.zenyoung.data.r2dbc.converter.EnumWriterConverter;
-import top.zenyoung.data.r2dbc.converter.ZonedDateTimeToDateConverter;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -40,7 +41,8 @@ public class R2dbcConversionsAutoConfiguration {
         return Lists.newArrayList(
                 new EnumReadConverter(),
                 new EnumWriterConverter(),
-                new ZonedDateTimeToDateConverter()
+                new DateReadConverter(),
+                new DateWriterConverter()
         );
     }
 }

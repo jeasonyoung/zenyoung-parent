@@ -13,7 +13,7 @@ import java.util.Date;
  * @author young
  */
 @ReadingConverter
-public class ZonedDateTimeToDateConverter implements Converter<ZonedDateTime, Date> {
+public class DateReadConverter implements Converter<ZonedDateTime, Date> {
 
     @Override
     public Date convert(@Nonnull final ZonedDateTime source) {
