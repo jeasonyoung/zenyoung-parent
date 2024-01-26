@@ -3,6 +3,7 @@ package top.zenyoung.boot;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.ahoo.cosid.IdGenerator;
 import me.ahoo.cosid.provider.IdGeneratorProvider;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,6 +25,7 @@ import top.zenyoung.boot.resolver.UserIdMethodArgumentResolver;
 import top.zenyoung.common.sequence.Sequence;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * WebMvc 自动注册
@@ -37,9 +39,17 @@ import javax.annotation.Nonnull;
 public class BootMvcAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
-    public Sequence buildSequence(@Nonnull final IdGeneratorProvider provider) {
-        final IdGenerator generator = provider.getShare();
-        return generator::generate;
+    public Sequence buildSequence(@Nonnull final ObjectProvider<IdGeneratorProvider> provider) {
+        return () -> {
+            final IdGeneratorProvider ip = provider.getIfAvailable();
+            if (Objects.nonNull(ip)) {
+                final IdGenerator generator = ip.getShare();
+                if (Objects.nonNull(generator)) {
+                    return generator.generate();
+                }
+            }
+            return -1;
+        };
     }
 
     @Bean
