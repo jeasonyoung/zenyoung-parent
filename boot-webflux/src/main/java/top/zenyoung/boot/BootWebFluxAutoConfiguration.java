@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import top.zenyoung.boot.advice.ResponseFluxAdviceController;
-import top.zenyoung.boot.aop.RequestAuthorizeAspect;
 import top.zenyoung.boot.config.AsyncConfig;
 import top.zenyoung.boot.config.RepeatSubmitProperties;
 import top.zenyoung.boot.config.WebFluxConfig;
@@ -48,12 +47,6 @@ public class BootWebFluxAutoConfiguration {
     public LogFilter logFilter(@Nonnull final RequestMappingHandlerMapping handlerMappings,
                                @Nonnull final IdGeneratorProvider provider) {
         return new LogFilter(handlerMappings, provider);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RequestAuthorizeAspect requestAuthorizeAspect() {
-        return new RequestAuthorizeAspect();
     }
 
     @Bean
