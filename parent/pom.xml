@@ -56,9 +56,9 @@
         <p6spy.version>3.9.1</p6spy.version>
 
         <!-- jetcache -->
-        <jetcache.version>2.7.2</jetcache.version>
+        <jetcache.version>2.7.5</jetcache.version>
         <!-- redisson -->
-        <redisson.version>3.17.4</redisson.version>
+        <redisson.version>3.26.0</redisson.version>
 
         <!-- jwt -->
         <nimbus-jose-jwt.version>9.24.4</nimbus-jose-jwt.version>
@@ -208,6 +208,12 @@
                 <groupId>com.alicp.jetcache</groupId>
                 <artifactId>jetcache-starter-redisson</artifactId>
                 <version>${jetcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.redisson</groupId>
+                        <artifactId>redisson-spring-boot-starter</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- redisson -->
             <dependency>
