@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
  */
 @RequiredArgsConstructor
 public abstract class BaseWebFilter implements WebFilter {
-    private final RequestMappingHandlerMapping requestMappingHandlerMapping;
+    private final RequestMappingHandlerMapping handlerMapping;
 
     /**
      * 是否支持忽略过滤器
@@ -39,7 +39,7 @@ public abstract class BaseWebFilter implements WebFilter {
             return chain.filter(exchange);
         }
         //获取处理器
-        return requestMappingHandlerMapping.getHandler(exchange)
+        return handlerMapping.getHandler(exchange)
                 .flatMap(method -> {
                     if (method instanceof HandlerMethod m) {
                         return handler(exchange, chain, m);

@@ -30,8 +30,8 @@ import java.util.Optional;
 public abstract class BaseTokenFilter extends BaseWebFilter implements Ordered {
     private static final String TOKEN_NAME = HttpHeaders.AUTHORIZATION;
 
-    protected BaseTokenFilter(@Nonnull final RequestMappingHandlerMapping requestMappingHandlerMapping) {
-        super(requestMappingHandlerMapping);
+    protected BaseTokenFilter(@Nonnull final RequestMappingHandlerMapping handlerMapping) {
+        super(handlerMapping);
     }
 
     @Override
