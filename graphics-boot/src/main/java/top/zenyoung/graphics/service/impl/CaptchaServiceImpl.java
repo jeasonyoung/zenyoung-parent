@@ -105,8 +105,7 @@ public class CaptchaServiceImpl implements CaptchaService {
             try {
                 final Captcha c = ReflectionUtils.accessibleConstructor(captchaClass, int.class, int.class).newInstance(width, height);
                 final List<String> excludes = Lists.newArrayList("font", "background", "generator");
-                if (c instanceof BaseCaptcha) {
-                    final BaseCaptcha baseCaptcha = (BaseCaptcha) c;
+                if (c instanceof BaseCaptcha baseCaptcha) {
                     if (generator != null) {
                         baseCaptcha.setGenerator(generator);
                     }

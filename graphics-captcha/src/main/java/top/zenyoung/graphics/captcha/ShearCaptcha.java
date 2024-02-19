@@ -96,8 +96,8 @@ public class ShearCaptcha extends BaseCaptcha {
      * @param h1    高
      * @param color 颜色
      */
-    private void shearX(@Nonnull final Graphics g, final int w1, final int h1,@Nonnull final Color color) {
-        final int period = randomInt(this.width),frames = 1, phase = randomInt(2);
+    private void shearX(@Nonnull final Graphics g, final int w1, final int h1, @Nonnull final Color color) {
+        final int period = randomInt(this.width), frames = 1, phase = randomInt(2);
         for (int i = 0; i < h1; i++) {
             final double d = (double) (period >> 1) * Math.sin((double) i / (double) period + (6.2831853071795862D * (double) phase) / (double) frames);
             g.copyArea(0, i, w1, 1, (int) d, 0);
@@ -115,8 +115,8 @@ public class ShearCaptcha extends BaseCaptcha {
      * @param h1    高
      * @param color 颜色
      */
-    private void shearY(@Nonnull final Graphics g, final int w1, final int h1,@Nonnull final Color color) {
-        final int period = randomInt(this.height >> 1),frames = 20, phase = 7;
+    private void shearY(@Nonnull final Graphics g, final int w1, final int h1, @Nonnull final Color color) {
+        final int period = randomInt(this.height >> 1), frames = 20, phase = 7;
         for (int i = 0; i < w1; i++) {
             final double d = (double) (period >> 1) * Math.sin((double) i / (double) period + (6.2831853071795862D * (double) phase) / (double) frames);
             g.copyArea(i, 0, 1, h1, 0, (int) d);
@@ -140,17 +140,17 @@ public class ShearCaptcha extends BaseCaptcha {
      */
     @SuppressWarnings("SameParameterValue")
     private void drawInterfere(@Nonnull final Graphics g, final int x1, final int y1, final int x2, final int y2,
-                               final int thickness,@Nonnull final Color c) {
+                               final int thickness, @Nonnull final Color c) {
         // The thick line is in fact a filled polygon
         g.setColor(c);
         final int dX = x2 - x1, dY = y2 - y1;
         // line length
-        final double lineLength = Math.sqrt(dX * dX + dY * dY);
-        final double scale = (double) (thickness) / (2 * lineLength);
+        final double lineLength = Math.sqrt(dX * dX + (double)dY * dY);
+        final double scale = (thickness) / (2 * lineLength);
         // The x and y increments from an endpoint needed to create a
         // rectangle...
-        double ddx = -scale * (double) dY;
-        double ddy = scale * (double) dX;
+        double ddx = -scale * dY;
+        double ddy = scale * dX;
         ddx += (ddx > 0) ? 0.5 : -0.5;
         ddy += (ddy > 0) ? 0.5 : -0.5;
         int dx = (int) ddx;
