@@ -281,7 +281,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
      * @return 查询结果
      */
     @Nonnull
-    protected Mono<PageList<M>> queryForPage(@Nonnull final PagingQuery page, @Nonnull final Predicate predicate,
+    protected Mono<PageList<M>> queryForPage(@Nonnull final PagingQuery page, @Nullable final Predicate predicate,
                                              @Nullable final OrderSpecifier<?>... orders) {
         final Sort sort = (orders == null || orders.length == 0) ? null : new QSort(orders);
         return queryForPage(page, predicate, sort);
