@@ -194,8 +194,8 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
      * @return 总记录数
      */
     @Nonnull
-    protected Mono<Long> count(@Nonnull final Predicate predicate) {
-        return repoHandler(repo -> repo.count(predicate));
+    protected Mono<Long> count(@Nullable final Predicate predicate) {
+        return repoHandler(repo -> Objects.isNull(predicate) ? repo.count() : repo.count(predicate));
     }
 
     /**
@@ -240,7 +240,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
      * @return 查询结果
      */
     @Nonnull
-    protected Mono<PageList<M>> queryForPage(@Nonnull final PagingQuery page, @Nonnull final Predicate predicate, @Nullable final Sort sort) {
+    protected Mono<PageList<M>> queryForPage(@Nonnull final PagingQuery page, @Nullable final Predicate predicate, @Nullable final Sort sort) {
         //分页
         int idx = Optional.ofNullable(page.getPageIndex()).orElse(BasePageDTO.DEF_PAGE_INDEX);
         idx = Math.max(idx - 1, 0);

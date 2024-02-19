@@ -15,7 +15,6 @@ import org.springframework.data.querydsl.QSort;
 import org.springframework.data.r2dbc.convert.EntityRowMapper;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
 import org.springframework.data.repository.query.FluentQuery;
-import org.springframework.lang.Nullable;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.RowsFetchSpec;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +26,8 @@ import top.zenyoung.data.r2dbc.querydsl.QuerydslParameterBinder;
 import top.zenyoung.data.r2dbc.querydsl.QuerydslR2dbcPredicateExecutor;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -113,7 +114,7 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
 
     protected SQLQuery<?> createQuery(@Nullable final Predicate... predicate) {
         var query = querydsl.createQuery(path);
-        if (predicate != null) {
+        if (Objects.nonNull(predicate)) {
             query = query.where(predicate);
         }
         return query;
@@ -138,7 +139,7 @@ public class QuerydslR2dbcPredicateExecutorImpl<M> implements QuerydslR2dbcPredi
 
     @Nonnull
     @Override
-    public Flux<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Pageable pageable) {
+    public Flux<M> findAll(@Nullable final Predicate predicate, @Nonnull final Pageable pageable) {
         SQLQuery<M> sqlQuery = createQuery(predicate).select(beanExpression);
         sqlQuery = querydsl.applyPagination(pageable, sqlQuery);
         return query(sqlQuery).all();

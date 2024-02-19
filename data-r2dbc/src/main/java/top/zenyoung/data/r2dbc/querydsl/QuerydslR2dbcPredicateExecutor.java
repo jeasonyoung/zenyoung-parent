@@ -7,6 +7,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @NoRepositoryBean
 public interface QuerydslR2dbcPredicateExecutor<M> extends ReactiveQuerydslPredicateExecutor<M> {
@@ -18,5 +19,5 @@ public interface QuerydslR2dbcPredicateExecutor<M> extends ReactiveQuerydslPredi
      * @return 查询结果
      */
     @Nonnull
-    Flux<M> findAll(@Nonnull final Predicate predicate, @Nonnull final Pageable pageable);
+    Flux<M> findAll(@Nullable final Predicate predicate, @Nonnull final Pageable pageable);
 }
