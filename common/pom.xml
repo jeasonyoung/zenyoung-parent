@@ -16,6 +16,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- spring core -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!-- modelmapper -->
         <dependency>
             <groupId>org.modelmapper</groupId>
@@ -78,6 +84,13 @@
             <artifactId>commons-io</artifactId>
         </dependency>
 
+        <!-- google tink -->
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- log -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -88,6 +101,14 @@
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>*.json</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
