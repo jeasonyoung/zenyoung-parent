@@ -116,39 +116,39 @@
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
 
         <!-- 模块 -->
-        <zenyoung-common.version>3.1.0</zenyoung-common.version>
+        <zenyoung-common.version>3.2.0</zenyoung-common.version>
         <zenyoung-boot.version>3.2.0</zenyoung-boot.version>
         <zenyoung-boot-common.version>3.2.0</zenyoung-boot-common.version>
         <zenyoung-boot-mvc.version>3.2.0</zenyoung-boot-mvc.version>
-        <zenyoung-boot-webflux.version>1.0.0</zenyoung-boot-webflux.version>
+        <zenyoung-boot-webflux.version>3.2.0</zenyoung-boot-webflux.version>
         <zenyoung-micro.version>3.2.0</zenyoung-micro.version>
-        <zenyoung-data-common.version>1.0.0</zenyoung-data-common.version>
+        <zenyoung-data-common.version>3.2.0</zenyoung-data-common.version>
         <zenyoung-data-jpa.version>3.2.0</zenyoung-data-jpa.version>
-        <zenyoung-data-r2dbc-querydsl.version>1.0.0</zenyoung-data-r2dbc-querydsl.version>
-        <zenyoung-data-r2dbc.version>1.0.0</zenyoung-data-r2dbc.version>
+        <zenyoung-data-r2dbc-querydsl.version>3.2.0</zenyoung-data-r2dbc-querydsl.version>
+        <zenyoung-data-r2dbc.version>3.2.0</zenyoung-data-r2dbc.version>
         <zenyoung-data-mybatis.version>3.2.0</zenyoung-data-mybatis.version>
-        <zenyoung-graphics-utils.version>3.1.0</zenyoung-graphics-utils.version>
-        <zenyoung-graphics-captcha.version>3.1.0</zenyoung-graphics-captcha.version>
+        <zenyoung-graphics-utils.version>3.2.0</zenyoung-graphics-utils.version>
+        <zenyoung-graphics-captcha.version>3.2.0</zenyoung-graphics-captcha.version>
         <zenyoung-graphics-boot.version>3.2.0</zenyoung-graphics-boot.version>
         <zenyoung-redis.version>3.2.0</zenyoung-redis.version>
         <zenyoung-sms.version>3.2.0</zenyoung-sms.version>
-<!--        <zenyoung-segment-common.version>3.2.0</zenyoung-segment-common.version>-->
-<!--        <zenyoung-segment-jdbc.version>3.2.0</zenyoung-segment-jdbc.version>-->
-<!--        <zenyoung-segment-r2dbc.version>1.0.0</zenyoung-segment-r2dbc.version>-->
-<!--        <zenyoung-segment.version>3.2.0</zenyoung-segment.version>-->
-        <zenyoung-quartz.version>1.1.0</zenyoung-quartz.version>
-        <zenyoung-file-common.version>3.1.0</zenyoung-file-common.version>
-        <zenyoung-file-aliyun.version>3.1.0</zenyoung-file-aliyun.version>
-        <zenyoung-file-huawei.version>3.1.0</zenyoung-file-huawei.version>
+        <!--        <zenyoung-segment-common.version>3.2.0</zenyoung-segment-common.version>-->
+        <!--        <zenyoung-segment-jdbc.version>3.2.0</zenyoung-segment-jdbc.version>-->
+        <!--        <zenyoung-segment-r2dbc.version>1.0.0</zenyoung-segment-r2dbc.version>-->
+        <!--        <zenyoung-segment.version>3.2.0</zenyoung-segment.version>-->
+        <zenyoung-quartz.version>3.2.0</zenyoung-quartz.version>
+        <zenyoung-file-common.version>3.2.0</zenyoung-file-common.version>
+        <zenyoung-file-aliyun.version>3.2.0</zenyoung-file-aliyun.version>
+        <zenyoung-file-huawei.version>3.2.0</zenyoung-file-huawei.version>
         <zenyoung-file-boot.version>3.2.0</zenyoung-file-boot.version>
-        <zenyoung-netty-common.version>3.1.0</zenyoung-netty-common.version>
+        <zenyoung-netty-common.version>3.2.0</zenyoung-netty-common.version>
         <zenyoung-netty-server.version>3.2.0</zenyoung-netty-server.version>
         <zenyoung-netty-client.version>3.2.0</zenyoung-netty-client.version>
-<!--        <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>-->
-<!--        <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>-->
-        <zenyoung-opencv.version>1.0.0</zenyoung-opencv.version>
-        <zenyoung-retrofit.version>1.1.0</zenyoung-retrofit.version>
-<!--        <zenyoung-generator.version>3.2.0</zenyoung-generator.version>-->
+        <!--        <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>-->
+        <!--        <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>-->
+        <zenyoung-opencv.version>3.2.0</zenyoung-opencv.version>
+        <zenyoung-retrofit.version>3.2.0</zenyoung-retrofit.version>
+        <!--        <zenyoung-generator.version>3.2.0</zenyoung-generator.version>-->
     </properties>
 
     <dependencyManagement>
@@ -429,11 +429,11 @@
                 <artifactId>boot-webflux</artifactId>
                 <version>${zenyoung-boot-webflux.version}</version>
             </dependency>
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>micro</artifactId>-->
-<!--                <version>${zenyoung-micro.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>micro</artifactId>-->
+            <!--                <version>${zenyoung-micro.version}</version>-->
+            <!--            </dependency>-->
             <!-- data -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -489,26 +489,26 @@
                 <version>${zenyoung-sms.version}</version>
             </dependency>
             <!-- segment -->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>segment-common</artifactId>-->
-<!--                <version>${zenyoung-segment-common.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>segment-jdbc</artifactId>-->
-<!--                <version>${zenyoung-segment-jdbc.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>segment-r2dbc</artifactId>-->
-<!--                <version>${zenyoung-segment-r2dbc.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>segment</artifactId>-->
-<!--                <version>${zenyoung-segment.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>segment-common</artifactId>-->
+            <!--                <version>${zenyoung-segment-common.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>segment-jdbc</artifactId>-->
+            <!--                <version>${zenyoung-segment-jdbc.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>segment-r2dbc</artifactId>-->
+            <!--                <version>${zenyoung-segment-r2dbc.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>segment</artifactId>-->
+            <!--                <version>${zenyoung-segment.version}</version>-->
+            <!--            </dependency>-->
             <!-- quartz -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -516,26 +516,26 @@
                 <version>${zenyoung-quartz.version}</version>
             </dependency>
             <!-- file -->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>file-common</artifactId>-->
-<!--                <version>${zenyoung-file-common.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>file-aliyun</artifactId>-->
-<!--                <version>${zenyoung-file-aliyun.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>file-huawei</artifactId>-->
-<!--                <version>${zenyoung-file-huawei.version}</version>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>file-boot</artifactId>-->
-<!--                <version>${zenyoung-file-boot.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>file-common</artifactId>-->
+            <!--                <version>${zenyoung-file-common.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>file-aliyun</artifactId>-->
+            <!--                <version>${zenyoung-file-aliyun.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>file-huawei</artifactId>-->
+            <!--                <version>${zenyoung-file-huawei.version}</version>-->
+            <!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>file-boot</artifactId>-->
+            <!--                <version>${zenyoung-file-boot.version}</version>-->
+            <!--            </dependency>-->
             <!-- netty -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -553,17 +553,17 @@
                 <version>${zenyoung-netty-client.version}</version>
             </dependency>
             <!-- jfx -->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>jfx-boot</artifactId>-->
-<!--                <version>${zenyoung-jfx-boot.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>jfx-boot</artifactId>-->
+            <!--                <version>${zenyoung-jfx-boot.version}</version>-->
+            <!--            </dependency>-->
             <!-- fc-runtime -->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>fc-runtime-huawei</artifactId>-->
-<!--                <version>${zenyoung-fc-runtime-huawei.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>fc-runtime-huawei</artifactId>-->
+            <!--                <version>${zenyoung-fc-runtime-huawei.version}</version>-->
+            <!--            </dependency>-->
             <!-- opencv -->
             <dependency>
                 <groupId>top.zenyoung</groupId>
@@ -577,11 +577,11 @@
                 <version>${zenyoung-retrofit.version}</version>
             </dependency>
             <!-- generator -->
-<!--            <dependency>-->
-<!--                <groupId>top.zenyoung</groupId>-->
-<!--                <artifactId>generator</artifactId>-->
-<!--                <version>${zenyoung-generator.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>top.zenyoung</groupId>-->
+            <!--                <artifactId>generator</artifactId>-->
+            <!--                <version>${zenyoung-generator.version}</version>-->
+            <!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 

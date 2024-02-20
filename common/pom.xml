@@ -27,44 +27,37 @@
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
         </dependency>
-
         <!-- bouncycastle -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
-
         <!-- validator -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
-
         <!-- fastxml -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-
         <!-- freemarker -->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <optional>true</optional>
         </dependency>
-
         <!-- swagger -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations-jakarta</artifactId>
         </dependency>
-
         <!-- jwt -->
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
-
         <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -83,14 +76,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
         <!-- google tink -->
         <dependency>
             <groupId>com.google.crypto.tink</groupId>
             <artifactId>tink</artifactId>
-            <optional>true</optional>
         </dependency>
-
         <!-- log -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -105,7 +95,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>*.json</include>
+                    <include>*.*</include>
                 </includes>
             </resource>
         </resources>
