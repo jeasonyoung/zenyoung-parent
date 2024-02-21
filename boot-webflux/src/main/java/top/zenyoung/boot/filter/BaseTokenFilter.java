@@ -41,8 +41,8 @@ public abstract class BaseTokenFilter extends BaseWebFilter implements Ordered {
 
     @Nonnull
     @Override
-    protected Mono<Void> handler(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain,
-                                 @Nonnull final HandlerMethod method) {
+    protected final Mono<Void> handler(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain,
+                                       @Nonnull final HandlerMethod method) {
         if (method.hasMethodAnnotation(HasAnonymous.class)) {
             return chain.filter(exchange);
         }
