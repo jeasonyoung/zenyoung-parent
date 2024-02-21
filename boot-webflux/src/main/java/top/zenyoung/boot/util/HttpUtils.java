@@ -30,6 +30,13 @@ public class HttpUtils {
         return Mono.deferContextual(contextView -> contextView.getOrDefault(Info.CONTEXT_KEY, null));
     }
 
+    public static <T> Mono<T> setWebExchange(@Nonnull final Mono<T> mono, @Nullable final ServerWebExchange exchange) {
+        if (Objects.isNull(exchange)) {
+            return mono;
+        }
+        return mono.contextWrite(context -> context.put(Info.CONTEXT_KEY, exchange));
+    }
+
     public static Mono<ServerHttpRequest> getRequest() {
         return getWebExchange()
                 .map(exchange -> {
@@ -98,7 +105,7 @@ public class HttpUtils {
         return null;
     }
 
-    public static final class Info {
+    private static final class Info {
         public static final Class<ServerWebExchange> CONTEXT_KEY = ServerWebExchange.class;
     }
 }

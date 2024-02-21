@@ -8,6 +8,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import top.zenyoung.boot.util.HttpUtils;
 
 import javax.annotation.Nonnull;
 
@@ -30,21 +31,29 @@ public abstract class BaseWebFilter implements WebFilter {
         return false;
     }
 
+    protected Mono<Void> chainHandler(@Nonnull final Mono<Void> mono, @Nonnull final ServerWebExchange exchange) {
+        return HttpUtils.setWebExchange(mono, exchange);
+    }
+
     @Nonnull
     @Override
     public final Mono<Void> filter(@Nonnull final ServerWebExchange exchange, @Nonnull final WebFilterChain chain) {
         final ServerHttpRequest request = exchange.getRequest();
         //是否忽略过滤器
         if (ignoreFilter(request)) {
-            return chain.filter(exchange);
+            final Mono<Void> mono = chain.filter(exchange);
+            return chainHandler(mono, exchange);
         }
         //获取处理器
         return handlerMapping.getHandler(exchange)
                 .flatMap(method -> {
+                    Mono<Void> mono;
                     if (method instanceof HandlerMethod m) {
-                        return handler(exchange, chain, m);
+                        mono = handler(exchange, chain, m);
+                    } else {
+                        mono = chain.filter(exchange);
                     }
-                    return chain.filter(exchange);
+                    return chainHandler(mono, exchange);
                 });
     }
 
