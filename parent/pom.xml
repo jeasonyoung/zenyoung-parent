@@ -65,6 +65,8 @@
 
         <!-- protobuf -->
         <protobuf-java.version>3.21.12</protobuf-java.version>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <protoc.version>3.11.2</protoc.version>
         <!-- kryo -->
         <kryo.version>5.5.0</kryo.version>
         <!-- snappy -->
@@ -650,6 +652,27 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>${maven-gpg-plugin.version}</version>
+                </plugin>
+                <!-- protobuf -->
+                <plugin>
+                    <groupId>org.xolstice.maven.plugins</groupId>
+                    <artifactId>protobuf-maven-plugin</artifactId>
+                    <version>${protobuf-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <clearOutputDirectory>true</clearOutputDirectory>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <protocArtifact>com.google.protobuf:protoc:${protoc.version}:exe:${os.detected.classifier}</protocArtifact>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>test-compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
