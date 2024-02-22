@@ -88,7 +88,7 @@ public abstract class BaseAuthorizeFilter extends BaseWebFilter {
             log.warn("'accountId'为空.");
             return Mono.error(new ServiceException(ExceptionEnums.UNAUTHORIZED));
         }
-        return buildPrincipal(accountId)
+        return buildPrincipal(exchange, accountId)
                 .switchIfEmpty(Mono.error(new ServiceException(ExceptionEnums.UNAUTHORIZED)))
                 .flatMap(principal -> checkAuthorityHandler(principal, type, method, vals)
                         .flatMap(ret -> {
@@ -105,11 +105,12 @@ public abstract class BaseAuthorizeFilter extends BaseWebFilter {
     /**
      * 根据账号ID加载用户信息
      *
+     * @param exchange  ServerWebExchange
      * @param accountId 账号ID
      * @return 用户信息
      */
     @Nonnull
-    protected abstract Mono<UserPrincipal> buildPrincipal(@Nonnull final String accountId);
+    protected abstract Mono<UserPrincipal> buildPrincipal(@Nonnull final ServerWebExchange exchange, @Nonnull final String accountId);
 
     /**
      * 检查授权处理
