@@ -148,10 +148,10 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
             this.globalTrafficHandler = new GlobalTrafficShapingHandler(WORKER_GROUP, 1000L);
         }
         //工作线程池
-        if (bootstrap instanceof ServerBootstrap) {
+        if (bootstrap instanceof ServerBootstrap srv) {
             final EventLoopGroup bossGroup = Objects.nonNull(boss) ? boss : BOSS_GROUP;
             final EventLoopGroup workGroup = Objects.nonNull(work) ? work : WORKER_GROUP;
-            ((ServerBootstrap) bootstrap).group(bossGroup, workGroup);
+            srv.group(bossGroup, workGroup);
         } else {
             bootstrap.group(Objects.nonNull(work) ? work : WORKER_GROUP);
         }
@@ -170,8 +170,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
             bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.EDGE_TRIGGERED);
         }
         //服务器配置
-        if (bootstrap instanceof ServerBootstrap) {
-            final ServerBootstrap serverBootstrap = (ServerBootstrap) bootstrap;
+        if (bootstrap instanceof ServerBootstrap serverBootstrap) {
             //保持连接数
             final int backlog = Math.max(this.getBacklog(), 50);
             serverBootstrap
@@ -186,8 +185,8 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
         this.addBootstrapOptions(bootstrap);
         //服务器端
         final BaseNettyImpl<?> impl = this;
-        if (bootstrap instanceof ServerBootstrap) {
-            ((ServerBootstrap) bootstrap).childHandler(new ChannelInitializer<C>() {
+        if (bootstrap instanceof ServerBootstrap srv) {
+            srv.childHandler(new ChannelInitializer<C>() {
 
                 @Override
                 protected void initChannel(final C ch) {
@@ -237,8 +236,8 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
     }
 
     protected <B extends AbstractBootstrap<B, C>, C extends Channel> void addBootstrapOptions(@Nonnull final AbstractBootstrap<B, C> bootstrap) {
-        if (bootstrap instanceof ServerBootstrap) {
-            ((ServerBootstrap) bootstrap).childOption(ChannelOption.AUTO_READ, false);
+        if (bootstrap instanceof ServerBootstrap srv) {
+            srv.childOption(ChannelOption.AUTO_READ, false);
         } else {
             bootstrap.option(ChannelOption.AUTO_READ, false);
         }
@@ -285,7 +284,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
                             if (Objects.nonNull(ch = f.channel())) {
                                 try {
                                     ch.closeFuture().sync();
-                                } catch (Throwable ex) {
+                                } catch (Exception ex) {
                                     log.error("同步阻塞[channelId: {}]异常-exp: {}", NettyUtils.getChannelId(ch), ex.getMessage());
                                 }
                             }
