@@ -23,7 +23,7 @@ import java.util.Optional;
 public abstract class BaseClientSocketHandler<T extends Message> extends BaseSocketHandler<T> {
 
     @Autowired
-    private volatile ApplicationContext context;
+    private ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
@@ -33,7 +33,7 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
                 .orElse(3);
     }
 
-    public BaseClientSocketHandler() {
+    protected BaseClientSocketHandler() {
         this.ensureHasScope();
     }
 

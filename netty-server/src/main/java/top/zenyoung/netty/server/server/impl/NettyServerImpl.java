@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * NettyServer服务接口实现
@@ -62,7 +61,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         final List<Integer> ports = getPortCodecs().keySet().stream()
                 .filter(Objects::nonNull)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
         if (CollectionUtils.isEmpty(ports)) {
             log.error("Netty-Server-未配置端口及编解码器!");
             return;
@@ -70,13 +69,16 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         //启动
         final ServerBootstrap bootstrap = new ServerBootstrap();
         buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
-        ports.forEach(port -> {
+        for (final Integer port : ports) {
+            if (Objects.isNull(port) || port <= 0) {
+                continue;
+            }
             //启动端口监听
             bootstrap.bind(port).addListener(future -> {
                 final boolean ret = future.isSuccess();
                 log.info("开始监听端口[{}]: {}", port, ret ? "成功" : "失败");
             });
-        });
+        }
     }
 
     @Override

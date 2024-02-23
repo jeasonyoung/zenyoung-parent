@@ -61,37 +61,23 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Override
     public final void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            Optional.ofNullable(((IdleStateEvent) evt).state())
-                    .ifPresent(state -> {
-                        //检查是否读写空闲
-                        if (state == IdleState.ALL_IDLE) {
-                            final long total = this.heartbeatTotals.incrementAndGet();
-                            if (total == Long.MAX_VALUE) {
-                                this.heartbeatTotals.set(0);
-                                return;
-                            }
-                            final boolean ret = Optional.ofNullable(getHeartbeatTimeoutTotal())
-                                    .filter(max -> total > max)
-                                    .map(max -> {
-                                        //检查Session
-                                        if (Objects.nonNull(this.session)) {
-                                            //移除会话
-                                            this.close();
-                                        } else {
-                                            //关闭通道
-                                            ctx.close();
-                                        }
-                                        return true;
-                                    })
-                                    .orElse(false);
-                            if (ret) {
-                                return;
-                            }
-                        }
-                        //心跳处理
-                        this.heartbeatIdleHandle(ctx, session, state);
-                    });
+        if (evt instanceof IdleStateEvent event) {
+            final IdleState state = event.state();
+            if (state == IdleState.ALL_IDLE) {
+                final long total = this.heartbeatTotals.incrementAndGet();
+                if (total == Long.MAX_VALUE) {
+                    this.heartbeatTotals.set(0);
+                    return;
+                }
+                final Integer max = getHeartbeatTimeoutTotal();
+                if (Objects.nonNull(max) && max > 0 && total > max) {
+                    //关闭通道
+                    ctx.close();
+                    return;
+                }
+                //心跳处理
+                this.heartbeatIdleHandle(ctx, session, state);
+            }
         }
         super.userEventTriggered(ctx, evt);
     }

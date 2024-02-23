@@ -57,7 +57,7 @@ public class StrategyHandlerFactory {
                     })
                     .filter(Objects::nonNull)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+                    .toList();
             if (!CollectionUtils.isEmpty(items)) {
                 return items.stream()
                         .collect(Collectors.groupingBy(

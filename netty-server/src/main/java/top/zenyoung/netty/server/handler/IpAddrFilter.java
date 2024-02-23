@@ -84,7 +84,7 @@ public class IpAddrFilter extends ChannelInboundHandlerAdapter {
 
     private List<IpFilterRule> splitToRules(@Nonnull final List<String> ipAddrs, @Nonnull final IpFilterRuleType ruleType) {
         if (CollectionUtils.isEmpty(ipAddrs)) {
-            return null;
+            return Lists.newArrayList();
         }
         final String sep = ",";
         return ipAddrs.stream()

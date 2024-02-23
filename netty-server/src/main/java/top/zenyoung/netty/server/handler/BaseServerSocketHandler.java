@@ -21,17 +21,17 @@ import javax.annotation.Nonnull;
 @Slf4j
 public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> {
     @Autowired
-    private volatile NettyServerProperties properties;
+    private NettyServerProperties properties;
 
     @Autowired
-    private volatile ApplicationContext context;
+    private ApplicationContext context;
 
     @Override
     protected Integer getHeartbeatTimeoutTotal() {
         return this.properties.getHeartbeatTimeoutTotal();
     }
 
-    public BaseServerSocketHandler() {
+    protected BaseServerSocketHandler() {
         this.ensureHasScope();
     }
 
