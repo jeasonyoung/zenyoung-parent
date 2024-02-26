@@ -3,8 +3,9 @@ package top.zenyoung.netty.server.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.handler.BaseSocketHandler;
 import top.zenyoung.netty.server.config.NettyServerProperties;
@@ -15,6 +16,8 @@ import top.zenyoung.netty.strategy.StrategyHandlerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Socket服务端-业务处理接口实现
@@ -22,16 +25,36 @@ import javax.annotation.Nullable;
  * @author young
  */
 @Slf4j
-public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> {
-    @Autowired
-    private NettyServerProperties properties;
-
-    @Autowired
+public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> implements ApplicationContextAware {
     private ApplicationContext context;
 
     @Override
+    public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
+
+    protected void contextHandler(@Nonnull final Consumer<ApplicationContext> handler) {
+        Optional.ofNullable(context).ifPresent(handler);
+    }
+
+    protected <R> R getContextBean(@Nonnull final Class<R> cls) {
+        return Optional.ofNullable(context)
+                .map(c -> c.getBean(cls))
+                .orElse(null);
+    }
+
+    /**
+     * 获取服务配置
+     *
+     * @return 服务配置
+     */
+    protected abstract NettyServerProperties getProperties();
+
+    @Override
     protected Integer getHeartbeatTimeoutTotal() {
-        return this.properties.getHeartbeatTimeoutTotal();
+        return Optional.ofNullable(getProperties())
+                .map(NettyServerProperties::getHeartbeatTimeoutTotal)
+                .orElse(null);
     }
 
     protected BaseServerSocketHandler() {
@@ -50,15 +73,17 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
                                        @Nullable final Session session, @Nonnull final IdleState state) {
-        final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
-        event.setSession(session);
-        event.setState(state);
-        context.publishEvent(event);
+        contextHandler(c -> {
+            final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
+            event.setSession(session);
+            event.setState(state);
+            c.publishEvent(event);
+        });
     }
 
     @Override
     protected StrategyHandlerFactory getStrategyHandlerFactory() {
-        return context.getBean(ServerStrategyHandlerFactory.class);
+        return getContextBean(ServerStrategyHandlerFactory.class);
     }
 
     /**
@@ -68,7 +93,9 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
      * @return 是否存在
      */
     protected boolean checkBlackList(@Nonnull final Session session) {
-        return this.properties.checkBlackList(session.getClientIp());
+        return Optional.ofNullable(getProperties())
+                .map(p -> p.checkBlackList(session.getClientIp()))
+                .orElse(false);
     }
 
     /**
@@ -78,7 +105,9 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
      * @return 添加结果
      */
     protected boolean addBlackList(@Nonnull final Session session) {
-        return this.properties.addBlackList(session.getClientIp());
+        return Optional.ofNullable(getProperties())
+                .map(p -> p.addBlackList(session.getClientIp()))
+                .orElse(false);
     }
 
     /**
@@ -88,6 +117,8 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
      * @return 移除结果
      */
     protected boolean removeBlackList(@Nonnull final Session session) {
-        return this.properties.removeBlackList(session.getClientIp());
+        return Optional.ofNullable(getProperties())
+                .map(p -> p.removeBlackList(session.getClientIp()))
+                .orElse(false);
     }
 }
