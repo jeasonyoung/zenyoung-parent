@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,6 @@ import top.zenyoung.netty.util.CodecUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Duration;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * NettyClient-客户端实现
@@ -59,6 +58,16 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
     @Override
     public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
         this.context = context;
+    }
+
+    protected void contextHandler(@Nonnull final Consumer<ApplicationContext> handler) {
+        Optional.ofNullable(context).ifPresent(handler);
+    }
+
+    protected <R> R getContextBean(@Nonnull final Class<R> cls) {
+        return Optional.ofNullable(context)
+                .map(c -> c.getBean(cls))
+                .orElse(null);
     }
 
     @Override
@@ -105,16 +114,19 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
      * @param args 启动参数
      */
     private void preStartHandler(@Nullable final ApplicationArguments args) {
-        Optional.of(context.getBeansOfType(PreStartHandler.class))
-                .filter(map -> !CollectionUtils.isEmpty(map))
-                .ifPresent(map -> map.forEach((name, handler) -> {
+        contextHandler(ctx -> {
+            final var preStartMap = ctx.getBeansOfType(PreStartHandler.class);
+            if (!CollectionUtils.isEmpty(preStartMap)) {
+                preStartMap.forEach((name, handler) -> {
                     try {
                         log.info("开始调用 启动前置: {}", name);
                         handler.preHandler(args);
                     } catch (Throwable e) {
                         log.warn("调用启动前置[{}]-exp: {}", name, e.getMessage());
                     }
-                }));
+                });
+            }
+        });
     }
 
     /**
@@ -123,16 +135,19 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
      * @param channel 连接通道
      */
     private void connectedHandler(@Nonnull final Channel channel) {
-        Optional.of(context.getBeansOfType(ConnectedHandler.class))
-                .filter(map -> !CollectionUtils.isEmpty(map))
-                .ifPresent(map -> map.forEach((name, handler) -> {
+        contextHandler(ctx -> {
+            final var connectedHandlerMap = ctx.getBeansOfType(ConnectedHandler.class);
+            if (!CollectionUtils.isEmpty(connectedHandlerMap)) {
+                connectedHandlerMap.forEach((name, handler) -> {
                     try {
                         log.info("开始调用连接成功处理器: {}", name);
                         handler.handler(channel);
                     } catch (Throwable e) {
                         log.warn("调用连接成功处理器[{}]-exp: {}", name, e.getMessage());
                     }
-                }));
+                });
+            }
+        });
     }
 
     @Override
@@ -236,28 +251,30 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
 
     @Override
     protected void initChannelCodecHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        final Map<String, String> codecMap = Optional.ofNullable((NettyClientProperties) getProperties())
+        final var codecMap = Optional.ofNullable((NettyClientProperties) getProperties())
                 .map(NettyClientProperties::getCodec)
                 .orElse(Maps.newHashMap());
         if (!CollectionUtils.isEmpty(codecMap)) {
-            final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
-                    .map(ctx -> CodecUtils.getCodecMap(ctx, codecMap, true))
-                    .orElse(null);
-            if (!CollectionUtils.isEmpty(codecHandlerMap)) {
-                codecHandlerMap.forEach(pipeline::addLast);
-            }
+            contextHandler(ctx -> {
+                final var codecHandlerMap = CodecUtils.getCodecMap(ctx, codecMap, true);
+                if (!CollectionUtils.isEmpty(codecHandlerMap)) {
+                    codecHandlerMap.forEach(pipeline::addLast);
+                }
+            });
         }
     }
 
     @Override
     protected void initBizHandlers(final int port, @Nonnull final ChannelPipeline pipeline) {
-        final var handlerMap = context.getBeansOfType(BaseClientSocketHandler.class);
-        if (!CollectionUtils.isEmpty(handlerMap)) {
-            handlerMap.forEach((name, handler) -> {
-                handler.ensureHasScope();
-                pipeline.addLast("biz_" + name, handler);
-            });
-        }
+        contextHandler(ctx -> {
+            final var handlerMap = ctx.getBeansOfType(BaseClientSocketHandler.class);
+            if (!CollectionUtils.isEmpty(handlerMap)) {
+                handlerMap.forEach((name, handler) -> {
+                    handler.ensureHasScope();
+                    pipeline.addLast("biz_" + name, handler);
+                });
+            }
+        });
     }
 
     @Override

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * NettyServer服务接口实现
@@ -38,6 +39,16 @@ public class NettyServerImpl extends BaseNettyImpl implements NettyServer, Appli
     @Override
     public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
         this.context = context;
+    }
+
+    protected void contextHandler(@Nonnull final Consumer<ApplicationContext> handler) {
+        Optional.ofNullable(context).ifPresent(handler);
+    }
+
+    protected <R> R getContextBean(@Nonnull final Class<R> cls) {
+        return Optional.ofNullable(context)
+                .map(c -> c.getBean(cls))
+                .orElse(null);
     }
 
     @Override
@@ -89,26 +100,28 @@ public class NettyServerImpl extends BaseNettyImpl implements NettyServer, Appli
     protected void initChannelCodecHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
         final Map<String, String> codecMap = getPortCodecs().getOrDefault(port, null);
         if (!CollectionUtils.isEmpty(codecMap)) {
-            final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
-                    .map(ctx -> CodecUtils.getCodecMap(ctx, codecMap, true))
-                    .orElse(null);
-            if (!CollectionUtils.isEmpty(codecHandlerMap)) {
-                codecHandlerMap.forEach(pipeline::addLast);
-            }
+            contextHandler(ctx -> {
+                final Map<String, ChannelHandler> codecHandlerMap = CodecUtils.getCodecMap(ctx, codecMap, true);
+                if (!CollectionUtils.isEmpty(codecHandlerMap)) {
+                    codecHandlerMap.forEach(pipeline::addLast);
+                }
+            });
         }
     }
 
     @Override
     protected void initBizHandlers(final int port, @Nonnull final ChannelPipeline pipeline) {
-        final var handlerMap = context.getBeansOfType(BaseServerSocketHandler.class);
-        if (!CollectionUtils.isEmpty(handlerMap)) {
-            handlerMap.forEach((name, handler) -> {
-                handler.ensureHasScope();
-                if (handler.supportedPort(port)) {
-                    pipeline.addLast("biz_" + name, handler);
-                }
-            });
-        }
+        contextHandler(ctx -> {
+            final var handlerMap = ctx.getBeansOfType(BaseServerSocketHandler.class);
+            if (!CollectionUtils.isEmpty(handlerMap)) {
+                handlerMap.forEach((name, handler) -> {
+                    handler.ensureHasScope();
+                    if (handler.supportedPort(port)) {
+                        pipeline.addLast("biz_" + name, handler);
+                    }
+                });
+            }
+        });
     }
 
     @Override
