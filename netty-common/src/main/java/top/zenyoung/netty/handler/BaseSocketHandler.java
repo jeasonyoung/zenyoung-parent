@@ -101,7 +101,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     @Override
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         //解析数据
-        final T data = receivedMessageConvert(msg);
+        final T data = receivedMessageConvert(ctx, msg);
         if (Objects.isNull(data)) {
             super.channelRead(ctx, msg);
             return;
@@ -140,7 +140,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Nullable
     @SuppressWarnings("unchecked")
-    protected T receivedMessageConvert(@Nonnull final Object msg) {
+    protected T receivedMessageConvert(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Object msg) {
         return (T) msg;
     }
 
