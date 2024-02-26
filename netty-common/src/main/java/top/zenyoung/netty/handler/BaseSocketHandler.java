@@ -1,6 +1,5 @@
 package top.zenyoung.netty.handler;
 
-import com.google.common.base.Strings;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -123,11 +122,6 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 //调用业务处理
                 this.messageReceived(ctx, data);
                 return;
-            }
-            //检查会话设备与当前请求设备ID是否一致
-            if (!Strings.isNullOrEmpty(deviceId)) {
-                Assert.isTrue(deviceId.equalsIgnoreCase(session.getDeviceId()),
-                        "当前请求数据设备ID[" + deviceId + "]与会话设备ID[" + session.getDeviceId() + "]不一致,请求非法!");
             }
             //调用业务处理
             this.messageReceived(ctx, data);
