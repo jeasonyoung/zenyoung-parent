@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 /**
@@ -29,7 +30,7 @@ import java.util.function.BiConsumer;
 @Slf4j
 public abstract class BaseSocketHandler<T extends Message> extends ChannelInboundHandlerAdapter {
     private final AtomicLong heartbeatTotals = new AtomicLong(0L);
-    private Session session;
+    private final AtomicReference<Session> refSession = new AtomicReference<>(null);
 
     /**
      * 获取会话对象
@@ -38,7 +39,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      */
     @Nullable
     protected Session getSession() {
-        return session;
+        return refSession.get();
     }
 
     /**
@@ -72,7 +73,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                     return;
                 }
                 //心跳处理
-                this.heartbeatIdleHandle(ctx, session, state);
+                this.heartbeatIdleHandle(ctx, getSession(), state);
             }
         }
         super.userEventTriggered(ctx, evt);
@@ -112,13 +113,13 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 heartbeatTotals.set(0);
             }
             //检查是否已创建会话
-            if (Objects.isNull(session)) {
+            if (Objects.isNull(getSession())) {
                 //设备ID转换
                 final String deviceId = buildSessionBefore(data);
                 //创建会话
-                this.session = SessionFactory.of(ctx.channel(), deviceId);
+                refSession.set(SessionFactory.of(ctx.channel(), deviceId));
                 //存储会话
-                this.buildSessionAfter(this.session);
+                this.buildSessionAfter(getSession());
                 //调用业务处理
                 this.messageReceived(ctx, data);
                 return;
@@ -183,7 +184,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             });
         };
         //全局策略处理器
-        final T callback = globalStrategyProcess(session, msg);
+        final T callback = globalStrategyProcess(getSession(), msg);
         if (Objects.nonNull(callback)) {
             callbackSendHandler.accept("global-strategy", callback);
             return;
@@ -191,7 +192,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         //根据消息执行策略命令
         final StrategyHandlerFactory handlerFactory = getStrategyHandlerFactory();
         Assert.notNull(handlerFactory, "未注册策略处理器工厂");
-        handlerFactory.process(session, msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
+        handlerFactory.process(getSession(), msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
     }
 
     /**
@@ -208,7 +209,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param req     请求数据
      * @return 响应数据(为空则后续业务处理)
      */
-    protected T globalStrategyProcess(@Nonnull final Session session, @Nonnull final T req) {
+    protected T globalStrategyProcess(@Nullable final Session session, @Nonnull final T req) {
         return null;
     }
 
@@ -220,7 +221,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        log.warn("exceptionCaught-发生异常({})-exp: {}", this.session, cause.getMessage());
+        log.warn("exceptionCaught-发生异常({})-exp: {}", getSession(), cause.getMessage());
         this.close();
     }
 
@@ -229,7 +230,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      */
     protected void close() {
         //移除会话
-        Optional.ofNullable(session)
+        Optional.ofNullable(getSession())
                 .ifPresent(this::close);
     }
 
