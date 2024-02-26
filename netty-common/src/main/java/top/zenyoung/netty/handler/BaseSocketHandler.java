@@ -1,12 +1,12 @@
 package top.zenyoung.netty.handler;
 
 import com.google.common.base.Strings;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
@@ -41,9 +41,6 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     protected Session getSession() {
         return session;
     }
-
-    @Autowired
-    private StrategyHandlerFactory handlerFactory;
 
     /**
      * 获取心跳超时次数
@@ -96,7 +93,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
-        if (!ctx.channel().config().isAutoClose()) {
+        if (!ctx.channel().config().isAutoRead()) {
             ctx.read();
         }
     }
@@ -174,7 +171,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      */
     protected final void messageReceived(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T msg) {
         //结果消息处理
-        final BiConsumer<String, T> callbackSendHandler = (prefix, callback) -> {
+        final BiConsumer<String, Message> callbackSendHandler = (prefix, callback) -> {
             if (Objects.isNull(callback)) {
                 return;
             }
@@ -184,7 +181,10 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 log.info("[{}][{}]发送消息反馈[deviceId: {}]=> {}", callback.getCommand(), prefix, callback.getDeviceId(),
                         (ret ? "成功" : "失败," + f.cause().getMessage()));
                 if (ret) {
-                    f.channel().read();
+                    final Channel channel = f.channel();
+                    if (!channel.config().isAutoRead()) {
+                        channel.read();
+                    }
                 }
             });
         };
@@ -195,9 +195,17 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             return;
         }
         //根据消息执行策略命令
+        final StrategyHandlerFactory handlerFactory = getStrategyHandlerFactory();
         Assert.notNull(handlerFactory, "未注册策略处理器工厂");
         handlerFactory.process(session, msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
     }
+
+    /**
+     * 获取策略处理工厂
+     *
+     * @return 策略处理工厂
+     */
+    protected abstract StrategyHandlerFactory getStrategyHandlerFactory();
 
     /**
      * 全局业务策略处理器

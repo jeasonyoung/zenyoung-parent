@@ -1,4 +1,4 @@
-package top.zenyoung.netty.handler;
+package top.zenyoung.netty.strategy;
 
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.session.Session;
@@ -6,18 +6,17 @@ import top.zenyoung.netty.session.Session;
 import javax.annotation.Nonnull;
 
 /**
- * 策略处理器基类
+ * 策略处理器
  *
  * @author young
  */
-public abstract class BaseStrategyHandler<T extends Message> {
+public interface StrategyHandler {
     /**
      * 获取命令名称
      *
      * @return 命令名称
      */
-    @Nonnull
-    public abstract String[] getCommands();
+    String[] getCommands();
 
     /**
      * 是否支持处理消息
@@ -25,16 +24,14 @@ public abstract class BaseStrategyHandler<T extends Message> {
      * @param req 消息数据
      * @return 是否支持处理
      */
-    public boolean supported(@Nonnull final T req) {
-        return true;
-    }
+    boolean supported(@Nonnull final Message req);
 
     /**
      * 获取策略优先级
      *
      * @return 优先级
      */
-    public int priority() {
+    default int priority() {
         return 0;
     }
 
@@ -45,5 +42,5 @@ public abstract class BaseStrategyHandler<T extends Message> {
      * @param req     请求数据
      * @return 响应数据
      */
-    public abstract T process(@Nonnull final Session session, @Nonnull final T req);
+    Message process(@Nonnull final Session session, @Nonnull final Message req);
 }

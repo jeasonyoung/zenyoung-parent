@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import top.zenyoung.netty.client.config.NettyClientProperties;
+import top.zenyoung.netty.client.strategy.ClientStrategyHandlerFactory;
 import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.event.IdleStateEvent;
 import top.zenyoung.netty.handler.BaseSocketHandler;
 import top.zenyoung.netty.session.Session;
+import top.zenyoung.netty.strategy.StrategyHandlerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,6 +46,11 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
         final IdleStateEvent event = new IdleStateEvent();
         event.setState(state);
         context.publishEvent(event);
+    }
+
+    @Override
+    protected StrategyHandlerFactory getStrategyHandlerFactory() {
+        return context.getBean(ClientStrategyHandlerFactory.class);
     }
 
     @Override

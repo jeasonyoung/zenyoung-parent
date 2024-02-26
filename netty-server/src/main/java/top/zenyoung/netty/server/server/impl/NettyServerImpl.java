@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.server.config.NettyServerProperties;
@@ -29,7 +28,6 @@ import java.util.Optional;
  * @author young
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implements NettyServer, DisposableBean {
     private final NettyServerProperties properites;

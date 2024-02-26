@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
@@ -43,7 +42,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author young
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implements NettyClient, DisposableBean {
     private final NettyClientProperties properites;
@@ -253,7 +251,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
             });
         }
     }
-    
+
     @Override
     public void close() {
         this.closeReconnectTask();
