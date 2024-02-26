@@ -39,13 +39,6 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
     }
 
     @Override
-    public final void channelActive(final ChannelHandlerContext ctx) {
-        if (!ctx.channel().config().isAutoClose()) {
-            ctx.read();
-        }
-    }
-
-    @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
                                        @Nullable final Session session, @Nonnull final IdleState state) {
         final IdleStateEvent event = new IdleStateEvent();

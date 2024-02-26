@@ -93,20 +93,12 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         log.debug("heartbeatIdleHandle[{}](session: {},state: {})...", NettyUtils.getChannelId(ctx), session, state);
     }
 
-    /**
-     * 构建Session之之前
-     *
-     * @param rawDeviceId 原始设备ID
-     * @return 会话设备ID
-     */
-    protected String buildSessionBefore(@Nonnull final String rawDeviceId) {
-        return rawDeviceId;
-    }
 
-    @Nullable
-    @SuppressWarnings("unchecked")
-    protected T receivedMessageConvert(@Nonnull final Object msg) {
-        return (T) msg;
+    @Override
+    public void channelActive(final ChannelHandlerContext ctx) {
+        if (!ctx.channel().config().isAutoClose()) {
+            ctx.read();
+        }
     }
 
     @Override
@@ -145,12 +137,29 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         }
     }
 
+    @Nullable
+    @SuppressWarnings("unchecked")
+    protected T receivedMessageConvert(@Nonnull final Object msg) {
+        return (T) msg;
+    }
+
+    /**
+     * 构建Session之之前
+     *
+     * @param rawDeviceId 原始设备ID
+     * @return 会话设备ID
+     */
+    protected String buildSessionBefore(@Nonnull final String rawDeviceId) {
+        return rawDeviceId;
+    }
+
     /**
      * 构建Session之后
      *
      * @param session 通道会话
      */
     protected void buildSessionAfter(@Nonnull final Session session) {
+
     }
 
     /**

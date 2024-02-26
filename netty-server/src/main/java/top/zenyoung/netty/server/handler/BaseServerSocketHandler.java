@@ -46,12 +46,6 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     }
 
     @Override
-    public void channelActive(@Nonnull final ChannelHandlerContext ctx) {
-        //触发读取消息
-        ctx.read();
-    }
-
-    @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
                                        @Nullable final Session session, @Nonnull final IdleState state) {
         final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
