@@ -111,10 +111,10 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             if (heartbeatTotals.get() > 0) {
                 heartbeatTotals.set(0);
             }
-            //设备ID转换
-            final String deviceId = buildSessionBefore(data.getDeviceId());
             //检查是否已创建会话
             if (Objects.isNull(session)) {
+                //设备ID转换
+                final String deviceId = buildSessionBefore(data);
                 //创建会话
                 this.session = SessionFactory.of(ctx.channel(), deviceId);
                 //存储会话
@@ -141,11 +141,11 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     /**
      * 构建Session之之前
      *
-     * @param rawDeviceId 原始设备ID
+     * @param data 数据
      * @return 会话设备ID
      */
-    protected String buildSessionBefore(@Nonnull final String rawDeviceId) {
-        return rawDeviceId;
+    protected String buildSessionBefore(@Nonnull final T data) {
+        return data.getDeviceId();
     }
 
     /**
