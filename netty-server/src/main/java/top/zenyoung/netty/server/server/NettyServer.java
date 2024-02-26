@@ -1,5 +1,6 @@
 package top.zenyoung.netty.server.server;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationRunner;
 
 /**
@@ -7,6 +8,6 @@ import org.springframework.boot.ApplicationRunner;
  *
  * @author young
  */
-public interface NettyServer extends ApplicationRunner {
+public interface NettyServer extends ApplicationRunner, DisposableBean {
 
 }
