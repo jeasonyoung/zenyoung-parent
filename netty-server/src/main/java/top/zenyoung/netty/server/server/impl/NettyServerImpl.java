@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
+import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.handler.BaseServerSocketHandler;
 import top.zenyoung.netty.server.server.NettyServer;
@@ -28,22 +29,27 @@ import java.util.Optional;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implements NettyServer {
+public class NettyServerImpl extends BaseNettyImpl implements NettyServer {
     private final NettyServerProperties properites;
     private final ApplicationContext context;
 
     @Override
-    protected NettyServerProperties getProperties() {
-        return this.properites;
+    protected BaseProperties getProperties() {
+        return properites;
     }
 
     private Map<Integer, Map<String, String>> getPortCodecs() {
-        return Optional.ofNullable(getProperties().getCodec()).orElse(Maps.newHashMap());
+        return Optional.ofNullable((NettyServerProperties) getProperties())
+                .map(NettyServerProperties::getCodec)
+                .orElse(Maps.newHashMap());
     }
 
     @Override
     protected int getBacklog() {
-        return Math.max(this.properites.getBacklog(), 50);
+        final Integer backlog = Optional.ofNullable((NettyServerProperties) getProperties())
+                .map(NettyServerProperties::getBacklog)
+                .orElse(0);
+        return Math.max(backlog, 50);
     }
 
     @Override

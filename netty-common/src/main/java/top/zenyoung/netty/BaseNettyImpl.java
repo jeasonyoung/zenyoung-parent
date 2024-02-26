@@ -37,7 +37,7 @@ import java.util.function.Supplier;
  * @author young
  */
 @Slf4j
-public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInboundHandlerAdapter {
+public abstract class BaseNettyImpl extends ChannelInboundHandlerAdapter {
     protected static final boolean IS_EPOLL;
     protected static final EventLoopGroup BOSS_GROUP;
     protected static final EventLoopGroup WORKER_GROUP;
@@ -61,7 +61,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
      *
      * @return 配置数据
      */
-    protected abstract T getProperties();
+    protected abstract BaseProperties getProperties();
 
     /**
      * 获取全局流量统计
@@ -201,7 +201,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
         //Options处理
         this.addBootstrapOptions(bootstrap);
         //服务器端
-        final BaseNettyImpl<?> impl = this;
+        final BaseNettyImpl impl = this;
         if (bootstrap instanceof ServerBootstrap srv) {
             srv.childHandler(new ChannelInitializer<C>() {
 

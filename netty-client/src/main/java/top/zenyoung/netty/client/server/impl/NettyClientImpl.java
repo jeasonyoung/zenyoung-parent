@@ -9,7 +9,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
@@ -20,6 +19,7 @@ import top.zenyoung.netty.client.handler.BaseClientSocketHandler;
 import top.zenyoung.netty.client.handler.ConnectedHandler;
 import top.zenyoung.netty.client.handler.PreStartHandler;
 import top.zenyoung.netty.client.server.NettyClient;
+import top.zenyoung.netty.config.BaseProperties;
 import top.zenyoung.netty.util.CodecUtils;
 
 import javax.annotation.Nonnull;
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implements NettyClient, DisposableBean {
+public class NettyClientImpl extends BaseNettyImpl implements NettyClient {
     private final NettyClientProperties properites;
     private final ApplicationContext context;
 
@@ -56,8 +56,8 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     private Bootstrap bootstrap;
 
     @Override
-    protected NettyClientProperties getProperties() {
-        return this.properites;
+    protected BaseProperties getProperties() {
+        return properites;
     }
 
     /**
@@ -66,7 +66,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
      * @return 服务器地址
      */
     private String getServerHost() {
-        return Optional.ofNullable(getProperties())
+        return Optional.ofNullable((NettyClientProperties) getProperties())
                 .map(NettyClientProperties::getHost)
                 .orElse(null);
     }
@@ -77,7 +77,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
      * @return 服务器端口
      */
     private Integer getServerPort() {
-        return Optional.ofNullable(getProperties())
+        return Optional.ofNullable((NettyClientProperties) getProperties())
                 .map(NettyClientProperties::getPort)
                 .orElse(null);
     }
@@ -88,7 +88,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
      * @return 重连间隔
      */
     private Duration getReconnectInterval() {
-        return Optional.ofNullable(getProperties())
+        return Optional.ofNullable((NettyClientProperties) getProperties())
                 .map(NettyClientProperties::getReconnectInterval)
                 .orElse(Duration.ZERO);
     }
@@ -230,7 +230,9 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
 
     @Override
     protected void initChannelCodecHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        final Map<String, String> codecMap = Optional.ofNullable(getProperties().getCodec()).orElse(Maps.newHashMap());
+        final Map<String, String> codecMap = Optional.ofNullable((NettyClientProperties) getProperties())
+                .map(NettyClientProperties::getCodec)
+                .orElse(Maps.newHashMap());
         if (!CollectionUtils.isEmpty(codecMap)) {
             final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
                     .map(ctx -> CodecUtils.getCodecMap(ctx, codecMap, true))
