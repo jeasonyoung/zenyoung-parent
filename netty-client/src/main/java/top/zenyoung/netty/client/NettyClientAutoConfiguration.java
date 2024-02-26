@@ -3,7 +3,6 @@ package top.zenyoung.netty.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -38,7 +37,7 @@ public class NettyClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public NettyClient nettyClient(@Nonnull final NettyClientProperties properties, @Nonnull final ApplicationContext context) {
-        return new NettyClientImpl(properties, context);
+    public NettyClient nettyClient(@Nonnull final NettyClientProperties properties) {
+        return new NettyClientImpl(properties);
     }
 }

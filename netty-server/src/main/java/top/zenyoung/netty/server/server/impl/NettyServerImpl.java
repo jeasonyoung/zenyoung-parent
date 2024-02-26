@@ -6,8 +6,10 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.config.BaseProperties;
@@ -29,9 +31,14 @@ import java.util.Optional;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class NettyServerImpl extends BaseNettyImpl implements NettyServer {
+public class NettyServerImpl extends BaseNettyImpl implements NettyServer, ApplicationContextAware {
     private final NettyServerProperties properites;
-    private final ApplicationContext context;
+    private ApplicationContext context;
+
+    @Override
+    public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
 
     @Override
     protected BaseProperties getProperties() {

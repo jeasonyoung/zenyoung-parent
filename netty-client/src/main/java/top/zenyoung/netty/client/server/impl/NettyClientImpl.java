@@ -9,8 +9,10 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
@@ -43,10 +45,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class NettyClientImpl extends BaseNettyImpl implements NettyClient {
+public class NettyClientImpl extends BaseNettyImpl implements NettyClient, ApplicationContextAware {
     private final NettyClientProperties properites;
-    private final ApplicationContext context;
-
     private final AtomicBoolean refConnect = new AtomicBoolean(false);
     private final AtomicBoolean refReconnectRun = new AtomicBoolean(false);
     private final AtomicLong refReconnectCount = new AtomicLong(0L);
@@ -54,6 +54,12 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient {
     private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
     private Bootstrap bootstrap;
+    private ApplicationContext context;
+
+    @Override
+    public void setApplicationContext(@Nonnull final ApplicationContext context) throws BeansException {
+        this.context = context;
+    }
 
     @Override
     protected BaseProperties getProperties() {
