@@ -12,10 +12,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import top.zenyoung.netty.config.BaseProperties;
+import top.zenyoung.netty.handler.HeartbeatHandler;
+import top.zenyoung.netty.handler.IpAddrFilterHandler;
 import top.zenyoung.netty.mbean.TrafficAcceptor;
 import top.zenyoung.netty.util.NettyUtils;
 
@@ -28,7 +30,6 @@ import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * Netty实现基类
@@ -53,8 +54,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
     /**
      * 全局流量共享统计处理器
      */
-    @Getter
-    private GlobalTrafficShapingHandler globalTrafficHandler;
+    private GlobalTrafficShapingHandler globalTrafficHandler = null;
 
     /**
      * 获取配置数据
@@ -226,7 +226,7 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
      *
      * @param channel 连接通道
      */
-    protected void initChannel(@Nonnull final Channel channel) {
+    protected final void initChannel(@Nonnull final Channel channel) {
         final Integer port = Optional.ofNullable((InetSocketAddress) channel.localAddress())
                 .map(InetSocketAddress::getPort)
                 .orElse(-1);
@@ -258,57 +258,62 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
         }
     }
 
-    private final LoggingHandler loggingHandler = new LoggingHandler(getNettyLogLevel());
-
     /**
      * 通信管道初始化
      *
      * @param port     端口
      * @param pipeline 管道对象
      */
-    protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        //0.挂载日志处理器
-        pipeline.addLast("log", loggingHandler);
-        //1.挂载流量统计处理器
+    protected final void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
+        //ip过滤
+        pipeline.addLast("ipFilter", new IpAddrFilterHandler(getProperties()));
+        //ssl
+        final SslHandler sslHandler = buildSslHandle(port, pipeline.channel());
+        if (Objects.nonNull(sslHandler)) {
+            pipeline.addLast("ssl", sslHandler);
+        }
+        //挂载流量统计
         Optional.ofNullable(globalTrafficHandler)
                 .ifPresent(handler -> pipeline.addLast("globalTraffic", handler));
+        //挂载编解码器
+        initChannelCodecHandler(port, pipeline);
+        //日志处理
+        pipeline.addLast("log", new LoggingHandler(getNettyLogLevel()));
+        //空闲检测器
+        Optional.ofNullable(getProperties())
+                .map(BaseProperties::getHeartbeatInterval)
+                .filter(duration -> !duration.isZero())
+                .ifPresent(heartbeat -> pipeline.addLast("idle", new HeartbeatHandler(heartbeat)));
+        //业务处理器
+        initBizHandlers(port, pipeline);
     }
 
     /**
-     * 同步阻塞并添加JVM钩子
+     * 获取ssl处理器
      *
-     * @param futures ChannelFuture
+     * @param port 处理端口
+     * @return ssl处理器
      */
-    protected void syncShutdownHook(@Nonnull final ChannelFuture... futures) {
-        if (futures.length > 0) {
-            try {
-                //jvm钩子
-                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                    try {
-                        log.info("netty 开始关闭...");
-                        this.close();
-                    } catch (Throwable e) {
-                        log.error("netty 开始关闭异常-exp: {}", e.getMessage());
-                    }
-                }));
-                //同步阻塞
-                Stream.of(futures)
-                        .filter(Objects::nonNull)
-                        .forEach(f -> {
-                            final Channel ch;
-                            if (Objects.nonNull(ch = f.channel())) {
-                                try {
-                                    ch.closeFuture().sync();
-                                } catch (Exception ex) {
-                                    log.error("同步阻塞[channelId: {}]异常-exp: {}", NettyUtils.getChannelId(ch), ex.getMessage());
-                                }
-                            }
-                        });
-            } catch (Throwable e) {
-                log.error("netty 运行失败-exp: {}", e.getMessage());
-            }
-        }
+    @Nullable
+    protected SslHandler buildSslHandle(final int port, @Nonnull final Channel channel) {
+        return null;
     }
+
+    /**
+     * 添加通道编解码器
+     *
+     * @param port     端口
+     * @param pipeline 通道线
+     */
+    protected abstract void initChannelCodecHandler(final int port, @Nonnull final ChannelPipeline pipeline);
+
+    /**
+     * 添加业务处理器集合
+     *
+     * @param port     端口
+     * @param pipeline 通道线
+     */
+    protected abstract void initBizHandlers(final int port, @Nonnull final ChannelPipeline pipeline);
 
     /**
      * 关闭

@@ -12,6 +12,7 @@ import top.zenyoung.netty.handler.BaseSocketHandler;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
@@ -38,26 +39,15 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
     }
 
     @Override
-    public final void handlerAdded(final ChannelHandlerContext ctx) {
-        this.addCodec(ctx);
-    }
-
-    @Override
     public final void channelActive(final ChannelHandlerContext ctx) {
         if (!ctx.channel().config().isAutoClose()) {
             ctx.read();
         }
     }
 
-    /**
-     * 增加编解码器
-     *
-     * @param ctx 上下文
-     */
-    protected abstract void addCodec(@Nonnull final ChannelHandlerContext ctx);
-
     @Override
-    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
+    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
+                                       @Nullable final Session session, @Nonnull final IdleState state) {
         final IdleStateEvent event = new IdleStateEvent();
         event.setState(state);
         context.publishEvent(event);

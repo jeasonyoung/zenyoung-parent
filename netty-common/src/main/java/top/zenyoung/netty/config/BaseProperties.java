@@ -1,12 +1,14 @@
 package top.zenyoung.netty.config;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.netty.handler.logging.LogLevel;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,6 +32,14 @@ public abstract class BaseProperties implements Serializable {
      * 心跳超时次数
      */
     private Integer heartbeatTimeoutTotal = 3;
+    /**
+     * IP地址黑名单
+     */
+    private List<String> ipAddrBlackList = Lists.newArrayList();
+    /**
+     * IP地址白名单
+     */
+    private List<String> ipAddrWhiteList = Lists.newArrayList();
 
     /**
      * 获取Netty日志级别

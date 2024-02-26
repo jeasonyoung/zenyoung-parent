@@ -1,10 +1,11 @@
 package top.zenyoung.netty.client.server.impl;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +21,12 @@ import top.zenyoung.netty.client.handler.BaseClientSocketHandler;
 import top.zenyoung.netty.client.handler.ConnectedHandler;
 import top.zenyoung.netty.client.handler.PreStartHandler;
 import top.zenyoung.netty.client.server.NettyClient;
-import top.zenyoung.netty.handler.HeartbeatHandler;
+import top.zenyoung.netty.util.CodecUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -229,32 +231,29 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
     }
 
     @Override
-    protected void initChannel(@Nonnull final Channel channel) {
-        final ChannelPipeline pipeline = channel.pipeline();
-        initChannelPipelineHandler(-1, pipeline);
-        log.info("已挂载处理器: {}", Joiner.on(",").skipNulls().join(pipeline.names()));
+    protected void initChannelCodecHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
+        final Map<String, String> codecMap = Optional.ofNullable(getProperties().getCodec()).orElse(Maps.newHashMap());
+        if (!CollectionUtils.isEmpty(codecMap)) {
+            final Map<String, ChannelHandler> codecHandlerMap = Optional.ofNullable(context)
+                    .map(ctx -> CodecUtils.getCodecMap(ctx, codecMap, true))
+                    .orElse(null);
+            if (!CollectionUtils.isEmpty(codecHandlerMap)) {
+                codecHandlerMap.forEach(pipeline::addLast);
+            }
+        }
     }
 
     @Override
-    protected void initChannelPipelineHandler(final int port, @Nonnull final ChannelPipeline pipeline) {
-        super.initChannelPipelineHandler(port, pipeline);
-        //1.挂载空闲检查处理器
-        Optional.ofNullable(getProperties())
-                .map(NettyClientProperties::getHeartbeatInterval)
-                .filter(duration -> !duration.isZero())
-                .ifPresent(heartbeat -> {
-                    pipeline.addLast("idle", new HeartbeatHandler(heartbeat));
-                    log.info("Netty-挂载空闲检查处理器: {}", heartbeat);
-                });
-        //2.挂载业务处理器
-        final BaseClientSocketHandler<?> handler = context.getBean(BaseClientSocketHandler.class);
-        Assert.notNull(handler, "'BaseClientSocketHandler'子类对象不存在!");
-        //检查注解
-        handler.ensureHasScope();
-        //添加到管道
-        pipeline.addLast("biz", handler);
+    protected void initBizHandlers(final int port, @Nonnull final ChannelPipeline pipeline) {
+        final var handlerMap = context.getBeansOfType(BaseClientSocketHandler.class);
+        if (!CollectionUtils.isEmpty(handlerMap)) {
+            handlerMap.forEach((name, handler) -> {
+                handler.ensureHasScope();
+                pipeline.addLast("biz_" + name, handler);
+            });
+        }
     }
-
+    
     @Override
     public void close() {
         this.closeReconnectTask();

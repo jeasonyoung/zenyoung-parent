@@ -88,8 +88,9 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param session Session
      * @param state   IdleState
      */
-    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
-        log.debug("heartbeatIdleHandle(session: {},state: {})...", session, state);
+    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
+                                       @Nullable final Session session, @Nonnull final IdleState state) {
+        log.debug("heartbeatIdleHandle[{}](session: {},state: {})...", NettyUtils.getChannelId(ctx), session, state);
     }
 
     /**

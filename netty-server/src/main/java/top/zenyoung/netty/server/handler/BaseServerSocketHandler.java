@@ -12,6 +12,7 @@ import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
 import top.zenyoung.netty.session.Session;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Socket服务端-业务处理接口实现
@@ -51,7 +52,8 @@ public abstract class BaseServerSocketHandler<T extends Message> extends BaseSoc
     }
 
     @Override
-    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Session session, @Nonnull final IdleState state) {
+    protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
+                                       @Nullable final Session session, @Nonnull final IdleState state) {
         final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
         event.setSession(session);
         event.setState(state);
