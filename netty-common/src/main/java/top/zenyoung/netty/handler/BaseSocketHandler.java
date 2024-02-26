@@ -103,6 +103,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Override
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+        //解析数据
         final T data = receivedMessageConvert(msg);
         if (Objects.isNull(data)) {
             super.channelRead(ctx, msg);
@@ -110,7 +111,10 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         }
         final long start = System.currentTimeMillis();
         try {
-            this.heartbeatTotals.set(0L);
+            //检查心跳超时
+            if (heartbeatTotals.get() > 0) {
+                heartbeatTotals.set(0);
+            }
             //设备ID转换
             final String deviceId = buildSessionBefore(data.getDeviceId());
             //检查是否已创建会话
