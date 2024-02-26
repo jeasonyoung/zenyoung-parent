@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -68,7 +66,7 @@ public class NettyServerImpl extends BaseNettyImpl<NettyServerProperties> implem
         }
         //启动
         final ServerBootstrap bootstrap = new ServerBootstrap();
-        buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
+        buildBootstrap(bootstrap);
         for (final Integer port : ports) {
             if (Objects.isNull(port) || port <= 0) {
                 continue;

@@ -6,8 +6,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -140,7 +138,7 @@ public class NettyClientImpl extends BaseNettyImpl<NettyClientProperties> implem
             //创建客户端启动对象
             this.bootstrap = new Bootstrap();
             //构建Bootstrap配置
-            this.buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollSocketChannel.class : NioSocketChannel.class);
+            this.buildBootstrap(bootstrap);
             //连接服务器
             this.connectServer();
         } catch (Throwable e) {

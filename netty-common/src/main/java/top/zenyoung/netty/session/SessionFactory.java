@@ -95,7 +95,7 @@ public class SessionFactory implements Session {
     }
 
     @Override
-    public void send(@Nonnull final Message data, @Nullable final ChannelFutureListener listener) {
+    public void send(@Nonnull final Object data, @Nullable final ChannelFutureListener listener) {
         Optional.ofNullable(channel)
                 .map(ch -> ch.writeAndFlush(data))
                 .ifPresent(future -> {

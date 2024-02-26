@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.codec.Message;
@@ -38,33 +37,25 @@ public class StrategyHandlerFactory {
     }
 
     private Map<String, List<BaseStrategyHandler<? extends Message>>> buildCommandStrategyHandlers(
-            @Nullable final List<BaseStrategyHandler<? extends Message>> handlers) {
+            @Nullable final List<BaseStrategyHandler<? extends Message>> handlers
+    ) {
         if (!CollectionUtils.isEmpty(handlers)) {
-            final List<CommandStrategyHandler> items = handlers.stream()
-                    .map(handler -> {
-                        final String[] commands = handler.getCommands();
-                        if (ArrayUtils.isEmpty(commands)) {
-                            return null;
-                        }
-                        return Stream.of(commands)
-                                .filter(command -> !Strings.isNullOrEmpty(command))
-                                .distinct()
-                                .map(command -> {
-                                    log.info("注册[策略处理器: {}]=> {}", command, handler);
-                                    return CommandStrategyHandler.of(command, handler);
-                                })
-                                .collect(Collectors.toList());
-                    })
+            return handlers.stream()
                     .filter(Objects::nonNull)
+                    .map(handler -> Stream.of(handler.getCommands())
+                            .filter(command -> !Strings.isNullOrEmpty(command))
+                            .distinct()
+                            .map(command -> {
+                                log.info("注册[策略处理器: {}]=> {}", command, handler);
+                                return CommandHandler.of(command, handler);
+                            })
+                            .toList()
+                    )
                     .flatMap(Collection::stream)
-                    .toList();
-            if (!CollectionUtils.isEmpty(items)) {
-                return items.stream()
-                        .collect(Collectors.groupingBy(
-                                CommandStrategyHandler::getCommand,
-                                Collectors.mapping(CommandStrategyHandler::getHandler, Collectors.toList())
-                        ));
-            }
+                    .collect(Collectors.groupingBy(
+                            CommandHandler::getCommand,
+                            Collectors.mapping(CommandHandler::getHandler, Collectors.toList())
+                    ));
         }
         return Maps.newHashMap();
     }
@@ -100,7 +91,7 @@ public class StrategyHandlerFactory {
 
     @Getter
     @RequiredArgsConstructor(staticName = "of")
-    private static class CommandStrategyHandler {
+    private static class CommandHandler {
         private final String command;
         private final BaseStrategyHandler<? extends Message> handler;
     }

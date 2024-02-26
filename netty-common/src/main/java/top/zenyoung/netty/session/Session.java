@@ -2,7 +2,6 @@ package top.zenyoung.netty.session;
 
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.AttributeMap;
-import top.zenyoung.netty.codec.Message;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,14 +68,14 @@ public interface Session extends AttributeMap, Serializable {
      * @param data     消息数据
      * @param listener 发送结果监听
      */
-    void send(@Nonnull final Message data, @Nullable final ChannelFutureListener listener);
+    void send(@Nonnull final Object data, @Nullable final ChannelFutureListener listener);
 
     /**
      * 发送消息
      *
      * @param data 消息数据
      */
-    default void send(@Nonnull final Message data) {
+    default void send(@Nonnull final Object data) {
         this.send(data, null);
     }
 

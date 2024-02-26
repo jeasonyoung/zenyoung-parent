@@ -6,11 +6,10 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollMode;
+import io.netty.channel.epoll.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
@@ -94,6 +93,24 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
      */
     protected int getBacklog() {
         return 2048;
+    }
+
+    /**
+     * 构建Bootstrap参数
+     *
+     * @param bootstrap 服务端
+     */
+    protected void buildBootstrap(@Nonnull final ServerBootstrap bootstrap) {
+        buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
+    }
+
+    /**
+     * 构建Bootstrap参数
+     *
+     * @param bootstrap 客户端
+     */
+    protected void buildBootstrap(@Nonnull final Bootstrap bootstrap) {
+        buildBootstrap(bootstrap, () -> IS_EPOLL ? EpollSocketChannel.class : NioSocketChannel.class);
     }
 
     /**
@@ -202,8 +219,6 @@ public abstract class BaseNettyImpl<T extends BaseProperties> extends ChannelInb
                 }
             });
         }
-        //启动startMbean处理
-        // startMbean();
     }
 
     /**
