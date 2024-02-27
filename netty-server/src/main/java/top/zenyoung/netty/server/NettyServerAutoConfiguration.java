@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.server.config.AsyncEventConfig;
 import top.zenyoung.netty.server.config.NettyServerProperties;
 import top.zenyoung.netty.server.server.NettyServer;
@@ -30,7 +31,8 @@ import java.util.List;
 public class NettyServerAutoConfiguration {
 
     @Bean
-    public ServerStrategyHandlerFactory getStrategyHandlerFactory(final List<ServerStrategyHandler> handlers) {
+    @ConditionalOnMissingBean
+    public <M extends Message> ServerStrategyHandlerFactory getStrategyHandlerFactory(final List<ServerStrategyHandler<M>> handlers) {
         final StrategyHandlerFactory factory = StrategyUtils.build(handlers);
         return factory::process;
     }

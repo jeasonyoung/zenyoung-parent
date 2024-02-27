@@ -28,7 +28,7 @@ import java.util.function.BiConsumer;
  * @author young
  */
 @Slf4j
-public abstract class BaseSocketHandler<T extends Message> extends ChannelInboundHandlerAdapter {
+public abstract class BaseSocketHandler<M extends Message> extends ChannelInboundHandlerAdapter {
     private final AtomicLong heartbeatTotals = new AtomicLong(0L);
     private final AtomicReference<Session> refSession = new AtomicReference<>(null);
 
@@ -101,7 +101,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
     @Override
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         //解析数据
-        final T data = receivedMessageConvert(ctx, msg);
+        final M data = receivedMessageConvert(ctx, msg);
         if (Objects.isNull(data)) {
             super.channelRead(ctx, msg);
             return;
@@ -135,8 +135,8 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
 
     @Nullable
     @SuppressWarnings("unchecked")
-    protected T receivedMessageConvert(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Object msg) {
-        return (T) msg;
+    protected M receivedMessageConvert(@Nonnull final ChannelHandlerContext ctx, @Nonnull final Object msg) {
+        return (M) msg;
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param data 数据
      * @return 会话设备ID
      */
-    protected String buildSessionBefore(@Nonnull final T data) {
+    protected String buildSessionBefore(@Nonnull final M data) {
         return data.getDeviceId();
     }
 
@@ -164,7 +164,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param ctx 上下文
      * @param msg 消息数据
      */
-    protected final void messageReceived(@Nonnull final ChannelHandlerContext ctx, @Nonnull final T msg) {
+    protected final void messageReceived(@Nonnull final ChannelHandlerContext ctx, @Nonnull final M msg) {
         //结果消息处理
         final BiConsumer<String, Message> callbackSendHandler = (prefix, callback) -> {
             if (Objects.isNull(callback)) {
@@ -190,7 +190,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
             return;
         }
         //全局策略处理器
-        final T callback = globalStrategyProcess(session, msg);
+        final M callback = globalStrategyProcess(session, msg);
         if (Objects.nonNull(callback)) {
             callbackSendHandler.accept("global-strategy", callback);
             return;
@@ -215,7 +215,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param req     请求数据
      * @return 响应数据(为空则后续业务处理)
      */
-    protected T globalStrategyProcess(@Nonnull final Session session, @Nonnull final T req) {
+    protected M globalStrategyProcess(@Nonnull final Session session, @Nonnull final M req) {
         return null;
     }
 

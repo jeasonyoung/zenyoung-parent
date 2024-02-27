@@ -12,6 +12,7 @@ import top.zenyoung.netty.strategy.StrategyHandler;
 import top.zenyoung.netty.strategy.StrategyHandlerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -20,29 +21,29 @@ import java.util.stream.Stream;
 @Slf4j
 @UtilityClass
 public class StrategyUtils {
-    public static <T extends StrategyHandler> StrategyHandlerFactory build(@Nonnull final Collection<T> strategyHandlers) {
-        return new StrategyHandlerFactoryInner(strategyHandlers);
+    public static <M extends Message, H extends StrategyHandler<M>> StrategyHandlerFactory build(@Nullable final Collection<H> strategyHandlers) {
+        return new StrategyHandlerFactoryInner<>(strategyHandlers);
     }
 
-    private static class StrategyHandlerFactoryInner implements StrategyHandlerFactory {
-        private final Map<String, List<StrategyHandler>> commandStrategyHandlers = Maps.newHashMap();
+    private static class StrategyHandlerFactoryInner<M extends Message, H extends StrategyHandler<M>> implements StrategyHandlerFactory {
+        private final Map<String, List<H>> commandStrategyHandlers = Maps.newHashMap();
 
-        public StrategyHandlerFactoryInner(@Nonnull final Collection<? extends StrategyHandler> strategyHandlers) {
+        public StrategyHandlerFactoryInner(@Nullable final Collection<H> strategyHandlers) {
             if (CollectionUtils.isEmpty(strategyHandlers)) {
                 return;
             }
             buildHanlder(strategyHandlers);
         }
 
-        private void buildHanlder(@Nonnull final Collection<? extends StrategyHandler> strategyHandlers) {
-            final Map<String, List<StrategyHandler>> cmdStrategyHandlers = strategyHandlers.stream()
+        private void buildHanlder(@Nonnull final Collection<H> strategyHandlers) {
+            final Map<String, List<H>> cmdStrategyHandlers = strategyHandlers.stream()
                     .filter(Objects::nonNull)
                     .map(handler -> Stream.of(handler.getCommands())
                             .filter(cmd -> !Strings.isNullOrEmpty(cmd))
                             .distinct()
                             .map(cmd -> {
                                 log.info("注册[策略处理器: {}]=> {}", cmd, handler);
-                                return Pair.<String, StrategyHandler>of(cmd, handler);
+                                return Pair.of(cmd, handler);
                             })
                             .toList()
                     )
@@ -54,7 +55,8 @@ public class StrategyUtils {
         }
 
         @Override
-        public void process(@Nonnull final Session session, @Nonnull final Message req, @Nonnull final Consumer<Message> callbackHandler) {
+        @SuppressWarnings({"unchecked"})
+        public <T extends Message> void process(@Nonnull final Session session, @Nonnull final T req, @Nonnull final Consumer<T> callbackHandler) {
             final String command = req.getCommand();
             if (Strings.isNullOrEmpty(command)) {
                 return;
@@ -69,15 +71,15 @@ public class StrategyUtils {
                     .distinct()
                     .forEach(handler -> {
                         //判断是否支持
-                        if (!handler.supported(session, req)) {
+                        if (!handler.supported(session, (M) req)) {
                             log.warn("process[command: {}]-不支持处理=> {}", command, handler);
                             return;
                         }
                         //业务处理
                         log.info("process[command: {}]-策略处理器开始处理业务=> {}", command, handler);
-                        final Message callback = handler.process(session, req);
+                        final M callback = handler.process(session, (M) req);
                         if (Objects.nonNull(callback)) {
-                            callbackHandler.accept(callback);
+                            callbackHandler.accept((T) callback);
                         }
                     });
         }

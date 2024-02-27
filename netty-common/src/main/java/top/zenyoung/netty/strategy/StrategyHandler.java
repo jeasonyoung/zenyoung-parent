@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  *
  * @author young
  */
-public interface StrategyHandler {
+public interface StrategyHandler<M extends Message> {
     /**
      * 获取命令名称
      *
@@ -25,7 +25,7 @@ public interface StrategyHandler {
      * @param req     消息数据
      * @return 是否支持处理
      */
-    default boolean supported(@Nonnull final Session session, @Nonnull final Message req) {
+    default boolean supported(@Nonnull final Session session, @Nonnull final M req) {
         return true;
     }
 
@@ -45,5 +45,5 @@ public interface StrategyHandler {
      * @param req     请求数据
      * @return 响应数据
      */
-    Message process(@Nonnull final Session session, @Nonnull final Message req);
+    M process(@Nonnull final Session session, @Nonnull final M req);
 }

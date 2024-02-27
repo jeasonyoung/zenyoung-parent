@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  * @author young
  */
 @Slf4j
-public abstract class BaseServerSocketHandler<T extends Message> extends BaseSocketHandler<T> implements ApplicationContextAware {
+public abstract class BaseServerSocketHandler<M extends Message> extends BaseSocketHandler<M> implements ApplicationContextAware {
     private ApplicationContext context;
 
     @Override

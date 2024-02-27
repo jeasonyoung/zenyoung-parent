@@ -1,5 +1,6 @@
 package top.zenyoung.netty.server.strategy;
 
+import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.strategy.StrategyHandler;
 
 /**
@@ -7,6 +8,6 @@ import top.zenyoung.netty.strategy.StrategyHandler;
  *
  * @author young
  */
-public interface ServerStrategyHandler extends StrategyHandler {
+public interface ServerStrategyHandler<M extends Message> extends StrategyHandler<M> {
 
 }
