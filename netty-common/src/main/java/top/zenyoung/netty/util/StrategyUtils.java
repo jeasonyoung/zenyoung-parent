@@ -69,7 +69,7 @@ public class StrategyUtils {
                     .distinct()
                     .forEach(handler -> {
                         //判断是否支持
-                        if (!handler.supported(req)) {
+                        if (!handler.supported(session, req)) {
                             log.warn("process[command: {}]-不支持处理=> {}", command, handler);
                             return;
                         }

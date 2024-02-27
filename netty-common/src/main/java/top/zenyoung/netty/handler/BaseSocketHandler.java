@@ -183,8 +183,14 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
                 }
             });
         };
+        //获取当前会话
+        final Session session = getSession();
+        if (Objects.isNull(session)) {
+            log.error("messageReceived[{}](msg: {})-未获取到Session,无法执行策略处理器.", NettyUtils.getChannelId(ctx), msg);
+            return;
+        }
         //全局策略处理器
-        final T callback = globalStrategyProcess(getSession(), msg);
+        final T callback = globalStrategyProcess(session, msg);
         if (Objects.nonNull(callback)) {
             callbackSendHandler.accept("global-strategy", callback);
             return;
@@ -192,7 +198,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
         //根据消息执行策略命令
         final StrategyHandlerFactory handlerFactory = getStrategyHandlerFactory();
         Assert.notNull(handlerFactory, "未注册策略处理器工厂");
-        handlerFactory.process(getSession(), msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
+        handlerFactory.process(session, msg, cb -> callbackSendHandler.accept("strategy-handler", cb));
     }
 
     /**
@@ -209,7 +215,7 @@ public abstract class BaseSocketHandler<T extends Message> extends ChannelInboun
      * @param req     请求数据
      * @return 响应数据(为空则后续业务处理)
      */
-    protected T globalStrategyProcess(@Nullable final Session session, @Nonnull final T req) {
+    protected T globalStrategyProcess(@Nonnull final Session session, @Nonnull final T req) {
         return null;
     }
 

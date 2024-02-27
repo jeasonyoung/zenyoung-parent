@@ -21,10 +21,13 @@ public interface StrategyHandler {
     /**
      * 是否支持处理消息
      *
-     * @param req 消息数据
+     * @param session 会话
+     * @param req     消息数据
      * @return 是否支持处理
      */
-    boolean supported(@Nonnull final Message req);
+    default boolean supported(@Nonnull final Session session, @Nonnull final Message req) {
+        return true;
+    }
 
     /**
      * 获取策略优先级
