@@ -7,10 +7,8 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
-import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.util.NettyUtils;
 
 import javax.annotation.Nonnull;
@@ -25,11 +23,9 @@ import java.util.Optional;
  * @author young
  */
 @Slf4j
-@ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(staticName = "of")
 public class SessionFactory implements Session {
-    @EqualsAndHashCode.Exclude
     private final Channel channel;
     private final String deviceId;
     private final Map<String, Object> locks = Maps.newHashMap();
@@ -116,5 +112,11 @@ public class SessionFactory implements Session {
         Optional.ofNullable(channel)
                 .filter(Channel::isActive)
                 .ifPresent(Channel::close);
+    }
+
+    @Override
+    public String toString() {
+        final String channelId = NettyUtils.getChannelId(channel);
+        return "session(deviceId:" + channelId + ",channel: " + channelId + ",properties:" + properties + ")";
     }
 }
