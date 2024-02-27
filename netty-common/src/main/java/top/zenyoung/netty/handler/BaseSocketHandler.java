@@ -129,7 +129,7 @@ public abstract class BaseSocketHandler<M extends Message> extends ChannelInboun
         } finally {
             final long totals = System.currentTimeMillis() - start;
             final String channelId = NettyUtils.getChannelId(ctx);
-            log.info("[{}][{}]消息通道[{}]处理耗时: {}ms", data.getCommand(), data.getDeviceId(), channelId, totals);
+            log.info("[{}][session:{}]消息通道[{}]处理耗时: {}ms", data.getCommand(), getSession(), channelId, totals);
         }
     }
 
@@ -221,13 +221,13 @@ public abstract class BaseSocketHandler<M extends Message> extends ChannelInboun
 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) {
-        log.warn("channelInactive:通道失效: {}", ctx);
+        log.warn("channelInactive:通道失效: ({},session: {})", NettyUtils.getChannelId(ctx), getSession());
         this.close();
     }
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
-        log.warn("exceptionCaught-发生异常({})-exp: {}", getSession(), cause.getMessage());
+        log.warn("exceptionCaught-发生异常({},session:{})-exp: {}", NettyUtils.getChannelId(ctx), getSession(), cause.getMessage());
         this.close();
     }
 
