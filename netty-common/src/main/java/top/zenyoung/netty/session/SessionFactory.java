@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import top.zenyoung.netty.codec.Message;
 import top.zenyoung.netty.util.NettyUtils;
 
 import javax.annotation.Nonnull;
@@ -91,7 +92,7 @@ public class SessionFactory implements Session {
     }
 
     @Override
-    public void send(@Nonnull final Object data, @Nullable final ChannelFutureListener listener) {
+    public <M extends Message> void send(@Nonnull final M data, @Nullable final ChannelFutureListener listener) {
         Optional.ofNullable(channel)
                 .map(ch -> ch.writeAndFlush(data))
                 .ifPresent(future -> {
