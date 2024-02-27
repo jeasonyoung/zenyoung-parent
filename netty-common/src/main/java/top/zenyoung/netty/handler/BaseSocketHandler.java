@@ -237,7 +237,13 @@ public abstract class BaseSocketHandler<M extends Message> extends ChannelInboun
     protected void close() {
         //移除会话
         Optional.ofNullable(getSession())
-                .ifPresent(this::close);
+                .ifPresent(session -> {
+                    try {
+                        this.close(session);
+                    } finally {
+                        session.close();
+                    }
+                });
     }
 
     /**
