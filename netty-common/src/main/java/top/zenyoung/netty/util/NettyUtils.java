@@ -203,9 +203,15 @@ public class NettyUtils {
     public static <T> void writeAndFlush(@Nullable final Channel channel, @Nullable final T data,
                                          @Nullable final ChannelFutureListener listener) {
         if (Objects.nonNull(channel) && Objects.nonNull(data)) {
-            final ChannelFuture future = channel.writeAndFlush(data);
-            if (Objects.nonNull(listener)) {
-                future.addListener(listener);
+            try {
+                final ChannelFuture future = channel.writeAndFlush(data);
+                if (Objects.nonNull(listener)) {
+                    future.addListener(listener);
+                }
+            } finally {
+                if (!channel.config().isAutoRead()) {
+                    channel.read();
+                }
             }
         }
     }

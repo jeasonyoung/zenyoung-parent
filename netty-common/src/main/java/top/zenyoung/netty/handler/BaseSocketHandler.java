@@ -1,6 +1,5 @@
 package top.zenyoung.netty.handler;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
@@ -90,10 +89,9 @@ public abstract class BaseSocketHandler<M extends Message> extends ChannelInboun
         log.debug("heartbeatIdleHandle[{}](session: {},state: {})...", NettyUtils.getChannelId(ctx), session, state);
     }
 
-
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
-        if (!ctx.channel().config().isAutoRead()) {
+        if (Objects.nonNull(ctx) && !ctx.channel().config().isAutoRead()) {
             ctx.read();
         }
     }
@@ -175,12 +173,6 @@ public abstract class BaseSocketHandler<M extends Message> extends ChannelInboun
                 final boolean ret = f.isSuccess();
                 log.info("[{}][{}]发送消息反馈[deviceId: {}]=> {}", callback.getCommand(), prefix, callback.getDeviceId(),
                         (ret ? "成功" : "失败," + f.cause().getMessage()));
-                if (ret) {
-                    final Channel channel = f.channel();
-                    if (!channel.config().isAutoRead()) {
-                        channel.read();
-                    }
-                }
             });
         };
         //获取当前会话

@@ -59,11 +59,6 @@ public interface Session extends AttributeMap, Serializable {
     boolean isActive();
 
     /**
-     * 读取通道数据
-     */
-    void readChannelData();
-
-    /**
      * 发送消息
      *
      * @param data     消息数据

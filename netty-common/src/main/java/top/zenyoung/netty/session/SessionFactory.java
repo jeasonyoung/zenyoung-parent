@@ -15,7 +15,6 @@ import top.zenyoung.netty.util.NettyUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -86,20 +85,9 @@ public class SessionFactory implements Session {
     }
 
     @Override
-    public final void readChannelData() {
-        Optional.ofNullable(channel)
-                .ifPresent(Channel::read);
-    }
-
-    @Override
     public <M extends Message> void send(@Nonnull final M data, @Nullable final ChannelFutureListener listener) {
         Optional.ofNullable(channel)
-                .map(ch -> ch.writeAndFlush(data))
-                .ifPresent(future -> {
-                    if (Objects.nonNull(listener)) {
-                        future.addListener(listener);
-                    }
-                });
+                .ifPresent(ch -> NettyUtils.writeAndFlush(ch, data, listener));
     }
 
     @Override
