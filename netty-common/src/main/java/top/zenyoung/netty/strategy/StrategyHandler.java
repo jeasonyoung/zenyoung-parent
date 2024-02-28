@@ -22,10 +22,10 @@ public interface StrategyHandler<M extends Message> {
      * 是否支持处理消息
      *
      * @param session 会话
-     * @param req     消息数据
+     * @param data    消息数据
      * @return 是否支持处理
      */
-    default boolean supported(@Nonnull final Session session, @Nonnull final M req) {
+    default boolean supported(@Nonnull final Session session, @Nonnull final M data) {
         return true;
     }
 
@@ -42,8 +42,8 @@ public interface StrategyHandler<M extends Message> {
      * 业务处理
      *
      * @param session 当前会话用户
-     * @param req     请求数据
+     * @param data    消息数据
      * @return 响应数据
      */
-    M process(@Nonnull final Session session, @Nonnull final M req);
+    M process(@Nonnull final Session session, @Nonnull final M data);
 }
