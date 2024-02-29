@@ -56,8 +56,8 @@ public class StrategyUtils {
 
         @Override
         @SuppressWarnings({"unchecked"})
-        public <T extends Message> void process(@Nonnull final Session session, @Nonnull final T req, @Nonnull final Consumer<T> callbackHandler) {
-            final String command = req.getCommand();
+        public <T extends Message> void process(@Nonnull final Session session, @Nonnull final T data, @Nonnull final Consumer<T> callbackHandler) {
+            final String command = data.getCommand();
             if (Strings.isNullOrEmpty(command)) {
                 return;
             }
@@ -71,13 +71,13 @@ public class StrategyUtils {
                     .distinct()
                     .forEach(handler -> {
                         //判断是否支持
-                        if (!handler.supported(session, (M) req)) {
+                        if (!handler.supported(session, (M) data)) {
                             log.warn("process[command: {}]-不支持处理=> {}", command, handler);
                             return;
                         }
                         //业务处理
                         log.info("process[command: {}]-策略处理器开始处理业务=> {}", command, handler);
-                        final M callback = handler.process(session, (M) req);
+                        final M callback = handler.process(session, (M) data);
                         if (Objects.nonNull(callback)) {
                             callbackHandler.accept((T) callback);
                         }

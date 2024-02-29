@@ -17,8 +17,8 @@ public interface StrategyHandlerFactory {
      * 策略处理器
      *
      * @param session         会话
-     * @param req             请求数据
+     * @param data            请求数据
      * @param callbackHandler 回调处理
      */
-    <M extends Message> void process(@Nonnull final Session session, @Nonnull final M req, @Nonnull final Consumer<M> callbackHandler);
+    <M extends Message> void process(@Nonnull final Session session, @Nonnull final M data, @Nonnull final Consumer<M> callbackHandler);
 }
