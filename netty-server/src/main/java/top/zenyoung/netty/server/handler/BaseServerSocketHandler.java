@@ -7,9 +7,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import top.zenyoung.netty.codec.Message;
+import top.zenyoung.netty.event.IdleStateEvent;
 import top.zenyoung.netty.handler.BaseSocketHandler;
 import top.zenyoung.netty.server.config.NettyServerProperties;
-import top.zenyoung.netty.server.event.ChannelIdleStateEvent;
 import top.zenyoung.netty.server.strategy.ServerStrategyHandlerFactory;
 import top.zenyoung.netty.session.Session;
 import top.zenyoung.netty.strategy.StrategyHandlerFactory;
@@ -73,12 +73,7 @@ public abstract class BaseServerSocketHandler<M extends Message> extends BaseSoc
     @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
                                        @Nullable final Session session, @Nonnull final IdleState state) {
-        contextHandler(c -> {
-            final ChannelIdleStateEvent event = new ChannelIdleStateEvent();
-            event.setSession(session);
-            event.setState(state);
-            c.publishEvent(event);
-        });
+        contextHandler(c -> c.publishEvent(IdleStateEvent.of(session, state)));
     }
 
     @Override

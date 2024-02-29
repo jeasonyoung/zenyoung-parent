@@ -65,11 +65,7 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
     @Override
     protected void heartbeatIdleHandle(@Nonnull final ChannelHandlerContext ctx,
                                        @Nullable final Session session, @Nonnull final IdleState state) {
-        contextHandler(c -> {
-            final IdleStateEvent event = new IdleStateEvent();
-            event.setState(state);
-            c.publishEvent(event);
-        });
+        contextHandler(c -> c.publishEvent(IdleStateEvent.of(session, state)));
     }
 
     @Override
