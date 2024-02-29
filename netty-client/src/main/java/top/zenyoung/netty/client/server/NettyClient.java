@@ -9,5 +9,8 @@ import org.springframework.boot.ApplicationRunner;
  * @author young
  */
 public interface NettyClient extends ApplicationRunner, DisposableBean {
-    
+    /**
+     * 连接服务
+     */
+    void connectServer();
 }

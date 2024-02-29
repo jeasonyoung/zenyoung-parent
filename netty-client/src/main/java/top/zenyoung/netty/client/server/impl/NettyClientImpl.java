@@ -12,7 +12,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import top.zenyoung.netty.BaseNettyImpl;
 import top.zenyoung.netty.client.config.NettyClientProperties;
@@ -150,6 +149,13 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
         });
     }
 
+    private void initBootstrap() {
+        if (Objects.isNull(bootstrap)) {
+            bootstrap = new Bootstrap();
+            buildBootstrap(bootstrap);
+        }
+    }
+
     @Override
     public final void run(final ApplicationArguments args) {
         try {
@@ -157,29 +163,35 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
             //启动前置处理
             preStartHandler(args);
             //创建客户端启动对象
-            this.bootstrap = new Bootstrap();
-            //构建Bootstrap配置
-            this.buildBootstrap(bootstrap);
+            initBootstrap();
             //连接服务器
-            this.connectServer();
+            connectServer();
         } catch (Throwable e) {
             log.warn("Netty-Client 启动失败: {}", e.getMessage());
         }
     }
 
+    public void connectServer() {
+        final String host = getServerHost();
+        final Integer port = getServerPort();
+        if (Strings.isNullOrEmpty(host) || Objects.isNull(port)) {
+            log.error("未配置服务器: [host: {},port: {}]", host, port);
+            return;
+        }
+        connectServer(host, port);
+    }
+
     /**
      * 连接服务
      */
-    protected final void connectServer() {
+    public final void connectServer(@Nonnull final String host, @Nonnull final Integer port) {
         try {
-            final String host = getServerHost();
-            final Integer port = getServerPort();
             log.info("netty start[{}:{}]...", host, port);
-            if (Strings.isNullOrEmpty(host) || Objects.isNull(port)) {
-                log.error("未配置服务器: [host: {},port: {}]", host, port);
+            if (Strings.isNullOrEmpty(host) || port <= 0) {
+                log.error("连接服务器地址或端口错误: [host: {},port: {}]", host, port);
                 return;
             }
-            Assert.notNull(bootstrap, "'bootstrap'不能为空");
+            initBootstrap();
             //启动连接服务端
             final ChannelFuture future = bootstrap.connect(host, port);
             if (Objects.nonNull(future)) {
