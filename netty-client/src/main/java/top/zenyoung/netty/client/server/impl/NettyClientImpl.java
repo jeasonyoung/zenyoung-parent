@@ -113,7 +113,7 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
      *
      * @param args 启动参数
      */
-    private void preStartHandler(@Nullable final ApplicationArguments args) {
+    protected void preStartHandler(@Nullable final ApplicationArguments args) {
         contextHandler(ctx -> {
             final var preStartMap = ctx.getBeansOfType(PreStartHandler.class);
             if (!CollectionUtils.isEmpty(preStartMap)) {
@@ -134,7 +134,7 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
      *
      * @param channel 连接通道
      */
-    private void connectedHandler(@Nonnull final Channel channel) {
+    protected void connectedHandler(@Nonnull final Channel channel) {
         contextHandler(ctx -> {
             final var connectedHandlerMap = ctx.getBeansOfType(ConnectedHandler.class);
             if (!CollectionUtils.isEmpty(connectedHandlerMap)) {
