@@ -115,9 +115,13 @@ public abstract class BaseSocketHandler<M extends Message> extends ChannelInboun
                 //设备ID转换
                 final String deviceId = buildSessionBefore(data);
                 //创建会话
-                refSession.set(SessionFactory.of(ctx.channel(), deviceId));
-                //存储会话
-                this.buildSessionAfter(getSession());
+                final Session session = SessionFactory.of(ctx.channel(), deviceId);
+                try {
+                    //存储会话
+                    this.buildSessionAfter(session);
+                } finally {
+                    refSession.set(session);
+                }
                 //调用业务处理
                 this.messageReceived(ctx, data);
                 return;

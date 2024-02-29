@@ -72,13 +72,4 @@ public abstract class BaseClientSocketHandler<T extends Message> extends BaseSoc
     protected StrategyHandlerFactory getStrategyHandlerFactory() {
         return getContextBean(ClientStrategyHandlerFactory.class);
     }
-
-    @Override
-    protected void close(@Nonnull final Session session) {
-        try {
-            session.close();
-        } catch (Throwable e) {
-            log.warn("close(session: {})-exp: {}", session, e.getMessage());
-        }
-    }
 }

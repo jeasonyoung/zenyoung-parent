@@ -151,7 +151,7 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
     }
 
     @Override
-    public void run(final ApplicationArguments args) {
+    public final void run(final ApplicationArguments args) {
         try {
             log.info("Netty-Client 启动...");
             //启动前置处理
@@ -170,7 +170,7 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
     /**
      * 连接服务
      */
-    protected void connectServer() {
+    protected final void connectServer() {
         try {
             final String host = getServerHost();
             final Integer port = getServerPort();
