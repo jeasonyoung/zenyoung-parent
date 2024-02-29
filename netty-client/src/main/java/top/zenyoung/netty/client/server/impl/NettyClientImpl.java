@@ -167,8 +167,10 @@ public class NettyClientImpl extends BaseNettyImpl implements NettyClient, Appli
         }
     }
 
-    @Override
-    public void connectServer() {
+    /**
+     * 连接服务
+     */
+    protected void connectServer() {
         try {
             final String host = getServerHost();
             final Integer port = getServerPort();
