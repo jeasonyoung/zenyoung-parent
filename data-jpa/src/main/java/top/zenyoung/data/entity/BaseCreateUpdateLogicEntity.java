@@ -18,11 +18,11 @@ import java.io.Serializable;
 @MappedSuperclass
 @SQLRestriction("deletedAt = 0")
 @EqualsAndHashCode(callSuper = true)
-@SQLDelete(sql = "update #{#entityName} set deletedAt = 1 where id = ?")
+@SQLDelete(sql = "update #{#entityName} set deletedAt = ? where id = ?")
 public abstract class BaseCreateUpdateLogicEntity<K extends Serializable> extends BaseCreateUpdateEntity<K> {
     /**
-     * 逻辑删除标识(0:正常, 1:删除)
+     * 逻辑删除标识(0:正常, >0:删除)
      */
     @Column(nullable = false, insertable = false)
-    private Integer deletedAt;
+    private Long deletedAt;
 }
