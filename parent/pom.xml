@@ -8,7 +8,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
 
     <name>parent</name>
     <description>zenyoung tools for Springboot2</description>
@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.11</version>
         <relativePath/>
     </parent>
 
@@ -45,8 +45,8 @@
         <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
 
         <!-- spring -->
-        <spring-cloud.version>2023.0.0</spring-cloud.version>
-        <alibaba-cloud.version>2022.0.0.0</alibaba-cloud.version>
+        <spring-cloud.version>2023.0.4</spring-cloud.version>
+        <alibaba-cloud.version>2022.0.0.2</alibaba-cloud.version>
 
         <!-- modelmapper -->
         <modelmapper.version>3.2.0</modelmapper.version>
@@ -70,7 +70,7 @@
         <!-- kryo -->
         <kryo.version>5.5.0</kryo.version>
         <!-- snappy -->
-        <snappy-java.version>1.1.10.4</snappy-java.version>
+        <snappy-java.version>1.1.10.7</snappy-java.version>
         <!-- bouncycastle -->
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
 
@@ -118,40 +118,41 @@
         <!-- gpg -->
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
 
+        <zenyoung.version>3.3.0</zenyoung.version>
         <!-- 模块 -->
-        <zenyoung-common.version>3.2.0</zenyoung-common.version>
-        <zenyoung-boot.version>3.2.0</zenyoung-boot.version>
-        <zenyoung-boot-common.version>3.2.0</zenyoung-boot-common.version>
-        <zenyoung-boot-mvc.version>3.2.0</zenyoung-boot-mvc.version>
-        <zenyoung-boot-webflux.version>3.2.0</zenyoung-boot-webflux.version>
-        <zenyoung-micro.version>3.2.0</zenyoung-micro.version>
-        <zenyoung-data-common.version>3.2.0</zenyoung-data-common.version>
-        <zenyoung-data-jpa.version>3.2.0</zenyoung-data-jpa.version>
-        <zenyoung-data-r2dbc-querydsl.version>3.2.0</zenyoung-data-r2dbc-querydsl.version>
-        <zenyoung-data-r2dbc.version>3.2.0</zenyoung-data-r2dbc.version>
-        <zenyoung-data-mybatis.version>3.2.0</zenyoung-data-mybatis.version>
-        <zenyoung-graphics-utils.version>3.2.0</zenyoung-graphics-utils.version>
-        <zenyoung-graphics-captcha.version>3.2.0</zenyoung-graphics-captcha.version>
-        <zenyoung-graphics-boot.version>3.2.0</zenyoung-graphics-boot.version>
-        <zenyoung-redis.version>3.2.0</zenyoung-redis.version>
-        <zenyoung-sms.version>3.2.0</zenyoung-sms.version>
+        <zenyoung-common.version>${zenyoung.version}</zenyoung-common.version>
+        <zenyoung-boot.version>${zenyoung.version}</zenyoung-boot.version>
+        <zenyoung-boot-common.version>${zenyoung.version}</zenyoung-boot-common.version>
+        <zenyoung-boot-mvc.version>${zenyoung.version}</zenyoung-boot-mvc.version>
+        <zenyoung-boot-webflux.version>${zenyoung.version}</zenyoung-boot-webflux.version>
+        <zenyoung-micro.version>${zenyoung.version}</zenyoung-micro.version>
+        <zenyoung-data-common.version>${zenyoung.version}</zenyoung-data-common.version>
+        <zenyoung-data-jpa.version>${zenyoung.version}</zenyoung-data-jpa.version>
+        <zenyoung-data-r2dbc-querydsl.version>${zenyoung.version}</zenyoung-data-r2dbc-querydsl.version>
+        <zenyoung-data-r2dbc.version>${zenyoung.version}</zenyoung-data-r2dbc.version>
+        <zenyoung-data-mybatis.version>${zenyoung.version}</zenyoung-data-mybatis.version>
+        <zenyoung-graphics-utils.version>${zenyoung.version}</zenyoung-graphics-utils.version>
+        <zenyoung-graphics-captcha.version>${zenyoung.version}</zenyoung-graphics-captcha.version>
+        <zenyoung-graphics-boot.version>${zenyoung.version}</zenyoung-graphics-boot.version>
+        <zenyoung-redis.version>${zenyoung.version}</zenyoung-redis.version>
+        <zenyoung-sms.version>${zenyoung.version}</zenyoung-sms.version>
         <!--        <zenyoung-segment-common.version>3.2.0</zenyoung-segment-common.version>-->
         <!--        <zenyoung-segment-jdbc.version>3.2.0</zenyoung-segment-jdbc.version>-->
         <!--        <zenyoung-segment-r2dbc.version>1.0.0</zenyoung-segment-r2dbc.version>-->
         <!--        <zenyoung-segment.version>3.2.0</zenyoung-segment.version>-->
-        <zenyoung-quartz.version>3.2.0</zenyoung-quartz.version>
-        <zenyoung-file-common.version>3.2.0</zenyoung-file-common.version>
-        <zenyoung-file-aliyun.version>3.2.0</zenyoung-file-aliyun.version>
-        <zenyoung-file-huawei.version>3.2.0</zenyoung-file-huawei.version>
-        <zenyoung-file-boot.version>3.2.0</zenyoung-file-boot.version>
-        <zenyoung-netty-common.version>3.2.0</zenyoung-netty-common.version>
-        <zenyoung-netty-server.version>3.2.0</zenyoung-netty-server.version>
-        <zenyoung-netty-client.version>3.2.0</zenyoung-netty-client.version>
-        <!--        <zenyoung-jfx-boot.version>3.1.0</zenyoung-jfx-boot.version>-->
-        <!--        <zenyoung-fc-runtime-huawei.version>3.1.0</zenyoung-fc-runtime-huawei.version>-->
-        <zenyoung-opencv.version>3.2.0</zenyoung-opencv.version>
-        <zenyoung-retrofit.version>3.2.0</zenyoung-retrofit.version>
-        <!--        <zenyoung-generator.version>3.2.0</zenyoung-generator.version>-->
+        <zenyoung-quartz.version>${zenyoung.version}</zenyoung-quartz.version>
+        <zenyoung-file-common.version>${zenyoung.version}</zenyoung-file-common.version>
+        <zenyoung-file-aliyun.version>${zenyoung.version}</zenyoung-file-aliyun.version>
+        <zenyoung-file-huawei.version>${zenyoung.version}</zenyoung-file-huawei.version>
+        <zenyoung-file-boot.version>${zenyoung.version}</zenyoung-file-boot.version>
+        <zenyoung-netty-common.version>${zenyoung.version}</zenyoung-netty-common.version>
+        <zenyoung-netty-server.version>${zenyoung.version}</zenyoung-netty-server.version>
+        <zenyoung-netty-client.version>${zenyoung.version}</zenyoung-netty-client.version>
+        <!--        <zenyoung-jfx-boot.version>${zenyoung.version}</zenyoung-jfx-boot.version>-->
+        <!--        <zenyoung-fc-runtime-huawei.version>${zenyoung.version}</zenyoung-fc-runtime-huawei.version>-->
+        <zenyoung-opencv.version>${zenyoung.version}</zenyoung-opencv.version>
+        <zenyoung-retrofit.version>${zenyoung.version}</zenyoung-retrofit.version>
+        <!--        <zenyoung-generator.version>${project.version}</zenyoung-generator.version>-->
     </properties>
 
     <dependencyManagement>

@@ -8,7 +8,7 @@
     <groupId>top.zenyoung</groupId>
     <artifactId>zenyoung-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
 
     <name>zenyoung-parent</name>
     <description>zenyoung tools for Springboot2</description>
