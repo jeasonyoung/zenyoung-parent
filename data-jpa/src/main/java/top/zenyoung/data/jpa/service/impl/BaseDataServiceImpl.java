@@ -36,6 +36,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -285,6 +286,18 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
      * @return 拼接后条件
      */
     protected BooleanExpression join(@Nullable final BooleanExpression oldWhere, @Nonnull final BooleanExpression newWhere) {
+        return oldWhere == null ? newWhere : oldWhere.and(newWhere);
+    }
+
+    /**
+     * 拼接Where条件
+     *
+     * @param oldWhere        旧条件
+     * @param newWhereHandler 新条件处理器
+     * @return 拼接后条件
+     */
+    protected BooleanExpression join(@Nullable final BooleanExpression oldWhere, @Nonnull final Supplier<BooleanExpression> newWhereHandler) {
+        final BooleanExpression newWhere = newWhereHandler.get();
         return oldWhere == null ? newWhere : oldWhere.and(newWhere);
     }
 }
