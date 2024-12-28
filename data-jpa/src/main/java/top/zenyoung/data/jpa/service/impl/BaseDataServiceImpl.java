@@ -3,6 +3,7 @@ package top.zenyoung.data.jpa.service.impl;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -274,5 +275,16 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
             final JPADeleteClause deleteClause = qf.delete(entity);
             return deleteClause.where(where).execute() > 0;
         });
+    }
+
+    /**
+     * 拼接Where条件
+     *
+     * @param oldWhere 旧条件
+     * @param newWhere 新条件
+     * @return 拼接后条件
+     */
+    protected BooleanExpression join(@Nullable final BooleanExpression oldWhere, @Nonnull final BooleanExpression newWhere) {
+        return oldWhere == null ? newWhere : oldWhere.and(newWhere);
     }
 }
