@@ -1,5 +1,6 @@
 package top.zenyoung.redis;
 
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.cache.CacheConfig;
@@ -20,7 +21,6 @@ import top.zenyoung.redis.service.impl.RedisCaptchaStorageServiceImpl;
 import top.zenyoung.redis.service.impl.RedisEnhancedServiceImpl;
 import top.zenyoung.redis.service.impl.RedisQueueServiceImpl;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,11 +37,8 @@ public class RedisAutoConfiguration {
     @ConditionalOnMissingBean
     public CacheManager redisCacheManager(final ObjectProvider<RedissonClient> clients) {
         final RedissonClient client = clients.getIfAvailable();
-        final Map<String, ? extends CacheConfig> config = new HashMap<String, CacheConfig>(1) {
-            {
-                put("zy-spring-cache", new CacheConfig(30 * 60 * 1000, 12 * 60 * 1000));
-            }
-        };
+        final Map<String, CacheConfig> config = Maps.newHashMap();
+        config.put("zy-spring-cache", new CacheConfig(1800000, 720000));
         return new RedissonSpringCacheManager(client, config);
     }
 
