@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.zenyoung.boot.converter.EnumValueConvertFactory;
 import top.zenyoung.boot.interceptor.RequestMappingInterceptor;
 import top.zenyoung.boot.resolver.ArgumentResolver;
@@ -32,6 +34,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private final List<String> swaggerExcludes = Lists.newArrayList(
             "/swagger-resources/**",
+            "/img/**",
+            "/img.icons/**",
             "/webjars/**",
             "/v2/**",
             "/favicon.ico",
@@ -67,24 +71,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 }
             });
         }
-    }
-
-    @Override
-    public void addViewControllers(@Nonnull final ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/null/api-docs", "/api-docs").setKeepQueryParams(true);
-        registry.addRedirectViewController("/null/v2/api-docs", "/v2/api-docs").setKeepQueryParams(true);
-        registry.addRedirectViewController("/null/swagger-resources/configuration/ui", "/swagger-resources/configuration/ui");
-        registry.addRedirectViewController("/null/swagger-resources/configuration/security", "/swagger-resources/configuration/security");
-        registry.addRedirectViewController("/null/swagger-resources", "/swagger-resources");
-    }
-
-    @Override
-    public void addResourceHandlers(@Nonnull final ResourceHandlerRegistry registry) {
-        //knife4j
-        registry.addResourceHandler("doc.html")
-                .addResourceLocations("classpath*:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath*:/META-INF/resources/webjars/");
     }
 
     @Override
