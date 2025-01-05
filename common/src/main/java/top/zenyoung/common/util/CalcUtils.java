@@ -28,8 +28,9 @@ public class CalcUtils {
 
     public static Executor newCachedExecutor(final int maxSize) {
         log.info("calc-newCachedExecutor-maxSize:{}", maxSize);
+        final int core = Math.max(1, maxSize);
         final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("calc-pool-%d").build();
-        return new ThreadPoolExecutor(1, Math.max(1, maxSize), 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
+        return new ThreadPoolExecutor(core, core + 1, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
     }
 
     public static <T, R> List<R> split(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {

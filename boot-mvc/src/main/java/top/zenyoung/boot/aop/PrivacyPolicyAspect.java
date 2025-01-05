@@ -3,7 +3,6 @@ package top.zenyoung.boot.aop;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -78,7 +77,7 @@ public class PrivacyPolicyAspect extends BaseAspect {
             return;
         }
         final Function<String[], Set<String>> policyHandler = policyVals -> {
-            if (!ArrayUtils.isEmpty(policyVals)) {
+            if (policyVals != null && policyVals.length > 0) {
                 return Stream.of(policyVals)
                         .filter(val -> !Strings.isNullOrEmpty(val))
                         .collect(Collectors.toSet());
