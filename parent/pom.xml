@@ -381,14 +381,20 @@
                 <version>${knife4j-openapi3.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-                <version>${springdoc-openapi-starter-webflux-ui.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-openapi3-ui</artifactId>
                 <version>${knife4j-openapi3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-core</artifactId>
+                <version>${knife4j-openapi3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+                <version>${springdoc-openapi-starter-webflux-ui.version}</version>
             </dependency>
 
             <!-- jfx -->
