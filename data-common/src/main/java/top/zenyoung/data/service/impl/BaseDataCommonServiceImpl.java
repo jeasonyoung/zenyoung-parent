@@ -12,7 +12,7 @@ import top.zenyoung.data.entity.Model;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -93,7 +93,7 @@ public abstract class BaseDataCommonServiceImpl<M extends Model<K>, K extends Se
     }
 
     @Override
-    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls) {
+    public <T, R> Collection<R> mapping(@Nullable final Collection<T> items, @Nonnull final Class<R> cls) {
         return beanMapping.mapping(items, cls);
     }
 

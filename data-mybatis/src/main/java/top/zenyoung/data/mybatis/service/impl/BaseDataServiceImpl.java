@@ -137,7 +137,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
     }
 
     protected <R> PageList<R> mapping(@Nonnull final PageList<M> pageList, @Nonnull final Function<M, R> convert) {
-        final List<M> items;
+        final Collection<M> items;
         if (!CollectionUtils.isEmpty(items = pageList.getRows())) {
             return DataResult.of(pageList.getTotal(),
                     items.stream()

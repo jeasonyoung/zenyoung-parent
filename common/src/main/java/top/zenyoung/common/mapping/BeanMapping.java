@@ -8,7 +8,7 @@ import top.zenyoung.common.vo.ResultVO;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -38,7 +38,7 @@ public interface BeanMapping {
      * @param <R>   目标数据类型
      * @return 目标数据集合
      */
-    <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls);
+    <T, R> Collection<R> mapping(@Nullable final Collection<T> items, @Nonnull final Class<R> cls);
 
     /**
      * 分页数据转换

@@ -2,7 +2,7 @@ package top.zenyoung.common.paging;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Function;
 
 /**
@@ -35,7 +35,7 @@ public interface PagingResult<T> extends PageList<T> {
      * @param <R>      转换后数据类型
      * @return 构建结果
      */
-    static <T, R> PagingResult<R> ofHandler(@Nullable final PagingResult<T> pageList, @Nonnull final Function<List<T>, List<R>> handler) {
+    static <T, R> PagingResult<R> ofHandler(@Nullable final PagingResult<T> pageList, @Nonnull final Function<Collection<T>, Collection<R>> handler) {
         return DataResult.ofHandler(pageList, handler);
     }
 
@@ -48,7 +48,7 @@ public interface PagingResult<T> extends PageList<T> {
      * @param <R>     转换后数据类型
      * @return 构建结果
      */
-    static <T, R> PagingResult<R> of(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
+    static <T, R> PagingResult<R> of(@Nullable final Collection<T> rows, @Nonnull final Function<T, R> convert) {
         return DataResult.of(rows, convert);
     }
 
@@ -70,7 +70,7 @@ public interface PagingResult<T> extends PageList<T> {
      * @param <T>   数据类型
      * @return 数据结果
      */
-    static <T> PagingResult<T> of(@Nullable final List<T> items) {
+    static <T> PagingResult<T> of(@Nullable final Collection<T> items) {
         return DataResult.of(items);
     }
 

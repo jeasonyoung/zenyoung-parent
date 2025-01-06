@@ -63,7 +63,7 @@ public class BeanMappingDefault implements BeanMapping {
     }
 
     @Override
-    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> cls) {
+    public <T, R> Collection<R> mapping(@Nullable final Collection<T> items, @Nonnull final Class<R> cls) {
         if (Objects.nonNull(items)) {
             return items.stream()
                     .filter(Objects::nonNull)
@@ -78,14 +78,14 @@ public class BeanMappingDefault implements BeanMapping {
     public <T extends Serializable, R extends Serializable> PageList<R> mapping(@Nullable final PageList<T> pageList,
                                                                                 @Nonnull final Class<R> cls) {
         if (Objects.nonNull(pageList)) {
-            return new PageList<R>() {
+            return new PageList<>() {
                 @Override
                 public Long getTotal() {
                     return pageList.getTotal();
                 }
 
                 @Override
-                public List<R> getRows() {
+                public Collection<R> getRows() {
                     return mapping(pageList.getRows(), cls);
                 }
             };

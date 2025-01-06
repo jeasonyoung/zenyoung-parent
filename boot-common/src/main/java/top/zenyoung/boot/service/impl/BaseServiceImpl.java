@@ -9,7 +9,7 @@ import top.zenyoung.common.paging.PageList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -34,7 +34,7 @@ public abstract class BaseServiceImpl implements BaseService {
     }
 
     @Override
-    public <T, R> List<R> mapping(@Nullable final List<T> items, @Nonnull final Class<R> rClass) {
+    public <T, R> Collection<R> mapping(@Nullable final Collection<T> items, @Nonnull final Class<R> rClass) {
         return mappingHandler(bms -> bms.mapping(items, rClass));
     }
 

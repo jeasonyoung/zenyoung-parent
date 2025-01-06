@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class DataResult<T> implements PagingResult<T> {
     /**
      * 数据集合
      */
-    private final List<T> rows;
+    private final Collection<T> rows;
 
     /**
      * 构建分页数据
@@ -51,7 +52,7 @@ public class DataResult<T> implements PagingResult<T> {
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList())
                     )
-                    .orElse(Lists.newArrayList());
+                    .orElseGet(Lists::newArrayList);
             return of(pageList.getTotal(), rows);
         }
         return empty();
@@ -66,7 +67,7 @@ public class DataResult<T> implements PagingResult<T> {
      * @param <R>      转换后数据类型
      * @return 构建结果
      */
-    public static <T, R> DataResult<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<List<T>, List<R>> handler) {
+    public static <T, R> DataResult<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<Collection<T>, Collection<R>> handler) {
         if (Objects.nonNull(pageList)) {
             return of(pageList.getTotal(), handler.apply(pageList.getRows()));
         }
@@ -82,7 +83,7 @@ public class DataResult<T> implements PagingResult<T> {
      * @param <R>     转换后数据类型
      * @return 构建结果
      */
-    public static <T, R> DataResult<R> of(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
+    public static <T, R> DataResult<R> of(@Nullable final Collection<T> rows, @Nonnull final Function<T, R> convert) {
         if (Objects.nonNull(rows) && !rows.isEmpty()) {
             final List<R> items = rows.stream()
                     .filter(Objects::nonNull)
@@ -112,7 +113,7 @@ public class DataResult<T> implements PagingResult<T> {
      * @param <T>   数据类型
      * @return 数据结果
      */
-    public static <T> DataResult<T> of(@Nullable final List<T> items) {
+    public static <T> DataResult<T> of(@Nullable final Collection<T> items) {
         return of(items, Function.identity());
     }
 

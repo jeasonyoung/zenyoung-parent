@@ -19,7 +19,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
@@ -49,7 +48,7 @@ public class PrivacyPolicyAspect extends BaseAspect {
             }
             //检查是否为分页
             if (data instanceof PageList<?> pageList) {
-                final List<?> rows = pageList.getRows();
+                final Collection<?> rows = pageList.getRows();
                 if (!CollectionUtils.isEmpty(rows)) {
                     rows.forEach(row -> buildPrivacyPolicy(row, policy));
                 }

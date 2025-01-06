@@ -3,6 +3,7 @@ package top.zenyoung.common.paging;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,7 +25,7 @@ public interface PageList<T> extends Serializable {
      *
      * @return 数据结果集合
      */
-    List<T> getRows();
+    Collection<T> getRows();
 
     /**
      * 构建分页数据
@@ -48,7 +49,7 @@ public interface PageList<T> extends Serializable {
      * @param <R>      转换后数据类型
      * @return 构建结果
      */
-    static <T, R> PageList<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<List<T>, List<R>> handler) {
+    static <T, R> PageList<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<Collection<T>, Collection<R>> handler) {
         return DataResult.ofHandler(pageList, handler);
     }
 
