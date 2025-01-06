@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -62,7 +61,7 @@ public interface PageList<T> extends Serializable {
      * @param <R>     转换后数据类型
      * @return 构建结果
      */
-    static <T, R> PageList<R> of(@Nullable final List<T> rows, @Nonnull final Function<T, R> convert) {
+    static <T, R> PageList<R> of(@Nullable final Collection<T> rows, @Nonnull final Function<T, R> convert) {
         return DataResult.of(rows, convert);
     }
 
@@ -84,7 +83,7 @@ public interface PageList<T> extends Serializable {
      * @param <T>   数据类型
      * @return 数据结果
      */
-    static <T> PageList<T> of(@Nullable final List<T> items) {
+    static <T> PageList<T> of(@Nullable final Collection<T> items) {
         return DataResult.of(items);
     }
 
@@ -106,7 +105,7 @@ public interface PageList<T> extends Serializable {
      * @param <T>   数据类型
      * @return 数据结果
      */
-    static <T> PageList<T> of(@Nullable final Long total, @Nullable final List<T> rows) {
+    static <T> PageList<T> of(@Nullable final Long total, @Nullable final Collection<T> rows) {
         return DataResult.of(total, rows);
     }
 }

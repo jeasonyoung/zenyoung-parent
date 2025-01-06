@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -44,7 +43,7 @@ public class DataResult<T> implements PagingResult<T> {
      */
     public static <T, R> DataResult<R> of(@Nullable final PageList<T> pageList, @Nonnull final Function<T, R> convert) {
         if (Objects.nonNull(pageList)) {
-            final List<R> rows = Optional.ofNullable(pageList.getRows())
+            final Collection<R> rows = Optional.ofNullable(pageList.getRows())
                     .filter(items -> !items.isEmpty())
                     .map(items -> items.stream()
                             .filter(Objects::nonNull)
@@ -85,7 +84,7 @@ public class DataResult<T> implements PagingResult<T> {
      */
     public static <T, R> DataResult<R> of(@Nullable final Collection<T> rows, @Nonnull final Function<T, R> convert) {
         if (Objects.nonNull(rows) && !rows.isEmpty()) {
-            final List<R> items = rows.stream()
+            final Collection<R> items = rows.stream()
                     .filter(Objects::nonNull)
                     .map(convert)
                     .filter(Objects::nonNull)
