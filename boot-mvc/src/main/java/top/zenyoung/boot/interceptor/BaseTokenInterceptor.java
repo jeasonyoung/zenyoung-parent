@@ -4,18 +4,16 @@ import com.google.common.base.Strings;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import top.zenyoung.boot.annotation.authority.HasAnonymous;
 import top.zenyoung.boot.enums.ExceptionEnums;
+import top.zenyoung.boot.util.HttpUtils;
 import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.exception.ServiceException;
 import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * 令牌处理-拦截器
@@ -24,8 +22,6 @@ import java.util.Optional;
  */
 @Slf4j
 public abstract class BaseTokenInterceptor implements RequestMappingInterceptor {
-    private static final String TOKEN_NAME = HttpHeaders.AUTHORIZATION;
-    private static final String AUTH_BEARER_PREFIX = "Bearer ";
 
     @Override
     public int getOrder() {
@@ -35,9 +31,7 @@ public abstract class BaseTokenInterceptor implements RequestMappingInterceptor 
     @Override
     public final boolean handler(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final HandlerMethod handler) {
         //获取令牌
-        final String token = Optional.ofNullable(req.getHeader(TOKEN_NAME))
-                .filter(val -> !Strings.isNullOrEmpty(val))
-                .orElseGet(() -> req.getParameter(TOKEN_NAME));
+        final String token = HttpUtils.getToken(req);
         if (Strings.isNullOrEmpty(token)) {
             //检查是允许匿名访问
             if (handler.hasMethodAnnotation(HasAnonymous.class)) {
@@ -46,11 +40,9 @@ public abstract class BaseTokenInterceptor implements RequestMappingInterceptor 
             log.warn("获取令牌为空=> {}", req.getRequestURI());
             throw new ServiceException(ExceptionEnums.UNAUTHORIZED);
         }
-        //检查令牌
-        final String tokenVal = token.startsWith(AUTH_BEARER_PREFIX) ? StringUtils.replace(token, AUTH_BEARER_PREFIX, "").trim() : token;
         //解析令牌数据
-        log.info("parseAccessToken: {} => {}", req.getRequestURI(), tokenVal);
-        final UserPrincipal principal = parseAccessToken(tokenVal, handler);
+        log.info("parseAccessToken: {} => {}", req.getRequestURI(), token);
+        final UserPrincipal principal = parseAccessToken(token, handler);
         if (Objects.nonNull(principal)) {
             SecurityUtils.setPrincipal(principal);
         }

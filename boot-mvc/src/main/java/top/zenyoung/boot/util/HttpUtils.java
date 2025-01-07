@@ -9,14 +9,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
 import top.zenyoung.boot.matcher.AntPathRequestMatcher;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +33,12 @@ import java.util.stream.Stream;
  */
 @UtilityClass
 public class HttpUtils {
-    private static final List<String> HTTP_CLIENT_IP_HEAD = Lists.newArrayList("x-forwarded-for", "Proxy-Client-IP", "WL-Proxy-Client-IP", "X-Real-IP");
+    private static final List<String> HTTP_CLIENT_IP_HEAD = Lists.newArrayList(
+            "x-forwarded-for",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "X-Real-IP"
+    );
 
     public static void servlet(@Nonnull final BiConsumer<HttpServletRequest, HttpServletResponse> handler) {
         final RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -49,6 +55,7 @@ public class HttpUtils {
      *
      * @return 当前请求
      */
+    @Nullable
     public static HttpServletRequest getWebRequest() {
         final AtomicReference<HttpServletRequest> refReq = new AtomicReference<>(null);
         servlet((req, res) -> refReq.set(req));
@@ -64,9 +71,9 @@ public class HttpUtils {
      *
      * @return 客户端IP地址
      */
+    @Nullable
     public static String getClientIpAddr() {
-        final HttpServletRequest request = getWebRequest();
-        return request == null ? null : getClientIpAddr(request);
+        return getWebRequestOpt().map(HttpUtils::getClientIpAddr).orElse(null);
     }
 
     /**
@@ -75,10 +82,12 @@ public class HttpUtils {
      * @param request request
      * @return 客户端IP地址
      */
+    @Nullable
     public static String getClientIpAddr(@Nonnull final HttpServletRequest request) {
         return getClientIpAddr(new ServletServerHttpRequest(request));
     }
 
+    @Nullable
     public static String getClientIpAddr(@Nonnull final ServletServerHttpRequest request) {
         final HttpHeaders headers = request.getHeaders();
         for (String head : HTTP_CLIENT_IP_HEAD) {
@@ -102,11 +111,12 @@ public class HttpUtils {
      * @param address InetSocketAddress
      * @return 客户端IP地址
      */
+    @Nullable
     public static String getClientIpAddr(@Nullable final InetSocketAddress address) {
-        if (address != null) {
-            return Objects.requireNonNull(address).getAddress().getHostAddress();
-        }
-        return null;
+        return Optional.ofNullable(address)
+                .map(InetSocketAddress::getAddress)
+                .map(InetAddress::getHostAddress)
+                .orElse(null);
     }
 
     /**
@@ -115,12 +125,12 @@ public class HttpUtils {
      * @param request 请求对象
      * @return 请求内容类型
      */
+    @Nullable
     public static MediaType getContentType(@Nonnull final HttpServletRequest request) {
-        final String requestContentType = request.getContentType();
-        if (!Strings.isNullOrEmpty(requestContentType)) {
-            return MediaType.parseMediaType(requestContentType);
-        }
-        return null;
+        return Optional.ofNullable(request.getContentType())
+                .filter(requestContentType -> !Strings.isNullOrEmpty(requestContentType))
+                .map(MediaType::parseMediaType)
+                .orElse(null);
     }
 
     /**
@@ -155,5 +165,34 @@ public class HttpUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 获取令牌数据
+     *
+     * @param request Http请求
+     * @return 令牌数据
+     */
+    @Nullable
+    public static String getToken(@Nonnull final HttpServletRequest request) {
+        final String name = HttpHeaders.AUTHORIZATION, prefix = "Bearer ";
+        //获取令牌
+        final String token = Optional.ofNullable(request.getHeader(name))
+                .filter(val -> !Strings.isNullOrEmpty(val))
+                .orElseGet(() -> request.getParameter(name));
+        if (!Strings.isNullOrEmpty(token)) {
+            return token.startsWith(prefix) ? StringUtils.replace(token, prefix, "") : token;
+        }
+        return null;
+    }
+
+    /**
+     * 获取令牌数据
+     *
+     * @return 令牌数据
+     */
+    @Nullable
+    public static String getToken() {
+        return getWebRequestOpt().map(HttpUtils::getToken).orElse(null);
     }
 }

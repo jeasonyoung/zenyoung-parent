@@ -66,12 +66,11 @@ public interface RequestMappingInterceptor extends HandlerInterceptor {
      */
     @Override
     default boolean preHandle(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final Object handler) {
-        if (handler instanceof HandlerMethod) {
-            final HandlerMethod handlerMethod = (HandlerMethod) handler;
+        if (handler instanceof HandlerMethod method) {
             final MediaType contentType = HttpUtils.getContentType(req);
-            if (handlerMethod.hasMethodAnnotation(RequestMapping.class) && this.supportsContentType(contentType)) {
+            if (method.hasMethodAnnotation(RequestMapping.class) && this.supportsContentType(contentType)) {
                 //执行处理
-                return this.handler(req, res, handlerMethod);
+                return this.handler(req, res, method);
             }
         }
         return true;

@@ -24,11 +24,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import top.zenyoung.boot.annotation.OperaLog;
 import top.zenyoung.boot.util.HttpUtils;
+import top.zenyoung.boot.util.SecurityUtils;
 import top.zenyoung.common.dto.OperaLogDTO;
 import top.zenyoung.common.model.OperaType;
 import top.zenyoung.common.model.Status;
 import top.zenyoung.common.util.JsonUtils;
-import top.zenyoung.boot.util.SecurityUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -267,8 +267,7 @@ public class OperaLogAspect extends BaseAspect {
                 //注解判断
                 for (Annotation anno : argAnnos) {
                     //Swgger注解
-                    if (anno instanceof Schema) {
-                        final Schema property = (Schema) anno;
+                    if (anno instanceof Schema property) {
                         final String desc;
                         if (!Strings.isNullOrEmpty(desc = property.description())) {
                             rpv.setTitle(desc);
@@ -307,11 +306,8 @@ public class OperaLogAspect extends BaseAspect {
         if (cls.isPrimitive()) {
             return arg + "";
         }
-        if (arg instanceof String) {
-            final String val = (String) arg;
-            if (!Strings.isNullOrEmpty(val)) {
-                return val;
-            }
+        if ((arg instanceof String val) && !Strings.isNullOrEmpty(val)) {
+            return val;
         }
         return JsonUtils.toJson(objMapper, arg);
     }
