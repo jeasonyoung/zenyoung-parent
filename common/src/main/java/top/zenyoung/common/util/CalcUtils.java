@@ -120,7 +120,7 @@ public class CalcUtils {
             final StopWatch watch = new StopWatch();
             try {
                 //开始计时
-                watch.start("calc-pool_nasync");
+                watch.start("calc-pool_nasync:" + Thread.currentThread().getName());
                 //执行业务
                 return valHandler.get();
             } finally {
@@ -135,14 +135,14 @@ public class CalcUtils {
         final StopWatch watch = new StopWatch();
         return CompletableFuture.supplyAsync(() -> {
             try {
-                watch.start("calc-pool_nasync_1");
+                watch.start("calc-pool_nasync_1:" + Thread.currentThread().getName());
                 return valHandler.get();
             } finally {
                 watch.stop();
             }
         }).thenAcceptAsync(ret -> {
             try {
-                watch.start("calc-pool_nasync_2");
+                watch.start("calc-pool_nasync_2:" + Thread.currentThread().getName());
                 assignHandler.accept(ret);
             } finally {
                 watch.stop();
@@ -157,7 +157,7 @@ public class CalcUtils {
             final StopWatch watch = new StopWatch();
             try {
                 //开始计时
-                watch.start("calc-pool_async");
+                watch.start("calc-pool_async:" + Thread.currentThread().getName());
                 //执行业务
                 return valHandler.get();
             } finally {
@@ -172,14 +172,14 @@ public class CalcUtils {
         final StopWatch watch = new StopWatch();
         return CompletableFuture.supplyAsync(() -> {
             try {
-                watch.start("calc-pool_async_1");
+                watch.start("calc-pool_async_1:" + Thread.currentThread().getName());
                 return valHandler.get();
             } finally {
                 watch.stop();
             }
         }, executor).thenAcceptAsync(ret -> {
             try {
-                watch.start("calc-pool_async_2");
+                watch.start("calc-pool_async_2:" + Thread.currentThread().getName());
                 assignHandler.accept(ret);
             } finally {
                 watch.stop();

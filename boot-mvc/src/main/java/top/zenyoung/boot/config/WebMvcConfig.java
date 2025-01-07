@@ -16,6 +16,7 @@ import top.zenyoung.boot.interceptor.RequestMappingInterceptor;
 import top.zenyoung.boot.resolver.ArgumentResolver;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,18 +27,19 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
-    private final List<RequestMappingInterceptor> interceptors;
-    private final List<ArgumentResolver> argumentResolvers;
+    private final Collection<RequestMappingInterceptor> interceptors;
+    private final Collection<ArgumentResolver> argumentResolvers;
 
     @Value("${server.error.path:${error.path:/error}}")
     private String errorPage;
 
-    private final List<String> swaggerExcludes = Lists.newArrayList(
+    private final Collection<String> swaggerExcludes = Lists.newArrayList(
             "/swagger-resources/**",
             "/img/**",
             "/img.icons/**",
             "/webjars/**",
             "/v2/**",
+            "/v3/**",
             "/favicon.ico",
             "/swagger-ui.html/**",
             "/code.html",
@@ -53,12 +55,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 //排序
                 ir.order(interceptor.getOrder());
                 //包括匹配
-                final List<String> includePatterns = interceptor.getIncludePatterns();
+                final Collection<String> includePatterns = interceptor.getIncludePatterns();
                 if (!CollectionUtils.isEmpty(includePatterns)) {
-                    ir.addPathPatterns(includePatterns);
+                    ir.addPathPatterns(includePatterns.stream()
+                            .filter(p -> !Strings.isNullOrEmpty(p))
+                            .distinct()
+                            .toList()
+                    );
                 }
                 //排除匹配
-                final List<String> excludePatterns = interceptor.getExcludePatterns();
+                final Collection<String> excludePatterns = interceptor.getExcludePatterns();
                 if (!CollectionUtils.isEmpty(swaggerExcludes)) {
                     excludePatterns.addAll(swaggerExcludes);
                 }
@@ -67,7 +73,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     excludePatterns.add(errorPage);
                 }
                 if (!CollectionUtils.isEmpty(excludePatterns)) {
-                    ir.excludePathPatterns(excludePatterns);
+                    ir.excludePathPatterns(excludePatterns.stream()
+                            .filter(v -> !Strings.isNullOrEmpty(v))
+                            .distinct()
+                            .toList()
+                    );
                 }
             });
         }
