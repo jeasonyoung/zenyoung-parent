@@ -16,8 +16,8 @@ import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -129,7 +129,7 @@ public abstract class BaseAuthorizeFilter extends BaseWebFilter {
             return Mono.error(new ServiceException(ExceptionEnums.UNAUTHORIZED));
         }
         final Mono<Boolean> success = Mono.just(true), forbidden = Mono.error(new ServiceException(ExceptionEnums.FORBIDDEN));
-        final Set<String> authorizes = type == CheckType.ROLE ? principal.getRoles() : principal.getPermissions();
+        final Collection<String> authorizes = type == CheckType.ROLE ? principal.getRoles() : principal.getPermissions();
         if (CollectionUtils.isEmpty(authorizes) || vals == null || vals.length == 0) {
             log.warn("checkAuthorityHandler[{},{}](authorizes: {}) => {}", type, method, authorizes, vals);
             return forbidden;

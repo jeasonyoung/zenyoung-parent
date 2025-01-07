@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,10 +28,21 @@ import java.util.stream.Collectors;
 public class CalcUtils {
 
     public static Executor newCachedExecutor(final int maxSize) {
-        log.info("calc-newCachedExecutor-maxSize:{}", maxSize);
-        final int core = Math.max(1, maxSize);
-        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("calc-pool-%d").build();
-        return new ThreadPoolExecutor(core, core + 1, 10L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory);
+        final int cpus = Math.max(Runtime.getRuntime().availableProcessors(), 2) / 2;
+        final int core = Math.max(Math.min(cpus, maxSize), 2);
+        log.info("calc-pool_new: maxSize={}, cpus/2: {} => {}", maxSize, cpus, core);
+        final ThreadFactory factory = new ThreadFactoryBuilder()
+                .setNameFormat("calc-pool[" + core + "]-%d")
+                .setDaemon(true)
+                .build();
+        return new ThreadPoolExecutor(
+                core,
+                core + 1,
+                20L,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(),
+                factory
+        );
     }
 
     public static <T, R> List<R> split(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
@@ -104,19 +116,76 @@ public class CalcUtils {
     }
 
     public static <R> CompletableFuture<R> async(@Nonnull final Supplier<R> valHandler) {
-        return CompletableFuture.supplyAsync(valHandler);
+        return CompletableFuture.supplyAsync(() -> {
+            final StopWatch watch = new StopWatch();
+            try {
+                //开始计时
+                watch.start("calc-pool_nasync");
+                //执行业务
+                return valHandler.get();
+            } finally {
+                watch.stop();
+                log.info("calc-pool_nasync: {}", watch.shortSummary());
+            }
+        });
+
     }
 
     public static <R> CompletableFuture<Void> async(@Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
-        return async(valHandler).thenAccept(assignHandler);
+        final StopWatch watch = new StopWatch();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                watch.start("calc-pool_nasync_1");
+                return valHandler.get();
+            } finally {
+                watch.stop();
+            }
+        }).thenAcceptAsync(ret -> {
+            try {
+                watch.start("calc-pool_nasync_2");
+                assignHandler.accept(ret);
+            } finally {
+                watch.stop();
+                log.info("calc-pool_nasync12: {}", watch.prettyPrint());
+            }
+        });
+
     }
 
     public static <R> CompletableFuture<R> async(@Nonnull final Executor executor, @Nonnull final Supplier<R> valHandler) {
-        return CompletableFuture.supplyAsync(valHandler, executor);
+        return CompletableFuture.supplyAsync(() -> {
+            final StopWatch watch = new StopWatch();
+            try {
+                //开始计时
+                watch.start("calc-pool_async");
+                //执行业务
+                return valHandler.get();
+            } finally {
+                watch.stop();
+                log.info("calc-pool_async: {}", watch.shortSummary());
+            }
+        }, executor);
+
     }
 
     public static <R> CompletableFuture<Void> async(@Nonnull final Executor executor, @Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
-        return async(executor, valHandler).thenAccept(assignHandler);
+        final StopWatch watch = new StopWatch();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                watch.start("calc-pool_async_1");
+                return valHandler.get();
+            } finally {
+                watch.stop();
+            }
+        }, executor).thenAcceptAsync(ret -> {
+            try {
+                watch.start("calc-pool_async_2");
+                assignHandler.accept(ret);
+            } finally {
+                watch.stop();
+                log.info("calc-pool_async12: {}", watch.prettyPrint());
+            }
+        }, executor);
     }
 
     public static void syncJoin(@Nonnull final List<CompletableFuture<?>> futures) {
@@ -126,7 +195,7 @@ public class CalcUtils {
         }
         final int totals = futures.size();
         final long start = System.currentTimeMillis();
-        log.info("calc-syncJoin-size:{}[start: {}]", totals, start);
+        log.info("start_calc-pool:{}[start: {}]", totals, start);
         //同步等待
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .whenComplete((res, ex) -> {
@@ -140,6 +209,6 @@ public class CalcUtils {
                 .join();
         //计算耗时
         final long duration = System.currentTimeMillis() - start;
-        log.info("calc-syncJoin-size:{}[duration: {}ms]", totals, duration);
+        log.info("end_calc-pool:{}[duration: {}ms]", totals, duration);
     }
 }

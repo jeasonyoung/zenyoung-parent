@@ -3,14 +3,14 @@ package top.zenyoung.common.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 用户数据
@@ -35,11 +35,11 @@ public class UserPrincipal implements Principal, Serializable {
     /**
      * 用户角色集合
      */
-    private Set<String> roles = Sets.newHashSet();
+    private Collection<String> roles = Collections.emptyList();
     /**
      * 用户权限集合
      */
-    private Set<String> permissions = Sets.newHashSet();
+    private Collection<String> permissions = Collections.emptyList();
     /**
      * 扩展数据
      */

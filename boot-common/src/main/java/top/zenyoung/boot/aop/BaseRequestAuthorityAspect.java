@@ -9,8 +9,8 @@ import top.zenyoung.common.model.UserPrincipal;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -27,7 +27,7 @@ public abstract class BaseRequestAuthorityAspect extends BaseAspect {
         if (Objects.isNull(principal)) {
             throw new ServiceException(ExceptionEnums.UNAUTHORIZED);
         }
-        final Set<String> authorizes = type == CheckType.ROLE ? principal.getRoles() : principal.getPermissions();
+        final Collection<String> authorizes = type == CheckType.ROLE ? principal.getRoles() : principal.getPermissions();
         if (CollectionUtils.isEmpty(authorizes) || vals == null || vals.length == 0) {
             log.warn("checkAuthorityHandler[{},{}](authorizes: {}) => {}", type, method, authorizes, vals);
             throw new ServiceException(ExceptionEnums.FORBIDDEN);
