@@ -18,6 +18,7 @@ import top.zenyoung.boot.resolver.ArgumentResolver;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * WebMvc-配置
@@ -64,7 +65,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     );
                 }
                 //排除匹配
-                final Collection<String> excludePatterns = interceptor.getExcludePatterns();
+                final Collection<String> excludePatterns = Optional.ofNullable(interceptor.getExcludePatterns())
+                        .orElseGet(Lists::newArrayList);
                 if (!CollectionUtils.isEmpty(swaggerExcludes)) {
                     excludePatterns.addAll(swaggerExcludes);
                 }
