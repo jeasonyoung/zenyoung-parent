@@ -31,7 +31,7 @@ public class ProcessUtils {
     private static final Map<String, Object> LOCKS = Maps.newConcurrentMap();
     private static final String SEP = " ";
 
-    private static List<String> buildArgments(@Nonnull final List<String> argments) {
+    private List<String> buildArgments(@Nonnull final List<String> argments) {
         return argments.stream()
                 .map(arg -> {
                     if (!Strings.isNullOrEmpty(arg)) {
@@ -48,7 +48,7 @@ public class ProcessUtils {
                 .collect(Collectors.toList());
     }
 
-    private static String getProcessOutput(@Nullable final InputStream input) {
+    private String getProcessOutput(@Nullable final InputStream input) {
         if (Objects.nonNull(input)) {
             final StringBuilder builder = new StringBuilder();
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
@@ -73,7 +73,7 @@ public class ProcessUtils {
      * @return 执行结果
      * @throws Exception 异常处理
      */
-    public static String exec(@Nonnull final List<String> argments) throws Exception {
+    public String exec(@Nonnull final List<String> argments) throws Exception {
         final List<String> cmds = buildArgments(argments);
         if (cmds.isEmpty()) {
             throw new IllegalArgumentException("'argments'为空或不合法!");

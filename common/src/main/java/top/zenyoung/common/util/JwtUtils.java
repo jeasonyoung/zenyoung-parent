@@ -29,8 +29,8 @@ public class JwtUtils {
         MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public static <T> String generate(@Nonnull final JWSAlgorithm algorithm, @Nullable final JWSSigner signer,
-                                      @Nonnull final T data) {
+    public <T> String generate(@Nonnull final JWSAlgorithm algorithm, @Nullable final JWSSigner signer,
+                               @Nonnull final T data) {
         try {
             final String body = JsonUtils.toJson(MAPPER, data);
             final JWSHeader header = new JWSHeader.Builder(algorithm)
@@ -48,12 +48,12 @@ public class JwtUtils {
         }
     }
 
-    public static <T> String generateHmac(@Nonnull final T data, @Nonnull final String secret) throws KeyLengthException {
+    public <T> String generateHmac(@Nonnull final T data, @Nonnull final String secret) throws KeyLengthException {
         final MACSigner signer = new MACSigner(secret);
         return generate(JWSAlgorithm.HS256, signer, data);
     }
 
-    public static <T> T parse(@Nullable final JWSVerifier verifier, @Nonnull final Class<T> cls, @Nonnull final String jwt) {
+    public <T> T parse(@Nullable final JWSVerifier verifier, @Nonnull final Class<T> cls, @Nonnull final String jwt) {
         try {
             final JWSObject obj = JWSObject.parse(jwt);
             if (Objects.nonNull(verifier) && !obj.verify(verifier)) {
@@ -68,7 +68,7 @@ public class JwtUtils {
         }
     }
 
-    public static <T> T parseHmac(@Nonnull final Class<T> cls, @Nonnull final String jwt, @Nonnull final String secret) throws JOSEException {
+    public <T> T parseHmac(@Nonnull final Class<T> cls, @Nonnull final String jwt, @Nonnull final String secret) throws JOSEException {
         final MACVerifier verifier = new MACVerifier(secret);
         return parse(verifier, cls, jwt);
     }

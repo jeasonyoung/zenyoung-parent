@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.11</version>
+        <version>3.2.12</version>
         <relativePath/>
     </parent>
 
@@ -45,7 +45,7 @@
         <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
 
         <!-- spring -->
-        <spring-cloud.version>2023.0.4</spring-cloud.version>
+        <spring-cloud.version>2023.0.5</spring-cloud.version>
         <alibaba-cloud.version>2022.0.0.2</alibaba-cloud.version>
 
         <!-- modelmapper -->
@@ -72,7 +72,8 @@
         <!-- snappy -->
         <snappy-java.version>1.1.10.7</snappy-java.version>
         <!-- bouncycastle -->
-        <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
+        <!-- bcprov-jdk15on.version>1.70</bcprov-jdk15on.version -->
+        <bcprov-jdk15to18.version>1.80</bcprov-jdk15to18.version>
 
         <!-- 阿里云 SDK-->
         <aliyun-core.version>4.6.1</aliyun-core.version>
@@ -273,10 +274,15 @@
             </dependency>
 
             <!-- bouncycastle -->
-            <dependency>
+            <!-- dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
                 <version>${bcprov-jdk15on.version}</version>
+            </dependency -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15to18</artifactId>
+                <version>${bcprov-jdk15to18.version}</version>
             </dependency>
 
             <!-- 阿里云 -->
@@ -669,7 +675,8 @@
                     <configuration>
                         <clearOutputDirectory>true</clearOutputDirectory>
                         <!--suppress UnresolvedMavenProperty -->
-                        <protocArtifact>com.google.protobuf:protoc:${protoc.version}:exe:${os.detected.classifier}</protocArtifact>
+                        <protocArtifact>com.google.protobuf:protoc:${protoc.version}:exe:${os.detected.classifier}
+                        </protocArtifact>
                     </configuration>
                     <executions>
                         <execution>

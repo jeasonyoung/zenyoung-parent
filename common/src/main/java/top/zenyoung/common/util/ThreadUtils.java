@@ -31,7 +31,7 @@ public class ThreadUtils {
      * @param prefix 线程名称前缀
      * @return 线程工厂
      */
-    public static ThreadFactory createThreadFactory(final boolean daemon, @Nullable final String prefix) {
+    public ThreadFactory createThreadFactory(final boolean daemon, @Nullable final String prefix) {
         log.debug("createThreadFactory(daemon: {},prefix: {})...", daemon, prefix);
         final long refIdx = REF_COUNT.incrementAndGet();
         final String nameFormat = (Strings.isNullOrEmpty(prefix) ? "" : prefix) + "[" + refIdx + "]-pools-%d";
@@ -47,20 +47,20 @@ public class ThreadUtils {
      * @param prefix 工厂名称
      * @return 线程工厂
      */
-    public static ThreadFactory createThreadFactory(@Nullable final String prefix) {
+    public ThreadFactory createThreadFactory(@Nullable final String prefix) {
         return createThreadFactory(true, prefix);
     }
 
-    private static BlockingQueue<Runnable> createBlockingQueue() {
+    private BlockingQueue<Runnable> createBlockingQueue() {
         return new LinkedBlockingDeque<>(100);
     }
 
-    private static RejectedExecutionHandler createRejectedHandler() {
+    private RejectedExecutionHandler createRejectedHandler() {
         return new ThreadPoolExecutor.DiscardOldestPolicy();
     }
 
-    public static ExecutorService createPools(final boolean daemon, @Nullable final String prefix,
-                                              @Nullable final Integer min, @Nullable final Integer max) {
+    public ExecutorService createPools(final boolean daemon, @Nullable final String prefix,
+                                       @Nullable final Integer min, @Nullable final Integer max) {
         log.debug("createPools(daemon: {},prefix: {},min: {},max: {})...", daemon, prefix, min, max);
         final int corePoolSize = Math.max(min == null ? 0 : min, MIN);
         final int maxPoolSize = Math.max(max == null ? 0 : max, MAX);
@@ -77,7 +77,7 @@ public class ThreadUtils {
      * @param max 最大线程数
      * @return 线程池
      */
-    public static ExecutorService createPools(@Nullable final Integer min, @Nullable final Integer max) {
+    public ExecutorService createPools(@Nullable final Integer min, @Nullable final Integer max) {
         return createPools(true, "default", min, max);
     }
 
@@ -86,7 +86,7 @@ public class ThreadUtils {
      *
      * @return 线程池
      */
-    public static ExecutorService createPools() {
+    public ExecutorService createPools() {
         return createPools(null, null);
     }
 
@@ -96,7 +96,7 @@ public class ThreadUtils {
      * @param pools 线程数
      * @return 线程池
      */
-    public static ScheduledExecutorService createScheduledPools(@Nullable final Integer pools) {
+    public ScheduledExecutorService createScheduledPools(@Nullable final Integer pools) {
         log.debug("createScheduledPools(pools: {})...", pools);
         return new ScheduledThreadPoolExecutor(Math.max(pools == null ? 0 : pools, 1),
                 createThreadFactory("default-scheduled"), createRejectedHandler());
@@ -107,7 +107,7 @@ public class ThreadUtils {
      *
      * @param duration 等待时长
      */
-    public static void sleep(@Nonnull final Duration duration) {
+    public void sleep(@Nonnull final Duration duration) {
         final long waitMillis = duration.toMillis();
         try {
             if (waitMillis > 0) {
@@ -124,7 +124,7 @@ public class ThreadUtils {
      *
      * @param millis 等待时长(毫秒)
      */
-    public static void sleep(final long millis) {
+    public void sleep(final long millis) {
         if (millis > 0) {
             sleep(Duration.ofMillis(millis));
         }
@@ -135,7 +135,7 @@ public class ThreadUtils {
      *
      * @param minMillis 最小等待时长
      */
-    public static void randomSleep(final long minMillis) {
+    public void randomSleep(final long minMillis) {
         final long random = RandomUtils.getRandom().nextLong() * 100;
         sleep(Math.max(minMillis, random));
     }
@@ -143,7 +143,7 @@ public class ThreadUtils {
     /**
      * 线程随机等待
      */
-    public static void randomSleep() {
+    public void randomSleep() {
         randomSleep(-1);
     }
 }

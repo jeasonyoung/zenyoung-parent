@@ -26,7 +26,7 @@ public class PrincipalUtils {
      * @param userPrincipal 用户认证信息
      * @return Base64
      */
-    public static String encode(@Nonnull final ObjectMapper objectMapper, @Nonnull final UserPrincipal userPrincipal) {
+    public String encode(@Nonnull final ObjectMapper objectMapper, @Nonnull final UserPrincipal userPrincipal) {
         final String json = JsonUtils.toJson(objectMapper, userPrincipal);
         return Base64.encodeBase64String(json.getBytes(CHARET));
     }
@@ -38,7 +38,7 @@ public class PrincipalUtils {
      * @param encode       用户认证信息base64
      * @return 用户认证信息
      */
-    public static UserPrincipal decode(@Nonnull final ObjectMapper objectMapper, @Nonnull final String encode) {
+    public UserPrincipal decode(@Nonnull final ObjectMapper objectMapper, @Nonnull final String encode) {
         if (!Strings.isNullOrEmpty(encode)) {
             final String json = new String(Base64.decodeBase64(encode), CHARET);
             if (!Strings.isNullOrEmpty(json)) {

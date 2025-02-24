@@ -12,7 +12,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +30,7 @@ public class SignUtils {
     private static final String KK_JOIN = ".", KV_JOIN = "=", KV_KV_JOIN = "&", COLLECTION_JOIN = ",";
 
     @SuppressWarnings({"unchecked"})
-    private static List<String> buildParamKeyVal(@Nullable final String parentKey, @Nonnull final Map.Entry<String, Serializable> entry) {
+    private Collection<String> buildParamKeyVal(@Nullable final String parentKey, @Nonnull final Map.Entry<String, Serializable> entry) {
         //键名
         final String key = entry.getKey();
         //键值
@@ -86,7 +89,7 @@ public class SignUtils {
     }
 
     @SuppressWarnings({"unchecked"})
-    private static List<String> buildParamCollection(@Nullable final String parentKey, @Nonnull final String key, @Nonnull final Collection<?> vals) {
+    private Collection<String> buildParamCollection(@Nullable final String parentKey, @Nonnull final String key, @Nonnull final Collection<?> vals) {
         if (!vals.isEmpty()) {
             //集合内容处理
             final String strVal = Joiner.on(COLLECTION_JOIN).skipNulls().join(((Collection<?>) vals).stream()
@@ -132,7 +135,7 @@ public class SignUtils {
      * @param secret 签名密钥
      * @return 参数签名
      */
-    public static String createSign(@Nonnull final Map<String, Serializable> params, @Nullable final String secret) {
+    public String createSign(@Nonnull final Map<String, Serializable> params, @Nullable final String secret) {
         if (params.isEmpty()) {
             throw new IllegalArgumentException("'params'签名参数集合不能为空!");
         }

@@ -63,7 +63,7 @@ public class TinkUtils {
      * @return 密文
      * @throws GeneralSecurityException 加密异常
      */
-    public static byte[] encrypt(final byte[] raw) throws GeneralSecurityException {
+    public byte[] encrypt(final byte[] raw) throws GeneralSecurityException {
         return AEAD.encrypt(raw, null);
     }
 
@@ -74,7 +74,7 @@ public class TinkUtils {
      * @return 明文
      * @throws GeneralSecurityException 解密异常
      */
-    public static byte[] decrypt(final byte[] cipher) throws GeneralSecurityException {
+    public byte[] decrypt(final byte[] cipher) throws GeneralSecurityException {
         return AEAD.decrypt(cipher, null);
     }
 
@@ -85,7 +85,7 @@ public class TinkUtils {
      * @return jwt串
      * @throws GeneralSecurityException 创建异常
      */
-    public static String createJwt(@Nonnull final RawJwt rawJwt) throws GeneralSecurityException {
+    public String createJwt(@Nonnull final RawJwt rawJwt) throws GeneralSecurityException {
         return JWT_SIGNER.signAndEncode(rawJwt);
     }
 
@@ -96,7 +96,7 @@ public class TinkUtils {
      * @param jwt       Jwt串
      * @throws GeneralSecurityException 校验异常
      */
-    public static VerifiedJwt verifyJwt(@Nonnull final JwtValidator validator, @Nonnull final String jwt) throws GeneralSecurityException {
+    public VerifiedJwt verifyJwt(@Nonnull final JwtValidator validator, @Nonnull final String jwt) throws GeneralSecurityException {
         return JWT_VERIFY.verifyAndDecode(jwt, validator);
     }
 }

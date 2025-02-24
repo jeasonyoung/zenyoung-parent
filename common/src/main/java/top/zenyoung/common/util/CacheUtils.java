@@ -34,7 +34,7 @@ public class CacheUtils {
      * @param <V> 缓存值
      * @return 缓存器
      */
-    public static <K, V> Cache<K, V> createCache() {
+    public <K, V> Cache<K, V> createCache() {
         return createCache(500, 30, TimeUnit.SECONDS);
     }
 
@@ -48,7 +48,7 @@ public class CacheUtils {
      * @param <V>      缓存值
      * @return 缓存器
      */
-    public static <K, V> Cache<K, V> createCache(final int maxSize, final int duration, final TimeUnit timeUnit) {
+    public <K, V> Cache<K, V> createCache(final int maxSize, final int duration, final TimeUnit timeUnit) {
         log.debug("createCache(maxSize: {}, duration: {}, timeUnit: {})...", maxSize, duration, timeUnit);
         if (duration <= 0 || timeUnit == null) {
             return createCache(maxSize, null);
@@ -68,7 +68,7 @@ public class CacheUtils {
      * @param <V>     缓存值
      * @return 缓存器
      */
-    public static <K, V> Cache<K, V> createCache(final int maxSize, final Duration timeout) {
+    public <K, V> Cache<K, V> createCache(final int maxSize, final Duration timeout) {
         return CacheBuilder.newBuilder()
                 .maximumSize(maxSize > 0 ? maxSize : DEF_MAX_SIZE)
                 .expireAfterAccess(timeout == null ? DEF_DURATION : timeout)
@@ -85,7 +85,7 @@ public class CacheUtils {
      * @param <V>    缓存值
      * @return 缓存值
      */
-    public static <K, V> V getCacheValue(@Nonnull final Cache<K, V> cache, @Nonnull final K key, @Nonnull final Callable<? extends V> loader) {
+    public <K, V> V getCacheValue(@Nonnull final Cache<K, V> cache, @Nonnull final K key, @Nonnull final Callable<? extends V> loader) {
         return Optional.ofNullable(cache.getIfPresent(key))
                 .orElseGet(() -> {
                     final String keyVal = String.valueOf(key);

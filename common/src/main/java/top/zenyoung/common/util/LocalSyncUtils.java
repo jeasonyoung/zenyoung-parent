@@ -22,8 +22,7 @@ public class LocalSyncUtils {
      * @param <T>     返回数据类型
      * @return 返回业务数据
      */
-    public static <T> T syncHandler(@Nonnull final Map<String, Object> locks, @Nonnull final String key,
-                                    @Nonnull final Supplier<T> handler) {
+    public <T> T syncHandler(@Nonnull final Map<String, Object> locks, @Nonnull final String key, @Nonnull final Supplier<T> handler) {
         synchronized (locks.computeIfAbsent(key, k -> new Object())) {
             try {
                 return handler.get();
@@ -40,8 +39,7 @@ public class LocalSyncUtils {
      * @param key     锁键
      * @param handler 同步业务处理
      */
-    public static void syncHandler(@Nonnull final Map<String, Object> locks, @Nonnull final String key,
-                                   @Nonnull final Runnable handler) {
+    public void syncHandler(@Nonnull final Map<String, Object> locks, @Nonnull final String key, @Nonnull final Runnable handler) {
         synchronized (locks.computeIfAbsent(key, k -> new Object())) {
             try {
                 handler.run();

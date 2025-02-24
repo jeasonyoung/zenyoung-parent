@@ -26,7 +26,7 @@ public class DateUtils {
      * @param localDate LocalDate类型数据
      * @return Date类型数据
      */
-    public static Date fromLocalDate(@Nullable final LocalDate localDate) {
+    public Date fromLocalDate(@Nullable final LocalDate localDate) {
         if (localDate != null) {
             final ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
             return Date.from(zonedDateTime.toInstant());
@@ -40,7 +40,7 @@ public class DateUtils {
      * @param date Date类型数据
      * @return LocalDate类型数据
      */
-    public static LocalDate toLocalDate(@Nullable final Date date) {
+    public LocalDate toLocalDate(@Nullable final Date date) {
         if (date != null) {
             final Instant instant = date.toInstant();
             final ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
@@ -55,7 +55,7 @@ public class DateUtils {
      * @param endDateHandler 结束时间处理
      * @return 限期时间段
      */
-    public static DateRange createWithinAfter(@Nonnull final UnaryOperator<LocalDate> endDateHandler) {
+    public DateRange createWithinAfter(@Nonnull final UnaryOperator<LocalDate> endDateHandler) {
         final LocalDate start = LocalDate.now();
         final LocalDate end = endDateHandler.apply(start);
         return DateRange.of(start, end);
@@ -67,7 +67,7 @@ public class DateUtils {
      * @param startDateHandler 开始时间处理
      * @return 限期时间段
      */
-    public static DateRange createWithinBefore(@Nonnull final UnaryOperator<LocalDate> startDateHandler) {
+    public DateRange createWithinBefore(@Nonnull final UnaryOperator<LocalDate> startDateHandler) {
         final LocalDate end = LocalDate.now();
         final LocalDate start = startDateHandler.apply(end);
         return DateRange.of(start, end);
@@ -78,7 +78,7 @@ public class DateUtils {
      *
      * @return 去过一年内
      */
-    public static DateRange createWithinBeforeYear() {
+    public DateRange createWithinBeforeYear() {
         return createWithinBefore(end -> end.plusYears(-1).plusDays(-1));
     }
 
@@ -87,7 +87,7 @@ public class DateUtils {
      *
      * @return 将来一年内
      */
-    public static DateRange createWithinAfterYear() {
+    public DateRange createWithinAfterYear() {
         return createWithinAfter(start -> start.plusYears(1).plusDays(-1));
     }
 
@@ -96,7 +96,7 @@ public class DateUtils {
      *
      * @return 去过一月内
      */
-    public static DateRange createWithinBeforeMonth() {
+    public DateRange createWithinBeforeMonth() {
         return createWithinBefore(end -> end.plusMonths(-1).plusDays(-1));
     }
 
@@ -105,7 +105,7 @@ public class DateUtils {
      *
      * @return 将来一月内
      */
-    public static DateRange createWithinAfterMonth() {
+    public DateRange createWithinAfterMonth() {
         return createWithinAfter(start -> start.plusMonths(1).plusDays(-1));
     }
 
@@ -114,7 +114,7 @@ public class DateUtils {
      *
      * @return 去过一周内
      */
-    public static DateRange createWithinBeforeWeek() {
+    public DateRange createWithinBeforeWeek() {
         return createWithinBefore(end -> end.plusWeeks(-1).plusDays(-1));
     }
 
@@ -123,7 +123,7 @@ public class DateUtils {
      *
      * @return 将来一周内
      */
-    public static DateRange createWithinAfterWeek() {
+    public DateRange createWithinAfterWeek() {
         return createWithinAfter(start -> start.plusMonths(1).plusDays(-1));
     }
 
@@ -132,7 +132,7 @@ public class DateUtils {
      *
      * @return 去过一天内
      */
-    public static DateRange createWithinBeforeDay() {
+    public DateRange createWithinBeforeDay() {
         return createWithinBefore(end -> end.plusDays(-1).plus(Duration.of(-1, ChronoUnit.HOURS)));
     }
 
@@ -141,7 +141,7 @@ public class DateUtils {
      *
      * @return 将来一天内
      */
-    public static DateRange createWithinAfterDay() {
+    public DateRange createWithinAfterDay() {
         return createWithinAfter(start -> start.plusDays(1).plus(Duration.of(-1, ChronoUnit.HOURS)));
     }
 }

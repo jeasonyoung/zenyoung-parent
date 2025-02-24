@@ -32,7 +32,7 @@ public class ZipUtils {
      * @param outputStream     ZIP文件输出流
      * @param keepDirStructure 是否保持文件目录结构
      */
-    public static void toZip(@Nonnull final File sourceDirs, @Nonnull final OutputStream outputStream, @Nonnull final Boolean keepDirStructure) {
+    public void toZip(@Nonnull final File sourceDirs, @Nonnull final OutputStream outputStream, @Nonnull final Boolean keepDirStructure) {
         log.debug("toZip(sourceDirs: {},keepDirStructure: {})...", sourceDirs, keepDirStructure);
         toZipHandler(outputStream, zipOutputStream -> compress(sourceDirs, sourceDirs.getName(), zipOutputStream, keepDirStructure));
     }
@@ -43,7 +43,7 @@ public class ZipUtils {
      * @param sourceFiles  压缩源文件集合
      * @param outputStream ZIP文件输出流
      */
-    public static void toZip(@Nonnull final List<File> sourceFiles, @Nonnull final OutputStream outputStream) {
+    public void toZip(@Nonnull final List<File> sourceFiles, @Nonnull final OutputStream outputStream) {
         log.debug("toZip(sourceFiles-count: {})...", sourceFiles.size());
         if (sourceFiles.isEmpty()) {
             throw new IllegalArgumentException("'sourceFiles'不能为空!");
@@ -59,7 +59,7 @@ public class ZipUtils {
         });
     }
 
-    private static void toZipHandler(@Nonnull final OutputStream outputStream, @Nonnull final Consumer<ZipOutputStream> outputStreamConsumer) {
+    private void toZipHandler(@Nonnull final OutputStream outputStream, @Nonnull final Consumer<ZipOutputStream> outputStreamConsumer) {
         final long start = System.currentTimeMillis();
         try (final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
             //业务处理
@@ -74,8 +74,7 @@ public class ZipUtils {
     }
 
     @SneakyThrows({IOException.class})
-    private static void compress(@Nonnull final File sourceFile, @Nonnull final String name,
-                                 @Nonnull final ZipOutputStream zipOutputStream, @Nonnull final Boolean keepDirStructure) {
+    private void compress(@Nonnull final File sourceFile, @Nonnull final String name, @Nonnull final ZipOutputStream zipOutputStream, @Nonnull final Boolean keepDirStructure) {
         final boolean iskeepDirStructure = Boolean.TRUE.equals(keepDirStructure);
         //文件处理
         if (sourceFile.isFile()) {
@@ -119,7 +118,7 @@ public class ZipUtils {
      * @param outDir  解压目录
      * @throws IOException 异常
      */
-    public static void toUnzip(@Nonnull final File zipFile, @Nonnull final File outDir) throws IOException {
+    public void toUnzip(@Nonnull final File zipFile, @Nonnull final File outDir) throws IOException {
         if (!zipFile.exists() || !zipFile.isFile()) {
             throw new FileNotFoundException(zipFile.getName() + "zip文件不存在");
         }

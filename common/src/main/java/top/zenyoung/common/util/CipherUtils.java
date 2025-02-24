@@ -48,23 +48,23 @@ public class CipherUtils {
     }
 
     @SneakyThrows({GeneralSecurityException.class})
-    private static byte[] aesHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final byte[] secret) {
+    private byte[] aesHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final byte[] secret) {
         final SecretKeySpec keySpec = new SecretKeySpec(secret, AES);
         final Cipher cipher = Cipher.getInstance(AES_ECB);
         cipher.init(cipherMode, keySpec);
         return cipher.doFinal(raw);
     }
 
-    public static byte[] aesEncrypt(@Nonnull final byte[] raw, @Nonnull final byte[] secret) {
+    public byte[] aesEncrypt(@Nonnull final byte[] raw, @Nonnull final byte[] secret) {
         return aesHandler(Cipher.ENCRYPT_MODE, raw, secret);
     }
 
-    public static byte[] aesDecrypt(@Nonnull final byte[] raw, @Nonnull final byte[] secret) {
+    public byte[] aesDecrypt(@Nonnull final byte[] raw, @Nonnull final byte[] secret) {
         return aesHandler(Cipher.DECRYPT_MODE, raw, secret);
     }
 
     @SneakyThrows({IOException.class, GeneralSecurityException.class})
-    private static void aesHandler(final int cipherMode, @Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
+    private void aesHandler(final int cipherMode, @Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
         //密文临时文件
         final File destFile = File.createTempFile(raw.getName(), ".tmp", new File(raw.getParent()));
         if (!destFile.isFile()) {
@@ -95,17 +95,17 @@ public class CipherUtils {
         }
     }
 
-    public static void aesEncrypt(@Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
+    public void aesEncrypt(@Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
         aesHandler(Cipher.ENCRYPT_MODE, raw, secret, iv);
     }
 
-    public static void aesDecrypt(@Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
+    public void aesDecrypt(@Nonnull final File raw, @Nonnull final byte[] secret, @Nonnull final byte[] iv) {
         aesHandler(Cipher.DECRYPT_MODE, raw, secret, iv);
     }
 
 
     @SneakyThrows({GeneralSecurityException.class, IOException.class})
-    private static byte[] rsaHandler(final int cipherMode, @Nonnull final byte[] data, @Nonnull final Key key) {
+    private byte[] rsaHandler(final int cipherMode, @Nonnull final byte[] data, @Nonnull final Key key) {
         final Cipher cipher = Cipher.getInstance(RSA_ECB);
         cipher.init(cipherMode, key);
         final int len = data.length;
@@ -124,24 +124,24 @@ public class CipherUtils {
         }
     }
 
-    public static byte[] rsaEncrypt(@Nonnull final byte[] raw, @Nonnull final PublicKey publicKey) {
+    public byte[] rsaEncrypt(@Nonnull final byte[] raw, @Nonnull final PublicKey publicKey) {
         return rsaHandler(Cipher.ENCRYPT_MODE, raw, publicKey);
     }
 
     @SneakyThrows({GeneralSecurityException.class})
-    public static byte[] rsaEncrypt(@Nonnull final byte[] raw, @Nonnull final String base64PublicKey) {
+    public byte[] rsaEncrypt(@Nonnull final byte[] raw, @Nonnull final String base64PublicKey) {
         final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
         final byte[] keys = Base64.decodeBase64(base64PublicKey);
         final PublicKey publicKey = keyFactory.generatePublic(new X509EncodedKeySpec(keys));
         return rsaEncrypt(raw, publicKey);
     }
 
-    public static byte[] rsaDecrypt(@Nonnull final byte[] raw, @Nonnull final PrivateKey privateKey) {
+    public byte[] rsaDecrypt(@Nonnull final byte[] raw, @Nonnull final PrivateKey privateKey) {
         return rsaHandler(Cipher.DECRYPT_MODE, raw, privateKey);
     }
 
     @SneakyThrows({GeneralSecurityException.class})
-    public static byte[] rsaDecrypt(@Nonnull final byte[] raw, @Nonnull final String base64PrivateKey) {
+    public byte[] rsaDecrypt(@Nonnull final byte[] raw, @Nonnull final String base64PrivateKey) {
         final KeyFactory keyFactory = KeyFactory.getInstance(RSA);
         final byte[] keys = Base64.decodeBase64(base64PrivateKey);
         final PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keys));
@@ -149,7 +149,7 @@ public class CipherUtils {
     }
 
     @SneakyThrows({GeneralSecurityException.class})
-    public static List<String> generateRsaKey(final int keySize) {
+    public List<String> generateRsaKey(final int keySize) {
         final List<String> keys = Lists.newArrayList();
         final KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA);
         generator.initialize(Math.max(keySize, RSA_KEY_SIZE));

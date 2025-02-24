@@ -24,7 +24,7 @@ public class SpiUtils {
      * @param <T>       类型
      * @return 类型实例
      */
-    public static <T> T load(@Nonnull final Class<T> cls, @Nullable final Predicate<T> predicate) {
+    public <T> T load(@Nonnull final Class<T> cls, @Nullable final Predicate<T> predicate) {
         final ServiceLoader<T> services = ServiceLoader.load(cls);
         for (final T service : services) {
             if (Objects.nonNull(service)) {
@@ -46,7 +46,7 @@ public class SpiUtils {
      * @param <T> 类型
      * @return 类型实例
      */
-    public static <T> T load(@Nonnull final Class<T> cls) {
+    public <T> T load(@Nonnull final Class<T> cls) {
         return load(cls, t -> true);
     }
 }

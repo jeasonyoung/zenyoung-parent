@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CalcUtils {
 
-    public static Executor newCachedExecutor(final int maxSize) {
+    public Executor newCachedExecutor(final int maxSize) {
         final int cpus = Math.max(Runtime.getRuntime().availableProcessors(), 2) / 2;
         final int core = Math.max(Math.min(cpus, maxSize), 2);
         log.info("calc-pool_new: maxSize={}, cpus/2: {} => {}", maxSize, cpus, core);
@@ -45,7 +45,7 @@ public class CalcUtils {
         );
     }
 
-    public static <T, R> List<R> split(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
+    public <T, R> List<R> split(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
         if (Objects.nonNull(items) && !items.isEmpty()) {
             return items.stream()
                     .map(convert)
@@ -56,7 +56,7 @@ public class CalcUtils {
         return Lists.newArrayList();
     }
 
-    public static <T, R> Set<R> set(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
+    public <T, R> Set<R> set(@Nullable final Collection<T> items, @Nonnull final Function<T, R> convert) {
         if (Objects.nonNull(items) && !items.isEmpty()) {
             return items.stream()
                     .map(convert)
@@ -66,9 +66,9 @@ public class CalcUtils {
         return Sets.newHashSet();
     }
 
-    public static <T, K, V> Map<K, V> map(@Nullable final Collection<T> items,
-                                          @Nonnull final Function<T, K> keyConvert,
-                                          @Nonnull final Function<T, V> valConvert) {
+    public <T, K, V> Map<K, V> map(@Nullable final Collection<T> items,
+                                   @Nonnull final Function<T, K> keyConvert,
+                                   @Nonnull final Function<T, V> valConvert) {
         if (Objects.nonNull(items) && !items.isEmpty()) {
             return items.stream()
                     .filter(t -> Objects.nonNull(keyConvert.apply(t)) && Objects.nonNull(valConvert.apply(t)))
@@ -77,9 +77,9 @@ public class CalcUtils {
         return Maps.newHashMap();
     }
 
-    public static <T, K, V> Map<K, List<V>> group(@Nullable final Collection<T> items,
-                                                  @Nonnull final Function<T, K> keyConvert,
-                                                  @Nonnull final Function<T, V> valConvert) {
+    public <T, K, V> Map<K, List<V>> group(@Nullable final Collection<T> items,
+                                           @Nonnull final Function<T, K> keyConvert,
+                                           @Nonnull final Function<T, V> valConvert) {
         if (Objects.nonNull(items) && !items.isEmpty()) {
             return items.stream()
                     .filter(t -> Objects.nonNull(keyConvert.apply(t)) && Objects.nonNull(valConvert.apply(t)))
@@ -88,16 +88,16 @@ public class CalcUtils {
         return Maps.newHashMap();
     }
 
-    public static <K, V> void assign(@Nonnull final Supplier<K> keyHandler,
-                                     @Nonnull final Map<K, V> valMap,
-                                     @Nonnull final Consumer<V> assignHandler) {
+    public <K, V> void assign(@Nonnull final Supplier<K> keyHandler,
+                              @Nonnull final Map<K, V> valMap,
+                              @Nonnull final Consumer<V> assignHandler) {
         assign(keyHandler, valMap, assignHandler, null);
     }
 
-    public static <K, V> void assign(@Nonnull final Supplier<K> keyHandler,
-                                     @Nonnull final Map<K, V> valMap,
-                                     @Nonnull final Consumer<V> assignHandler,
-                                     @Nullable final Supplier<? extends V> defaultVal) {
+    public <K, V> void assign(@Nonnull final Supplier<K> keyHandler,
+                              @Nonnull final Map<K, V> valMap,
+                              @Nonnull final Consumer<V> assignHandler,
+                              @Nullable final Supplier<? extends V> defaultVal) {
         Optional.ofNullable(keyHandler.get())
                 .filter(key -> {
                     if (key instanceof String) {
@@ -115,7 +115,7 @@ public class CalcUtils {
                 .ifPresent(assignHandler);
     }
 
-    public static <R> CompletableFuture<R> async(@Nonnull final Supplier<R> valHandler) {
+    public <R> CompletableFuture<R> async(@Nonnull final Supplier<R> valHandler) {
         return CompletableFuture.supplyAsync(() -> {
             final StopWatch watch = new StopWatch();
             try {
@@ -131,7 +131,7 @@ public class CalcUtils {
 
     }
 
-    public static <R> CompletableFuture<Void> async(@Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
+    public <R> CompletableFuture<Void> async(@Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
         final StopWatch watch = new StopWatch();
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -152,7 +152,7 @@ public class CalcUtils {
 
     }
 
-    public static <R> CompletableFuture<R> async(@Nonnull final Executor executor, @Nonnull final Supplier<R> valHandler) {
+    public <R> CompletableFuture<R> async(@Nonnull final Executor executor, @Nonnull final Supplier<R> valHandler) {
         return CompletableFuture.supplyAsync(() -> {
             final StopWatch watch = new StopWatch();
             try {
@@ -165,10 +165,9 @@ public class CalcUtils {
                 log.info("calc-pool_async: {}", watch.shortSummary());
             }
         }, executor);
-
     }
 
-    public static <R> CompletableFuture<Void> async(@Nonnull final Executor executor, @Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
+    public <R> CompletableFuture<Void> async(@Nonnull final Executor executor, @Nonnull final Supplier<R> valHandler, @Nonnull final Consumer<R> assignHandler) {
         final StopWatch watch = new StopWatch();
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -188,7 +187,7 @@ public class CalcUtils {
         }, executor);
     }
 
-    public static void syncJoin(@Nonnull final List<CompletableFuture<?>> futures) {
+    public void syncJoin(@Nonnull final List<CompletableFuture<?>> futures) {
         //检查是否存在
         if (futures.isEmpty()) {
             return;

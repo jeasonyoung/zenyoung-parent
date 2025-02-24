@@ -15,7 +15,7 @@ public class Base62Utils {
     private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int BASE = ALPHABET.length();
 
-    public static String encode(final byte[] bytes) {
+    public String encode(final byte[] bytes) {
         final StringBuilder sb = new StringBuilder();
         BigInteger number = new BigInteger(1, bytes);
         //
@@ -32,7 +32,7 @@ public class Base62Utils {
         return sb.toString();
     }
 
-    public static byte[] decode(final String input) {
+    public byte[] decode(final String input) {
         BigInteger number = BigInteger.ZERO;
         for (int i = 0; i < input.length(); i++) {
             int charValue = ALPHABET.indexOf(input.charAt(i));

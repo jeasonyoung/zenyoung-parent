@@ -11,6 +11,7 @@ import lombok.experimental.UtilityClass;
 import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class JsonUtils {
      * @return json字符数组
      */
     @SneakyThrows({})
-    public static <T> byte[] toJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
+    public <T> byte[] toJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
         return objectMapper.writeValueAsBytes(data);
     }
 
@@ -46,7 +47,7 @@ public class JsonUtils {
      * @return json字符串
      */
     @SneakyThrows({})
-    public static <T> String toJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
+    public <T> String toJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data) {
         return objectMapper.writeValueAsString(data);
     }
 
@@ -60,8 +61,7 @@ public class JsonUtils {
      * @return 反序列为对象
      */
     @SneakyThrows({})
-    public static <R> R fromJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final byte[] jsonBytes,
-                                      @Nonnull final Class<R> cls) {
+    public <R> R fromJsonBytes(@Nonnull final ObjectMapper objectMapper, @Nonnull final byte[] jsonBytes, @Nonnull final Class<R> cls) {
         return objectMapper.readValue(jsonBytes, cls);
     }
 
@@ -75,8 +75,7 @@ public class JsonUtils {
      * @return 反序列为对象
      */
     @SneakyThrows({})
-    public static <R> R fromJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json,
-                                 @Nonnull final Class<R> cls) {
+    public <R> R fromJson(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> cls) {
         if (!Strings.isNullOrEmpty(json)) {
             return objectMapper.readValue(json, cls);
         }
@@ -93,8 +92,7 @@ public class JsonUtils {
      * @return 数据对象
      */
     @SneakyThrows({})
-    public static <R> R fromStream(@Nonnull final ObjectMapper objectMapper, @Nonnull final InputStream inputStream,
-                                   @Nonnull final Class<R> cls) {
+    public <R> R fromStream(@Nonnull final ObjectMapper objectMapper, @Nonnull final InputStream inputStream, @Nonnull final Class<R> cls) {
         return objectMapper.readValue(inputStream, cls);
     }
 
@@ -107,8 +105,7 @@ public class JsonUtils {
      * @param <R>          目标数据类型
      * @return 对象数据
      */
-    public static <R> R fromMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final Map<String, Serializable> map,
-                                @Nonnull final Class<R> cls) {
+    public <R> R fromMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final Map<String, Serializable> map, @Nonnull final Class<R> cls) {
         final String json = toJson(objectMapper, map);
         if (!Strings.isNullOrEmpty(json)) {
             return fromJson(objectMapper, json, cls);
@@ -126,8 +123,7 @@ public class JsonUtils {
      * @return Map对象
      */
     @SneakyThrows({})
-    public static <R> Map<String, R> fromJsonToMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json,
-                                                   @Nonnull final Class<R> valCls) {
+    public <R> Map<String, R> fromJsonToMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valCls) {
         if (!Strings.isNullOrEmpty(json)) {
             final JavaType javaType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valCls);
             return objectMapper.readValue(json, javaType);
@@ -136,7 +132,7 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSON字符串反序列化为List-Map对象
+     * 将JSON字符串反序列化为集合对象
      *
      * @param objectMapper JSON处理器
      * @param json         json字符串
@@ -145,11 +141,28 @@ public class JsonUtils {
      * @return List-Map对象
      */
     @SneakyThrows({})
-    public static <R> List<Map<String, R>> fromJsonToListMap(@Nonnull final ObjectMapper objectMapper,
-                                                             @Nonnull final String json, @Nonnull final Class<R> valCls) {
+    public <R> Collection<Map<String, R>> fromJsonToListMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valCls) {
         if (!Strings.isNullOrEmpty(json)) {
             final JavaType mapType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, valCls);
             final JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, mapType);
+            return objectMapper.readValue(json, listType);
+        }
+        return Lists.newArrayList();
+    }
+
+    /**
+     * 将JSON字符串反序列化为集合对象
+     *
+     * @param objectMapper JSON处理器
+     * @param json         json字符串
+     * @param valCls       值数据类型class
+     * @param <R>          值类型
+     * @return 集合对象
+     */
+    @SneakyThrows({})
+    public <R> Collection<R> fromJsonToList(@Nonnull final ObjectMapper objectMapper, @Nonnull final String json, @Nonnull final Class<R> valCls) {
+        if (!Strings.isNullOrEmpty(json)) {
+            final JavaType listType = objectMapper.getTypeFactory().constructCollectionType(List.class, valCls);
             return objectMapper.readValue(json, listType);
         }
         return Lists.newArrayList();
@@ -166,8 +179,7 @@ public class JsonUtils {
      * @return Map对象
      */
     @SneakyThrows({})
-    public static <T, R> Map<String, R> toMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data,
-                                              @Nonnull final Class<R> valCls) {
+    public <T, R> Map<String, R> toMap(@Nonnull final ObjectMapper objectMapper, @Nonnull final T data, @Nonnull final Class<R> valCls) {
         final String json = toJson(objectMapper, data);
         if (!Strings.isNullOrEmpty(json)) {
             return fromJsonToMap(objectMapper, json, valCls);
