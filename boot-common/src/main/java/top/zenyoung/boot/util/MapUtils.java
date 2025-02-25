@@ -32,7 +32,7 @@ public class MapUtils {
      * @param <T>    键类型
      * @return Map值
      */
-    public static <V, T> T getVal(@Nonnull final Map<String, V> map, @Nonnull final String key, @Nonnull final Class<T> valCls) {
+    public <V, T> T getVal(@Nonnull final Map<String, V> map, @Nonnull final String key, @Nonnull final Class<T> valCls) {
         return getVal(map, key, valCls::cast);
     }
 
@@ -46,8 +46,7 @@ public class MapUtils {
      * @param <T>       键类型
      * @return Map值
      */
-    public static <V, T> T getVal(@Nonnull final Map<String, V> map, @Nonnull final String key,
-                                  @Nonnull final Function<V, T> transform) {
+    public <V, T> T getVal(@Nonnull final Map<String, V> map, @Nonnull final String key, @Nonnull final Function<V, T> transform) {
         if (!map.isEmpty() && !Strings.isNullOrEmpty(key)) {
             final V val = map.get(key);
             if (val != null) {
@@ -64,7 +63,7 @@ public class MapUtils {
      * @param <T> 对象类型
      * @return Map集合
      */
-    public static <T> Map<String, Object> from(@Nonnull final T obj) {
+    public <T> Map<String, Object> from(@Nonnull final T obj) {
         final Map<String, Object> map = Maps.newHashMap();
         ReflectionUtils.doWithFields(obj.getClass(), f -> {
             f.setAccessible(true);
@@ -84,7 +83,7 @@ public class MapUtils {
      * @param <R>         目标类型
      * @return 目标对象
      */
-    public static <R> R to(@Nonnull final Map<String, Object> map, @Nonnull final Class<R> targetClass) {
+    public <R> R to(@Nonnull final Map<String, Object> map, @Nonnull final Class<R> targetClass) {
         try {
             if (CollectionUtils.isEmpty(map)) {
                 return null;

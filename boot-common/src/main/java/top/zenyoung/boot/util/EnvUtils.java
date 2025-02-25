@@ -23,7 +23,7 @@ public class EnvUtils {
      * @param profiles profiles
      * @return 是否是测试或开发环境
      */
-    public static boolean isDevOrTest(@Nullable final String... profiles) {
+    public boolean isDevOrTest(@Nullable final String... profiles) {
         if (Objects.nonNull(profiles)) {
             for (final String profile : profiles) {
                 if (!Strings.isNullOrEmpty(profile) && DEV_TEST_PROFILES.contains(profile.toLowerCase())) {

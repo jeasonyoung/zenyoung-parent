@@ -29,8 +29,7 @@ public class RegistrarUtils {
      * @param registry registry
      * @param annClazz annClazz
      */
-    public static void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry,
-                                               final Class<?> annClazz) {
+    public void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry, final Class<?> annClazz) {
         final ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(registry, false);
         final Set<String> packagesToScan = getPackagesToScan(annClazz, metadata);
         if (!CollectionUtils.isEmpty(packagesToScan)) {
@@ -38,7 +37,7 @@ public class RegistrarUtils {
         }
     }
 
-    private static Set<String> getPackagesToScan(final Class<?> annClazz, final AnnotationMetadata metadata) {
+    private Set<String> getPackagesToScan(final Class<?> annClazz, final AnnotationMetadata metadata) {
         final AnnotationAttributes attributes = getResourceAttributes(annClazz, metadata);
         if (Objects.isNull(attributes)) {
             return Sets.newHashSet();
@@ -56,7 +55,7 @@ public class RegistrarUtils {
     }
 
     @Nullable
-    private static AnnotationAttributes getResourceAttributes(final Class<?> annClazz, AnnotationMetadata metadata) {
+    private AnnotationAttributes getResourceAttributes(final Class<?> annClazz, AnnotationMetadata metadata) {
         return AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(annClazz.getName()));
     }
 }
