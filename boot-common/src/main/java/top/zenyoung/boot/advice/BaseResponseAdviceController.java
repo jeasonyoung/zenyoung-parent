@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -25,8 +26,12 @@ public abstract class BaseResponseAdviceController<R> {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public R handleMethodArgumentNotValidException(@Nonnull final MethodArgumentNotValidException e) {
-        log.warn("handleMethodArgumentNotValidException(e: {})...", e.getMessage());
-        return failed(e);
+        final StringBuilder sb = new StringBuilder();
+        final var bindingResult = e.getBindingResult();
+        for (var fieldError : bindingResult.getFieldErrors()) {
+            sb.append(fieldError.getDefaultMessage()).append("\n");
+        }
+        return failed(HttpStatus.BAD_REQUEST.value(), sb.toString());
     }
 
     @ExceptionHandler({BindException.class})
