@@ -50,7 +50,7 @@ public class CipherUtils {
     @SneakyThrows({GeneralSecurityException.class})
     private byte[] aesHandler(final int cipherMode, @Nonnull final byte[] raw, @Nonnull final byte[] secret) {
         final SecretKeySpec keySpec = new SecretKeySpec(secret, AES);
-        final Cipher cipher = Cipher.getInstance(AES_ECB);
+        final Cipher cipher = Cipher.getInstance(AES_ECB, "BC");
         cipher.init(cipherMode, keySpec);
         return cipher.doFinal(raw);
     }
@@ -74,7 +74,7 @@ public class CipherUtils {
             }
         }
         //加密器处理
-        final Cipher cipher = Cipher.getInstance(AES_CBC);
+        final Cipher cipher = Cipher.getInstance(AES_CBC, "BC");
         final SecretKeySpec keySpec = new SecretKeySpec(secret, AES);
         final IvParameterSpec ivSpec = new IvParameterSpec(iv);
         cipher.init(cipherMode, keySpec, ivSpec);
@@ -106,7 +106,7 @@ public class CipherUtils {
 
     @SneakyThrows({GeneralSecurityException.class, IOException.class})
     private byte[] rsaHandler(final int cipherMode, @Nonnull final byte[] data, @Nonnull final Key key) {
-        final Cipher cipher = Cipher.getInstance(RSA_ECB);
+        final Cipher cipher = Cipher.getInstance(RSA_ECB, "BC");
         cipher.init(cipherMode, key);
         final int len = data.length;
         final int block = (cipherMode == Cipher.ENCRYPT_MODE) ? RSA_MAX_ENCRYPT_BLOCK : RAS_MAX_DECRYPT_BLOCK;
@@ -151,7 +151,7 @@ public class CipherUtils {
     @SneakyThrows({GeneralSecurityException.class})
     public List<String> generateRsaKey(final int keySize) {
         final List<String> keys = Lists.newArrayList();
-        final KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA);
+        final KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA, "BC");
         generator.initialize(Math.max(keySize, RSA_KEY_SIZE));
         final KeyPair keyPair = generator.generateKeyPair();
         //公钥
