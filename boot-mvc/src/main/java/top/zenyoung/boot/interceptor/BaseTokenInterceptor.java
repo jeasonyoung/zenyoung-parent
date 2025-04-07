@@ -30,13 +30,13 @@ public abstract class BaseTokenInterceptor implements RequestMappingInterceptor 
 
     @Override
     public final boolean handler(@Nonnull final HttpServletRequest req, @Nonnull final HttpServletResponse res, @Nonnull final HandlerMethod handler) {
+        //检查是允许匿名访问
+        if (handler.hasMethodAnnotation(HasAnonymous.class)) {
+            return true;
+        }
         //获取令牌
         final String token = HttpUtils.getToken(req);
         if (Strings.isNullOrEmpty(token)) {
-            //检查是允许匿名访问
-            if (handler.hasMethodAnnotation(HasAnonymous.class)) {
-                return true;
-            }
             log.warn("获取令牌为空=> {}", req.getRequestURI());
             throw new ServiceException(ExceptionEnums.UNAUTHORIZED);
         }
