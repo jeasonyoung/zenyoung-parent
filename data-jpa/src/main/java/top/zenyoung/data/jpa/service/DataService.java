@@ -124,7 +124,7 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param sort  排序条件
      * @return 数据集合
      */
-    default List<M> queryList(@Nullable final Supplier<Predicate> where, @Nullable final Sort sort) {
+    default Collection<M> queryList(@Nullable final Supplier<Predicate> where, @Nullable final Sort sort) {
         return queryList(where, () -> sort);
     }
 
@@ -135,7 +135,7 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param orders 排序条件
      * @return 数据集合
      */
-    default List<M> queryList(@Nullable final Supplier<Predicate> where, @Nullable final OrderSpecifier<?>... orders) {
+    default Collection<M> queryList(@Nullable final Supplier<Predicate> where, @Nullable final OrderSpecifier<?>... orders) {
         final Predicate p = Optional.ofNullable(where)
                 .map(Supplier::get)
                 .orElse(null);
@@ -248,5 +248,5 @@ public interface DataService<M extends Model<K>, K extends Serializable> extends
      * @param ids 主键ID集合
      * @return 删除
      */
-    boolean delete(@Nonnull final List<K> ids);
+    boolean delete(@Nonnull final Collection<K> ids);
 }

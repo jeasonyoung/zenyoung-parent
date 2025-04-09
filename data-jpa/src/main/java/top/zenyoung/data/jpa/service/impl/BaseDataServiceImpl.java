@@ -256,7 +256,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public boolean delete(@Nonnull final List<K> ids) {
+    public boolean delete(@Nonnull final Collection<K> ids) {
         Assert.notEmpty(ids, "'ids'不能为空");
         return repoHandler(repo -> {
             repo.deleteAllById(ids);
