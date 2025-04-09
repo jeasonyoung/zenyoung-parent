@@ -187,7 +187,7 @@ public class CalcUtils {
         }, executor);
     }
 
-    public void syncJoin(@Nonnull final List<CompletableFuture<?>> futures) {
+    public void syncJoin(@Nonnull final Collection<CompletableFuture<?>> futures) {
         //检查是否存在
         if (futures.isEmpty()) {
             return;
