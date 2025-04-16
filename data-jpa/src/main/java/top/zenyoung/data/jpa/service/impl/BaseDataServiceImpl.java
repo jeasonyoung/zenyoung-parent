@@ -176,7 +176,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
     public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Predicate predicate, @Nullable final Sort sort) {
         return repoHandler(repo -> {
             //分页
-            final int idx = page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex();
+            final int idx = Math.max((page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex()) - 1, 0);
             final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
             //分页
             final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
