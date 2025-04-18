@@ -1,21 +1,21 @@
 package top.zenyoung.data.jpa.service.impl;
 
+import com.google.common.base.Strings;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import top.zenyoung.common.dto.BasePageDTO;
 import top.zenyoung.common.paging.DataResult;
 import top.zenyoung.common.paging.PageList;
@@ -25,6 +25,7 @@ import top.zenyoung.data.entity.Model;
 import top.zenyoung.data.jpa.querydsl.DslUpdateClause;
 import top.zenyoung.data.jpa.repositories.DataRepository;
 import top.zenyoung.data.jpa.service.DataService;
+import top.zenyoung.data.jpa.util.SpringContextUtils;
 import top.zenyoung.data.service.impl.BaseDataCommonServiceImpl;
 
 import javax.annotation.Nonnull;
@@ -240,6 +241,20 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
         return queryFactoryHandler(qf -> {
             final DslUpdateClause updateClause = DslUpdateClause.of(qf.update(entity));
             updateClauseHandler.accept(updateClause);
+            //更新人处理
+            final var updatedByField = ReflectionUtils.findField(entity.getClass(), "updatedBy", StringPath.class);
+            if (Objects.nonNull(updatedByField)) {
+                final AuditorAware<?> auditor = SpringContextUtils.getBean(AuditorAware.class);
+                if (Objects.nonNull(auditor)) {
+                    final String current = (String) auditor.getCurrentAuditor().orElse(null);
+                    if (!Strings.isNullOrEmpty(current)) {
+                        final StringPath updatedBy = (StringPath) ReflectionUtils.getField(updatedByField, entity);
+                        if (Objects.nonNull(updatedBy)) {
+                            updateClause.add(updatedBy, current);
+                        }
+                    }
+                }
+            }
             return updateClause.execute(where);
         });
     }
