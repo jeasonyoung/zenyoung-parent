@@ -4,8 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SoftDelete;
+import top.zenyoung.data.converter.TimestampBooleanConverter;
 
 import java.io.Serializable;
 
@@ -15,14 +17,15 @@ import java.io.Serializable;
  * @author young
  */
 @Data
+@SuperBuilder
 @MappedSuperclass
-@SQLRestriction("deletedAt = 0")
+@NoArgsConstructor(force = true)
 @EqualsAndHashCode(callSuper = true)
-@SQLDelete(sql = "update #{#entityName} set deletedAt = ? where id = ?")
+@SoftDelete(columnName = "deleted_at", converter = TimestampBooleanConverter.class)
 public abstract class BaseCreateUpdateLogicEntity<K extends Serializable> extends BaseCreateUpdateEntity<K> {
     /**
      * 逻辑删除标识(0:正常, >0:删除)
      */
-    @Column(nullable = false, insertable = false)
+    @Column(nullable = false, insertable = false, updatable = false)
     private Long deletedAt;
 }

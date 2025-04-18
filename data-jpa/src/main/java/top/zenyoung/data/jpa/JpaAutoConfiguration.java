@@ -2,8 +2,10 @@ package top.zenyoung.data.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -36,9 +38,13 @@ public class JpaAutoConfiguration implements ApplicationContextAware {
         SpringContextUtils.setContext(context);
     }
 
+    @Autowired
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Bean
     @ConditionalOnMissingBean
-    public JPAQueryFactory buildJpaQueryFactory(@Nonnull final EntityManager entityManager) {
+    public JPAQueryFactory buildJpaQueryFactory() {
         log.info("buildJpaQueryFactory...");
         return new JPAQueryFactory(entityManager);
     }
@@ -46,8 +52,11 @@ public class JpaAutoConfiguration implements ApplicationContextAware {
     @Bean
     @ConditionalOnMissingBean
     public AuditorAware<String> auditorAware() {
-        return () -> Optional.ofNullable(SecurityUtils.getPrincipal())
-                .map(UserPrincipal::getId)
-                .map(String::valueOf);
+        return () -> {
+            log.info("auditorAware...");
+            return Optional.ofNullable(SecurityUtils.getPrincipal())
+                    .map(UserPrincipal::getId)
+                    .map(String::valueOf);
+        };
     }
 }

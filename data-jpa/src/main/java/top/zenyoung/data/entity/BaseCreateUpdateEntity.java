@@ -6,6 +6,8 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -18,7 +20,9 @@ import java.util.Date;
  * @author young
  */
 @Data
+@SuperBuilder
 @MappedSuperclass
+@NoArgsConstructor(force = true)
 @EqualsAndHashCode(callSuper = true)
 public abstract class BaseCreateUpdateEntity<K extends Serializable> extends BaseCreateEntity<K> {
     /**
