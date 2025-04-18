@@ -26,7 +26,7 @@ public abstract class BaseCreateEntity<K extends Serializable> implements Model<
      * 创建者
      */
     @CreatedBy
-    @Column(insertable = false)
+    @Column(updatable = false)
     private String createdBy;
     /**
      * 创建时间

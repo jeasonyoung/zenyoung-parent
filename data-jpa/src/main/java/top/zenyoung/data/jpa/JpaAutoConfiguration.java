@@ -53,10 +53,11 @@ public class JpaAutoConfiguration implements ApplicationContextAware {
     @ConditionalOnMissingBean
     public AuditorAware<String> auditorAware() {
         return () -> {
-            log.info("auditorAware...");
-            return Optional.ofNullable(SecurityUtils.getPrincipal())
+            final var userOpt = Optional.ofNullable(SecurityUtils.getPrincipal())
                     .map(UserPrincipal::getId)
                     .map(String::valueOf);
+            log.info("auditorAware=> {}", userOpt.orElse(null));
+            return userOpt;
         };
     }
 }
