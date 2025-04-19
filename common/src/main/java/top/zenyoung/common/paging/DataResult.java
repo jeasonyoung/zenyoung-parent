@@ -129,6 +129,6 @@ public class DataResult<T> implements PagingResult<T> {
      * @return 空数据结果
      */
     public static <T> DataResult<T> empty() {
-        return of(0L, Lists.newArrayList());
+        return of(0L, Collections.emptyList());
     }
 }
