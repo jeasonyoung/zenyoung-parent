@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -68,7 +70,11 @@ public class DataResult<T> implements PagingResult<T> {
      */
     public static <T, R> DataResult<R> ofHandler(@Nullable final PageList<T> pageList, @Nonnull final Function<Collection<T>, Collection<R>> handler) {
         if (Objects.nonNull(pageList)) {
-            return of(pageList.getTotal(), handler.apply(pageList.getRows()));
+            final Collection<T> rows = pageList.getRows();
+            if (!CollectionUtils.isEmpty(rows)) {
+                return of(pageList.getTotal(), handler.apply(rows));
+            }
+            return of(pageList.getTotal(), Collections.emptyList());
         }
         return empty();
     }
