@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 计算工具类
@@ -64,6 +65,17 @@ public class CalcUtils {
                     .collect(Collectors.toSet());
         }
         return Sets.newHashSet();
+    }
+
+    public <T, R> Collection<R> concat(@Nonnull final Collection<T> items1, @Nonnull final Collection<T> items2,
+                                       @Nonnull final Function<T, R> handler) {
+        return Stream.concat(items1.stream(), items2.stream())
+                .filter(Objects::nonNull)
+                .distinct()
+                .map(handler)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
     public <T, K, V> Map<K, V> map(@Nullable final Collection<T> items,
