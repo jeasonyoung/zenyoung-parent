@@ -1,8 +1,10 @@
 package top.zenyoung.data.jpa.querydsl;
 
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nonnull;
@@ -18,6 +20,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor(staticName = "of")
 public class DslUpdateClause {
     private final AtomicBoolean ref = new AtomicBoolean(false);
+    @Getter
     private final JPAUpdateClause clause;
 
     public <T> DslUpdateClause add(final boolean condition, @Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
@@ -35,8 +38,22 @@ public class DslUpdateClause {
         return this;
     }
 
+    public <T> DslUpdateClause add(final boolean condition, @Nonnull final Path<T> col, @Nullable final Expression<? extends T> expression) {
+        if (condition) {
+            if (!ref.get()) {
+                ref.set(true);
+            }
+            clause.set(col, expression);
+        }
+        return this;
+    }
+
     public <T> DslUpdateClause add(@Nonnull final Path<T> col, @Nullable final T val) {
         return add(true, col, val);
+    }
+
+    public <T> DslUpdateClause add(@Nonnull final Path<T> col, @Nullable final Expression<? extends T> expression) {
+        return add(true, col, expression);
     }
 
     public <T> DslUpdateClause add(@Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
