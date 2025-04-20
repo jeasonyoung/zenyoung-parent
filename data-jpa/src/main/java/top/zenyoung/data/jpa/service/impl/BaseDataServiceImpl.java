@@ -88,7 +88,7 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
 
     @Override
     public M getById(@Nonnull final K id) {
-        return repoHandler(repo -> repo.getReferenceById(id));
+        return repoHandler(repo -> repo.findById(id).orElse(null));
     }
 
     @Override
