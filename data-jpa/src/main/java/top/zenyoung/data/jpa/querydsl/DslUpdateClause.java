@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor(staticName = "of")
 public class DslUpdateClause {
     private final AtomicBoolean ref = new AtomicBoolean(false);
-    @Getter
     private final JPAUpdateClause clause;
 
     public <T> DslUpdateClause add(final boolean condition, @Nonnull final Path<T> col, @Nonnull final Supplier<T> valHandler) {
