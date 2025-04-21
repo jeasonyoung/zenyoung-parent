@@ -173,14 +173,26 @@ public abstract class BaseDataServiceImpl<M extends Model<K>, K extends Serializ
         });
     }
 
+    /**
+     * 构建分页对象
+     *
+     * @param page 分页数据接口
+     * @param sort 排序对象
+     * @return 分页对象
+     */
+    protected Pageable buildPageable(@Nullable final PagingQuery page, @Nullable final Sort sort) {
+        //分页
+        final int idx = Math.max((page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex()) - 1, 0);
+        final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
+        //分页
+        return sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
+    }
+
     @Override
     public PageList<M> queryForPage(@Nullable final PagingQuery page, @Nullable final Predicate predicate, @Nullable final Sort sort) {
         return repoHandler(repo -> {
             //分页
-            final int idx = Math.max((page == null ? BasePageDTO.DEF_PAGE_INDEX : page.getPageIndex()) - 1, 0);
-            final int size = page == null ? BasePageDTO.DEF_PAGE_SIZE : page.getPageSize();
-            //分页
-            final Pageable pageable = sort == null ? PageRequest.of(idx, size) : PageRequest.of(idx, size, sort);
+            final Pageable pageable = buildPageable(page, sort);
             //查询条件
             final Page<M> p = predicate == null ? repo.findAll(pageable) : repo.findAll(predicate, pageable);
             //分页查询
